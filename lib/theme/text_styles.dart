@@ -1,5 +1,3 @@
-import 'dart:ui' show FontVariation;
-
 import 'package:flutter/painting.dart';
 
 /// Text helpers. Both families are variable fonts, so weight and width are
