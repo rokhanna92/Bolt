@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/share.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/exercise.dart';
@@ -70,6 +71,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
     final Trainee? x = day == null ? null : _store.tr(day.tid);
     final ex = _store.editExercises(target);
     final insets = MediaQuery.paddingOf(context);
+    final coach = ref.read(boltProvider).account?.isCoach ?? false;
     final session = o is Session ? o : null;
 
     return BoltPage(
@@ -107,7 +109,11 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               ),
             const SizedBox(height: 8),
             Text(
-              isTpl ? 'Changes apply to future auto-fills' : 'For ${x!.name} · ${session!.focus}',
+              isTpl
+                  ? 'Changes apply to future auto-fills'
+                  : coach
+                  ? 'For ${x!.name} · ${session!.focus}'
+                  : session!.focus,
               style: BoltText.a(13, color: BoltColors.muted),
             ),
             if (session != null && session.status == SessionStatus.draft) ...[
@@ -165,20 +171,28 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
             ),
             if (session != null) ...[
               const SizedBox(height: 18),
-              Kicker('NOTE FOR ${firstName(x!.name).toUpperCase()}', size: 10),
+              Kicker(coach ? 'NOTE FOR ${firstName(x!.name).toUpperCase()}' : 'NOTE', size: 10),
               const SizedBox(height: 8),
               BoltTextArea(
                 controller: _note,
-                hint: 'Cues, targets, anything they should know',
+                hint: coach ? 'Cues, targets, anything they should know' : 'Cues and targets for yourself',
                 onChanged: (v) => _edit(() => session.note = v),
               ),
             ],
             const SizedBox(height: 18),
             NeonButton(
-              label: isTpl ? 'Save template' : 'Save & send to ${firstName(x!.name)}',
-              onTap: () {
-                _store.saveEdit(target);
+              label: isTpl
+                  ? 'Save template'
+                  : coach
+                  ? 'Save & send to ${firstName(x!.name)}'
+                  : 'Save session',
+              onTap: () async {
+                final msg = _store.saveEdit(target);
                 context.pop();
+                if (msg != null) {
+                  final hint = await shareMessage(msg, subject: 'Your Bolt plan');
+                  _store.toast(hint ?? 'Sent to ${firstName(x!.name)} for approval');
+                }
               },
             ),
           ],

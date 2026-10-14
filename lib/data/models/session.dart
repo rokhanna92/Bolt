@@ -17,6 +17,7 @@ class Session {
     this.note = '',
     this.from,
     this.log,
+    this.byCoach = false,
   });
 
   String tpl;
@@ -33,6 +34,9 @@ class Session {
   /// `x/y sets` once done.
   String? log;
 
+  /// Came in a plan from the coach (as opposed to planned by the trainee).
+  bool byCoach;
+
   int get totalSets => ex.fold(0, (a, e) => a + e.sets);
 
   Map<String, dynamic> toJson() => {
@@ -45,6 +49,7 @@ class Session {
     'note': note,
     'from': from,
     'log': log,
+    'byCoach': byCoach,
   };
 
   factory Session.fromJson(Map<String, dynamic> j) => Session(
@@ -57,5 +62,6 @@ class Session {
     note: j['note'] as String? ?? '',
     from: j['from'] as String?,
     log: j['log'] as String?,
+    byCoach: j['byCoach'] as bool? ?? false,
   );
 }

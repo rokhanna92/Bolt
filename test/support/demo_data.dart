@@ -1,50 +1,11 @@
-import '../../core/format.dart';
-import '../models/bolt_data.dart';
-import '../models/exercise.dart';
-import '../models/people.dart';
-import '../models/session.dart';
-import '../models/settings.dart';
-import '../models/template.dart';
-import '../models/visit.dart';
-import 'splits.dart';
-import 'templates.dart';
-
-/// The gym and its permanent plaque. The token is printed on the QR.
-abstract final class Gym {
-  static const name = 'Bolt Downtown';
-  static const plaqueToken = 'bolt-downtown-7f3k9q';
-  static const plaqueUri = 'bolt://checkin?gym=$plaqueToken';
-
-  /// True when [raw] is this gym's plaque.
-  static bool isPlaque(String raw) {
-    final u = Uri.tryParse(raw.trim());
-    return u != null && u.scheme == 'bolt' && u.host == 'checkin' && u.queryParameters['gym'] == plaqueToken;
-  }
-}
-
-Exercise exerciseFromSeed(ExSeed a, String id) =>
-    Exercise(id: id, name: a.name, sets: a.sets, reps: a.reps, load: a.load, area: a.area, alt: a.alt);
-
-/// Copies a template into a new session. Exercises are copied, never shared.
-Session sessionFromTemplate(BoltData d, String tplId, SessionStatus status) {
-  final x = d.tpls[tplId]!;
-  return Session(
-    tpl: tplId,
-    title: x.name,
-    focus: x.focus,
-    mins: x.mins,
-    ex: [for (final e in x.ex) e.copyWith(id: d.uid())],
-    status: status,
-  );
-}
-
-/// Puts each split day of the week starting at [mon] into [plan] where empty.
-void fillWeek(BoltData d, Map<String, Session> plan, String split, DateTime mon, SessionStatus status) {
-  for (final day in kSplits[split]!.days) {
-    final k = dk(addDays(mon, day.weekday - 1));
-    plan.putIfAbsent(k, () => sessionFromTemplate(d, day.tpl, status));
-  }
-}
+// The prototype's demo gym, kept as a test fixture: six trainees, two
+// coaches, three weeks of history, a moved session and someone in the gym.
+import 'package:bolt/core/format.dart';
+import 'package:bolt/data/models/bolt_data.dart';
+import 'package:bolt/data/models/people.dart';
+import 'package:bolt/data/models/session.dart';
+import 'package:bolt/data/models/visit.dart';
+import 'package:bolt/data/seed/content.dart';
 
 class _DemoTrainee {
   const _DemoTrainee(
@@ -73,28 +34,11 @@ TraineeStats _st(int a, int b, int c, int d, int e, int f, int g) =>
 /// Demo gym from the prototype's `seed()`, anchored on [now] instead of a
 /// fixed date so the calendar always looks lived in.
 BoltData buildDemoData(DateTime now) {
-  final d = BoltData(
-    tpls: {},
-    coaches: [
+  final d = freshData()
+    ..coaches.addAll([
       Coach(id: 'c1', name: 'Marko Ilić', role: 'Strength & Hypertrophy'),
       Coach(id: 'c2', name: 'Sara Novak', role: 'Conditioning & Rehab'),
-    ],
-    trainees: [],
-    plans: {},
-    visits: {},
-    gymIn: {},
-    settings: AppSettings(),
-  );
-  kTemplates.forEach((k, t) {
-    d.tpls[k] = WorkoutTemplate(
-      id: k,
-      name: t.name,
-      code: t.code,
-      focus: t.focus,
-      mins: t.mins,
-      ex: [for (final e in t.ex) exerciseFromSeed(e, d.uid())],
-    );
-  });
+    ]);
 
   final today = dk(now);
   final mon0 = monday(now);
@@ -216,5 +160,11 @@ BoltData buildDemoData(DateTime now) {
   if (anaToday != null) anaToday.note = 'Stay at 110 kg on deadlifts and focus on bar path. Film your last set.';
 
   d.gymIn['t3'] = GymIn(at: now.millisecondsSinceEpoch, base: 38, since: hm(now.subtract(const Duration(minutes: 38))));
+  // Every demo session was planned by a coach.
+  for (final p in d.plans.values) {
+    for (final s in p.values) {
+      s.byCoach = true;
+    }
+  }
   return d;
 }

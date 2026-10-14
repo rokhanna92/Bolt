@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/share.dart';
 import '../../app/tick.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
@@ -11,9 +12,13 @@ import '../../data/seed/splits.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
+import '../../widgets/fields.dart';
+import '../../widgets/forms.dart';
 import '../../widgets/tap.dart';
+import '../sharing/import_sheet.dart';
 
 class _Attention {
   const _Attention(this.text, this.sub, this.act, this.dot, this.onAct);
@@ -72,7 +77,10 @@ class RosterScreen extends ConsumerWidget {
             'Sent for approval',
             'Nudge',
             BoltColors.neon,
-            () => store.nudge(x.id),
+            () async {
+              final hint = await shareMessage(store.planMessage(x.id), subject: 'Your Bolt plan');
+              store.toast(hint ?? 'Plan sent again to $fn');
+            },
           ),
         );
       }
@@ -106,8 +114,7 @@ class RosterScreen extends ConsumerWidget {
             Avatar(ini: initials(c.name), fill: BoltColors.neon, weight: 900),
           ],
         ),
-        const SizedBox(height: 18),
-        _LiveCard(trainees: my),
+        _LiveCard(trainees: my, coachId: c.id),
         if (att.isNotEmpty) ...[
           const SizedBox(height: 22),
           const SectionTitle('Needs you'),
@@ -115,50 +122,84 @@ class RosterScreen extends ConsumerWidget {
           for (final a in att) ...[_AttentionRow(a: a), const SizedBox(height: 8)],
         ],
         const SizedBox(height: 24),
-        Kicker('TRAINEES · ${my.length}'),
+        Row(
+          children: [
+            Expanded(child: Kicker('TRAINEES · ${my.length}')),
+            if (my.isNotEmpty)
+              Tap(
+                onTap: () => showBoltSheet<void>(context, (_) => const ImportSheet()),
+                child: Text('Import update', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+              ),
+          ],
+        ),
         const SizedBox(height: 10),
         for (final x in my) ...[_TraineeCard(x: x, onOpen: () => open(x.id)), const SizedBox(height: 8)],
-        if (my.isEmpty)
+        if (my.isEmpty) ...[
           BoltBox(
             radius: 14,
             stroke: const Stroke.dashed(BoltColors.line),
             padding: const EdgeInsets.all(14),
-            child: Text('No trainees assigned yet.', style: BoltText.a(13, color: BoltColors.muted)),
+            child: Text(
+              'No trainees yet. Add the people you coach, plan their weeks and send each of them their plan.',
+              style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
+            ),
           ),
+          const SizedBox(height: 8),
+        ],
+        Tap(
+          onTap: () async {
+            final id = await showBoltSheet<String>(context, (_) => const AddTraineeSheet());
+            if (id != null) open(id);
+          },
+          child: BoltBox(
+            height: 48,
+            radius: 14,
+            stroke: const Stroke.dashed(BoltColors.neon, 1.5),
+            alignment: Alignment.center,
+            child: Text('+ Add trainee', style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
+          ),
+        ),
       ],
     );
   }
 }
 
+/// Who is in the gym: the coach, and trainees whose updates say so. Hidden
+/// when nobody is.
 class _LiveCard extends ConsumerWidget {
-  const _LiveCard({required this.trainees});
+  const _LiveCard({required this.trainees, required this.coachId});
 
   final List<Trainee> trainees;
+  final String coachId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final d = ref.watch(boltProvider);
-    final live = trainees.where((x) => d.gymIn[x.id] != null).toList();
-    final now = live.isEmpty ? DateTime.now() : watchNow(ref);
-    return BoltBox(
-      color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
-      radius: 20,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const PulseDot(size: 8),
-              const SizedBox(width: 8),
-              Kicker('IN THE GYM NOW · ${live.length}', size: 10),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (live.isEmpty)
-            Text('Nobody checked in right now.', style: BoltText.a(13, color: BoltColors.muted))
-          else
+    final live = <(String, String, String)>[
+      if (d.gymIn[coachId] != null) (initials(ref.read(boltProvider.notifier).co(coachId).name), 'You', coachId),
+      for (final x in trainees)
+        if (d.gymIn[x.id] != null) (initials(x.name), firstName(x.name), x.id),
+    ];
+    if (live.isEmpty) return const SizedBox.shrink();
+    final now = watchNow(ref);
+    return Padding(
+      padding: const EdgeInsets.only(top: 18),
+      child: BoltBox(
+        color: BoltColors.surface1,
+        stroke: const Stroke(BoltColors.lineSoft),
+        radius: 20,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const PulseDot(size: 8),
+                const SizedBox(width: 8),
+                Kicker('IN THE GYM NOW · ${live.length}', size: 10),
+              ],
+            ),
+            const SizedBox(height: 12),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -170,17 +211,17 @@ class _LiveCard extends ConsumerWidget {
                       child: Column(
                         children: [
                           Avatar(
-                            ini: initials(live[i].name),
+                            ini: live[i].$1,
                             size: 48,
                             ring: BoltColors.neon,
                             ringWidth: 2,
                             color: BoltColors.neon,
                           ),
                           const SizedBox(height: 4),
-                          Text(firstName(live[i].name), style: BoltText.a(12, weight: 700)),
+                          Text(live[i].$2, style: BoltText.a(12, weight: 700)),
                           const SizedBox(height: 4),
                           Text(
-                            dur(d.gymIn[live[i].id]!.elapsedMinutes(now)),
+                            dur(d.gymIn[live[i].$3]!.elapsedMinutes(now)),
                             style: BoltText.m(10, color: BoltColors.neon),
                           ),
                         ],
@@ -190,7 +231,8 @@ class _LiveCard extends ConsumerWidget {
                 ],
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -332,5 +374,67 @@ class _TraineeCard extends ConsumerWidget {
       _ => Stroke.none,
     };
     return BoltBox(width: 9, height: 9, borderBox: true, radius: 3, color: bg, stroke: stroke);
+  }
+}
+
+/// A coach adds someone they coach; returns the new trainee's id.
+class AddTraineeSheet extends ConsumerStatefulWidget {
+  const AddTraineeSheet({super.key});
+
+  @override
+  ConsumerState<AddTraineeSheet> createState() => _AddTraineeSheetState();
+}
+
+class _AddTraineeSheetState extends ConsumerState<AddTraineeSheet> {
+  final _name = TextEditingController();
+  String _goal = 'General fitness';
+  String _split = 'ppl';
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ok = _name.text.trim().isNotEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Add trainee', style: BoltText.a(20, weight: 900)),
+        const SizedBox(height: 6),
+        Text(
+          'Weight and measurements can be added on their page, or arrive with their updates.',
+          style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
+        ),
+        const FieldLabel('NAME', top: 14),
+        BoltField(controller: _name, hint: 'Full name', words: true, onChanged: (_) => setState(() {})),
+        const FieldLabel('GOAL'),
+        ChoiceChips(options: kGoals, selected: _goal, onSelect: (g) => setState(() => _goal = g)),
+        const FieldLabel('WEEKLY SPLIT'),
+        ChoiceChips(
+          options: kSplitOrder,
+          selected: _split,
+          labels: {for (final k in kSplitOrder) k: kSplits[k]!.name},
+          onSelect: (s) => setState(() => _split = s),
+        ),
+        const SizedBox(height: 16),
+        NeonButton(
+          label: 'Add trainee',
+          height: 52,
+          scale: 1,
+          color: ok ? BoltColors.neon : BoltColors.line,
+          textColor: ok ? BoltColors.ink : BoltColors.muted,
+          onTap: ok
+              ? () => Navigator.of(context).pop(
+                  ref
+                      .read(boltProvider.notifier)
+                      .addTrainee(ProfileInput(name: _name.text, goal: _goal, split: _split)),
+                )
+              : null,
+        ),
+      ],
+    );
   }
 }

@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
 import 'data/bolt_store.dart';
 import 'data/repositories/bolt_repository.dart';
-import 'data/seed/demo.dart';
+import 'data/seed/content.dart';
 import 'services/notifications.dart';
 
 Future<void> main() async {
@@ -15,12 +15,9 @@ Future<void> main() async {
 
   final repo = await BoltRepository.open();
   final notifications = await LocalNotifications.init();
-  var data = repo.load();
-  if (data == null) {
-    // First launch: seed the demo gym and keep it, so its dates stay put.
-    data = buildDemoData(DateTime.now());
-    repo.scheduleSave(data);
-  }
+  // Everything lives on this phone. First launch (or an old demo install)
+  // starts empty and goes through onboarding.
+  final data = repo.load() ?? freshData();
 
   runApp(
     ProviderScope(

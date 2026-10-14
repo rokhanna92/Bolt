@@ -13,6 +13,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/exercise_rows.dart';
+import '../../widgets/tap.dart';
 
 /// Trainee's day sheet: the session, its exercises and what they can do.
 class DaySheet extends ConsumerWidget {
@@ -27,9 +28,12 @@ class DaySheet extends ConsumerWidget {
     final t = store.trOrNull(d.account?.id ?? '');
     final s = t == null ? null : store.plan(t.id)[dayKey];
     if (t == null || s == null || s.status == SessionStatus.draft) return const SizedBox(height: 120);
-    final coach = store.co(t.coach);
+    final coachName = store.coachNameOf(t);
     final c = chipFor(s.status);
     final today = store.today;
+    // Confirmed days that are not over can be reshaped by the trainee.
+    final editable =
+        (s.status == SessionStatus.approved || s.status == SessionStatus.moved) && dayKey.compareTo(today) >= 0;
     final sum = '${plural(s.ex.length, 'exercise')} · ${plural(s.totalSets, 'set')} · ~${s.mins} min'.toUpperCase();
     void close() => Navigator.of(context).pop();
 
@@ -76,7 +80,36 @@ class DaySheet extends ConsumerWidget {
           const SizedBox(height: 4),
           Kicker('ORIGINALLY ${fmtDay(s.from!).toUpperCase()}', size: 10, spacing: 0),
         ],
-        if (s.note.isNotEmpty) ...[const SizedBox(height: 12), CoachNote(ini: initials(coach.name), note: s.note)],
+        if (s.note.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          CoachNote(ini: initials(s.byCoach ? (coachName ?? 'Coach') : t.name), note: s.note),
+        ],
+        if (editable) ...[
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final id in d.tpls.keys) ...[
+                  Tap(
+                    onTap: () => store.setTemplate(t.id, dayKey, id),
+                    child: BoltBox(
+                      radius: 99,
+                      color: s.tpl == id ? BoltColors.neon : BoltColors.surface2,
+                      stroke: Stroke(s.tpl == id ? BoltColors.neon : BoltColors.line),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                      child: Text(
+                        d.tpls[id]!.name,
+                        style: BoltText.a(12, weight: 700, color: s.tpl == id ? BoltColors.ink : BoltColors.text),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
         ExerciseRows(trainee: t, exercises: s.ex, canSwap: true, onHow: showExerciseSheet),
         if (s.status == SessionStatus.done) ...[
@@ -107,8 +140,39 @@ class DaySheet extends ConsumerWidget {
               startWorkout(rootNavigatorKey.currentContext!, ref, dayKey);
             },
           ),
-        if (s.status != SessionStatus.done && s.status != SessionStatus.pending && dayKey.compareTo(today) >= 0) ...[
+        if (editable) ...[
           if (dayKey == today) const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: OutlineButton(
+                  label: 'Edit exercises',
+                  onTap: () {
+                    close();
+                    rootNavigatorKey.currentContext!.push('/editor/day/${t.id}/$dayKey');
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Tap(
+                onTap: () {
+                  store.removeDay(t.id, dayKey);
+                  close();
+                },
+                child: BoltBox(
+                  height: 52,
+                  radius: 16,
+                  stroke: const Stroke(BoltColors.line),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  alignment: Alignment.center,
+                  child: Text('Remove', style: BoltText.a(14, weight: 700, color: BoltColors.muted)),
+                ),
+              ),
+            ],
+          ),
+        ],
+        if (s.status != SessionStatus.done && s.status != SessionStatus.pending && dayKey.compareTo(today) >= 0) ...[
+          const SizedBox(height: 8),
           OutlineButton(
             label: 'Move to another day',
             color: BoltColors.text,

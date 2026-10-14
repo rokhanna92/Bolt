@@ -6,6 +6,7 @@ import '../../app/actions.dart';
 import '../../app/tick.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
+import '../../data/models/bolt_data.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/session.dart';
 import '../../data/rules.dart';
@@ -15,6 +16,8 @@ import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
+import '../sharing/import_sheet.dart';
+import '../../widgets/bolt_sheet.dart';
 
 class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key});
@@ -27,7 +30,7 @@ class TodayScreen extends ConsumerWidget {
     final today = dk(now);
     final t = store.trOrNull(d.account?.id ?? '');
     if (t == null) return const SizedBox.shrink();
-    final coach = store.co(t.coach);
+    final coachName = store.coachNameOf(t);
     final plan = store.plan(t.id);
     Session? vis(String k) {
       final p = plan[k];
@@ -41,6 +44,9 @@ class TodayScreen extends ConsumerWidget {
     final pend = plan.keys.where((k) => plan[k]!.status == SessionStatus.pending && k.compareTo(today) >= 0).toList()
       ..sort();
     final ws = weekStart(now, mondayFirst: d.settings.mondayFirst);
+    final nothingAhead = vis(today) == null && nextK == null;
+    final withCoach = d.account?.role == Role.trainee;
+    final noteBy = tp != null && tp.byCoach ? (coachName ?? 'Coach') : t.name;
 
     return ScreenScroll(
       children: [
@@ -133,6 +139,7 @@ class TodayScreen extends ConsumerWidget {
             ),
           ),
         ],
+        if (nothingAhead) ...[const SizedBox(height: 12), _StartCard(withCoach: withCoach, coachName: coachName)],
         if (tp != null && tp.note.isNotEmpty) ...[
           const SizedBox(height: 12),
           BoltBox(
@@ -144,7 +151,7 @@ class TodayScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Avatar(
-                  ini: initials(coach.name),
+                  ini: initials(noteBy),
                   size: 34,
                   fontSize: 11,
                   fill: BoltColors.surface2,
@@ -157,7 +164,7 @@ class TodayScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Kicker('NOTE FROM ${firstName(coach.name).toUpperCase()}', size: 10),
+                      Kicker(tp.byCoach ? 'NOTE FROM ${firstName(noteBy).toUpperCase()}' : 'YOUR NOTE', size: 10),
                       const SizedBox(height: 4),
                       Text(tp.note, style: BoltText.a(14, height: 1.45)),
                     ],
@@ -242,7 +249,7 @@ class TodayScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${firstName(coach.name)} planned ${plural(pend.length, 'session')}',
+                            '${coachName == null ? 'Your coach' : firstName(coachName)} planned ${plural(pend.length, 'session')}',
                             style: BoltText.a(16, weight: 800),
                           ),
                           const SizedBox(height: 3),
@@ -492,6 +499,61 @@ class _HeroCard extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Shown when nothing is planned: plan it yourself, or import the coach's plan.
+class _StartCard extends ConsumerWidget {
+  const _StartCard({required this.withCoach, required this.coachName});
+
+  final bool withCoach;
+  final String? coachName;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final coach = coachName == null ? 'your coach' : firstName(coachName!);
+    Widget small(String label, VoidCallback onTap, {bool filled = true}) => Tap(
+      onTap: onTap,
+      scale: .96,
+      child: BoltBox(
+        color: filled ? BoltColors.neon : null,
+        stroke: filled ? Stroke.none : const Stroke(BoltColors.neon),
+        radius: 12,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Text(label, style: BoltText.a(13, weight: 800, color: filled ? BoltColors.ink : BoltColors.neon)),
+      ),
+    );
+    return BoltBox(
+      stroke: const Stroke.dashed(BoltColors.neon, 1.5),
+      radius: 20,
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Nothing planned yet', style: BoltText.a(16, weight: 800)),
+          const SizedBox(height: 3),
+          Text(
+            withCoach
+                ? 'Import the plan $coach sent you, or plan the days yourself.'
+                : 'Pick days on the calendar, or auto-fill 3 weeks from your split.',
+            style: BoltText.a(13, color: BoltColors.muted, height: 1.4),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (withCoach) small('Import plan', () => showBoltSheet<void>(context, (_) => const ImportSheet())),
+              small(
+                withCoach ? 'Plan it myself' : 'Plan my weeks',
+                () => openPlanDay(context, ref, null),
+                filled: !withCoach,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

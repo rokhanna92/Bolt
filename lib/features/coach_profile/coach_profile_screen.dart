@@ -7,12 +7,11 @@ import '../../data/bolt_store.dart';
 import '../../data/models/session.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
-import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
-import '../../widgets/fields.dart';
 import '../../widgets/tap.dart';
 import '../plaque/plaque_qr.dart';
+import '../profile/body_card.dart';
 import '../profile/me_screen.dart' show ProfileHeader;
 
 class CoachProfileScreen extends ConsumerWidget {
@@ -32,7 +31,11 @@ class CoachProfileScreen extends ConsumerWidget {
         if (s != null && s.status != SessionStatus.draft) planned++;
       }
     }
-    final live = my.where((x) => d.gymIn[x.id] != null).length;
+    final waiting = my.fold(
+      0,
+      (n, x) => n + store.plan(x.id).values.where((s) => s.status == SessionStatus.pending).length,
+    );
+    final gym = d.settings.gymName;
 
     return ScreenScroll(
       children: [
@@ -48,7 +51,7 @@ class CoachProfileScreen extends ConsumerWidget {
                 children: [
                   Text(c.name, style: BoltText.a(24, weight: 900)),
                   const SizedBox(height: 4),
-                  Text(c.role, style: BoltText.a(13, color: BoltColors.muted)),
+                  Text(gym.isEmpty ? c.role : '${c.role} · $gym', style: BoltText.a(13, color: BoltColors.muted)),
                 ],
               ),
             ),
@@ -59,63 +62,12 @@ class CoachProfileScreen extends ConsumerWidget {
           children: [
             StatTile(value: '${my.length}', label: 'TRAINEES', valueColor: BoltColors.neon, gap: 0),
             StatTile(value: '$planned', label: 'THIS WEEK', gap: 0),
-            StatTile(value: '$live', label: 'IN GYM', gap: 0),
+            StatTile(value: '$waiting', label: 'WAITING', gap: 0),
           ],
         ),
         const SizedBox(height: 24),
-        Row(
-          children: [
-            const Expanded(child: SectionTitle('Coaches')),
-            Tap(
-              onTap: () => showBoltSheet<void>(context, (_) => const AddCoachSheet()),
-              child: Text('+ Add coach', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        for (final co in d.coaches) ...[
-          BoltBox(
-            color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
-            radius: 16,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            child: Row(
-              children: [
-                Avatar(ini: initials(co.name), size: 40, fontSize: 13, ring: BoltColors.neon, color: BoltColors.neon),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(text: co.name, style: BoltText.a(14, weight: 800)),
-                            if (co.id == c.id) ...[
-                              const WidgetSpan(child: SizedBox(width: 4)),
-                              TextSpan(
-                                text: ' YOU',
-                                style: BoltText.m(9, color: BoltColors.neon),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(co.role, style: BoltText.a(12, color: BoltColors.muted)),
-                    ],
-                  ),
-                ),
-                Text(
-                  plural(d.trainees.where((x) => x.coach == co.id).length, 'trainee').toUpperCase(),
-                  style: BoltText.m(9, color: BoltColors.muted),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-        ],
-        const SizedBox(height: 12),
+        BodyCard(body: c.body, onEdit: () => context.push('/edit-profile')),
+        const SizedBox(height: 20),
         Tap(
           onTap: () => context.push('/plaque'),
           child: BoltBox(
@@ -138,10 +90,10 @@ class CoachProfileScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Gym plaque QR', style: BoltText.a(15, weight: 800)),
+                      Text('Check-in plaque', style: BoltText.a(15, weight: 800)),
                       const SizedBox(height: 2),
                       Text(
-                        'Fixed code at the entrance · print or reorder',
+                        'Print it for the entrance · scan in and out',
                         style: BoltText.a(12, color: BoltColors.muted),
                       ),
                     ],
@@ -152,51 +104,6 @@ class CoachProfileScreen extends ConsumerWidget {
               ],
             ),
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class AddCoachSheet extends ConsumerStatefulWidget {
-  const AddCoachSheet({super.key});
-
-  @override
-  ConsumerState<AddCoachSheet> createState() => _AddCoachSheetState();
-}
-
-class _AddCoachSheetState extends ConsumerState<AddCoachSheet> {
-  final _name = TextEditingController();
-  final _role = TextEditingController();
-
-  @override
-  void dispose() {
-    _name.dispose();
-    _role.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final ok = _name.text.trim().isNotEmpty;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text('Add coach', style: BoltText.a(20, weight: 900)),
-        const SizedBox(height: 10),
-        BoltField(controller: _name, hint: 'Full name', height: 52, onChanged: (_) => setState(() {})),
-        const SizedBox(height: 10),
-        BoltField(controller: _role, hint: 'Specialty, e.g. Powerlifting', height: 52),
-        const SizedBox(height: 10),
-        NeonButton(
-          label: 'Add coach',
-          height: 52,
-          scale: 1,
-          color: ok ? BoltColors.neon : BoltColors.line,
-          textColor: ok ? BoltColors.ink : BoltColors.muted,
-          onTap: () {
-            if (ref.read(boltProvider.notifier).addCoach(_name.text, _role.text)) Navigator.of(context).pop();
-          },
         ),
       ],
     );

@@ -93,7 +93,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     if (t == null || s == null || w == null || w.key != widget.dayKey) {
       return const BoltPage(child: SizedBox.expand());
     }
-    final coach = store.co(t.coach);
+    final coachName = store.coachNameOf(t);
     var tot = 0, done = 0;
     for (final e in s.ex) {
       for (var i = 0; i < e.sets; i++) {
@@ -161,7 +161,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                 ),
                 if (s.note.isNotEmpty) ...[
                   const SizedBox(height: 14),
-                  CoachNote(ini: initials(coach.name), note: s.note),
+                  CoachNote(ini: initials(s.byCoach ? (coachName ?? 'Coach') : t.name), note: s.note),
                 ],
                 const SizedBox(height: 16),
                 for (var i = 0; i < s.ex.length; i++) ...[
@@ -271,7 +271,7 @@ class _ExerciseCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '${kAreas[e.area]} flag · coach suggests ${e.alt ?? 'a lighter variation'}',
+                    '${kAreas[e.area]} flag · ${trainee.coachName == null ? 'try' : 'coach suggests'} ${e.alt ?? 'a lighter variation'}',
                     style: BoltText.a(12, color: BoltColors.warn),
                   ),
                 ),

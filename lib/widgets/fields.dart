@@ -59,6 +59,9 @@ class BoltField extends StatelessWidget {
     this.fill = BoltColors.surface1,
     this.weight = 400,
     this.padding = 14,
+    this.number = false,
+    this.suffix,
+    this.words = false,
   });
 
   final TextEditingController controller;
@@ -70,6 +73,15 @@ class BoltField extends StatelessWidget {
   final Color fill;
   final double weight;
   final double padding;
+
+  /// Decimal keyboard, for measurements.
+  final bool number;
+
+  /// Unit shown inside the field, e.g. "kg".
+  final String? suffix;
+
+  /// Capitalise words, for names.
+  final bool words;
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +98,8 @@ class BoltField extends StatelessWidget {
         expands: true,
         maxLines: null,
         textInputAction: TextInputAction.done,
+        keyboardType: number ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
+        textCapitalization: words ? TextCapitalization.words : TextCapitalization.sentences,
         textAlignVertical: TextAlignVertical.center,
         style: BoltText.a(fontSize, weight: weight),
         decoration: InputDecoration(
@@ -95,6 +109,8 @@ class BoltField extends StatelessWidget {
           filled: true,
           fillColor: fill,
           contentPadding: EdgeInsets.symmetric(horizontal: padding),
+          suffixText: suffix,
+          suffixStyle: BoltText.m(12, color: BoltColors.muted),
           border: border,
           enabledBorder: border,
           focusedBorder: border,

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/share.dart';
 import '../../data/bolt_store.dart';
-import '../../data/seed/demo.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
@@ -24,6 +25,38 @@ class _Row {
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
+  Future<void> _reset(BuildContext context, WidgetRef ref) async {
+    final ok = await confirmSheet(
+      context,
+      title: 'Reset Bolt?',
+      body: 'This erases your profile, plans, workouts, gym visits and badges from this phone. It cannot be undone.',
+      confirm: 'Erase everything',
+    );
+    if (ok && context.mounted) {
+      ref.read(boltProvider.notifier).resetAll();
+      context.go('/welcome');
+    }
+  }
+
+  void _privacy(BuildContext context) {
+    showBoltSheet<void>(
+      context,
+      (context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Privacy', style: BoltText.a(20, weight: 900)),
+          const SizedBox(height: 8),
+          Text(
+            'Bolt keeps everything on this phone: your profile, body measurements, plans, workouts and gym visits. '
+            'There is no account and nothing is uploaded.\n\n'
+            'A plan or update only leaves the phone when you share it yourself, as a message to your coach or trainee.',
+            style: BoltText.a(14, height: 1.5),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final d = ref.watch(boltProvider);
@@ -35,18 +68,13 @@ class SettingsScreen extends ConsumerWidget {
       (
         'NOTIFICATIONS',
         [
-          _Row(
-            'Session reminders',
-            sub: '2 hours before a planned session',
-            toggle: s.remind,
-            onTap: () => store.toggleSetting('remind'),
-          ),
-          _Row(
-            'Plan updates',
-            sub: isT ? 'When your coach plans or edits sessions' : 'When trainees confirm or move sessions',
-            toggle: s.plans,
-            onTap: () => store.toggleSetting('plans'),
-          ),
+          if (isT)
+            _Row(
+              'Session reminders',
+              sub: '2 hours before a planned session',
+              toggle: s.remind,
+              onTap: () => store.toggleSetting('remind'),
+            ),
           _Row(
             'Check-out reminder',
             sub: 'If you are still checked in after 3 hours',
@@ -58,25 +86,28 @@ class SettingsScreen extends ConsumerWidget {
       (
         'TRAINING',
         [
-          _Row('Units', value: s.kg ? 'kg' : 'lb', onTap: store.toggleUnits),
+          _Row('Units', value: s.kg ? 'kg · cm' : 'lb · in', onTap: store.toggleUnits),
           _Row('Week starts on', value: s.mondayFirst ? 'Monday' : 'Sunday', onTap: store.toggleWeekStart),
           _Row('Default rest timer', value: '${s.restSecs} s', onTap: store.cycleRest),
         ],
       ),
-      ('GYM', [const _Row('Home gym', value: Gym.name), const _Row('Check-in method', value: 'Plaque QR')]),
+      (
+        'GYM',
+        [
+          _Row(
+            'Home gym',
+            value: s.gymName.isEmpty ? 'Not set' : s.gymName,
+            onTap: () => context.push('/edit-profile'),
+          ),
+          _Row('Check-in plaque', value: 'Print', onTap: () => context.push('/plaque')),
+        ],
+      ),
       (
         'ACCOUNT',
         [
-          const _Row('Edit profile', value: ''),
-          const _Row('Privacy', value: ''),
-          _Row(
-            'Sign out',
-            danger: true,
-            onTap: () {
-              store.signOut();
-              context.go('/login');
-            },
-          ),
+          _Row('Edit profile', value: '', onTap: () => context.push('/edit-profile')),
+          _Row('Privacy', value: '', onTap: () => _privacy(context)),
+          _Row('Reset app', danger: true, onTap: () => _reset(context, ref)),
         ],
       ),
     ];
@@ -138,38 +169,21 @@ class SettingsScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            if (r.toggle != null) ...[const SizedBox(width: 12), _Toggle(on: r.toggle!)],
+            if (r.toggle != null) ...[const SizedBox(width: 12), BoltSwitch(on: r.toggle!)],
             if (r.value != null && !r.danger) ...[
               const SizedBox(width: 12),
-              Text('${r.value} ›', style: BoltText.a(13, color: BoltColors.muted)),
+              // Long gym names truncate instead of squeezing the label.
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 170),
+                child: Text(
+                  '${r.value} ›',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: BoltText.a(13, color: BoltColors.muted),
+                ),
+              ),
             ],
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Toggle extends StatelessWidget {
-  const _Toggle({required this.on});
-
-  final bool on;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      width: 46,
-      height: 26,
-      decoration: BoxDecoration(color: on ? BoltColors.neon : BoltColors.line, borderRadius: BorderRadius.circular(99)),
-      child: AnimatedAlign(
-        duration: const Duration(milliseconds: 200),
-        alignment: on ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-          width: 22,
-          height: 22,
-          margin: const EdgeInsets.all(2),
-          decoration: BoxDecoration(color: on ? BoltColors.ink : BoltColors.muted, shape: BoxShape.circle),
         ),
       ),
     );

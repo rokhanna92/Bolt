@@ -1,3 +1,8 @@
+import 'package:bolt/data/repositories/bolt_repository.dart';
+import 'package:bolt/data/models/people.dart';
+import 'package:bolt/core/units.dart';
+
+import 'dart:io';
 import 'dart:convert';
 
 import 'package:bolt/core/format.dart';
@@ -7,17 +12,24 @@ import 'package:bolt/data/models/session.dart';
 import 'package:bolt/data/models/visit.dart';
 import 'package:bolt/data/rules.dart';
 import 'package:bolt/data/seed/badges.dart';
-import 'package:bolt/data/seed/demo.dart';
+import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/data/seed/templates.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/demo_data.dart';
 
 /// Wednesday 14 Oct 2026, 18:00, the prototype's demo day.
 final wed = DateTime(2026, 10, 14, 18);
 
 class Harness {
   Harness([DateTime? start]) : clock = start ?? wed {
-    container = ProviderContainer(overrides: [clockProvider.overrideWithValue(() => clock)]);
+    container = ProviderContainer(
+      overrides: [
+        clockProvider.overrideWithValue(() => clock),
+        initialDataProvider.overrideWith((ref) => buildDemoData(ref.read(clockProvider)())),
+      ],
+    );
   }
 
   DateTime clock;
@@ -27,10 +39,12 @@ class Harness {
   BoltData get data => container.read(boltProvider);
   String? get toast => container.read(toastProvider)?.text;
 
-  void as(Role role, String id) => store.signIn(role, id);
+  void as(Role role, String id) => data.account = Account(role, id);
 }
 
 void main() {
+  ownerTests();
+
   group('format', () {
     test('dates and durations read like the prototype', () {
       expect(fmtDay('2026-10-14'), 'Wed 14 Oct');
@@ -143,10 +157,10 @@ void main() {
   });
 
   group('trainee plan', () {
-    test('accept all confirms pending sessions and names the coach', () {
+    test('accept all confirms pending sessions', () {
       final h = Harness()..as(Role.trainee, 't1');
       h.store.acceptAll();
-      expect(h.toast, '3 sessions confirmed · Marko notified');
+      expect(h.toast, '3 sessions confirmed');
       expect(h.data.plans['t1']!.values.where((s) => s.status == SessionStatus.pending), isEmpty);
     });
 
@@ -158,7 +172,7 @@ void main() {
       final s = h.data.plans['t1']!['2026-10-20']!;
       expect(s.status, SessionStatus.moved);
       expect(s.from, '2026-10-19');
-      expect(h.toast, 'Moved to Tue 20 Oct · Marko notified');
+      expect(h.toast, 'Moved to Tue 20 Oct');
     });
 
     test('finishing logs sets done and records a perfect week', () {
@@ -206,8 +220,9 @@ void main() {
       expect(h.toast, '8 sessions drafted from 3-day Full Body');
       h.store.autoFill('t6');
       expect(h.toast, 'The next 3 weeks are already planned');
-      h.store.sendDrafts('t6');
-      expect(h.toast, 'Sent 8 sessions · waiting for Petra');
+      final msg = h.store.sendDrafts('t6');
+      expect(msg, contains('Petra, here is your Bolt plan from Sara: 8 sessions'));
+      expect(msg, contains('BOLT1.'));
       expect(p.values.every((s) => s.status == SessionStatus.pending), isTrue);
     });
 
@@ -216,9 +231,8 @@ void main() {
       const t = DayTarget('t1', '2026-10-19');
       h.store.edit(t, () => h.store.editExercises(t).first.sets = 5);
       expect(h.data.plans['t1']!['2026-10-19']!.status, SessionStatus.draft);
-      h.store.saveEdit(t);
+      expect(h.store.saveEdit(t), contains('BOLT1.'));
       expect(h.data.plans['t1']!['2026-10-19']!.status, SessionStatus.pending);
-      expect(h.toast, 'Sent to Ana for approval');
     });
 
     test('sessions copy template exercises', () {
@@ -268,5 +282,195 @@ void main() {
   test('visit json keeps the auto flag', () {
     final v = Visit(date: '2026-10-14', inT: '18:00', outT: '23:00', mins: 300, auto: true);
     expect(Visit.fromJson(v.toJson()).auto, isTrue);
+  });
+}
+
+/// A phone with nothing on it yet.
+class Fresh {
+  Fresh([DateTime? start]) : clock = start ?? wed {
+    container = ProviderContainer(overrides: [clockProvider.overrideWithValue(() => clock)]);
+  }
+
+  DateTime clock;
+  late final ProviderContainer container;
+
+  BoltStore get store => container.read(boltProvider.notifier);
+  BoltData get data => container.read(boltProvider);
+  String? get toast => container.read(toastProvider)?.text;
+  Map<String, Session> get mine => data.plans[Account.ownerId]!;
+}
+
+void ownerTests() {
+  group('onboarding', () {
+    test('a fresh phone has templates and nobody in it', () {
+      final f = Fresh();
+      expect(f.data.account, isNull);
+      expect(f.data.trainees, isEmpty);
+      expect(f.data.coaches, isEmpty);
+      expect(f.data.tpls.keys, containsAll(['push', 'pull', 'legs']));
+    });
+
+    test('solo profile with body and an auto-planned 3 weeks', () {
+      final f = Fresh();
+      f.store.createProfile(
+        Role.solo,
+        ProfileInput(
+          name: ' Dani ',
+          goal: 'Strength',
+          split: 'ppl',
+          gym: 'Iron Den',
+          body: Body(weightKg: 80, cm: {'waist': 84}),
+        ),
+        autoPlan: true,
+      );
+      final me = f.data.trainees.single;
+      expect(f.data.account!.role, Role.solo);
+      expect(me.name, 'Dani');
+      expect(me.body.weightKg, 80);
+      expect(me.body.updated, '2026-10-14');
+      expect(f.data.settings.gymName, 'Iron Den');
+      // PPL Mon/Wed/Fri from this Monday, today onwards: 14, 16 then 2 weeks.
+      expect(f.mine.length, 8);
+      expect(f.mine.values.every((s) => s.status == SessionStatus.approved && !s.byCoach), isTrue);
+      expect(f.mine['2026-10-14']!.title, 'Pull');
+    });
+
+    test('coach profile', () {
+      final f = Fresh();
+      f.store.createProfile(Role.coach, const ProfileInput(name: 'Sara', specialty: ''));
+      expect(f.data.coaches.single.role, 'Coach');
+      expect(f.data.account!.isCoach, isTrue);
+    });
+
+    test('profile edits save body and stamp the date', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'));
+      f.store.saveProfile(Account.ownerId, ProfileInput(name: 'Dani K', body: Body(heightCm: 180)));
+      expect(f.data.trainees.single.name, 'Dani K');
+      expect(f.data.trainees.single.body.heightCm, 180);
+      expect(f.data.trainees.single.body.updated, '2026-10-14');
+    });
+
+    test('reset erases everything', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'), autoPlan: true);
+      f.store.resetAll();
+      expect(f.data.account, isNull);
+      expect(f.data.trainees, isEmpty);
+    });
+  });
+
+  group('planning for yourself', () {
+    test('sessions are confirmed straight away and edits keep them so', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'fb'));
+      expect(f.store.addFromRotation(Account.ownerId, '2026-10-15'), isTrue);
+      expect(f.mine['2026-10-15']!.status, SessionStatus.approved);
+      const t = DayTarget(Account.ownerId, '2026-10-15');
+      f.store.edit(t, () => f.store.editExercises(t).first.sets = 5);
+      expect(f.mine['2026-10-15']!.status, SessionStatus.approved);
+      expect(f.store.saveEdit(t), isNull);
+      expect(f.toast, 'Session saved');
+    });
+
+    test('moving your own session does not mark it moved', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'), autoPlan: true);
+      expect(f.store.move('2026-10-16', '2026-10-17'), isTrue);
+      expect(f.mine['2026-10-17']!.status, SessionStatus.approved);
+      expect(f.mine['2026-10-17']!.from, isNull);
+    });
+  });
+
+  group('coach and trainee on two phones', () {
+    test('plan goes out, progress comes back', () {
+      final coach = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Marko Ilić'));
+      final tid = coach.store.addTrainee(const ProfileInput(name: 'Ana Marić', split: 'ppl'));
+      coach.store.autoFill(tid);
+      final plan = coach.store.sendDrafts(tid)!;
+
+      final ana = Fresh()..store.createProfile(Role.trainee, const ProfileInput(name: 'Ana'));
+      expect(ana.store.importText('Hi!\n$plan'), isNull);
+      expect(ana.toast, '8 sessions from Marko · 8 waiting for your OK');
+      expect(ana.data.linkId, tid);
+      expect(ana.data.trainees.single.coachName, 'Marko Ilić');
+      expect(ana.mine.values.every((s) => s.byCoach && s.status == SessionStatus.pending), isTrue);
+
+      ana.store.accept('2026-10-14');
+      ana.store.accept('2026-10-16');
+      ana.store.move('2026-10-16', '2026-10-17');
+      ana.store.startWorkout('2026-10-14');
+      ana.store.toggleSet(ana.mine['2026-10-14']!.ex.first.id, 0);
+      ana.store.finish();
+      ana.store.reportInjury(Account.ownerId, 'knee', 'Twinge on lunges');
+      ana.store.saveProfile(Account.ownerId, ProfileInput(name: 'Ana', body: Body(weightKg: 61)));
+
+      expect(coach.store.importText(ana.store.updateMessage()), isNull);
+      final p = coach.data.plans[tid]!;
+      expect(p['2026-10-14']!.status, SessionStatus.done);
+      expect(p['2026-10-14']!.log, '1/16 sets');
+      expect(p['2026-10-16'], isNull);
+      expect(p['2026-10-17']!.status, SessionStatus.moved);
+      expect(p['2026-10-17']!.from, '2026-10-16');
+      final t = coach.store.tr(tid);
+      expect(t.injuries.single.fresh, isTrue);
+      expect(t.body.weightKg, 61);
+      expect(coach.toast, 'Update from Ana · 0 confirmed, 1 moved, 1 done');
+
+      // The coach OKs the move; a second import of the same update keeps it.
+      coach.store.ack(tid, '2026-10-17');
+      coach.store.importText(ana.store.updateMessage());
+      expect(p['2026-10-17']!.status, SessionStatus.approved);
+    });
+
+    test('re-importing a plan keeps days the trainee moved or did', () {
+      final coach = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Marko'));
+      final tid = coach.store.addTrainee(const ProfileInput(name: 'Ana', split: 'ppl'));
+      coach.store.autoFill(tid);
+      final plan = coach.store.sendDrafts(tid)!;
+      final ana = Fresh()..store.createProfile(Role.trainee, const ProfileInput(name: 'Ana'));
+      ana.store.importText(plan);
+      ana.store.accept('2026-10-16');
+      ana.store.move('2026-10-16', '2026-10-18');
+      ana.store.addFromRotation(Account.ownerId, '2026-10-20');
+      ana.store.importText(plan);
+      expect(ana.mine['2026-10-16'], isNull);
+      expect(ana.mine['2026-10-18']!.status, SessionStatus.moved);
+      // Her own session stays.
+      expect(ana.mine['2026-10-20']!.byCoach, isFalse);
+    });
+
+    test('wrong codes explain themselves', () {
+      final coach = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Marko'));
+      final tid = coach.store.addTrainee(const ProfileInput(name: 'Ana'));
+      coach.store.autoFill(tid);
+      final plan = coach.store.sendDrafts(tid)!;
+      expect(coach.store.importText('hello'), 'No Bolt code found in the copied text.');
+      expect(coach.store.importText(plan), 'This is a plan for a trainee. Open it on their phone.');
+      expect(coach.store.importText('BOLT1.AAAA'), 'That code looks damaged. Copy the whole message again.');
+      final solo = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'));
+      expect(solo.store.updateMessage(), contains('BOLT1.'));
+      final other = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Sara'));
+      expect(
+        other.store.importText(solo.store.updateMessage()),
+        'This update is from someone who is not in your trainees. Send them a plan first.',
+      );
+    });
+  });
+
+  test('saved demo data from 1.0 is discarded', () {
+    final dir = Directory.systemTemp.createTempSync('bolt');
+    final file = File('${dir.path}/bolt.json');
+    final old = buildDemoData(wed).toJson()..['version'] = 1;
+    file.writeAsStringSync(jsonEncode(old));
+    expect(BoltRepository(file).load(), isNull);
+    final cur = freshData()..account = const Account(Role.solo, 'me');
+    file.writeAsStringSync(jsonEncode(cur.toJson()));
+    expect(BoltRepository(file).load()!.account!.role, Role.solo);
+    dir.deleteSync(recursive: true);
+  });
+
+  test('body units convert both ways', () {
+    expect(fmtWeight(80, metric: false), '176.4 lb');
+    expect(parseWeight('176.4', metric: false)!, closeTo(80, .05));
+    expect(fmtLength(84, metric: false), '33.1 in');
+    expect(parseLength('84,5', metric: true), 84.5);
+    expect(parseWeight('', metric: true), isNull);
   });
 }

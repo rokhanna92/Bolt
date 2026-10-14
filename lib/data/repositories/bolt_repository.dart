@@ -29,7 +29,10 @@ class BoltRepository {
     final f = _file;
     if (f == null || !f.existsSync()) return null;
     try {
-      return BoltData.fromJson(jsonDecode(f.readAsStringSync()) as Map<String, dynamic>);
+      final json = jsonDecode(f.readAsStringSync()) as Map<String, dynamic>;
+      // Version 1 only ever held the built-in demo; start those phones fresh.
+      if (json['version'] != BoltData.version) return null;
+      return BoltData.fromJson(json);
     } catch (e) {
       debugPrint('Bolt: could not read saved data, starting fresh ($e)');
       return null;

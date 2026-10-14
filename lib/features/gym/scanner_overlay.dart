@@ -7,7 +7,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../app/actions.dart';
 import '../../data/bolt_store.dart';
-import '../../data/seed/demo.dart';
+import '../../data/seed/content.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';

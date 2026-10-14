@@ -1,16 +1,53 @@
+/// Body weight, height and tape measurements. Stored metric (kg, cm) and
+/// converted for display.
+class Body {
+  Body({this.weightKg, this.heightCm, Map<String, double>? cm, this.updated}) : cm = cm ?? {};
+
+  /// Measured parts, in display order.
+  static const parts = {'chest': 'Chest', 'waist': 'Waist', 'hips': 'Hips', 'arm': 'Arm', 'thigh': 'Thigh'};
+
+  double? weightKg;
+  double? heightCm;
+
+  /// Circumferences by part key, in cm.
+  final Map<String, double> cm;
+
+  /// Day key of the last change.
+  String? updated;
+
+  bool get isEmpty => weightKg == null && heightCm == null && cm.isEmpty;
+
+  Map<String, dynamic> toJson() => {'weightKg': weightKg, 'heightCm': heightCm, 'cm': cm, 'updated': updated};
+
+  factory Body.fromJson(Map<String, dynamic>? j) {
+    if (j == null) return Body();
+    return Body(
+      weightKg: (j['weightKg'] as num?)?.toDouble(),
+      heightCm: (j['heightCm'] as num?)?.toDouble(),
+      cm: (j['cm'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, (v as num).toDouble())),
+      updated: j['updated'] as String?,
+    );
+  }
+}
+
 class Coach {
-  Coach({required this.id, required this.name, required this.role});
+  Coach({required this.id, required this.name, required this.role, Body? body}) : body = body ?? Body();
 
   final String id;
   String name;
 
   /// Specialty, e.g. "Strength & Hypertrophy".
   String role;
+  Body body;
 
-  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'role': role};
+  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'role': role, 'body': body.toJson()};
 
-  factory Coach.fromJson(Map<String, dynamic> j) =>
-      Coach(id: j['id'] as String, name: j['name'] as String, role: j['role'] as String);
+  factory Coach.fromJson(Map<String, dynamic> j) => Coach(
+    id: j['id'] as String,
+    name: j['name'] as String,
+    role: j['role'] as String,
+    body: Body.fromJson(j['body'] as Map<String, dynamic>?),
+  );
 }
 
 class Injury {
@@ -117,13 +154,19 @@ class Trainee {
     required this.since,
     required this.injuries,
     required this.stats,
-  });
+    Body? body,
+    this.coachName,
+  }) : body = body ?? Body();
 
   final String id;
   String name;
 
-  /// Coach id.
+  /// Coach id, when the coach is on this phone.
   String coach;
+
+  /// The coach's name when the coach is on another phone (the phone owner's
+  /// own profile as a trainee).
+  String? coachName;
   String goal;
 
   /// Split id (`ppl`, `ul`, `fb`, `rehab`).
@@ -133,6 +176,7 @@ class Trainee {
   String since;
   List<Injury> injuries;
   TraineeStats stats;
+  Body body;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -143,6 +187,8 @@ class Trainee {
     'since': since,
     'injuries': injuries.map((i) => i.toJson()).toList(),
     'stats': stats.toJson(),
+    'body': body.toJson(),
+    'coachName': coachName,
   };
 
   factory Trainee.fromJson(Map<String, dynamic> j) => Trainee(
@@ -154,5 +200,7 @@ class Trainee {
     since: j['since'] as String,
     injuries: (j['injuries'] as List).map((e) => Injury.fromJson(e as Map<String, dynamic>)).toList(),
     stats: TraineeStats.fromJson(j['stats'] as Map<String, dynamic>),
+    body: Body.fromJson(j['body'] as Map<String, dynamic>?),
+    coachName: j['coachName'] as String?,
   );
 }

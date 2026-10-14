@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
+import '../../data/models/bolt_data.dart';
 import '../../data/models/template.dart';
 import '../../data/seed/splits.dart';
 import '../../theme/text_styles.dart';
@@ -19,10 +20,21 @@ class LibraryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final d = ref.watch(boltProvider);
     final store = ref.read(boltProvider.notifier);
+    final coach = d.account?.isCoach ?? false;
     final tpls = d.tpls.values.toList();
     return ScreenScroll(
       children: [
-        const Kicker('LIBRARY'),
+        // A tab for coaches; pushed from Me for everyone else.
+        if (coach)
+          const Kicker('LIBRARY')
+        else
+          Row(
+            children: [
+              BackBox(onTap: () => context.pop()),
+              const SizedBox(width: 12),
+              const Kicker('LIBRARY'),
+            ],
+          ),
         const SizedBox(height: 4),
         Row(
           children: [
@@ -72,7 +84,13 @@ class LibraryScreen extends ConsumerWidget {
         const SectionTitle('Weekly splits'),
         const SizedBox(height: 10),
         for (final k in kSplitOrder) ...[
-          _splitCard(d.tpls, k, d.trainees.where((x) => x.split == k).length),
+          _splitCard(
+            d.tpls,
+            k,
+            coach
+                ? plural(d.trainees.where((x) => x.split == k).length, 'trainee').toUpperCase()
+                : (store.trOrNull(Account.ownerId)?.split == k ? 'YOUR SPLIT' : ''),
+          ),
           const SizedBox(height: 8),
         ],
       ],
@@ -111,7 +129,7 @@ class LibraryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _splitCard(Map<String, WorkoutTemplate> tpls, String k, int used) {
+  Widget _splitCard(Map<String, WorkoutTemplate> tpls, String k, String used) {
     final s = kSplits[k]!;
     final byDay = {for (final d in s.days) d.weekday: d.tpl};
     return BoltBox(
@@ -127,7 +145,7 @@ class LibraryScreen extends ConsumerWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Expanded(child: Text(s.name, style: BoltText.a(14, weight: 800))),
-              Text(plural(used, 'trainee').toUpperCase(), style: BoltText.m(9, color: BoltColors.muted)),
+              Text(used, style: BoltText.m(9, color: BoltColors.muted)),
             ],
           ),
           const SizedBox(height: 10),

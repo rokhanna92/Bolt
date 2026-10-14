@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/actions.dart';
+import '../../app/share.dart';
 import '../../app/tick.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
@@ -19,6 +20,7 @@ import '../../widgets/exercise_rows.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/tap.dart';
 import '../gym/gym_screen.dart' show VisitRow, visitDay;
+import '../profile/body_card.dart';
 
 class TraineeDetailScreen extends ConsumerStatefulWidget {
   const TraineeDetailScreen({super.key, required this.tid});
@@ -43,6 +45,29 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
     SessionStatus.moved => 'Moved by $fn',
     SessionStatus.draft => 'Draft · not sent',
   };
+
+  /// Sends drafts: the plan goes out as a message the trainee pastes into Bolt.
+  Future<void> _send(String tid, String fn) async {
+    final store = ref.read(boltProvider.notifier);
+    final n = store.plan(tid).values.where((s) => s.status == SessionStatus.draft).length;
+    final msg = store.sendDrafts(tid);
+    if (msg == null) return;
+    final hint = await shareMessage(msg, subject: 'Your Bolt plan');
+    store.toast(hint ?? 'Sent ${plural(n, 'session')} · waiting for $fn');
+  }
+
+  Future<void> _remove(String tid, String name) async {
+    final ok = await confirmSheet(
+      context,
+      title: 'Remove ${firstName(name)}?',
+      body: 'Their plan, visits and measurements are deleted from this phone.',
+      confirm: 'Remove',
+    );
+    if (ok && mounted) {
+      context.pop();
+      ref.read(boltProvider.notifier).removeTrainee(tid);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +212,13 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 14),
+                BodyCard(
+                  body: x.body,
+                  titleSize: 16,
+                  empty: 'No measurements yet. Add them here, or they arrive with $fn\'s updates.',
+                  onEdit: () => context.push('/edit-profile/${x.id}'),
+                ),
+                const SizedBox(height: 18),
                 Row(
                   children: [
                     Text(monthsLong[_month.month - 1], style: BoltText.a(22, weight: 900)),
@@ -244,6 +276,17 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 const SectionTitle('Recent visits', size: 16),
                 const SizedBox(height: 6),
                 _Visits(tid: x.id),
+                const SizedBox(height: 22),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Tap(
+                    onTap: () => _remove(x.id, x.name),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Text('Remove trainee', style: BoltText.a(13, weight: 700, color: BoltColors.warn)),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -263,7 +306,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                     label: 'Send ${plural(drafts, 'session')} to $fn',
                     height: 56,
                     radius: 18,
-                    onTap: () => store.sendDrafts(x.id),
+                    onTap: () => _send(x.id, fn),
                   ),
                 ),
               ),

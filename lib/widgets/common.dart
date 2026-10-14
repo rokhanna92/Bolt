@@ -445,3 +445,30 @@ class StatTile extends StatelessWidget {
     );
   }
 }
+
+/// On/off switch from the prototype's settings rows (46 x 26).
+class BoltSwitch extends StatelessWidget {
+  const BoltSwitch({super.key, required this.on});
+
+  final bool on;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: 46,
+      height: 26,
+      decoration: BoxDecoration(color: on ? BoltColors.neon : BoltColors.line, borderRadius: BorderRadius.circular(99)),
+      child: AnimatedAlign(
+        duration: const Duration(milliseconds: 200),
+        alignment: on ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          width: 22,
+          height: 22,
+          margin: const EdgeInsets.all(2),
+          decoration: BoxDecoration(color: on ? BoltColors.ink : BoltColors.muted, shape: BoxShape.circle),
+        ),
+      ),
+    );
+  }
+}

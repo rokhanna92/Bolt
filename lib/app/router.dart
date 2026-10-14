@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../data/bolt_store.dart';
 import '../data/models/bolt_data.dart';
-import '../features/auth/login_screen.dart';
 import '../features/badges/badges_screen.dart';
 import '../features/coach_profile/coach_profile_screen.dart';
 import '../features/coach_roster/roster_screen.dart';
@@ -13,9 +12,11 @@ import '../features/coach_trainee/trainee_detail_screen.dart';
 import '../features/editor/editor_screen.dart';
 import '../features/gym/gym_screen.dart';
 import '../features/learn/learn_screen.dart';
+import '../features/onboarding/onboarding_screen.dart';
 import '../features/library/library_screen.dart';
 import '../features/plan/plan_screen.dart';
 import '../features/plaque/plaque_screen.dart';
+import '../features/profile/edit_profile_screen.dart';
 import '../features/profile/me_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/today/today_screen.dart';
@@ -24,8 +25,10 @@ import 'shell.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
+// Library, editor, plaque, learn and settings are shared: solo users and
+// trainees plan for themselves too.
 const _traineeOnly = {'today', 'plan', 'gym', 'badges', 'me', 'workout'};
-const _coachOnly = {'roster', 'schedule', 'library', 'profile', 'trainee', 'editor', 'plaque'};
+const _coachOnly = {'roster', 'schedule', 'profile', 'trainee'};
 
 /// Pushed screens: fade in and rise 10 px (350 ms, easeOut).
 Page<void> _enter(GoRouterState state, Widget child) => CustomTransitionPage<void>(
@@ -62,21 +65,21 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final a = auth.value;
       final loc = state.matchedLocation;
-      if (a == null) return loc == '/login' ? null : '/login';
+      if (a == null) return loc == '/welcome' ? null : '/welcome';
       final home = a.isTrainee ? '/today' : '/roster';
-      if (loc == '/' || loc == '/login') return home;
+      if (loc == '/' || loc == '/welcome') return home;
       final seg = state.uri.pathSegments.isEmpty ? '' : state.uri.pathSegments.first;
       if (a.isTrainee && _coachOnly.contains(seg)) return home;
       if (!a.isTrainee && _traineeOnly.contains(seg)) return home;
       return null;
     },
     routes: [
-      GoRoute(path: '/', redirect: (_, _) => '/login'),
+      GoRoute(path: '/', redirect: (_, _) => '/welcome'),
       GoRoute(
-        path: '/login',
+        path: '/welcome',
         pageBuilder: (context, state) => CustomTransitionPage<void>(
           key: state.pageKey,
-          child: const LoginScreen(),
+          child: const OnboardingScreen(),
           transitionsBuilder: (context, a, s, child) => FadeTransition(opacity: a, child: child),
         ),
       ),
@@ -152,6 +155,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/plaque',
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) => _enter(s, const PlaqueScreen()),
+      ),
+      GoRoute(
+        path: '/edit-profile',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const EditProfileScreen()),
+      ),
+      GoRoute(
+        path: '/edit-profile/:tid',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, EditProfileScreen(tid: s.pathParameters['tid'])),
       ),
     ],
   );

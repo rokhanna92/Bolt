@@ -6,6 +6,7 @@ import '../../app/ui_state.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/session.dart';
+import '../../data/seed/splits.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
@@ -52,7 +53,11 @@ class PlanScreen extends ConsumerWidget {
         }
         return;
       }
-      if (c.session != null) showDaySheet(c.k);
+      if (c.session != null) {
+        showDaySheet(c.k);
+      } else if (store.addFromRotation(t.id, c.k)) {
+        showDaySheet(c.k);
+      }
     }
 
     return ScreenScroll(
@@ -114,6 +119,51 @@ class PlanScreen extends ConsumerWidget {
             ),
           ),
         ],
+        if (moving == null) ...[
+          const SizedBox(height: 14),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Tap(
+                    onTap: () => store.cycleSplit(t.id),
+                    child: BoltBox(
+                      radius: 14,
+                      stroke: const Stroke(BoltColors.line),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Kicker('YOUR SPLIT · TAP TO CHANGE', size: 9, spacing: .1),
+                          const SizedBox(height: 2),
+                          Text(kSplits[t.split]!.name, style: BoltText.a(13, weight: 800)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Tap(
+                  onTap: () => store.autoFill(t.id),
+                  scale: .96,
+                  child: BoltBox(
+                    radius: 14,
+                    color: BoltColors.neon,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    alignment: Alignment.center,
+                    child: Text('Auto-fill 3 wks', style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Tap an empty day to add the next session from your split.',
+            style: BoltText.a(12, color: BoltColors.muted),
+          ),
+        ],
         const SizedBox(height: 16),
         WeekdayHeader(mondayFirst: d.settings.mondayFirst),
         const SizedBox(height: 6),
@@ -128,7 +178,7 @@ class PlanScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 14),
             child: Text(
-              'Nothing planned yet. Your coach will add sessions here.',
+              'Nothing planned yet. Tap a day above or auto-fill from your split.',
               style: BoltText.a(14, color: BoltColors.muted),
             ),
           ),

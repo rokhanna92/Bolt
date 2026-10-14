@@ -4,15 +4,26 @@ import 'settings.dart';
 import 'template.dart';
 import 'visit.dart';
 
-enum Role { trainee, coach }
+/// How the phone's owner trains. Solo and trainee both use the trainee
+/// screens; a trainee also follows plans from a coach.
+enum Role { solo, trainee, coach }
 
+/// The phone's owner. One person per phone; their data never leaves it except
+/// through plans and updates they choose to share.
 class Account {
   const Account(this.role, this.id);
+
+  /// Id of the owner's own trainee or coach record.
+  static const ownerId = 'me';
 
   final Role role;
   final String id;
 
-  bool get isTrainee => role == Role.trainee;
+  bool get isCoach => role == Role.coach;
+
+  /// Uses the trainee screens (solo or trainee).
+  bool get isTrainee => role != Role.coach;
+  bool get isSolo => role == Role.solo;
 
   Map<String, dynamic> toJson() => {'role': role.name, 'id': id};
 
@@ -54,7 +65,11 @@ class BoltData {
     this.account,
     this.workout,
     this.nextId = 0,
+    this.linkId,
   });
+
+  /// Saved data format. Anything older (the v1.0 demo) is discarded.
+  static const version = 2;
 
   /// Templates by id, in library order.
   final Map<String, WorkoutTemplate> tpls;
@@ -74,10 +89,14 @@ class BoltData {
   ActiveWorkout? workout;
   int nextId;
 
+  /// For a trainee: their id on the coach's phone, from the last imported
+  /// plan, so updates sent back land on the right person.
+  String? linkId;
+
   String uid() => 'e${++nextId}';
 
   Map<String, dynamic> toJson() => {
-    'version': 1,
+    'version': version,
     'tpls': tpls.values.map((t) => t.toJson()).toList(),
     'coaches': coaches.map((c) => c.toJson()).toList(),
     'trainees': trainees.map((t) => t.toJson()).toList(),
@@ -88,6 +107,7 @@ class BoltData {
     'account': account?.toJson(),
     'workout': workout?.toJson(),
     'nextId': nextId,
+    'linkId': linkId,
   };
 
   factory BoltData.fromJson(Map<String, dynamic> j) {
@@ -108,6 +128,7 @@ class BoltData {
       account: j['account'] == null ? null : Account.fromJson(m(j['account'])),
       workout: j['workout'] == null ? null : ActiveWorkout.fromJson(m(j['workout'])),
       nextId: j['nextId'] as int? ?? 0,
+      linkId: j['linkId'] as String?,
     );
   }
 }

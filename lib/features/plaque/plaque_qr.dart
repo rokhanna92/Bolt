@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../data/seed/demo.dart';
+import '../../data/seed/content.dart';
 import '../../theme/tokens.dart';
 
 /// The gym's permanent check-in code, `bolt://checkin?gym=<plaque_token>`.
