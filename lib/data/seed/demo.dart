@@ -47,7 +47,17 @@ void fillWeek(BoltData d, Map<String, Session> plan, String split, DateTime mon,
 }
 
 class _DemoTrainee {
-  const _DemoTrainee(this.id, this.name, this.coach, this.goal, this.split, this.since, this.injuries, this.stats, this.pre);
+  const _DemoTrainee(
+    this.id,
+    this.name,
+    this.coach,
+    this.goal,
+    this.split,
+    this.since,
+    this.injuries,
+    this.stats,
+    this.pre,
+  );
 
   final String id, name, coach, goal, split, since;
   final List<Injury> injuries;
@@ -89,27 +99,65 @@ BoltData buildDemoData(DateTime now) {
   final today = dk(now);
   final mon0 = monday(now);
   final demo = [
-    _DemoTrainee('t1', 'Ana Marić', 'c1', 'Strength', 'ppl', 'Mar 2026', [], _st(24, 1890, 2, 0, 3, 4, 2), [214, 246, 198]),
-    _DemoTrainee('t2', 'Luka Petrović', 'c1', 'Hypertrophy', 'ul', 'Jan 2026', [Injury(area: 'back', note: 'Lower back strain. No heavy hinging for two weeks.', by: 'Added by Marko · 9 Oct')], _st(41, 3120, 0, 6, 7, 2, 3), [262, 238, 251]),
-    _DemoTrainee('t3', 'Ivan Horvat', 'c1', 'Fat loss', 'fb', 'Aug 2026', [], _st(14, 980, 6, 0, 1, 3, 1), [150, 182, 170]),
-    _DemoTrainee('t4', 'Mia Kos', 'c2', 'Conditioning', 'fb', 'May 2026', [], _st(33, 2210, 1, 2, 4, 6, 4), [196, 205, 188]),
-    _DemoTrainee('t5', 'David Jurić', 'c2', 'Return to sport', 'rehab', 'Sep 2026', [Injury(area: 'knee', note: 'Right knee. Avoid deep flexion and jumping.', by: 'Added by Sara · 2 Oct')], _st(8, 470, 0, 0, 0, 1, 1), [0, 96, 110]),
-    _DemoTrainee('t6', 'Petra Babić', 'c2', 'General fitness', 'fb', 'Oct 2026', [], _st(0, 0, 0, 0, 0, 0, 0), [0, 0, 0]),
+    _DemoTrainee('t1', 'Ana Marić', 'c1', 'Strength', 'ppl', 'Mar 2026', [], _st(24, 1890, 2, 0, 3, 4, 2), [
+      214,
+      246,
+      198,
+    ]),
+    _DemoTrainee(
+      't2',
+      'Luka Petrović',
+      'c1',
+      'Hypertrophy',
+      'ul',
+      'Jan 2026',
+      [Injury(area: 'back', note: 'Lower back strain. No heavy hinging for two weeks.', by: 'Added by Marko · 9 Oct')],
+      _st(41, 3120, 0, 6, 7, 2, 3),
+      [262, 238, 251],
+    ),
+    _DemoTrainee('t3', 'Ivan Horvat', 'c1', 'Fat loss', 'fb', 'Aug 2026', [], _st(14, 980, 6, 0, 1, 3, 1), [
+      150,
+      182,
+      170,
+    ]),
+    _DemoTrainee('t4', 'Mia Kos', 'c2', 'Conditioning', 'fb', 'May 2026', [], _st(33, 2210, 1, 2, 4, 6, 4), [
+      196,
+      205,
+      188,
+    ]),
+    _DemoTrainee(
+      't5',
+      'David Jurić',
+      'c2',
+      'Return to sport',
+      'rehab',
+      'Sep 2026',
+      [Injury(area: 'knee', note: 'Right knee. Avoid deep flexion and jumping.', by: 'Added by Sara · 2 Oct')],
+      _st(8, 470, 0, 0, 0, 1, 1),
+      [0, 96, 110],
+    ),
+    _DemoTrainee('t6', 'Petra Babić', 'c2', 'General fitness', 'fb', 'Oct 2026', [], _st(0, 0, 0, 0, 0, 0, 0), [
+      0,
+      0,
+      0,
+    ]),
   ];
 
   for (var ti = 0; ti < demo.length; ti++) {
     final t = demo[ti];
     if (t.stats.streak > 0) t.stats.lastPerfectWeek = dk(addDays(mon0, -7));
-    d.trainees.add(Trainee(
-      id: t.id,
-      name: t.name,
-      coach: t.coach,
-      goal: t.goal,
-      split: t.split,
-      since: t.since,
-      injuries: t.injuries,
-      stats: t.stats,
-    ));
+    d.trainees.add(
+      Trainee(
+        id: t.id,
+        name: t.name,
+        coach: t.coach,
+        goal: t.goal,
+        split: t.split,
+        since: t.since,
+        injuries: t.injuries,
+        stats: t.stats,
+      ),
+    );
     final plan = d.plans[t.id] = {};
     if (t.id != 't6') {
       for (var w = -2; w <= 0; w++) {

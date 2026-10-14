@@ -4,8 +4,18 @@
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const monthsLong = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 String pad(int n) => n.toString().padLeft(2, '0');
@@ -64,5 +74,9 @@ String plural(int n, String w) => '$n $w${n == 1 ? '' : 's'}';
 /// Workout title auto-size: <=6 chars base, <=9 74 %, longer 56 %.
 double tsz(String? name, double big) {
   final n = (name ?? '').length;
-  return (n <= 6 ? big : n <= 9 ? (big * .74).roundToDouble() : (big * .56).roundToDouble());
+  return (n <= 6
+      ? big
+      : n <= 9
+      ? (big * .74).roundToDouble()
+      : (big * .56).roundToDouble());
 }

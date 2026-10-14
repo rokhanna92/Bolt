@@ -20,9 +20,21 @@ class Split {
 }
 
 const kSplits = <String, Split>{
-  'ppl': Split(name: '3-day Push / Pull / Legs', short: 'PPL', days: [SplitDay(1, 'push'), SplitDay(3, 'pull'), SplitDay(5, 'legs')]),
-  'ul': Split(name: '4-day Upper / Lower', short: 'Upper/Lower', days: [SplitDay(1, 'upper'), SplitDay(2, 'legs'), SplitDay(4, 'upper'), SplitDay(5, 'cond')]),
-  'fb': Split(name: '3-day Full Body', short: 'Full body', days: [SplitDay(1, 'full'), SplitDay(3, 'full'), SplitDay(5, 'cond')]),
+  'ppl': Split(
+    name: '3-day Push / Pull / Legs',
+    short: 'PPL',
+    days: [SplitDay(1, 'push'), SplitDay(3, 'pull'), SplitDay(5, 'legs')],
+  ),
+  'ul': Split(
+    name: '4-day Upper / Lower',
+    short: 'Upper/Lower',
+    days: [SplitDay(1, 'upper'), SplitDay(2, 'legs'), SplitDay(4, 'upper'), SplitDay(5, 'cond')],
+  ),
+  'fb': Split(
+    name: '3-day Full Body',
+    short: 'Full body',
+    days: [SplitDay(1, 'full'), SplitDay(3, 'full'), SplitDay(5, 'cond')],
+  ),
   'rehab': Split(name: '2-day Rehab', short: 'Rehab', days: [SplitDay(2, 'full'), SplitDay(4, 'mob')]),
 };
 

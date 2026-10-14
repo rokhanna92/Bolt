@@ -1,0 +1,106 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../core/format.dart';
+import '../data/bolt_store.dart';
+import '../data/models/bolt_data.dart';
+import '../widgets/bolt_nav_bar.dart';
+import '../widgets/common.dart';
+import 'actions.dart';
+
+/// Tab scaffold for one role: the active tab plus the bottom nav. Tabs keep
+/// their state; switching replays the screen-enter fade.
+class BoltShell extends ConsumerWidget {
+  const BoltShell({super.key, required this.shell, required this.role});
+
+  final StatefulNavigationShell shell;
+  final Role role;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final d = ref.watch(boltProvider);
+    final id = d.account?.id ?? '';
+    final trainee = role == Role.trainee;
+    final name = trainee
+        ? (ref.read(boltProvider.notifier).trOrNull(id)?.name ?? '')
+        : ref.read(boltProvider.notifier).co(id).name;
+    final items = trainee
+        ? [
+            const NavItem(label: 'Today', icon: 'barbell'),
+            const NavItem(label: 'Plan', icon: 'calendar'),
+            const NavItem(label: 'Badges', icon: 'kettlebell'),
+            NavItem(label: 'Me', initials: initials(name)),
+          ]
+        : [
+            const NavItem(label: 'Trainees', icon: 'group', pillWidth: 56),
+            const NavItem(label: 'Schedule', icon: 'schedule'),
+            const NavItem(label: 'Library', icon: 'plate', pillWidth: 56),
+            NavItem(label: 'Profile', initials: initials(name), pillWidth: 56),
+          ];
+    // Trainee branches: today, plan, gym, badges, me. The gym has no tab of
+    // its own; the scan button opens it.
+    final branchOf = trainee ? const [0, 1, 3, 4] : const [0, 1, 2, 3];
+    final active = branchOf.indexOf(shell.currentIndex);
+    return BoltPage(
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: _TabFade(index: shell.currentIndex, child: shell),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: BoltNavBar(
+              items: items,
+              active: active,
+              scanActive: trainee && shell.currentIndex == 2,
+              onTap: (i) => shell.goBranch(branchOf[i], initialLocation: branchOf[i] == shell.currentIndex),
+              onScan: () => openScanner(context, ref),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TabFade extends StatefulWidget {
+  const _TabFade({required this.index, required this.child});
+
+  final int index;
+  final Widget child;
+
+  @override
+  State<_TabFade> createState() => _TabFadeState();
+}
+
+class _TabFadeState extends State<_TabFade> with SingleTickerProviderStateMixin {
+  late final _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 350))..forward();
+  late final _a = CurvedAnimation(parent: _c, curve: Curves.easeOut);
+
+  @override
+  void didUpdateWidget(_TabFade old) {
+    super.didUpdateWidget(old);
+    if (old.index != widget.index) _c.forward(from: 0);
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _a,
+      builder: (context, child) => Opacity(
+        opacity: _a.value,
+        child: Transform.translate(offset: Offset(0, 10 * (1 - _a.value)), child: child),
+      ),
+      child: widget.child,
+    );
+  }
+}

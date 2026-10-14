@@ -148,11 +148,13 @@ class BoltStore extends Notifier<BoltData> {
       final since = hm(n);
       state.gymIn[id] = GymIn(at: n.millisecondsSinceEpoch, base: 0, since: since);
       if (state.settings.checkout) {
-        _notify.scheduleCheckout(Reminder(
-          at: n.add(const Duration(hours: 3)),
-          title: 'Still at the gym?',
-          body: 'Checked in at $since. Scan the plaque on your way out.',
-        ));
+        _notify.scheduleCheckout(
+          Reminder(
+            at: n.add(const Duration(hours: 3)),
+            title: 'Still at the gym?',
+            body: 'Checked in at $since. Scan the plaque on your way out.',
+          ),
+        );
       }
       _commit();
       return ScanOutcome(head: 'Checked in', sub: '$since · have a good session');
@@ -408,31 +410,35 @@ class BoltStore extends Notifier<BoltData> {
     final t = tr(tid);
     final isT = state.account!.isTrainee;
     final by = isT ? 'Reported by ${firstName(t.name)}' : 'Added by ${firstName(co(state.account!.id).name)}';
-    t.injuries.add(Injury(
-      area: area,
-      note: note.trim().isEmpty ? '${kAreas[area]} pain reported' : note.trim(),
-      by: '$by · ${_dayLabel(now)}',
-      fresh: isT,
-    ));
+    t.injuries.add(
+      Injury(
+        area: area,
+        note: note.trim().isEmpty ? '${kAreas[area]} pain reported' : note.trim(),
+        by: '$by · ${_dayLabel(now)}',
+        fresh: isT,
+      ),
+    );
     _commit();
-    _toast(isT
-        ? '${firstName(co(t.coach).name)} notified · swaps suggested where needed'
-        : 'Flag added · matching exercises show swaps');
+    _toast(
+      isT
+          ? '${firstName(co(t.coach).name)} notified · swaps suggested where needed'
+          : 'Flag added · matching exercises show swaps',
+    );
   }
 
   // Editor
 
   /// The template or session being edited.
   Object? editObject(EditTarget target) => switch (target) {
-        TemplateTarget(:final id) => state.tpls[id],
-        DayTarget(:final tid, :final key) => state.plans[tid]?[key],
-      };
+    TemplateTarget(:final id) => state.tpls[id],
+    DayTarget(:final tid, :final key) => state.plans[tid]?[key],
+  };
 
   List<Exercise> editExercises(EditTarget target) => switch (editObject(target)) {
-        WorkoutTemplate t => t.ex,
-        Session s => s.ex,
-        _ => const [],
-      };
+    WorkoutTemplate t => t.ex,
+    Session s => s.ex,
+    _ => const [],
+  };
 
   /// Any edit to a planned day that is not done turns it back into a draft
   /// that has to be re-sent.
@@ -489,11 +495,13 @@ class BoltStore extends Notifier<BoltData> {
 
   bool addCoach(String name, String role) {
     if (name.trim().isEmpty) return false;
-    state.coaches.add(Coach(
-      id: 'c${state.coaches.length + 1}x${now.millisecondsSinceEpoch % 1000}',
-      name: name.trim(),
-      role: role.trim().isEmpty ? 'Coach' : role.trim(),
-    ));
+    state.coaches.add(
+      Coach(
+        id: 'c${state.coaches.length + 1}x${now.millisecondsSinceEpoch % 1000}',
+        name: name.trim(),
+        role: role.trim().isEmpty ? 'Coach' : role.trim(),
+      ),
+    );
     _commit();
     _toast('${firstName(name)} added as a coach');
     return true;
@@ -551,11 +559,13 @@ class BoltStore extends Notifier<BoltData> {
       final s = p[dk(d)];
       if (s == null || (s.status != SessionStatus.approved && s.status != SessionStatus.moved)) continue;
       final at = DateTime(d.year, d.month, d.day).add(Duration(minutes: usual - 120));
-      list.add(Reminder(
-        at: at,
-        title: '${s.title} today',
-        body: '${s.focus} · ~${s.mins} min. Scan the plaque when you arrive.',
-      ));
+      list.add(
+        Reminder(
+          at: at,
+          title: '${s.title} today',
+          body: '${s.focus} · ~${s.mins} min. Scan the plaque when you arrive.',
+        ),
+      );
     }
     _notify.replaceSessionReminders(list);
   }

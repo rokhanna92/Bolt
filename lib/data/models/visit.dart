@@ -1,12 +1,6 @@
 /// A closed gym visit.
 class Visit {
-  Visit({
-    required this.date,
-    required this.inT,
-    required this.outT,
-    required this.mins,
-    this.auto = false,
-  });
+  Visit({required this.date, required this.inT, required this.outT, required this.mins, this.auto = false});
 
   /// Day key of the check-in, so visits across midnight stay on their day.
   final String date;
@@ -20,12 +14,12 @@ class Visit {
   Map<String, dynamic> toJson() => {'date': date, 'inT': inT, 'outT': outT, 'mins': mins, 'auto': auto};
 
   factory Visit.fromJson(Map<String, dynamic> j) => Visit(
-        date: j['date'] as String,
-        inT: j['inT'] as String,
-        outT: j['outT'] as String,
-        mins: j['mins'] as int,
-        auto: j['auto'] as bool? ?? false,
-      );
+    date: j['date'] as String,
+    inT: j['inT'] as String,
+    outT: j['outT'] as String,
+    mins: j['mins'] as int,
+    auto: j['auto'] as bool? ?? false,
+  );
 }
 
 /// An open visit.

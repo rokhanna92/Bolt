@@ -35,10 +35,9 @@ class ActiveWorkout {
   Map<String, dynamic> toJson() => {'key': key, 'done': done};
 
   factory ActiveWorkout.fromJson(Map<String, dynamic> j) => ActiveWorkout(
-        key: j['key'] as String,
-        done: (j['done'] as Map<String, dynamic>)
-            .map((k, v) => MapEntry(k, (v as List).map((x) => x as bool).toList())),
-      );
+    key: j['key'] as String,
+    done: (j['done'] as Map<String, dynamic>).map((k, v) => MapEntry(k, (v as List).map((x) => x as bool).toList())),
+  );
 }
 
 /// Everything the app knows. Mutable on purpose: the store mutates it in place
@@ -78,18 +77,18 @@ class BoltData {
   String uid() => 'e${++nextId}';
 
   Map<String, dynamic> toJson() => {
-        'version': 1,
-        'tpls': tpls.values.map((t) => t.toJson()).toList(),
-        'coaches': coaches.map((c) => c.toJson()).toList(),
-        'trainees': trainees.map((t) => t.toJson()).toList(),
-        'plans': plans.map((tid, p) => MapEntry(tid, p.map((k, s) => MapEntry(k, s.toJson())))),
-        'visits': visits.map((id, v) => MapEntry(id, v.map((x) => x.toJson()).toList())),
-        'gymIn': gymIn.map((id, g) => MapEntry(id, g.toJson())),
-        'settings': settings.toJson(),
-        'account': account?.toJson(),
-        'workout': workout?.toJson(),
-        'nextId': nextId,
-      };
+    'version': 1,
+    'tpls': tpls.values.map((t) => t.toJson()).toList(),
+    'coaches': coaches.map((c) => c.toJson()).toList(),
+    'trainees': trainees.map((t) => t.toJson()).toList(),
+    'plans': plans.map((tid, p) => MapEntry(tid, p.map((k, s) => MapEntry(k, s.toJson())))),
+    'visits': visits.map((id, v) => MapEntry(id, v.map((x) => x.toJson()).toList())),
+    'gymIn': gymIn.map((id, g) => MapEntry(id, g.toJson())),
+    'settings': settings.toJson(),
+    'account': account?.toJson(),
+    'workout': workout?.toJson(),
+    'nextId': nextId,
+  };
 
   factory BoltData.fromJson(Map<String, dynamic> j) {
     Map<String, dynamic> m(Object? o) => o as Map<String, dynamic>;

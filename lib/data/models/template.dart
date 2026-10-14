@@ -23,22 +23,22 @@ class WorkoutTemplate {
   bool custom;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'code': code,
-        'focus': focus,
-        'mins': mins,
-        'ex': ex.map((e) => e.toJson()).toList(),
-        'custom': custom,
-      };
+    'id': id,
+    'name': name,
+    'code': code,
+    'focus': focus,
+    'mins': mins,
+    'ex': ex.map((e) => e.toJson()).toList(),
+    'custom': custom,
+  };
 
   factory WorkoutTemplate.fromJson(Map<String, dynamic> j) => WorkoutTemplate(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        code: j['code'] as String,
-        focus: j['focus'] as String,
-        mins: j['mins'] as int,
-        ex: (j['ex'] as List).map((e) => Exercise.fromJson(e as Map<String, dynamic>)).toList(),
-        custom: j['custom'] as bool? ?? false,
-      );
+    id: j['id'] as String,
+    name: j['name'] as String,
+    code: j['code'] as String,
+    focus: j['focus'] as String,
+    mins: j['mins'] as int,
+    ex: (j['ex'] as List).map((e) => Exercise.fromJson(e as Map<String, dynamic>)).toList(),
+    custom: j['custom'] as bool? ?? false,
+  );
 }

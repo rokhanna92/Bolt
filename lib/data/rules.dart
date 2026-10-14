@@ -8,10 +8,7 @@ import 'seed/splits.dart';
 /// Converts kg loads for display when the user prefers lb.
 String unitLoad(String load, {required bool kg}) {
   if (kg || load.isEmpty) return load;
-  return load.replaceAllMapped(
-    RegExp(r'([\d.]+)\s?kg'),
-    (m) => '${(double.parse(m[1]!) * 2.2046).round()} lb',
-  );
+  return load.replaceAllMapped(RegExp(r'([\d.]+)\s?kg'), (m) => '${(double.parse(m[1]!) * 2.2046).round()} lb');
 }
 
 /// An exercise is flagged when it loads an area with an active injury and
@@ -40,9 +37,9 @@ String nextInRotation(Map<String, Session> plan, String split, String k) {
 
 /// Badge ids whose goal [after] reaches and [before] did not.
 List<String> newlyUnlocked(TraineeStats before, TraineeStats after) => [
-      for (final b in kBadges)
-        if (before.value(b.key) < b.goal && after.value(b.key) >= b.goal) b.id,
-    ];
+  for (final b in kBadges)
+    if (before.value(b.key) < b.goal && after.value(b.key) >= b.goal) b.id,
+];
 
 /// Streak as it stands today: it breaks once a whole week passes without
 /// a perfect week.

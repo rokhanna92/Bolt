@@ -28,11 +28,11 @@ class Injury {
   Map<String, dynamic> toJson() => {'area': area, 'note': note, 'by': by, 'fresh': fresh};
 
   factory Injury.fromJson(Map<String, dynamic> j) => Injury(
-        area: j['area'] as String,
-        note: j['note'] as String,
-        by: j['by'] as String,
-        fresh: j['fresh'] as bool? ?? false,
-      );
+    area: j['area'] as String,
+    note: j['note'] as String,
+    by: j['by'] as String,
+    fresh: j['fresh'] as bool? ?? false,
+  );
 }
 
 /// Counters that drive badges.
@@ -62,49 +62,49 @@ class TraineeStats {
   String? lastPerfectWeek;
 
   TraineeStats copy() => TraineeStats(
-        sessions: sessions,
-        mins: mins,
-        early: early,
-        late: late,
-        prs: prs,
-        streak: streak,
-        perfect: perfect,
-        lastPerfectWeek: lastPerfectWeek,
-      );
+    sessions: sessions,
+    mins: mins,
+    early: early,
+    late: late,
+    prs: prs,
+    streak: streak,
+    perfect: perfect,
+    lastPerfectWeek: lastPerfectWeek,
+  );
 
   /// Badge counter by key, hours derived from minutes.
   int value(String key) => switch (key) {
-        'sessions' => sessions,
-        'hours' => mins ~/ 60,
-        'streak' => streak,
-        'early' => early,
-        'late' => late,
-        'prs' => prs,
-        'perfect' => perfect,
-        _ => 0,
-      };
+    'sessions' => sessions,
+    'hours' => mins ~/ 60,
+    'streak' => streak,
+    'early' => early,
+    'late' => late,
+    'prs' => prs,
+    'perfect' => perfect,
+    _ => 0,
+  };
 
   Map<String, dynamic> toJson() => {
-        'sessions': sessions,
-        'mins': mins,
-        'early': early,
-        'late': late,
-        'prs': prs,
-        'streak': streak,
-        'perfect': perfect,
-        'lastPerfectWeek': lastPerfectWeek,
-      };
+    'sessions': sessions,
+    'mins': mins,
+    'early': early,
+    'late': late,
+    'prs': prs,
+    'streak': streak,
+    'perfect': perfect,
+    'lastPerfectWeek': lastPerfectWeek,
+  };
 
   factory TraineeStats.fromJson(Map<String, dynamic> j) => TraineeStats(
-        sessions: j['sessions'] as int? ?? 0,
-        mins: j['mins'] as int? ?? 0,
-        early: j['early'] as int? ?? 0,
-        late: j['late'] as int? ?? 0,
-        prs: j['prs'] as int? ?? 0,
-        streak: j['streak'] as int? ?? 0,
-        perfect: j['perfect'] as int? ?? 0,
-        lastPerfectWeek: j['lastPerfectWeek'] as String?,
-      );
+    sessions: j['sessions'] as int? ?? 0,
+    mins: j['mins'] as int? ?? 0,
+    early: j['early'] as int? ?? 0,
+    late: j['late'] as int? ?? 0,
+    prs: j['prs'] as int? ?? 0,
+    streak: j['streak'] as int? ?? 0,
+    perfect: j['perfect'] as int? ?? 0,
+    lastPerfectWeek: j['lastPerfectWeek'] as String?,
+  );
 }
 
 class Trainee {
@@ -135,24 +135,24 @@ class Trainee {
   TraineeStats stats;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'coach': coach,
-        'goal': goal,
-        'split': split,
-        'since': since,
-        'injuries': injuries.map((i) => i.toJson()).toList(),
-        'stats': stats.toJson(),
-      };
+    'id': id,
+    'name': name,
+    'coach': coach,
+    'goal': goal,
+    'split': split,
+    'since': since,
+    'injuries': injuries.map((i) => i.toJson()).toList(),
+    'stats': stats.toJson(),
+  };
 
   factory Trainee.fromJson(Map<String, dynamic> j) => Trainee(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        coach: j['coach'] as String,
-        goal: j['goal'] as String,
-        split: j['split'] as String,
-        since: j['since'] as String,
-        injuries: (j['injuries'] as List).map((e) => Injury.fromJson(e as Map<String, dynamic>)).toList(),
-        stats: TraineeStats.fromJson(j['stats'] as Map<String, dynamic>),
-      );
+    id: j['id'] as String,
+    name: j['name'] as String,
+    coach: j['coach'] as String,
+    goal: j['goal'] as String,
+    split: j['split'] as String,
+    since: j['since'] as String,
+    injuries: (j['injuries'] as List).map((e) => Injury.fromJson(e as Map<String, dynamic>)).toList(),
+    stats: TraineeStats.fromJson(j['stats'] as Map<String, dynamic>),
+  );
 }

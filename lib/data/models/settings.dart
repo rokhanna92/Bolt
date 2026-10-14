@@ -23,20 +23,20 @@ class AppSettings {
   bool mondayFirst;
 
   Map<String, dynamic> toJson() => {
-        'remind': remind,
-        'plans': plans,
-        'checkout': checkout,
-        'kg': kg,
-        'restSecs': restSecs,
-        'mondayFirst': mondayFirst,
-      };
+    'remind': remind,
+    'plans': plans,
+    'checkout': checkout,
+    'kg': kg,
+    'restSecs': restSecs,
+    'mondayFirst': mondayFirst,
+  };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
-        remind: j['remind'] as bool? ?? true,
-        plans: j['plans'] as bool? ?? true,
-        checkout: j['checkout'] as bool? ?? true,
-        kg: j['kg'] as bool? ?? true,
-        restSecs: j['restSecs'] as int? ?? 90,
-        mondayFirst: j['mondayFirst'] as bool? ?? true,
-      );
+    remind: j['remind'] as bool? ?? true,
+    plans: j['plans'] as bool? ?? true,
+    checkout: j['checkout'] as bool? ?? true,
+    kg: j['kg'] as bool? ?? true,
+    restSecs: j['restSecs'] as int? ?? 90,
+    mondayFirst: j['mondayFirst'] as bool? ?? true,
+  );
 }

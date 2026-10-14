@@ -36,26 +36,26 @@ class Session {
   int get totalSets => ex.fold(0, (a, e) => a + e.sets);
 
   Map<String, dynamic> toJson() => {
-        'tpl': tpl,
-        'title': title,
-        'focus': focus,
-        'mins': mins,
-        'ex': ex.map((e) => e.toJson()).toList(),
-        'status': status.name,
-        'note': note,
-        'from': from,
-        'log': log,
-      };
+    'tpl': tpl,
+    'title': title,
+    'focus': focus,
+    'mins': mins,
+    'ex': ex.map((e) => e.toJson()).toList(),
+    'status': status.name,
+    'note': note,
+    'from': from,
+    'log': log,
+  };
 
   factory Session.fromJson(Map<String, dynamic> j) => Session(
-        tpl: j['tpl'] as String,
-        title: j['title'] as String,
-        focus: j['focus'] as String,
-        mins: j['mins'] as int,
-        ex: (j['ex'] as List).map((e) => Exercise.fromJson(e as Map<String, dynamic>)).toList(),
-        status: SessionStatus.values.byName(j['status'] as String),
-        note: j['note'] as String? ?? '',
-        from: j['from'] as String?,
-        log: j['log'] as String?,
-      );
+    tpl: j['tpl'] as String,
+    title: j['title'] as String,
+    focus: j['focus'] as String,
+    mins: j['mins'] as int,
+    ex: (j['ex'] as List).map((e) => Exercise.fromJson(e as Map<String, dynamic>)).toList(),
+    status: SessionStatus.values.byName(j['status'] as String),
+    note: j['note'] as String? ?? '',
+    from: j['from'] as String?,
+    log: j['log'] as String?,
+  );
 }

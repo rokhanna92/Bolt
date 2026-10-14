@@ -16,9 +16,7 @@ final wed = DateTime(2026, 10, 14, 18);
 
 class Harness {
   Harness([DateTime? start]) : clock = start ?? wed {
-    container = ProviderContainer(overrides: [
-      clockProvider.overrideWithValue(() => clock),
-    ]);
+    container = ProviderContainer(overrides: [clockProvider.overrideWithValue(() => clock)]);
   }
 
   DateTime clock;
@@ -193,7 +191,16 @@ void main() {
       h.store.autoFill('t6');
       final p = h.data.plans['t6']!;
       // Full body Mon/Wed/Fri: Wed 14 and Fri 16 this week, then 2 full weeks.
-      expect(p.keys.toList()..sort(), ['2026-10-14', '2026-10-16', '2026-10-19', '2026-10-21', '2026-10-23', '2026-10-26', '2026-10-28', '2026-10-30']);
+      expect(p.keys.toList()..sort(), [
+        '2026-10-14',
+        '2026-10-16',
+        '2026-10-19',
+        '2026-10-21',
+        '2026-10-23',
+        '2026-10-26',
+        '2026-10-28',
+        '2026-10-30',
+      ]);
       expect(p.values.every((s) => s.status == SessionStatus.draft), isTrue);
       expect(h.toast, '8 sessions drafted from 3-day Full Body');
       h.store.autoFill('t6');
