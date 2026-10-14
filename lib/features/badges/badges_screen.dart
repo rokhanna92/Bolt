@@ -39,9 +39,7 @@ class BadgesScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Expanded(
-              child: Text('Trophy rack', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02, height: 1.2)),
-            ),
+            Expanded(child: Text('Trophy rack', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02))),
             Text('$count / ${kBadges.length}', style: BoltText.m(14, weight: 700, color: BoltColors.neon)),
           ],
         ),

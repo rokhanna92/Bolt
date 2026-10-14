@@ -102,7 +102,7 @@ class BadgeMedal extends StatelessWidget {
         const SizedBox(height: 3),
         Text(
           badge.unit,
-          style: BoltText.m(7, color: p.ink2, spacing: unitSpacing, height: 1.2),
+          style: BoltText.m(7, color: p.ink2, spacing: unitSpacing),
         ),
       ],
     );

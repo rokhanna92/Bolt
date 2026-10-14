@@ -63,7 +63,7 @@ class GymScreen extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('NOT IN', style: BoltText.a(26, weight: 900, width: 115, height: 1.2)),
+                      Text('NOT IN', style: BoltText.a(26, weight: 900, width: 115)),
                       const SizedBox(height: 6),
                       SizedBox(
                         width: 140,
@@ -264,7 +264,7 @@ class _LiveRingState extends State<_LiveRing> with TickerProviderStateMixin {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(widget.timer, style: BoltText.m(30, weight: 700, color: BoltColors.neon, height: 1.2)),
+              Text(widget.timer, style: BoltText.m(30, weight: 700, color: BoltColors.neon)),
               const SizedBox(height: 4),
               Kicker('IN SINCE ${widget.since}', spacing: .1),
             ],

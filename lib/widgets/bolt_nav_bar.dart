@@ -103,10 +103,7 @@ class BoltNavBar extends ConsumerWidget {
                 : BoltIcon(it.icon!, color: c),
           ),
           const SizedBox(height: 4),
-          Text(
-            it.label,
-            style: BoltText.a(11, weight: 700, color: on ? BoltColors.text : BoltColors.muted, height: 1.2),
-          ),
+          Text(it.label, style: BoltText.a(11, weight: 700, color: on ? BoltColors.text : BoltColors.muted)),
         ],
       ),
     );

@@ -99,7 +99,7 @@ class RosterScreen extends ConsumerWidget {
                 children: [
                   Kicker(c.role.toUpperCase()),
                   const SizedBox(height: 4),
-                  Text('Coach ${firstName(c.name)}', style: BoltText.a(26, weight: 800, spacing: -.02, height: 1.2)),
+                  Text('Coach ${firstName(c.name)}', style: BoltText.a(26, weight: 800, spacing: -.02)),
                 ],
               ),
             ),

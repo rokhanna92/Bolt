@@ -46,7 +46,7 @@ class CoachProfileScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(c.name, style: BoltText.a(24, weight: 900, height: 1.2)),
+                  Text(c.name, style: BoltText.a(24, weight: 900)),
                   const SizedBox(height: 4),
                   Text(c.role, style: BoltText.a(13, color: BoltColors.muted)),
                 ],

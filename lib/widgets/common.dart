@@ -311,7 +311,7 @@ class StatusPill extends StatelessWidget {
       stroke: c.stroke,
       radius: BoltRadii.pill,
       padding: padding,
-      child: Text(label, maxLines: 1, style: BoltText.a(fontSize, weight: 700, color: c.fg, height: 1.2)),
+      child: Text(label, maxLines: 1, style: BoltText.a(fontSize, weight: 700, color: c.fg)),
     );
   }
 }
@@ -430,7 +430,7 @@ class StatTile extends StatelessWidget {
     final v = Text(
       value,
       maxLines: 1,
-      style: BoltText.a(valueSize, weight: valueWeight, color: valueColor, height: 1.2),
+      style: BoltText.a(valueSize, weight: valueWeight, color: valueColor),
     );
     final l = Kicker(label, size: 9, spacing: .1);
     return BoltBox(

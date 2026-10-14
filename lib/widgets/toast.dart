@@ -65,7 +65,7 @@ class _ToastLayerState extends ConsumerState<ToastLayer> {
                       child: Text(
                         t.text,
                         textAlign: TextAlign.center,
-                        style: BoltText.a(13, weight: 700, color: BoltColors.ink, height: 1.3),
+                        style: BoltText.a(13, weight: 700, color: BoltColors.ink),
                       ),
                     ),
                   ),

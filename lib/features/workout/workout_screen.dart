@@ -332,8 +332,8 @@ class _SetButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('SET $n', style: BoltText.m(8, spacing: .1, color: fg.withValues(alpha: .75), height: 1.2)),
-            Text(reps, style: BoltText.a(14, weight: 800, color: fg, height: 1.25)),
+            Text('SET $n', style: BoltText.m(8, spacing: .1, color: fg.withValues(alpha: .75))),
+            Text(reps, style: BoltText.a(14, weight: 800, color: fg)),
           ],
         ),
       ),

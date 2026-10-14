@@ -54,7 +54,7 @@ class TodayScreen extends ConsumerWidget {
                     '${weekdays[jsDay(now)]} · ${now.day} ${monthsShort[now.month - 1]} ${now.year}'.toUpperCase(),
                   ),
                   const SizedBox(height: 4),
-                  Text('Hey ${firstName(t.name)}', style: BoltText.a(26, weight: 800, spacing: -.02, height: 1.2)),
+                  Text('Hey ${firstName(t.name)}', style: BoltText.a(26, weight: 800, spacing: -.02)),
                 ],
               ),
             ),
@@ -107,10 +107,7 @@ class TodayScreen extends ConsumerWidget {
               children: [
                 Kicker('TODAY · DONE · ${(tp.log ?? '').toUpperCase()}', color: BoltColors.neon),
                 const SizedBox(height: 8),
-                Text(
-                  tp.title.toUpperCase(),
-                  style: BoltText.a(34, weight: 900, width: 115, spacing: -.02, height: 1.1),
-                ),
+                Text(tp.title.toUpperCase(), style: BoltText.a(34, weight: 900, width: 115, spacing: -.02)),
                 const SizedBox(height: 6),
                 Text('Next: $nextText', style: BoltText.a(14, color: BoltColors.muted)),
               ],
@@ -129,7 +126,7 @@ class TodayScreen extends ConsumerWidget {
               children: [
                 const Kicker('TODAY'),
                 const SizedBox(height: 8),
-                Text('REST DAY', style: BoltText.a(34, weight: 900, width: 115, height: 1.1)),
+                Text('REST DAY', style: BoltText.a(34, weight: 900, width: 115)),
                 const SizedBox(height: 6),
                 Text('Next: $nextText', style: BoltText.a(14, color: BoltColors.muted)),
               ],
@@ -325,10 +322,7 @@ class TodayScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              weekdays[jsDay(day)][0],
-              style: BoltText.m(10, color: it ? BoltColors.handle : BoltColors.muted, height: 1.2),
-            ),
+            Text(weekdays[jsDay(day)][0], style: BoltText.m(10, color: it ? BoltColors.handle : BoltColors.muted)),
             const SizedBox(height: 4),
             Text(
               '${day.day}',
@@ -336,7 +330,6 @@ class TodayScreen extends ConsumerWidget {
                 17,
                 weight: 800,
                 color: it ? BoltColors.ink : (past ? BoltColors.muted2 : BoltColors.text),
-                height: 1.2,
               ),
             ),
             const SizedBox(height: 4),

@@ -93,7 +93,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(x.name, style: BoltText.a(20, weight: 900, spacing: -.01, height: 1.2)),
+                          Text(x.name, style: BoltText.a(20, weight: 900, spacing: -.01)),
                           const SizedBox(height: 2),
                           Text('${x.goal} · since ${x.since}', style: BoltText.a(12, color: BoltColors.muted)),
                         ],
@@ -189,7 +189,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 const SizedBox(height: 14),
                 Row(
                   children: [
-                    Text(monthsLong[_month.month - 1], style: BoltText.a(22, weight: 900, height: 1.2)),
+                    Text(monthsLong[_month.month - 1], style: BoltText.a(22, weight: 900)),
                     const SizedBox(width: 8),
                     Padding(
                       padding: const EdgeInsets.only(top: 5),
@@ -312,7 +312,7 @@ class _SelectedDay extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text(s.title.toUpperCase(), style: BoltText.a(26, weight: 900, width: 112, height: 1.15)),
+          Text(s.title.toUpperCase(), style: BoltText.a(26, weight: 900, width: 112)),
           if (s.from != null) ...[
             const SizedBox(height: 2),
             Kicker('ORIGINALLY ${fmtDay(s.from!).toUpperCase()}', size: 10, spacing: 0),

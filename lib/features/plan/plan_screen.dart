@@ -61,10 +61,7 @@ class PlanScreen extends ConsumerWidget {
         const SizedBox(height: 4),
         Row(
           children: [
-            Text(
-              monthsLong[month.month - 1],
-              style: BoltText.a(30, weight: 900, width: 112, spacing: -.02, height: 1.2),
-            ),
+            Text(monthsLong[month.month - 1], style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
             const SizedBox(width: 8),
             Padding(
               padding: const EdgeInsets.only(top: 8),

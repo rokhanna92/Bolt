@@ -55,5 +55,5 @@ TraineeStats displayStats(TraineeStats s, DateTime now) => s.copy()..streak = cu
 /// "3 sessions to go".
 String badgeLeftText(BadgeDef b, TraineeStats s) {
   final r = b.goal - s.value(b.key);
-  return plural(r, kBadgeUnits[b.key]!);
+  return '${plural(r, kBadgeUnits[b.key]!)} to go';
 }

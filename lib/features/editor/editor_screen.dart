@@ -91,7 +91,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                 controller: _name,
                 onChanged: (v) => _store.renameTemplate(o.id, v),
                 textCapitalization: TextCapitalization.words,
-                style: BoltText.a(34, weight: 900, width: 112, color: BoltColors.neon, height: 1.15),
+                style: BoltText.a(34, weight: 900, width: 112, color: BoltColors.neon),
                 decoration: const InputDecoration(
                   isDense: true,
                   contentPadding: EdgeInsets.fromLTRB(0, 4, 0, 8),

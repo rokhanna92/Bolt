@@ -81,14 +81,7 @@ class _PlaqueScreenState extends ConsumerState<PlaqueScreen> {
                       children: [
                         Text(
                           'BOLT',
-                          style: BoltText.a(
-                            30,
-                            weight: 900,
-                            width: 125,
-                            spacing: .04,
-                            color: BoltColors.neon,
-                            height: 1.2,
-                          ),
+                          style: BoltText.a(30, weight: 900, width: 125, spacing: .04, color: BoltColors.neon),
                         ),
                         const SizedBox(height: 16),
                         const AspectRatio(

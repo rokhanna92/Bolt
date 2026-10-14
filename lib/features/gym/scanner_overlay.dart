@@ -129,6 +129,18 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
               ),
               child: Stack(
                 children: [
+                  // The faded plaque from the prototype shows until the camera
+                  // feed covers it, and stays if there is no camera.
+                  const Positioned.fill(
+                    left: 50,
+                    top: 50,
+                    right: 50,
+                    bottom: 50,
+                    child: Opacity(
+                      opacity: .25,
+                      child: BoltBox(color: BoltColors.text, radius: 8, padding: EdgeInsets.all(10), child: PlaqueQr()),
+                    ),
+                  ),
                   Positioned.fill(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(24),
@@ -147,22 +159,6 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
                             ),
                     ),
                   ),
-                  if (_cameraFailed)
-                    Positioned.fill(
-                      left: 50,
-                      top: 50,
-                      right: 50,
-                      bottom: 50,
-                      child: Opacity(
-                        opacity: .25,
-                        child: BoltBox(
-                          color: BoltColors.text,
-                          radius: 8,
-                          padding: const EdgeInsets.all(10),
-                          child: const PlaqueQr(),
-                        ),
-                      ),
-                    ),
                   const Positioned(left: 0, top: 0, child: _Corner(top: true, left: true)),
                   const Positioned(right: 0, top: 0, child: _Corner(top: true, left: false)),
                   const Positioned(left: 0, bottom: 0, child: _Corner(top: false, left: true)),
@@ -178,7 +174,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
             child: Text(
               'Point at the plaque by the entrance.\nTap the frame to simulate a scan.',
               textAlign: TextAlign.center,
-              style: BoltText.a(14, color: BoltColors.muted, height: 1.3),
+              style: BoltText.a(14, color: BoltColors.muted),
             ),
           ),
         ],
@@ -211,7 +207,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
           FadeSlideIn(
             delay: const Duration(milliseconds: 150),
             duration: const Duration(milliseconds: 400),
-            child: Text(r.head.toUpperCase(), style: BoltText.a(34, weight: 900, width: 115, height: 1.2)),
+            child: Text(r.head.toUpperCase(), style: BoltText.a(34, weight: 900, width: 115)),
           ),
           const SizedBox(height: 16),
           FadeSlideIn(

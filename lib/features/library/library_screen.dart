@@ -26,9 +26,7 @@ class LibraryScreen extends ConsumerWidget {
         const SizedBox(height: 4),
         Row(
           children: [
-            Expanded(
-              child: Text('Workouts', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02, height: 1.2)),
-            ),
+            Expanded(child: Text('Workouts', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02))),
             Tap(
               onTap: () => context.push('/editor/tpl/${store.newTemplate()}'),
               child: BoltBox(
@@ -96,7 +94,7 @@ class LibraryScreen extends ConsumerWidget {
             children: [
               Text(t.code, style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.neon)),
               const SizedBox(height: 6),
-              Text(t.name, style: BoltText.a(18, weight: 900, height: 1.15)),
+              Text(t.name, style: BoltText.a(18, weight: 900)),
               const SizedBox(height: 6),
               Expanded(
                 child: Text(t.focus, style: BoltText.a(11, color: BoltColors.muted)),
@@ -148,11 +146,11 @@ class LibraryScreen extends ConsumerWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(weekdays[wd][0], style: BoltText.m(8, color: BoltColors.muted3, height: 1.2)),
+                        Text(weekdays[wd][0], style: BoltText.m(8, color: BoltColors.muted3)),
                         const SizedBox(height: 1),
                         Text(
                           byDay[wd] == null ? '' : tpls[byDay[wd]]?.code ?? '',
-                          style: BoltText.m(8, weight: 700, color: BoltColors.neon, height: 1.2),
+                          style: BoltText.m(8, weight: 700, color: BoltColors.neon),
                         ),
                       ],
                     ),

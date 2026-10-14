@@ -6,6 +6,7 @@ import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/models/session.dart';
 import 'package:bolt/data/models/visit.dart';
 import 'package:bolt/data/rules.dart';
+import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/demo.dart';
 import 'package:bolt/data/seed/templates.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -256,6 +257,12 @@ void main() {
     expect(currentStreak(s, wed), 4);
     // ...until this week ends without one.
     expect(currentStreak(s, wed.add(const Duration(days: 7))), 0);
+  });
+
+  test('closest badge text counts down', () {
+    final h = Harness();
+    final s = h.data.trainees.first.stats;
+    expect(badgeLeftText(kBadges.firstWhere((b) => b.id == 's25'), s), '1 session to go');
   });
 
   test('visit json keeps the auto flag', () {

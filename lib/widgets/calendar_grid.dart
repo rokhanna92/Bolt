@@ -192,11 +192,11 @@ class CalendarGrid extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('${c.n}', style: BoltText.a(numSize, weight: 700, color: c.num, height: 1.15)),
+                    Text('${c.n}', style: BoltText.a(numSize, weight: 700, color: c.num)),
                     const SizedBox(height: 2),
                     Text(
                       c.lab,
-                      style: BoltText.m(8, weight: 700, color: c.labColor, spacing: labSpacing, height: 1.2),
+                      style: BoltText.m(8, weight: 700, color: c.labColor, spacing: labSpacing),
                     ),
                   ],
                 ),

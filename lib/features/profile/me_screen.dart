@@ -37,7 +37,7 @@ class MeScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(t.name, style: BoltText.a(24, weight: 900, spacing: -.02, height: 1.2)),
+                  Text(t.name, style: BoltText.a(24, weight: 900, spacing: -.02)),
                   const SizedBox(height: 4),
                   Text('Trainee · Coach ${coach.name}', style: BoltText.a(13, color: BoltColors.muted)),
                 ],
