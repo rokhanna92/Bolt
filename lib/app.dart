@@ -53,7 +53,10 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
       debugShowCheckedModeBanner: false,
       theme: buildBoltTheme(),
       routerConfig: ref.watch(routerProvider),
-      builder: (context, child) => Stack(children: [child!, const ToastLayer()]),
+      // The layout is pixel-tuned to the prototype; allow larger system text
+      // but cap it so fixed-size controls keep their shape.
+      builder: (context, child) =>
+          MediaQuery.withClampedTextScaling(maxScaleFactor: 1.15, child: Stack(children: [child!, const ToastLayer()])),
     );
   }
 }

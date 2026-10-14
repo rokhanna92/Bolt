@@ -454,7 +454,7 @@ class _HeroCard extends ConsumerWidget {
                     radius: 10,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     child: Text(
-                      '⚠ ${plural(flagged.length, 'exercise')} flagged for your ${kAreas[flagged.first.area]!.toLowerCase()} · swap available',
+                      '⚠\uFE0E ${plural(flagged.length, 'exercise')} flagged for your ${kAreas[flagged.first.area]!.toLowerCase()} · swap available',
                       style: BoltText.a(12, weight: 700, color: ink),
                     ),
                   ),

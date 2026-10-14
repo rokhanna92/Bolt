@@ -103,7 +103,12 @@ class BoltNavBar extends ConsumerWidget {
                 : BoltIcon(it.icon!, color: c),
           ),
           const SizedBox(height: 4),
-          Text(it.label, style: BoltText.a(11, weight: 700, color: on ? BoltColors.text : BoltColors.muted)),
+          Text(
+            it.label,
+            maxLines: 1,
+            softWrap: false,
+            style: BoltText.a(11, weight: 700, color: on ? BoltColors.text : BoltColors.muted),
+          ),
         ],
       ),
     );
@@ -143,6 +148,8 @@ class _ScanSlot extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(
             label,
+            maxLines: 1,
+            softWrap: false,
             style: BoltText.m(
               10,
               weight: 700,

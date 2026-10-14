@@ -119,6 +119,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Tap(
+            key: const Key('scan-frame'),
             onTap: _scan,
             child: Container(
               width: 260,
