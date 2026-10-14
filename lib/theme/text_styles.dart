@@ -25,17 +25,13 @@ abstract final class BoltText {
       color: color,
       letterSpacing: spacing == null ? null : spacing * size,
       height: height,
+      // CSS splits line-height leading evenly above and below the glyphs.
+      leadingDistribution: TextLeadingDistribution.even,
     );
   }
 
   /// JetBrains Mono for labels, numbers, timers and dates.
-  static TextStyle m(
-    double size, {
-    double weight = 400,
-    Color? color,
-    double? spacing,
-    double? height,
-  }) {
+  static TextStyle m(double size, {double weight = 400, Color? color, double? spacing, double? height}) {
     return TextStyle(
       fontFamily: mono,
       fontSize: size,
@@ -44,6 +40,8 @@ abstract final class BoltText {
       color: color,
       letterSpacing: spacing == null ? null : spacing * size,
       height: height,
+      // CSS splits line-height leading evenly above and below the glyphs.
+      leadingDistribution: TextLeadingDistribution.even,
     );
   }
 
