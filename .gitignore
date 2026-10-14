@@ -69,3 +69,11 @@ app.*.map.json
 /android/key.properties
 *.jks
 *.keystore
+
+# KDE folder settings
+.directory
+
+# Signing secrets - the keystore itself lives outside the repo
+android/key.properties
+*.jks
+*.keystore
