@@ -49,7 +49,7 @@ class LearnScreen extends ConsumerWidget {
                       onTap: () => ref.read(learnTabProvider.notifier).set(k),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        height: 40,
+                        height: 42,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: tab == k ? BoltColors.neon : const Color(0x00C6FF1A),

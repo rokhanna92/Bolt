@@ -331,6 +331,6 @@ class _TraineeCard extends ConsumerWidget {
       null => const Stroke(BoltColors.line, 1.5),
       _ => Stroke.none,
     };
-    return BoltBox(width: 9, height: 9, radius: 3, color: bg, stroke: stroke);
+    return BoltBox(width: 9, height: 9, borderBox: true, radius: 3, color: bg, stroke: stroke);
   }
 }

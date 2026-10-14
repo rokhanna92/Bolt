@@ -91,8 +91,8 @@ class BoltNavBar extends ConsumerWidget {
             ),
             child: it.initials != null
                 ? Container(
-                    width: 22,
-                    height: 22,
+                    width: 25.6,
+                    height: 25.6,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,

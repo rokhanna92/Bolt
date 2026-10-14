@@ -179,44 +179,68 @@ class CalendarGrid extends StatelessWidget {
       onTap: () => onTap(c),
       child: Opacity(
         opacity: c.inMonth ? 1 : .35,
-        child: BoltBox(
-          height: cellHeight,
-          radius: BoltRadii.cell,
-          color: c.bg,
-          stroke: c.stroke,
-          shadows: c.ring ? const [BoxShadow(color: BoltColors.text, spreadRadius: 2)] : null,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('${c.n}', style: BoltText.a(numSize, weight: 700, color: c.num)),
-                    const SizedBox(height: 2),
-                    Text(
-                      c.lab,
-                      style: BoltText.m(8, weight: 700, color: c.labColor, spacing: labSpacing),
-                    ),
-                  ],
-                ),
-              ),
-              if (c.today)
-                Positioned(
-                  top: 4,
-                  right: 5,
-                  child: Container(
-                    width: 5,
-                    height: 5,
-                    decoration: BoxDecoration(color: c.todayColor, shape: BoxShape.circle),
+        child: CustomPaint(
+          foregroundPainter: c.ring ? const _RingPainter() : null,
+          child: BoltBox(
+            height: cellHeight,
+            borderBox: true,
+            radius: BoltRadii.cell,
+            color: c.bg,
+            stroke: c.stroke,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('${c.n}', style: BoltText.a(numSize, weight: 700, color: c.num)),
+                      const SizedBox(height: 2),
+                      Text(
+                        c.lab,
+                        style: BoltText.m(8, weight: 700, color: c.labColor, spacing: labSpacing),
+                      ),
+                    ],
                   ),
                 ),
-            ],
+                if (c.today)
+                  Positioned(
+                    top: 4,
+                    right: 5,
+                    child: Container(
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(color: c.todayColor, shape: BoxShape.circle),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+/// The selected day's ring: 2 px outside the cell, like CSS
+/// `box-shadow: 0 0 0 2px`, which never paints under the cell itself.
+class _RingPainter extends CustomPainter {
+  const _RingPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = RRect.fromRectAndRadius((Offset.zero & size).inflate(1), const Radius.circular(BoltRadii.cell + 1));
+    canvas.drawRRect(
+      r,
+      Paint()
+        ..color = BoltColors.text
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) => false;
 }
 
 class LegendItem {
@@ -258,7 +282,7 @@ class Legend extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              BoltBox(width: 12, height: 12, radius: 4, color: l.bg, stroke: l.stroke),
+              BoltBox(width: 12, height: 12, borderBox: true, radius: 4, color: l.bg, stroke: l.stroke),
               const SizedBox(width: 6),
               Text(l.label, style: BoltText.a(11, color: BoltColors.muted)),
             ],

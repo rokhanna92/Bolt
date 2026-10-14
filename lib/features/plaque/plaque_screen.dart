@@ -68,7 +68,8 @@ class _PlaqueScreenState extends ConsumerState<PlaqueScreen> {
             const SizedBox(height: 22),
             Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 300),
+                // max-width 300 plus 24 padding and 2 border each side.
+                constraints: const BoxConstraints(maxWidth: 352),
                 child: RepaintBoundary(
                   key: _plaque,
                   child: BoltBox(

@@ -236,7 +236,7 @@ class _LiveRingState extends State<_LiveRing> with TickerProviderStateMixin {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          const BoltBox(width: 200, height: 200, circle: true, stroke: Stroke(BoltColors.lineSoft, 2)),
+          const BoltBox(width: 200, height: 200, borderBox: true, circle: true, stroke: Stroke(BoltColors.lineSoft, 2)),
           RotationTransition(
             turns: _spin,
             child: const CustomPaint(size: Size(200, 200), painter: _ArcPainter()),

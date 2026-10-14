@@ -388,8 +388,8 @@ class _HeroCard extends ConsumerWidget {
               right: -60,
               top: -62,
               child: Container(
-                width: 170,
-                height: 170,
+                width: 214,
+                height: 214,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: const Color(0x140A0B09), width: 22),
@@ -400,8 +400,8 @@ class _HeroCard extends ConsumerWidget {
               right: -5,
               top: -7,
               child: Container(
-                width: 60,
-                height: 60,
+                width: 76,
+                height: 76,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: const Color(0x140A0B09), width: 8),

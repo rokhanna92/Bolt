@@ -82,6 +82,10 @@ class BoltField extends StatelessWidget {
       child: TextField(
         controller: controller,
         onChanged: onChanged,
+        // Fill the fixed height like the prototype's inputs.
+        expands: true,
+        maxLines: null,
+        textInputAction: TextInputAction.done,
         textAlignVertical: TextAlignVertical.center,
         style: BoltText.a(fontSize, weight: weight),
         decoration: InputDecoration(

@@ -127,6 +127,7 @@ class CoachProfileScreen extends ConsumerWidget {
                 const BoltBox(
                   width: 48,
                   height: 48,
+                  borderBox: true,
                   radius: 10,
                   color: BoltColors.text,
                   padding: EdgeInsets.all(5),
@@ -183,9 +184,9 @@ class _AddCoachSheetState extends ConsumerState<AddCoachSheet> {
       children: [
         Text('Add coach', style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 10),
-        BoltField(controller: _name, hint: 'Full name', onChanged: (_) => setState(() {})),
+        BoltField(controller: _name, hint: 'Full name', height: 52, onChanged: (_) => setState(() {})),
         const SizedBox(height: 10),
-        BoltField(controller: _role, hint: 'Specialty, e.g. Powerlifting'),
+        BoltField(controller: _role, hint: 'Specialty, e.g. Powerlifting', height: 52),
         const SizedBox(height: 10),
         NeonButton(
           label: 'Add coach',

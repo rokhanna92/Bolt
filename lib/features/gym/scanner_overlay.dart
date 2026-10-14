@@ -225,7 +225,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
   }
 }
 
-/// Neon corner bracket: 44 px, 4 px stroke, 22 px outer radius.
+/// Neon corner bracket: 44 px plus its 4 px border, 22 px outer radius.
 class _Corner extends StatelessWidget {
   const _Corner({required this.top, required this.left});
 
@@ -236,7 +236,7 @@ class _Corner extends StatelessWidget {
   Widget build(BuildContext context) => Transform.flip(
     flipX: !left,
     flipY: !top,
-    child: const CustomPaint(size: Size(44, 44), painter: _CornerPainter()),
+    child: const CustomPaint(size: Size(48, 48), painter: _CornerPainter()),
   );
 }
 

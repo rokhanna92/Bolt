@@ -86,8 +86,8 @@ class _UnlockOverlayState extends State<UnlockOverlay> with SingleTickerProvider
                   );
                 },
                 child: Container(
-                  width: 150,
-                  height: 150,
+                  width: 160,
+                  height: 160,
                   decoration: BoxDecoration(
                     color: BoltColors.ink,
                     shape: BoxShape.circle,

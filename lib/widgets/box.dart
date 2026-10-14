@@ -17,9 +17,12 @@ class Stroke {
   final bool dashed;
 }
 
-/// A box with background, border (solid or dashed), radius and shadows, sized
-/// like CSS `box-sizing: border-box`: the border sits inside the size and
-/// insets the child.
+/// A box with background, border (solid or dashed), radius and shadows.
+///
+/// Sized like the prototype's CSS, which uses the default `content-box`:
+/// [width] and [height] are the content size, and border and padding are
+/// added around it. Pass [borderBox] where the prototype sets
+/// `box-sizing: border-box`.
 class BoltBox extends StatelessWidget {
   const BoltBox({
     super.key,
@@ -34,6 +37,7 @@ class BoltBox extends StatelessWidget {
     this.alignment,
     this.gradient,
     this.clip = false,
+    this.borderBox = false,
     this.child,
   });
 
@@ -48,6 +52,7 @@ class BoltBox extends StatelessWidget {
   final AlignmentGeometry? alignment;
   final Gradient? gradient;
   final bool clip;
+  final bool borderBox;
   final Widget? child;
 
   @override
@@ -55,9 +60,12 @@ class BoltBox extends StatelessWidget {
     final shape = circle ? BoxShape.circle : BoxShape.rectangle;
     final r = circle ? null : BorderRadius.circular(radius);
     final solid = stroke.width > 0 && !stroke.dashed;
+    final pad = padding?.resolve(TextDirection.ltr) ?? EdgeInsets.zero;
+    final extraW = borderBox ? 0.0 : 2 * stroke.width + pad.horizontal;
+    final extraH = borderBox ? 0.0 : 2 * stroke.width + pad.vertical;
     final box = Container(
-      width: width,
-      height: height,
+      width: width == null ? null : width! + extraW,
+      height: height == null ? null : height! + extraH,
       alignment: alignment,
       padding: stroke.dashed ? EdgeInsets.all(stroke.width).add(padding ?? EdgeInsets.zero) : padding,
       clipBehavior: clip ? Clip.antiAlias : Clip.none,

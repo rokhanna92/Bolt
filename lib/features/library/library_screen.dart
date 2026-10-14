@@ -138,6 +138,7 @@ class LibraryScreen extends ConsumerWidget {
                 Expanded(
                   child: BoltBox(
                     height: 40,
+                    borderBox: true,
                     radius: 9,
                     color: byDay[wd] != null ? BoltColors.surface2 : Colors.transparent,
                     stroke: byDay[wd] != null
