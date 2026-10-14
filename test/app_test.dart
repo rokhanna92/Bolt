@@ -68,7 +68,7 @@ Future<void> onboard(WidgetTester tester, String role, String name, {String? wei
   await typeInto(tester, 'Your name', name);
   await tapText(tester, 'Continue');
   expect(find.text('Your body'), findsOneWidget);
-  if (weight != null) await typeInto(tester, 'Weight', weight);
+  if (weight != null) await typeInto(tester, 'Weight (kg)', weight);
   await tapText(tester, role == 'I coach people' ? 'Start coaching' : 'Start training');
 }
 
