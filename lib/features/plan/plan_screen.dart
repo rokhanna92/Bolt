@@ -177,12 +177,19 @@ class PlanScreen extends ConsumerWidget {
                   style: BoltText.a(13, weight: 700, color: BoltColors.neon),
                 ),
               ),
-              const Spacer(),
-              Tap(
-                onTap: () => showBoltSheet<void>(context, (_) => ProgramSheet(tid: t.id), maxHeight: .92),
-                child: Text(
-                  programWeekText(store, t.id) ?? tx('Programs…'),
-                  style: BoltText.a(13, weight: 700, color: BoltColors.neon),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Tap(
+                    onTap: () => showBoltSheet<void>(context, (_) => ProgramSheet(tid: t.id), maxHeight: .92),
+                    child: Text(
+                      programWeekText(store, t.id) ?? tx('Programs…'),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: BoltText.a(13, weight: 700, color: BoltColors.neon),
+                    ),
+                  ),
                 ),
               ),
             ],

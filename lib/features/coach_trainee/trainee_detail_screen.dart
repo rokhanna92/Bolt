@@ -246,12 +246,19 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                           style: BoltText.a(12, weight: 700, color: BoltColors.neon),
                         ),
                       ),
-                    const Spacer(),
-                    Tap(
-                      onTap: () => showBoltSheet<void>(context, (_) => ProgramSheet(tid: x.id), maxHeight: .92),
-                      child: Text(
-                        programWeekText(store, x.id) ?? tx('Programs…'),
-                        style: BoltText.a(12, weight: 700, color: BoltColors.neon),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Tap(
+                          onTap: () => showBoltSheet<void>(context, (_) => ProgramSheet(tid: x.id), maxHeight: .92),
+                          child: Text(
+                            programWeekText(store, x.id) ?? tx('Programs…'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: BoltText.a(12, weight: 700, color: BoltColors.neon),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
