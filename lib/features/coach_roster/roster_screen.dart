@@ -8,6 +8,8 @@ import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/people.dart';
 import '../../data/models/session.dart';
+import '../../data/rules.dart';
+import '../../data/seed/badges.dart';
 import '../../data/seed/splits.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
@@ -304,6 +306,8 @@ class _TraineeCard extends ConsumerWidget {
     final w7 = [for (var i = 0; i < 7; i++) p[dk(addDays(mon, i))]];
     final planned = w7.whereType<Session>().toList();
     final inGym = d.gymIn[x.id] != null;
+    final stats = displayStats(x.stats, store.now);
+    final badges = kBadges.where((b) => badgeEarned(b, stats)).length;
     return Tap(
       onTap: onOpen,
       scale: .98,
@@ -349,6 +353,11 @@ class _TraineeCard extends ConsumerWidget {
                         style: BoltText.m(9, color: BoltColors.muted),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    '${plural(stats.sessions, 'session').toUpperCase()} · ${stats.streak}W STREAK · $badges/${kBadges.length} BADGES',
+                    style: BoltText.m(9, color: BoltColors.muted),
                   ),
                 ],
               ),

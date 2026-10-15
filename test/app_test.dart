@@ -284,6 +284,29 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a coach sees each trainee\'s progress', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'I coach people', 'Marko');
+    final store = c.read(boltProvider.notifier);
+    final tid = store.addTrainee(const ProfileInput(name: 'Ana Marić'));
+    // As if her update had come in.
+    store.tr(tid).stats
+      ..sessions = 12
+      ..mins = 600
+      ..workouts = 1;
+    store.toggleWeekStart();
+    store.toggleWeekStart();
+    await settle(tester);
+    // First Rep, Ten Down, Under the Bar and Logged.
+    expect(find.text('12 SESSIONS · 0W STREAK · 4/24 BADGES'), findsOneWidget);
+
+    await tapText(tester, 'Ana Marić');
+    expect(find.text('Progress'), findsOneWidget);
+    expect(find.text('4 / 24'), findsOneWidget);
+    expect(find.text('Next: 25 Club'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('a coach switches to solo and back from the profile', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'I coach people', 'Marko');

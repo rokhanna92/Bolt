@@ -9,6 +9,7 @@ import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/session.dart';
 import '../../data/models/visit.dart';
+import '../../data/rules.dart';
 import '../../data/seed/splits.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
@@ -19,6 +20,7 @@ import '../../widgets/common.dart';
 import '../../widgets/exercise_rows.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/tap.dart';
+import '../badges/badges_screen.dart';
 import '../gym/gym_screen.dart' show VisitRow, visitDay;
 import '../profile/body_card.dart';
 
@@ -212,6 +214,23 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 14),
+                const SectionTitle('Progress', size: 16),
+                const SizedBox(height: 4),
+                Text(
+                  'From $fn\'s updates: gym sessions, workouts and badges.',
+                  style: BoltText.a(12, color: BoltColors.muted),
+                ),
+                const SizedBox(height: 10),
+                StatRow(
+                  children: [
+                    StatTile(value: '${x.stats.sessions}', label: 'SESSIONS', valueColor: BoltColors.neon),
+                    StatTile(value: '${x.stats.mins ~/ 60}', label: 'HOURS'),
+                    StatTile(value: '${currentStreak(x.stats, store.now)}', label: 'WEEK STREAK'),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                BadgesCard(stats: displayStats(x.stats, store.now)),
+                const SizedBox(height: 18),
                 BodyCard(
                   body: x.body,
                   titleSize: 16,
