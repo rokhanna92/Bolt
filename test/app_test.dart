@@ -139,6 +139,19 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('solo users open the workout library from Me', (tester) async {
+    await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapText(tester, 'Me');
+    await tapText(tester, 'Workouts');
+    expect(find.text('LIBRARY'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('‹'));
+    await settle(tester);
+    expect(find.text('Training solo'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('a trainee starts empty and can import or plan', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'With a coach', 'Ana');

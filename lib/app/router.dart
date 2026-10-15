@@ -21,6 +21,7 @@ import '../features/profile/me_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/today/today_screen.dart';
 import '../features/workout/workout_screen.dart';
+import '../widgets/common.dart';
 import 'shell.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -150,6 +151,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/settings',
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) => _enter(s, const SettingsScreen()),
+      ),
+      // The Library for people who train: coaches have it as a tab instead.
+      GoRoute(
+        path: '/workouts',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const BoltPage(child: LibraryScreen())),
       ),
       GoRoute(
         path: '/plaque',

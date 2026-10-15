@@ -110,7 +110,7 @@ class MeScreen extends ConsumerWidget {
         ],
         const SizedBox(height: 24),
         Tap(
-          onTap: () => context.push('/library'),
+          onTap: () => context.push('/workouts'),
           child: BoltBox(
             color: BoltColors.surface1,
             stroke: const Stroke(BoltColors.lineSoft),
