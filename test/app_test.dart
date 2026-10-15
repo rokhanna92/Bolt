@@ -307,6 +307,35 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the coach centre button opens a calendar of every trainee', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'I coach people', 'Marko');
+    expect(find.text('Check in'), findsNothing);
+    final store = c.read(boltProvider.notifier);
+    store.autoFill(store.addTrainee(const ProfileInput(name: 'Ana Marić')));
+    store.autoFill(store.addTrainee(const ProfileInput(name: 'Luka Horvat')));
+    await settle(tester);
+
+    await tapText(tester, 'Calendar');
+    expect(find.text('CALENDAR · 2 TRAINEES'), findsOneWidget);
+    expect(find.text('October'), findsOneWidget);
+    // Today both have Pull drafted.
+    expect(find.text('WED 14 OCT'), findsOneWidget);
+    expect(find.text('Ana Marić'), findsOneWidget);
+    expect(find.text('Luka Horvat'), findsOneWidget);
+    await tapText(tester, '15');
+    expect(find.text('No sessions'), findsOneWidget);
+    await tapText(tester, '›');
+    expect(find.text('November'), findsOneWidget);
+    expect(find.text('SUN 1 NOV'), findsOneWidget);
+
+    await tapText(tester, '‹');
+    await tapText(tester, '14');
+    await tapText(tester, 'Ana Marić');
+    expect(find.text('Progress'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('a coach switches to solo and back from the profile', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'I coach people', 'Marko');

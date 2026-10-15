@@ -22,6 +22,7 @@ class CalCell {
     required this.today,
     required this.todayColor,
     required this.session,
+    this.dots = const [],
   });
 
   final String k;
@@ -36,10 +37,14 @@ class CalCell {
   final bool today;
   final Color todayColor;
   final Session? session;
+
+  /// Several people's sessions on this day, shown as dots instead of [lab].
+  final List<SessionStatus> dots;
 }
 
 /// Calendar cells for [month], styled per session status (`cal()` in the
-/// prototype). Trainees never see drafts.
+/// prototype). Trainees never see drafts. [dots] puts several people's
+/// sessions on a day instead, one dot each.
 List<CalCell> buildCalendar({
   required DateTime month,
   required Map<String, Session> plan,
@@ -49,6 +54,7 @@ List<CalCell> buildCalendar({
   required bool mondayFirst,
   String? selKey,
   String? moveFrom,
+  Map<String, List<SessionStatus>> dots = const {},
 }) {
   final first = DateTime(month.year, month.month, 1);
   final start = weekStart(first, mondayFirst: mondayFirst);
@@ -92,6 +98,8 @@ List<CalCell> buildCalendar({
       case null:
         break;
     }
+    final ds = dots[k] ?? const <SessionStatus>[];
+    if (ds.isNotEmpty && inM && !past) num = BoltColors.text;
     if (moveFrom != null && p == null && !past && inM) bg = const Color(0x17C6FF1A);
     if (moveFrom == k) stroke = const Stroke(BoltColors.neon, 1.5);
     final tpl = p == null ? null : tpls[p.tpl];
@@ -110,6 +118,7 @@ List<CalCell> buildCalendar({
         today: k == today,
         todayColor: p?.status == SessionStatus.done ? BoltColors.ink : BoltColors.neon,
         session: p,
+        dots: ds,
       ),
     );
   }
@@ -196,10 +205,13 @@ class CalendarGrid extends StatelessWidget {
                     children: [
                       Text('${c.n}', style: BoltText.a(numSize, weight: 700, color: c.num)),
                       const SizedBox(height: 2),
-                      Text(
-                        c.lab,
-                        style: BoltText.m(8, weight: 700, color: c.labColor, spacing: labSpacing),
-                      ),
+                      if (c.dots.isEmpty)
+                        Text(
+                          c.lab,
+                          style: BoltText.m(8, weight: 700, color: c.labColor, spacing: labSpacing),
+                        )
+                      else
+                        _dots(c.dots),
                     ],
                   ),
                 ),
@@ -219,6 +231,53 @@ class CalendarGrid extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Up to four dots; more show three and a count.
+Widget _dots(List<SessionStatus> d) {
+  final more = d.length > 4;
+  return SizedBox(
+    height: 10,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final (i, s) in d.take(more ? 3 : 4).indexed) ...[
+          if (i > 0) const SizedBox(width: 3),
+          SessionDot(s, size: 6),
+        ],
+        if (more) ...[
+          const SizedBox(width: 2),
+          Text('+${d.length - 3}', style: BoltText.m(8, weight: 700, color: BoltColors.neon, height: 1)),
+        ],
+      ],
+    ),
+  );
+}
+
+/// A session's status as a small square: done is solid neon, confirmed or
+/// moved solid white, waiting outlined neon, a draft dashed, no session an
+/// empty outline.
+class SessionDot extends StatelessWidget {
+  const SessionDot(this.status, {super.key, this.size = 9});
+
+  final SessionStatus? status;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = switch (status) {
+      SessionStatus.done => BoltColors.neon,
+      SessionStatus.approved || SessionStatus.moved => BoltColors.text,
+      _ => Colors.transparent,
+    };
+    final stroke = switch (status) {
+      SessionStatus.pending => const Stroke(BoltColors.neon, 1.5),
+      SessionStatus.draft => const Stroke.dashed(BoltColors.muted2, 1.5),
+      null => const Stroke(BoltColors.line, 1.5),
+      _ => Stroke.none,
+    };
+    return BoltBox(width: size, height: size, borderBox: true, radius: size / 3, color: bg, stroke: stroke);
   }
 }
 

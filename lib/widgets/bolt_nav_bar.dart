@@ -20,7 +20,8 @@ class NavItem {
   final double pillWidth;
 }
 
-/// Five-slot bottom nav with the raised neon scan button in the middle.
+/// Five-slot bottom nav with the raised neon button in the middle: the gym
+/// scanner for people who train, the calendar for coaches.
 class BoltNavBar extends ConsumerWidget {
   const BoltNavBar({
     super.key,
@@ -29,6 +30,8 @@ class BoltNavBar extends ConsumerWidget {
     required this.onTap,
     required this.onScan,
     this.scanActive = false,
+    this.centerIcon = 'scan',
+    this.centerLabel,
   });
 
   /// Four tabs; the scan button sits between the second and third.
@@ -39,8 +42,12 @@ class BoltNavBar extends ConsumerWidget {
   final ValueChanged<int> onTap;
   final VoidCallback onScan;
 
-  /// The gym screen is open (trainee).
+  /// The centre button's screen is open (gym or calendar).
   final bool scanActive;
+  final String centerIcon;
+
+  /// Fixed label; null shows "Check in" or the time in the gym.
+  final String? centerLabel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,7 +69,7 @@ class BoltNavBar extends ConsumerWidget {
           Expanded(child: _tab(0)),
           Expanded(child: _tab(1)),
           Expanded(
-            child: _ScanSlot(onTap: onScan, highlighted: scanActive),
+            child: _ScanSlot(onTap: onScan, highlighted: scanActive, icon: centerIcon, fixedLabel: centerLabel),
           ),
           Expanded(child: _tab(2)),
           Expanded(child: _tab(3)),
@@ -116,16 +123,18 @@ class BoltNavBar extends ConsumerWidget {
 }
 
 class _ScanSlot extends ConsumerWidget {
-  const _ScanSlot({required this.onTap, required this.highlighted});
+  const _ScanSlot({required this.onTap, required this.highlighted, required this.icon, this.fixedLabel});
 
   final VoidCallback onTap;
   final bool highlighted;
+  final String icon;
+  final String? fixedLabel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final id = ref.watch(boltProvider.select((d) => d.account?.id));
     final g = ref.watch(boltProvider).gymIn[id];
-    final label = g == null ? 'Check in' : dur(g.elapsedMinutes(watchNow(ref)));
+    final label = fixedLabel ?? (g == null ? 'Check in' : dur(g.elapsedMinutes(watchNow(ref))));
     return Tap(
       onTap: onTap,
       scale: .92,
@@ -143,7 +152,7 @@ class _ScanSlot extends ConsumerWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: const [BoxShadow(color: Color(0x59C6FF1A), blurRadius: 24, offset: Offset(0, 6))],
             ),
-            child: const BoltIcon('scan', size: 26, color: BoltColors.ink),
+            child: BoltIcon(icon, size: 26, color: BoltColors.ink),
           ),
           const SizedBox(height: 4),
           Text(
@@ -153,7 +162,7 @@ class _ScanSlot extends ConsumerWidget {
             style: BoltText.m(
               10,
               weight: 700,
-              color: highlighted || g != null ? BoltColors.text : BoltColors.muted,
+              color: highlighted || (fixedLabel == null && g != null) ? BoltColors.text : BoltColors.muted,
               height: 1.2,
             ),
           ),

@@ -16,6 +16,7 @@ import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
+import '../../widgets/calendar_grid.dart';
 import '../../widgets/common.dart';
 import '../../widgets/fields.dart';
 import '../../widgets/forms.dart';
@@ -346,7 +347,7 @@ class _TraineeCard extends ConsumerWidget {
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      for (final s in w7) ...[_dot(s?.status), const SizedBox(width: 4)],
+                      for (final s in w7) ...[SessionDot(s?.status), const SizedBox(width: 4)],
                       const SizedBox(width: 6),
                       Text(
                         '${planned.where((s) => s.status == SessionStatus.done).length}/${planned.length} THIS WEEK',
@@ -368,21 +369,6 @@ class _TraineeCard extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  Widget _dot(SessionStatus? s) {
-    final bg = switch (s) {
-      SessionStatus.done => BoltColors.neon,
-      SessionStatus.approved || SessionStatus.moved => BoltColors.text,
-      _ => Colors.transparent,
-    };
-    final stroke = switch (s) {
-      SessionStatus.pending => const Stroke(BoltColors.neon, 1.5),
-      SessionStatus.draft => const Stroke.dashed(BoltColors.muted2, 1.5),
-      null => const Stroke(BoltColors.line, 1.5),
-      _ => Stroke.none,
-    };
-    return BoltBox(width: 9, height: 9, borderBox: true, radius: 3, color: bg, stroke: stroke);
   }
 }
 

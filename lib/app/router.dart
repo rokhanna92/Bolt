@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../data/bolt_store.dart';
 import '../data/models/bolt_data.dart';
 import '../features/badges/badges_screen.dart';
+import '../features/coach_calendar/calendar_screen.dart';
 import '../features/coach_profile/coach_profile_screen.dart';
 import '../features/coach_roster/roster_screen.dart';
 import '../features/coach_schedule/schedule_screen.dart';
@@ -29,7 +30,7 @@ final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 // The Library (/workouts), editor, plaque, Learn guide (/guide) and settings
 // are shared: solo users and trainees plan for themselves too.
 const _traineeOnly = {'today', 'plan', 'gym', 'learn', 'badges', 'me', 'workout'};
-const _coachOnly = {'roster', 'schedule', 'profile', 'trainee'};
+const _coachOnly = {'roster', 'schedule', 'profile', 'trainee', 'calendar'};
 
 /// Pushed screens: fade in and rise 10 px (350 ms, easeOut).
 Page<void> _enter(GoRouterState state, Widget child) => CustomTransitionPage<void>(
@@ -118,6 +119,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [GoRoute(path: '/profile', pageBuilder: (c, s) => _tab(s, const CoachProfileScreen()))],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/calendar', pageBuilder: (c, s) => _tab(s, const CoachCalendarScreen()))],
           ),
         ],
       ),

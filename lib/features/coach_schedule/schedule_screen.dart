@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/ui_state.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
+import '../../data/models/people.dart';
 import '../../data/models/session.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -53,44 +54,7 @@ class ScheduleScreen extends ConsumerWidget {
         items.add(
           Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: Tap(
-              onTap: () => context.push('/trainee/${x.id}'),
-              scale: .98,
-              child: BoltBox(
-                color: BoltColors.surface1,
-                stroke: const Stroke(BoltColors.lineSoft),
-                radius: 16,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                child: Row(
-                  children: [
-                    Avatar(
-                      ini: initials(x.name),
-                      size: 38,
-                      fontSize: 12,
-                      ring: d.gymIn[x.id] != null && k == today ? BoltColors.neon : BoltColors.line,
-                      ringWidth: 2,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(x.name, style: BoltText.a(14, weight: 800)),
-                          const SizedBox(height: 2),
-                          Text(s.title, style: BoltText.a(12, color: BoltColors.muted)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    StatusPill(
-                      status: s.status,
-                      label: _scheduleLabel(s.status),
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            child: TraineeSessionRow(trainee: x, session: s, inGym: d.gymIn[x.id] != null && k == today),
           ),
         );
       }
@@ -157,6 +121,59 @@ class ScheduleScreen extends ConsumerWidget {
         const SizedBox(height: 18),
         ...days,
       ],
+    );
+  }
+}
+
+/// One trainee's session on a day, with its status. Opens the trainee.
+class TraineeSessionRow extends StatelessWidget {
+  const TraineeSessionRow({super.key, required this.trainee, required this.session, this.inGym = false});
+
+  final Trainee trainee;
+  final Session session;
+
+  /// Rings the avatar neon.
+  final bool inGym;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tap(
+      onTap: () => context.push('/trainee/${trainee.id}'),
+      scale: .98,
+      child: BoltBox(
+        color: BoltColors.surface1,
+        stroke: const Stroke(BoltColors.lineSoft),
+        radius: 16,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          children: [
+            Avatar(
+              ini: initials(trainee.name),
+              size: 38,
+              fontSize: 12,
+              ring: inGym ? BoltColors.neon : BoltColors.line,
+              ringWidth: 2,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(trainee.name, style: BoltText.a(14, weight: 800)),
+                  const SizedBox(height: 2),
+                  Text(session.title, style: BoltText.a(12, color: BoltColors.muted)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            StatusPill(
+              status: session.status,
+              label: _scheduleLabel(session.status),
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

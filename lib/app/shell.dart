@@ -38,9 +38,11 @@ class BoltShell extends ConsumerWidget {
             const NavItem(label: 'Library', icon: 'plate', pillWidth: 56),
             NavItem(label: 'Profile', initials: initials(name), pillWidth: 56),
           ];
-    // Trainee branches: today, plan, gym, learn, me. The gym has no tab of
-    // its own; the scan button opens it.
+    // Trainee branches: today, plan, gym, learn, me. Coach branches: roster,
+    // schedule, library, profile, calendar. The gym and the calendar have no
+    // tab of their own; the centre button opens them.
     final branchOf = trainee ? const [0, 1, 3, 4] : const [0, 1, 2, 3];
+    final centre = trainee ? 2 : 4;
     final active = branchOf.indexOf(shell.currentIndex);
     return BoltPage(
       child: Stack(
@@ -55,9 +57,11 @@ class BoltShell extends ConsumerWidget {
             child: BoltNavBar(
               items: items,
               active: active,
-              scanActive: trainee && shell.currentIndex == 2,
+              scanActive: shell.currentIndex == centre,
+              centerIcon: trainee ? 'scan' : 'calendar',
+              centerLabel: trainee ? null : 'Calendar',
               onTap: (i) => shell.goBranch(branchOf[i], initialLocation: branchOf[i] == shell.currentIndex),
-              onScan: () => openScanner(context, ref),
+              onScan: trainee ? () => openScanner(context, ref) : () => shell.goBranch(centre),
             ),
           ),
         ],
