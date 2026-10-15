@@ -26,9 +26,9 @@ import 'shell.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
-// Library, editor, plaque, learn and settings are shared: solo users and
-// trainees plan for themselves too.
-const _traineeOnly = {'today', 'plan', 'gym', 'badges', 'me', 'workout'};
+// The Library (/workouts), editor, plaque, Learn guide (/guide) and settings
+// are shared: solo users and trainees plan for themselves too.
+const _traineeOnly = {'today', 'plan', 'gym', 'learn', 'badges', 'me', 'workout'};
 const _coachOnly = {'roster', 'schedule', 'profile', 'trainee'};
 
 /// Pushed screens: fade in and rise 10 px (350 ms, easeOut).
@@ -97,7 +97,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [GoRoute(path: '/gym', pageBuilder: (c, s) => _tab(s, const GymScreen()))],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: '/badges', pageBuilder: (c, s) => _tab(s, const BadgesScreen()))],
+            routes: [GoRoute(path: '/learn', pageBuilder: (c, s) => _tab(s, const LearnScreen()))],
           ),
           StatefulShellBranch(
             routes: [GoRoute(path: '/me', pageBuilder: (c, s) => _tab(s, const MeScreen()))],
@@ -143,9 +143,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             _enter(s, EditorScreen(target: DayTarget(s.pathParameters['tid']!, s.pathParameters['key']!))),
       ),
       GoRoute(
-        path: '/learn',
+        path: '/guide',
         parentNavigatorKey: rootNavigatorKey,
-        pageBuilder: (c, s) => _enter(s, const LearnScreen()),
+        pageBuilder: (c, s) => _enter(s, const LearnScreen(pushed: true)),
+      ),
+      GoRoute(
+        path: '/badges',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const BadgesScreen()),
       ),
       GoRoute(
         path: '/settings',

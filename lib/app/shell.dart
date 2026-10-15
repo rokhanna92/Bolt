@@ -29,7 +29,7 @@ class BoltShell extends ConsumerWidget {
         ? [
             const NavItem(label: 'Today', icon: 'barbell'),
             const NavItem(label: 'Plan', icon: 'calendar'),
-            const NavItem(label: 'Badges', icon: 'kettlebell'),
+            const NavItem(label: 'Learn', icon: 'book'),
             NavItem(label: 'Me', initials: initials(name)),
           ]
         : [
@@ -38,7 +38,7 @@ class BoltShell extends ConsumerWidget {
             const NavItem(label: 'Library', icon: 'plate', pillWidth: 56),
             NavItem(label: 'Profile', initials: initials(name), pillWidth: 56),
           ];
-    // Trainee branches: today, plan, gym, badges, me. The gym has no tab of
+    // Trainee branches: today, plan, gym, learn, me. The gym has no tab of
     // its own; the scan button opens it.
     final branchOf = trainee ? const [0, 1, 3, 4] : const [0, 1, 2, 3];
     final active = branchOf.indexOf(shell.currentIndex);

@@ -16,6 +16,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
+import '../badges/badges_screen.dart';
 import '../sharing/import_sheet.dart';
 import '../../widgets/bolt_sheet.dart';
 
@@ -196,43 +197,7 @@ class TodayScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 22),
-        Tap(
-          onTap: () => context.push('/learn'),
-          child: BoltBox(
-            color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
-            radius: 20,
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                const BoltBox(
-                  width: 46,
-                  height: 46,
-                  radius: 14,
-                  stroke: Stroke(BoltColors.neon, 1.5),
-                  alignment: Alignment.center,
-                  child: BoltIcon('book', color: BoltColors.neon),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Learn', style: BoltText.a(15, weight: 800)),
-                      const SizedBox(height: 3),
-                      Text(
-                        'Why push, pull and legs · exercise form · supplements',
-                        style: BoltText.a(12, color: BoltColors.muted),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 14),
-                const Chevron(),
-              ],
-            ),
-          ),
-        ),
+        BadgesCard(stats: displayStats(t.stats, now), onTap: () => context.push('/badges')),
         if (pend.isNotEmpty) ...[
           const SizedBox(height: 22),
           BoltBox(

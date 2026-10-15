@@ -139,6 +139,24 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('Learn has its own tab, badges sit on Today', (tester) async {
+    await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    expect(find.text('ACHIEVEMENTS'), findsOneWidget);
+    expect(find.text('0 / 24'), findsOneWidget);
+    expect(find.text('Next: First Rep'), findsOneWidget);
+    await tapText(tester, 'ACHIEVEMENTS');
+    expect(find.text('Trophy rack'), findsOneWidget);
+    await tester.tap(find.text('‹'));
+    await settle(tester);
+
+    await tapText(tester, 'Learn');
+    expect(find.text('Train smarter'), findsOneWidget);
+    expect(find.text('Supplements'), findsOneWidget);
+    expect(find.text('‹'), findsNothing);
+    await unmount(tester);
+  });
+
   testWidgets('solo users open the workout library from Me', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

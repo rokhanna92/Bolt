@@ -59,7 +59,7 @@ class LibraryScreen extends ConsumerWidget {
         Align(
           alignment: Alignment.centerLeft,
           child: Tap(
-            onTap: () => context.push('/learn'),
+            onTap: () => context.push('/guide'),
             child: Text(
               'Learn: workout reasoning, form & supplements →',
               style: BoltText.a(13, weight: 700, color: BoltColors.neon),

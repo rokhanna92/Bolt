@@ -52,6 +52,22 @@ int currentStreak(TraineeStats s, DateTime now) {
 /// Stats as shown on badges, with the streak brought up to date.
 TraineeStats displayStats(TraineeStats s, DateTime now) => s.copy()..streak = currentStreak(s, now);
 
+/// Share of [b]'s goal reached, 0 to 1.
+double badgeProgress(BadgeDef b, TraineeStats s) => (s.value(b.key) / b.goal).clamp(0.0, 1.0);
+
+bool badgeEarned(BadgeDef b, TraineeStats s) => s.value(b.key) >= b.goal;
+
+/// Locked badges, closest first; ties keep list order, like the prototype's
+/// stable sort.
+List<BadgeDef> lockedByCloseness(TraineeStats s) {
+  final locked = kBadges.where((b) => !badgeEarned(b, s)).toList();
+  final order = {for (final (i, b) in locked.indexed) b: i};
+  return locked..sort((a, b) {
+    final c = badgeProgress(b, s).compareTo(badgeProgress(a, s));
+    return c != 0 ? c : order[a]!.compareTo(order[b]!);
+  });
+}
+
 /// "3 sessions to go".
 String badgeLeftText(BadgeDef b, TraineeStats s) {
   final r = b.goal - s.value(b.key);

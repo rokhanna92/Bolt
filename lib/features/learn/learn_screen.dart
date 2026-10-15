@@ -12,8 +12,13 @@ import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
 
+/// Workout reasoning, exercise form and supplements. A tab for people who
+/// train; coaches open it from their Library.
 class LearnScreen extends ConsumerWidget {
-  const LearnScreen({super.key});
+  const LearnScreen({super.key, this.pushed = false});
+
+  /// Opened over another screen, so it has a back button.
+  final bool pushed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,17 +29,18 @@ class LearnScreen extends ConsumerWidget {
 
     return BoltPage(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20, insets.top + 16, 20, 120 + insets.bottom),
+        padding: EdgeInsets.fromLTRB(20, insets.top + 20, 20, 120 + insets.bottom),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                BackBox(onTap: () => context.pop()),
-                const SizedBox(width: 12),
-                Text('Learn', style: BoltText.a(24, weight: 900)),
+                if (pushed) ...[BackBox(onTap: () => context.pop()), const SizedBox(width: 12)],
+                const Kicker('LEARN'),
               ],
             ),
+            const SizedBox(height: 4),
+            Text('Train smarter', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
             const SizedBox(height: 16),
             Row(
               children: [
