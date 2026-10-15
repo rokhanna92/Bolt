@@ -82,6 +82,8 @@ class TraineeStats {
     this.prs = 0,
     this.streak = 0,
     this.perfect = 0,
+    this.workouts = 0,
+    this.sets = 0,
     this.lastPerfectWeek,
   });
 
@@ -95,6 +97,10 @@ class TraineeStats {
   int streak;
   int perfect;
 
+  /// Workouts logged and the sets checked off in them.
+  int workouts;
+  int sets;
+
   /// Monday key of the last week where every planned session was done.
   String? lastPerfectWeek;
 
@@ -106,6 +112,8 @@ class TraineeStats {
     prs: prs,
     streak: streak,
     perfect: perfect,
+    workouts: workouts,
+    sets: sets,
     lastPerfectWeek: lastPerfectWeek,
   );
 
@@ -118,6 +126,8 @@ class TraineeStats {
     'late' => late,
     'prs' => prs,
     'perfect' => perfect,
+    'workouts' => workouts,
+    'sets' => sets,
     _ => 0,
   };
 
@@ -129,6 +139,8 @@ class TraineeStats {
     'prs': prs,
     'streak': streak,
     'perfect': perfect,
+    'workouts': workouts,
+    'sets': sets,
     'lastPerfectWeek': lastPerfectWeek,
   };
 
@@ -140,6 +152,8 @@ class TraineeStats {
     prs: j['prs'] as int? ?? 0,
     streak: j['streak'] as int? ?? 0,
     perfect: j['perfect'] as int? ?? 0,
+    workouts: j['workouts'] as int? ?? 0,
+    sets: j['sets'] as int? ?? 0,
     lastPerfectWeek: j['lastPerfectWeek'] as String?,
   );
 }

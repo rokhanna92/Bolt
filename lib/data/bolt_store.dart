@@ -394,7 +394,12 @@ class BoltStore extends Notifier<BoltData> {
     }
     p.status = SessionStatus.done;
     p.log = '$dn/${p.totalSets} sets';
-    final unlocked = _checkPerfectWeek(t);
+    final before = t.stats.copy();
+    t.stats
+      ..workouts += 1
+      ..sets += dn;
+    _checkPerfectWeek(t);
+    final unlocked = newlyUnlocked(before, t.stats);
     _commit();
     _toast('Workout logged · ${p.log}');
     syncSessionReminders();
@@ -403,7 +408,7 @@ class BoltStore extends Notifier<BoltData> {
 
   /// Every planned session this week done: a perfect week, which also
   /// extends the streak.
-  List<String> _checkPerfectWeek(Trainee t) {
+  void _checkPerfectWeek(Trainee t) {
     final p = plan(t.id);
     final week = [for (var i = 0; i < 7; i++) p[dk(addDays(mon0, i))]]
         .whereType<Session>()
@@ -411,15 +416,13 @@ class BoltStore extends Notifier<BoltData> {
         .toList();
     final wk = dk(mon0);
     if (week.isEmpty || week.any((s) => s.status != SessionStatus.done) || t.stats.lastPerfectWeek == wk) {
-      return const [];
+      return;
     }
-    final before = t.stats.copy();
     final prev = dk(addDays(mon0, -7));
     t.stats
       ..perfect += 1
       ..streak = t.stats.lastPerfectWeek == prev ? t.stats.streak + 1 : 1
       ..lastPerfectWeek = wk;
-    return newlyUnlocked(before, t.stats);
   }
 
   // Planning, for a coach's trainees and for the owner's own plan. A coach

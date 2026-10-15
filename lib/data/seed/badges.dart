@@ -1,4 +1,4 @@
-// Badges, ported verbatim from `BADGES` in Bolt UI.html.
+// Badges. The first twelve are ported verbatim from `BADGES` in Bolt UI.html.
 
 enum BadgeShape { plate, kb, hex }
 
@@ -58,6 +58,16 @@ const kBadges = <BadgeDef>[
     goal: 25,
   ),
   BadgeDef(
+    id: 's50',
+    shape: BadgeShape.plate,
+    big: '50',
+    unit: 'SESSIONS',
+    name: 'Regular',
+    desc: 'Complete 50 gym sessions.',
+    key: 'sessions',
+    goal: 50,
+  ),
+  BadgeDef(
     id: 's100',
     shape: BadgeShape.plate,
     big: '100',
@@ -65,6 +75,46 @@ const kBadges = <BadgeDef>[
     name: 'Century',
     desc: 'Complete 100 gym sessions.',
     key: 'sessions',
+    goal: 100,
+  ),
+  BadgeDef(
+    id: 's250',
+    shape: BadgeShape.plate,
+    big: '250',
+    unit: 'SESSIONS',
+    name: 'Gym Furniture',
+    desc: 'Complete 250 gym sessions.',
+    key: 'sessions',
+    goal: 250,
+  ),
+  BadgeDef(
+    id: 'lg1',
+    shape: BadgeShape.plate,
+    big: '1',
+    unit: 'WORKOUT',
+    name: 'Logged',
+    desc: 'Log your first workout.',
+    key: 'workouts',
+    goal: 1,
+  ),
+  BadgeDef(
+    id: 'lg25',
+    shape: BadgeShape.plate,
+    big: '25',
+    unit: 'WORKOUTS',
+    name: 'Logbook',
+    desc: 'Log 25 workouts.',
+    key: 'workouts',
+    goal: 25,
+  ),
+  BadgeDef(
+    id: 'lg100',
+    shape: BadgeShape.plate,
+    big: '100',
+    unit: 'WORKOUTS',
+    name: 'Iron Diary',
+    desc: 'Log 100 workouts.',
+    key: 'workouts',
     goal: 100,
   ),
   BadgeDef(
@@ -88,6 +138,16 @@ const kBadges = <BadgeDef>[
     goal: 50,
   ),
   BadgeDef(
+    id: 'h100',
+    shape: BadgeShape.kb,
+    big: '100H',
+    unit: 'TRAINED',
+    name: 'Hundred Hours',
+    desc: 'Spend 100 hours in the gym.',
+    key: 'hours',
+    goal: 100,
+  ),
+  BadgeDef(
     id: 'w4',
     shape: BadgeShape.kb,
     big: '4W',
@@ -108,6 +168,36 @@ const kBadges = <BadgeDef>[
     goal: 12,
   ),
   BadgeDef(
+    id: 'w26',
+    shape: BadgeShape.kb,
+    big: '26W',
+    unit: 'STREAK',
+    name: 'Half Year',
+    desc: 'Twenty-six weeks without missing a planned session.',
+    key: 'streak',
+    goal: 26,
+  ),
+  BadgeDef(
+    id: 'st100',
+    shape: BadgeShape.kb,
+    big: '100',
+    unit: 'SETS',
+    name: 'Set Stacker',
+    desc: 'Check off 100 sets in logged workouts.',
+    key: 'sets',
+    goal: 100,
+  ),
+  BadgeDef(
+    id: 'st1k',
+    shape: BadgeShape.kb,
+    big: '1K',
+    unit: 'SETS',
+    name: 'Thousand Sets',
+    desc: 'Check off 1,000 sets in logged workouts.',
+    key: 'sets',
+    goal: 1000,
+  ),
+  BadgeDef(
     id: 'am',
     shape: BadgeShape.hex,
     big: 'AM',
@@ -118,6 +208,16 @@ const kBadges = <BadgeDef>[
     goal: 5,
   ),
   BadgeDef(
+    id: 'am25',
+    shape: BadgeShape.hex,
+    big: 'AM',
+    unit: '× 25',
+    name: 'Dawn Patrol',
+    desc: 'Check in before 7:00 twenty-five times.',
+    key: 'early',
+    goal: 25,
+  ),
+  BadgeDef(
     id: 'pm',
     shape: BadgeShape.hex,
     big: 'PM',
@@ -126,6 +226,16 @@ const kBadges = <BadgeDef>[
     desc: 'Check in after 21:00 five times.',
     key: 'late',
     goal: 5,
+  ),
+  BadgeDef(
+    id: 'pm25',
+    shape: BadgeShape.hex,
+    big: 'PM',
+    unit: '× 25',
+    name: 'Night Owl',
+    desc: 'Check in after 21:00 twenty-five times.',
+    key: 'late',
+    goal: 25,
   ),
   BadgeDef(
     id: 'pr',
@@ -147,6 +257,16 @@ const kBadges = <BadgeDef>[
     key: 'perfect',
     goal: 1,
   ),
+  BadgeDef(
+    id: 'pw4',
+    shape: BadgeShape.hex,
+    big: 'ALL',
+    unit: '4 WEEKS',
+    name: 'Four of a Kind',
+    desc: 'Finish every planned session in four different weeks.',
+    key: 'perfect',
+    goal: 4,
+  ),
 ];
 
 /// Unit word per counter, for "3 sessions to go".
@@ -158,4 +278,6 @@ const kBadgeUnits = <String, String>{
   'late': 'late check-in',
   'prs': 'PR',
   'perfect': 'perfect week',
+  'workouts': 'workout',
+  'sets': 'set',
 };

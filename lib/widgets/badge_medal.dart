@@ -69,8 +69,8 @@ class MedalPalette {
   }
 }
 
-/// A badge in one of three gym shapes: weight plate (sessions), kettlebell
-/// (hours and streaks) or hex dumbbell head (special).
+/// A badge in one of three gym shapes: weight plate (sessions and workouts),
+/// kettlebell (hours, streaks and sets) or hex dumbbell head (special).
 class BadgeMedal extends StatelessWidget {
   const BadgeMedal({super.key, required this.badge, required this.on});
 
@@ -98,7 +98,11 @@ class BadgeMedal extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (topGap > 0) SizedBox(height: topGap),
-        Text(badge.big, style: BoltText.a(big, weight: 900, width: 115, color: p.ink, height: 1)),
+        // Shrinks only labels too wide for the shape, like "100H".
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(badge.big, style: BoltText.a(big, weight: 900, width: 115, color: p.ink, height: 1)),
+        ),
         const SizedBox(height: 3),
         Text(
           badge.unit,
@@ -166,7 +170,13 @@ class BadgeMedal extends StatelessWidget {
             left: 7,
             child: CustomPaint(
               painter: _BellPainter(p),
-              child: SizedBox(width: 70, height: 62, child: Center(child: _labels(p, 20, .12))),
+              child: SizedBox(
+                width: 70,
+                height: 62,
+                child: Center(
+                  child: Padding(padding: const EdgeInsets.symmetric(horizontal: 7), child: _labels(p, 20, .12)),
+                ),
+              ),
             ),
           ),
         ],

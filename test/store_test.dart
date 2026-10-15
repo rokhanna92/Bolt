@@ -188,6 +188,21 @@ void main() {
       // Friday is still open, so not a perfect week yet.
       expect(h.data.trainees.first.stats.perfect, 2);
     });
+
+    test('logged workouts and their sets count toward badges', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'), autoPlan: true);
+      f.store.startWorkout('2026-10-14');
+      final ex = f.mine['2026-10-14']!.ex;
+      f.store.toggleSet(ex[0].id, 0);
+      f.store.toggleSet(ex[1].id, 0);
+      f.store.toggleSet(ex[1].id, 1);
+      expect(f.store.finish(), ['lg1']);
+      final stats = f.data.trainees.single.stats;
+      expect(stats.workouts, 1);
+      expect(stats.sets, 3);
+      expect(TraineeStats.fromJson(stats.toJson()).sets, 3);
+      expect(badgeLeftText(kBadges.firstWhere((b) => b.id == 'st100'), stats), '97 sets to go');
+    });
   });
 
   group('coach planning', () {
