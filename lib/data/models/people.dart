@@ -348,8 +348,10 @@ class Trainee {
     this.coachName,
     this.challenge,
     Map<String, double>? maxes,
+    List<String>? periods,
   }) : body = body ?? Body(),
-       maxes = maxes ?? {};
+       maxes = maxes ?? {},
+       periods = periods ?? [];
 
   final String id;
   String name;
@@ -378,6 +380,10 @@ class Trainee {
   /// these, else the best estimated max from logged sets.
   final Map<String, double> maxes;
 
+  /// Days a period started, for cycle tracking. Private: never sent in
+  /// updates to the coach.
+  final List<String> periods;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
@@ -391,6 +397,7 @@ class Trainee {
     'coachName': coachName,
     'challenge': challenge?.toJson(),
     'maxes': maxes,
+    'periods': periods,
   };
 
   factory Trainee.fromJson(Map<String, dynamic> j) => Trainee(
@@ -406,6 +413,7 @@ class Trainee {
     coachName: j['coachName'] as String?,
     challenge: j['challenge'] == null ? null : Challenge.fromJson(j['challenge'] as Map<String, dynamic>),
     maxes: (j['maxes'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, (v as num).toDouble())),
+    periods: [for (final x in j['periods'] as List? ?? const []) x as String],
   );
 }
 

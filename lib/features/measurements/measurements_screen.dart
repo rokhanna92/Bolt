@@ -17,6 +17,7 @@ import '../../widgets/common.dart';
 import '../../widgets/fields.dart';
 import '../../widgets/sparkline.dart';
 import '../../widgets/tap.dart';
+import 'cycle_card.dart';
 
 /// Values of [key] (`weight` or a part) over time, oldest first.
 List<(String, double)> bodySeries(Body b, String key) => [
@@ -207,6 +208,10 @@ class MeasurementsScreen extends ConsumerWidget {
                   ),
                 ),
               ],
+            if (tid == null && (d.account?.isTrainee ?? false) && b?.sex == 'f') ...[
+              const SizedBox(height: 10),
+              const CycleCard(full: true),
+            ],
             if (b == null || b.history.isEmpty) ...[
               const SizedBox(height: 14),
               BoltBox(

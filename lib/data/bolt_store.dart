@@ -850,6 +850,20 @@ class BoltStore extends Notifier<BoltData> {
     return _isCoach ? planMessage(tid) : null;
   }
 
+  /// Logs a period that started on day [k], for cycle tracking.
+  void logPeriod(String k) {
+    final t = tr(state.account!.id);
+    if (!t.periods.contains(k)) t.periods.add(k);
+    t.periods.sort();
+    _commit();
+    _toast(tx('Period start saved · {day}', {'day': fmtDay(k)}));
+  }
+
+  void removePeriod(String k) {
+    tr(state.account!.id).periods.remove(k);
+    _commit();
+  }
+
   void setBodyGoal(String? tid, String key, double? value) {
     final b = bodyFor(tid);
     if (b == null) return;

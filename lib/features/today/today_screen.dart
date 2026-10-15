@@ -11,6 +11,7 @@ import '../../data/models/exercise.dart';
 import '../../data/models/people.dart';
 import '../../data/models/session.dart';
 import '../../data/models/visit.dart';
+import '../../data/cycle.dart';
 import '../../data/lifts.dart';
 import '../../data/rules.dart';
 import '../../data/suggestions.dart';
@@ -25,6 +26,7 @@ import '../badges/badges_screen.dart';
 import '../progress/challenge_sheet.dart';
 import '../workouts/deload_sheet.dart';
 import '../progress/progress_screen.dart' show RecapTiles;
+import '../measurements/cycle_card.dart';
 import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
 import '../sharing/import_sheet.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -162,6 +164,7 @@ class TodayScreen extends ConsumerWidget {
             onTap: () => context.push('/progress'),
           ),
         ],
+        if (t.body.sex == 'f' && cycleInfo(t.periods, now) != null) ...[const SizedBox(height: 12), const CycleCard()],
         // Monday and Tuesday: last week in one card until it is closed.
         if (jsDay(now) >= 1 && jsDay(now) <= 2 && d.settings.recapSeen != dk(addDays(ws, -7)))
           if (weekRecap(plan, d.visits[t.id] ?? const [], t.body, addDays(ws, -7)) case final r when !r.isEmpty) ...[
