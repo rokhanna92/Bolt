@@ -1202,7 +1202,7 @@ class BoltStore extends Notifier<BoltData> {
       },
     });
     final range = keys.isEmpty ? '' : tx(', {from} to {to}', {'from': fmtDay(keys.first), 'to': fmtDay(keys.last)});
-    return '${tx('{name}, here is your Bolt plan from {coach}:', {'name': firstName(t.name), 'coach': firstName(coach.name)})} '
+    return '${tx('{name}, here is your Bolt plan from {coach}:', {'name': vocative(firstName(t.name)), 'coach': firstName(coach.name)})} '
         '${plural(keys.length, 'session')}$range.\n'
         '${tx('In Bolt open Me, then Import plan. It reads this message from your clipboard.')}\n\n$code';
   }

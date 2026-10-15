@@ -47,3 +47,22 @@ String plural(int n, String w) {
   }
   return '$n $w${n == 1 ? '' : 's'}';
 }
+
+/// A first name for addressing someone, in Serbian the vocative: Danijel →
+/// Danijele, Miloš → Milošu, Petar → Petre, Vuk → Vuče, Milica → Milice.
+/// Names ending in another vowel (Marko, Ana, Luka) stay as they are, and
+/// English leaves every name alone.
+String vocative(String name) {
+  if (!isSerbian || name.length < 2) return name;
+  final low = name.toLowerCase();
+  final up = name == name.toUpperCase();
+  String end(int cut, String add) => name.substring(0, name.length - cut) + (up ? add.toUpperCase() : add);
+  if (low.endsWith('ica')) return end(1, 'e');
+  if (RegExp(r'[aeiou]$').hasMatch(low)) return name;
+  if (RegExp(r'(j|č|ć|đ|š|ž)$').hasMatch(low)) return end(0, 'u');
+  if (RegExp(r'[^aeiou]ar$').hasMatch(low)) return end(2, 're');
+  if (low.endsWith('k') || low.endsWith('c')) return end(1, 'če');
+  if (low.endsWith('g')) return end(1, 'že');
+  if (low.endsWith('h')) return end(1, 'še');
+  return end(0, 'e');
+}

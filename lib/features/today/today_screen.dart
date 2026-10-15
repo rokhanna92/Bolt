@@ -69,7 +69,7 @@ class TodayScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    tx('Hey {name}', {'name': firstName(t.name)}),
+                    tx('Hey {name}', {'name': vocative(firstName(t.name))}),
                     style: BoltText.a(26, weight: 800, spacing: -.02),
                   ),
                 ],
