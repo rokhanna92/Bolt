@@ -35,5 +35,9 @@ final moveFromProvider = NotifierProvider<Value<String?>, String?>(() => Value(n
 /// Week offset on the coach Schedule tab.
 final scheduleWeekProvider = NotifierProvider<Value<int>, int>(() => Value(0));
 
-/// Learn tab: w (workouts), e (exercises), s (supplements).
+/// Learn tab: w (workouts), st (styles), m (muscles), e (exercises),
+/// s (supplements), b (basics).
 final learnTabProvider = NotifierProvider<Value<String>, String>(() => Value('w'));
+
+/// Supplement filter on Learn, an index into its filter list.
+final suppFilterProvider = NotifierProvider<Value<int>, int>(() => Value(0));
