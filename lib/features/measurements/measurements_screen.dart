@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -58,6 +60,35 @@ String sexTip(String? sex) => switch (sex) {
   final w = b.cm['waist'], h = b.cm['hips'];
   if (b.sex == null || w == null || h == null || h == 0) return null;
   return (ratio: w / h, limit: b.sex == 'f' ? .85 : .90);
+}
+
+/// Body fat % by the US Navy tape method from height, waist, neck and, for
+/// women, hips (all cm). Null when something is missing or out of range.
+double? navyBodyFat(String? sex, double? height, double? waist, double? neck, double? hips) {
+  if (sex == null || height == null || waist == null || neck == null) return null;
+  double log10(double x) => math.log(x) / math.ln10;
+  final double v;
+  if (sex == 'f') {
+    if (hips == null || waist + hips - neck <= 0) return null;
+    v = 495 / (1.29579 - .35004 * log10(waist + hips - neck) + .221 * log10(height)) - 450;
+  } else {
+    if (waist - neck <= 0) return null;
+    v = 495 / (1.0324 - .19077 * log10(waist - neck) + .15456 * log10(height)) - 450;
+  }
+  return v < 2 || v > 60 ? null : v;
+}
+
+/// Estimated body fat on each day the tape changed, using the latest
+/// earlier value for parts not measured that day.
+List<(String, double)> bodyFatSeries(Body b) {
+  final last = <String, double>{};
+  return [
+    for (final e in b.history)
+      if ((e.cm.keys.toSet()..retainAll(const {'waist', 'neck', 'hips'})).isNotEmpty)
+        if (navyBodyFat(b.sex, b.heightCm, (last..addAll(e.cm))['waist'], last['neck'], last['hips'])
+            case final double v)
+          (e.date, v),
+  ];
 }
 
 /// Weight and tape measurements over time: a trend per measurement and every
@@ -137,6 +168,10 @@ class MeasurementsScreen extends ConsumerWidget {
                   onGoal: () => showBoltSheet<void>(context, (_) => _GoalSheet(tid: tid, keyName: e.key)),
                 ),
               ],
+            if (b != null && b.sex != null && b.cm['waist'] != null) ...[
+              const SizedBox(height: 10),
+              _BodyFatCard(body: b),
+            ],
             if (b != null)
               if (waistToHip(b) case final r?) ...[
                 const SizedBox(height: 10),
@@ -233,6 +268,53 @@ class MeasurementsScreen extends ConsumerWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Body fat from the tape, with its trend and the healthy range for the sex.
+class _BodyFatCard extends StatelessWidget {
+  const _BodyFatCard({required this.body});
+
+  final Body body;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = bodyFatSeries(body);
+    final f = body.sex == 'f';
+    final missing = body.heightCm == null
+        ? tx('Add your height in the profile to estimate body fat.')
+        : (f ? tx('Log your neck and hips to estimate body fat.') : tx('Log your neck to estimate body fat.'));
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(BoltColors.lineSoft),
+      radius: 18,
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Kicker(tx('BODY FAT · ESTIMATE'), size: 9, spacing: .1),
+          const SizedBox(height: 3),
+          if (s.isEmpty)
+            Text(missing, style: BoltText.a(13, color: BoltColors.muted, height: 1.4))
+          else ...[
+            Text('${s.last.$2.toStringAsFixed(1)}%', style: BoltText.a(22, weight: 900)),
+            if (s.length >= 2) ...[
+              const SizedBox(height: 10),
+              Sparkline(values: [for (final x in s) x.$2]),
+            ],
+            const SizedBox(height: 6),
+            Text(
+              tx(
+                f
+                    ? 'US Navy tape method, about ±3%. Healthy for women is about 20-30%.'
+                    : 'US Navy tape method, about ±3%. Healthy for men is about 10-20%.',
+              ),
+              style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
+            ),
+          ],
+        ],
       ),
     );
   }

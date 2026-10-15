@@ -42,7 +42,14 @@ class Body {
        goals = goals ?? {};
 
   /// Measured parts, in display order.
-  static const parts = {'chest': 'Chest', 'waist': 'Waist', 'hips': 'Hips', 'arm': 'Arm', 'thigh': 'Thigh'};
+  static const parts = {
+    'chest': 'Chest',
+    'waist': 'Waist',
+    'hips': 'Hips',
+    'arm': 'Arm',
+    'thigh': 'Thigh',
+    'neck': 'Neck',
+  };
 
   /// Everything with a history: weight, then the parts.
   static const tracked = {'weight': 'Weight', ...parts};

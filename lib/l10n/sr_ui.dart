@@ -659,4 +659,11 @@ const kSrUi = <String, String>{
   'Next: {level} at {kg}.': 'Sledeći: {level} od {kg}.',
   'Standards for women.': 'Standardi za žene.',
   'Standards for men.': 'Standardi za muškarce.',
+  'Neck': 'Vrat',
+  'BODY FAT · ESTIMATE': 'MAST · PROCENA',
+  'Add your height in the profile to estimate body fat.': 'Dodaj visinu u profilu za procenu masti.',
+  'Log your neck and hips to estimate body fat.': 'Upiši vrat i kukove za procenu masti.',
+  'Log your neck to estimate body fat.': 'Upiši vrat za procenu masti.',
+  'US Navy tape method, about ±3%. Healthy for women is about 20-30%.': 'Metoda metra američke mornarice, oko ±3%. Zdravo za žene je oko 20-30%.',
+  'US Navy tape method, about ±3%. Healthy for men is about 10-20%.': 'Metoda metra američke mornarice, oko ±3%. Zdravo za muškarce je oko 10-20%.',
 };
