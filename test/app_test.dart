@@ -284,6 +284,22 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a coach switches to solo and back from the profile', (tester) async {
+    await pumpApp(tester);
+    await onboard(tester, 'I coach people', 'Marko');
+    await tapText(tester, 'Profile');
+    expect(find.text('MODE'), findsOneWidget);
+    expect(find.text('Trainee'), findsNothing);
+    await tapText(tester, 'Solo');
+    expect(find.text('Hey Marko'), findsOneWidget);
+    expect(find.text('ACHIEVEMENTS'), findsOneWidget);
+    await tapText(tester, 'Me');
+    expect(find.text('Training solo'), findsOneWidget);
+    await tapText(tester, 'Coach');
+    expect(find.text('Coach Marko'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('scan button checks in from the frame', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

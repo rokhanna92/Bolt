@@ -181,11 +181,37 @@ class BoltStore extends Notifier<BoltData> {
     syncSessionReminders();
   }
 
-  /// Admin only: shows the app as a coach, trainee or solo user.
+  /// Roles the owner can switch between: an admin all three, a coach between
+  /// coaching and training solo. Empty for everyone else.
+  List<Role> get switchRoles {
+    final a = state.account;
+    if (a == null) return const [];
+    if (a.admin) return const [Role.coach, Role.trainee, Role.solo];
+    return coOrNull(Account.ownerId) != null ? const [Role.coach, Role.solo] : const [];
+  }
+
+  /// Changes which screens the owner sees. A coach training solo for the
+  /// first time gets their own trainee record, named after their profile.
   void switchRole(Role role) {
     final a = state.account;
-    if (a == null || !a.admin || a.role == role) return;
-    state.account = Account(role, a.id, admin: true);
+    if (a == null || a.role == role || !switchRoles.contains(role)) return;
+    final c = coOrNull(Account.ownerId);
+    if (role != Role.coach && c != null && trOrNull(Account.ownerId) == null) {
+      state.trainees.add(
+        Trainee(
+          id: Account.ownerId,
+          name: c.name,
+          coach: '',
+          goal: 'General fitness',
+          split: 'ppl',
+          since: _sinceLabel,
+          injuries: [],
+          stats: TraineeStats(),
+          body: c.body,
+        ),
+      );
+    }
+    state.account = Account(role, a.id, admin: a.admin);
     _commit();
     syncSessionReminders();
   }

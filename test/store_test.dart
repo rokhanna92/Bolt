@@ -368,10 +368,35 @@ void ownerTests() {
       final json = jsonEncode(f.data.toJson());
       expect(BoltData.fromJson(jsonDecode(json) as Map<String, dynamic>).account!.admin, isTrue);
 
-      final coach = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Sara'));
-      coach.store.switchRole(Role.solo);
-      expect(coach.data.account!.role, Role.coach);
-      expect(coach.data.trainees, isEmpty);
+    });
+
+    test('a coach switches between coaching and training solo', () {
+      final f = Fresh()..store.createProfile(Role.coach, ProfileInput(name: 'Sara', body: Body(weightKg: 64)));
+      final tid = f.store.addTrainee(const ProfileInput(name: 'Ana'));
+      expect(f.store.switchRoles, [Role.coach, Role.solo]);
+      f.store.switchRole(Role.trainee);
+      expect(f.data.account!.role, Role.coach);
+
+      f.store.switchRole(Role.solo);
+      expect(f.data.account!.role, Role.solo);
+      final me = f.store.tr(Account.ownerId);
+      expect(me.name, 'Sara');
+      expect(me.body.weightKg, 64);
+      // Training solo plans confirmed sessions, not drafts for a trainee.
+      expect(f.store.addFromRotation(Account.ownerId, '2026-10-15'), isTrue);
+      expect(f.mine['2026-10-15']!.status, SessionStatus.approved);
+
+      f.store.switchRole(Role.coach);
+      expect(f.data.account!.isCoach, isTrue);
+      expect(f.data.trainees.where((t) => t.coach == Account.ownerId).map((t) => t.id), [tid]);
+      // Switching back keeps the solo record and its plan.
+      f.store.switchRole(Role.solo);
+      expect(f.mine.keys, ['2026-10-15']);
+
+      final solo = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'));
+      expect(solo.store.switchRoles, isEmpty);
+      solo.store.switchRole(Role.coach);
+      expect(solo.data.account!.role, Role.solo);
     });
 
     test('license codes', () {

@@ -9,15 +9,18 @@ import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/forms.dart';
 
-/// Admin only: shows the app as a coach, trainee or solo user. Nothing for
-/// everyone else.
-class AdminSwitch extends ConsumerWidget {
-  const AdminSwitch({super.key});
+/// Switches what the app shows: a coach between coaching and training solo,
+/// the admin between all three roles. Nothing for everyone else.
+class RoleSwitch extends ConsumerWidget {
+  const RoleSwitch({super.key});
+
+  static const _labels = {'coach': 'Coach', 'trainee': 'Trainee', 'solo': 'Solo'};
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final a = ref.watch(boltProvider.select((d) => d.account));
-    if (a == null || !a.admin) return const SizedBox.shrink();
+    final a = ref.watch(boltProvider).account;
+    final roles = ref.read(boltProvider.notifier).switchRoles;
+    if (a == null || roles.length < 2) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: BoltBox(
@@ -28,13 +31,18 @@ class AdminSwitch extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Kicker('ADMIN · VIEW AS', size: 10),
+            Kicker(a.admin ? 'ADMIN · VIEW AS' : 'MODE', size: 10),
             const SizedBox(height: 4),
-            Text('Your data stays; only the screens change.', style: BoltText.a(12, color: BoltColors.muted)),
+            Text(
+              a.admin
+                  ? 'Your data stays; only the screens change.'
+                  : 'Coach for your trainees, Solo for your own training.',
+              style: BoltText.a(12, color: BoltColors.muted),
+            ),
             const SizedBox(height: 12),
             ChoiceChips(
-              options: const ['coach', 'trainee', 'solo'],
-              labels: const {'coach': 'Coach', 'trainee': 'Trainee', 'solo': 'Solo'},
+              options: [for (final r in roles) r.name],
+              labels: _labels,
               selected: a.role.name,
               onSelect: (r) => ref.read(boltProvider.notifier).switchRole(Role.values.byName(r)),
             ),

@@ -19,8 +19,8 @@ import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
 import '../sharing/import_sheet.dart';
 import '../updates/update_sheet.dart';
-import 'admin_switch.dart';
 import 'body_card.dart';
+import 'role_switch.dart';
 
 class MeScreen extends ConsumerWidget {
   const MeScreen({super.key});
@@ -147,7 +147,7 @@ class MeScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 24),
-        const AdminSwitch(),
+        const RoleSwitch(),
         const UpdateCard(),
       ],
     );
