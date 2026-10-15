@@ -29,6 +29,7 @@ import '../progress/progress_screen.dart' show RecapTiles;
 import '../measurements/cycle_card.dart';
 import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
 import '../sharing/import_sheet.dart';
+import 'readiness_card.dart';
 import '../../widgets/bolt_sheet.dart';
 
 class TodayScreen extends ConsumerWidget {
@@ -115,6 +116,10 @@ class TodayScreen extends ConsumerWidget {
         if (tp != null && tp.status != SessionStatus.done) ...[
           const SizedBox(height: 18),
           _HeroCard(session: tp, flagged: tp.ex.where((e) => isFlagged(t, e)).toList(), today: today),
+          if (tp.status != SessionStatus.pending && tp.ex.isNotEmpty && d.workout?.key != today) ...[
+            const SizedBox(height: 12),
+            ReadinessCard(trainee: t, session: tp, dayKey: today),
+          ],
         ],
         if (tp != null && tp.status == SessionStatus.done) ...[
           const SizedBox(height: 18),

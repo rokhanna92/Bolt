@@ -890,6 +890,28 @@ class BoltStore extends Notifier<BoltData> {
     return _isCoach ? planMessage(tid) : null;
   }
 
+  /// Today's readiness check-in: sleep, energy and soreness, 1 to 3 each.
+  /// Only the last 60 days are kept.
+  void setReadiness(List<int> r) {
+    final t = tr(state.account!.id);
+    t.readiness[today] = r;
+    final cut = dk(addDays(now, -60));
+    t.readiness.removeWhere((k, _) => k.compareTo(cut) < 0);
+    _commit();
+  }
+
+  /// Takes a set off every exercise on day [k] for a low-readiness day.
+  void lightenDay(String tid, String k) {
+    final s = plan(tid)[k];
+    if (s == null || s.status == SessionStatus.done || s.note == lighterNote) return;
+    for (final e in s.ex) {
+      e.sets = math.max(1, e.sets - 1);
+    }
+    if (s.note.isEmpty) s.note = lighterNote;
+    _commit();
+    _toast(tx('Lighter today · one set less per exercise'));
+  }
+
   /// Logs a period that started on day [k], for cycle tracking.
   void logPeriod(String k) {
     final t = tr(state.account!.id);
@@ -1359,6 +1381,10 @@ class BoltStore extends Notifier<BoltData> {
       'injuries': t.injuries.map((i) => i.toJson()).toList(),
       'stats': t.stats.toJson(),
       'maxes': t.maxes,
+      'readiness': {
+        for (final e in t.readiness.entries)
+          if (e.key.compareTo(dk(addDays(now, -14))) >= 0) e.key: e.value,
+      },
       if (t.challenge case final Challenge c)
         'challenge': {'progress': challengeProgress(c, p, state.visits[t.id] ?? const [])},
       'body': t.body.toJson(last: 90),
@@ -1527,6 +1553,11 @@ class BoltStore extends Notifier<BoltData> {
       t.maxes
         ..clear()
         ..addAll(m.map((k, v) => MapEntry(k, (v as num).toDouble())));
+    }
+    if (packet['readiness'] != null) {
+      t.readiness
+        ..clear()
+        ..addAll(readinessFromJson(packet['readiness']));
     }
     final body = Body.fromJson(packet['body'] as Map<String, dynamic>?);
     // The trainee's history wins; days only the coach logged are kept.

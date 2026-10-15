@@ -184,6 +184,9 @@ int daysLeft(Challenge c, DateTime now) {
 /// The note a deload week puts on its sessions.
 const deloadNote = 'Deload week: half the sets, about 10% lighter, stop 3 or more reps before failure.';
 
+/// The note a low-readiness day puts on its session.
+const lighterNote = 'Lighter day: one set less per exercise, about 10% lighter. Readiness was low.';
+
 /// One week at a glance, for the Monday recap.
 class WeekRecap {
   const WeekRecap({

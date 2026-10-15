@@ -349,9 +349,11 @@ class Trainee {
     this.challenge,
     Map<String, double>? maxes,
     List<String>? periods,
+    Map<String, List<int>>? readiness,
   }) : body = body ?? Body(),
        maxes = maxes ?? {},
-       periods = periods ?? [];
+       periods = periods ?? [],
+       readiness = readiness ?? {};
 
   final String id;
   String name;
@@ -384,6 +386,9 @@ class Trainee {
   /// updates to the coach.
   final List<String> periods;
 
+  /// Check-ins by day: sleep, energy and soreness, each 1 (bad) to 3 (good).
+  final Map<String, List<int>> readiness;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
@@ -398,6 +403,7 @@ class Trainee {
     'challenge': challenge?.toJson(),
     'maxes': maxes,
     'periods': periods,
+    'readiness': readiness,
   };
 
   factory Trainee.fromJson(Map<String, dynamic> j) => Trainee(
@@ -414,7 +420,17 @@ class Trainee {
     challenge: j['challenge'] == null ? null : Challenge.fromJson(j['challenge'] as Map<String, dynamic>),
     maxes: (j['maxes'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, (v as num).toDouble())),
     periods: [for (final x in j['periods'] as List? ?? const []) x as String],
+    readiness: readinessFromJson(j['readiness']),
   );
+}
+
+Map<String, List<int>> readinessFromJson(Object? j) =>
+    (j as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, [for (final x in v as List) x as int]));
+
+/// A readiness check-in summed up: `ready` (8-9), `normal` (6-7) or `low`.
+String readinessLevel(List<int> r) {
+  final sum = r.fold(0, (a, b) => a + b);
+  return sum >= 8 ? 'ready' : (sum >= 6 ? 'normal' : 'low');
 }
 
 /// A target to reach between two days: workouts logged, gym visits or gym

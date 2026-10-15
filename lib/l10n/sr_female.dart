@@ -64,4 +64,6 @@ const kSrFemale = <String, String>{
   'Confirmed by {name}': 'Potvrdila {name}',
   'Moved by {name}': 'Pomerila {name}',
   '0 means you could not do another rep. 2-3 left is the sweet spot for most sets.': '0 znači da nisi mogla još jedno. 2-3 u rezervi je idealno za većinu serija.',
+  'Ready to go. A good day to push.': 'Spremna za akciju. Dobar dan da navališ.',
+  'Ready': 'Spremna',
 };

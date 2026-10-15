@@ -28,6 +28,7 @@ import '../../widgets/tap.dart';
 import '../badges/badges_screen.dart';
 import '../gym/gym_screen.dart' show VisitRow, visitDay;
 import '../profile/body_card.dart';
+import '../today/readiness_card.dart';
 import '../progress/challenge_sheet.dart';
 import '../workouts/deload_sheet.dart';
 import '../workouts/workout_picker.dart';
@@ -266,7 +267,11 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                     StatTile(value: '${currentStreak(x.stats, store.now)}', label: tx('WEEK STREAK')),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
+                Kicker(tx('READINESS · LAST 7 DAYS'), size: 10),
+                const SizedBox(height: 6),
+                ReadinessStrip(readiness: x.readiness, now: store.now),
+                const SizedBox(height: 10),
                 BadgesCard(stats: displayStats(x.stats, store.now), female: x.body.sex == 'f'),
                 const SizedBox(height: 14),
                 Kicker(tx('MUSCLE VOLUME THIS WEEK'), size: 10),
