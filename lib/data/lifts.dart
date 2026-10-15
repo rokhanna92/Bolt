@@ -304,6 +304,33 @@ double? maxFor(Trainee t, Map<String, Session> plan, String name) {
   ).map((d) => d.best).whereType<double>().fold<double?>(null, (a, b) => a == null || b > a ? b : a);
 }
 
+/// Where a lift goal stands: the current max, what is left and the day
+/// the 8-week trend of estimated maxes would reach it (null when flat or
+/// falling).
+({double current, double left, String? eta})? goalPace(
+  Trainee t,
+  Map<String, Session> plan,
+  String name,
+  DateTime now,
+) {
+  final g = t.liftGoals[name];
+  final current = maxFor(t, plan, name);
+  if (g == null || current == null) return null;
+  final left = g.$1 - current;
+  final cut = dk(addDays(now, -56));
+  final s = [
+    for (final d in liftHistory(plan, name))
+      if (d.best != null && d.date.compareTo(cut) >= 0) (d.date, d.best!),
+  ];
+  String? eta;
+  if (left > 0 && s.length >= 2) {
+    final days = pk(s.last.$1).difference(pk(s.first.$1)).inDays;
+    final perDay = days == 0 ? 0 : (s.last.$2 - s.first.$2) / days;
+    if (perDay > 0) eta = dk(addDays(now, (left / perDay).ceil()));
+  }
+  return (current: current, left: left, eta: eta);
+}
+
 /// Kilograms for a percentage load, rounded to plates; null when the load
 /// is not a percentage or there is no max yet.
 double? percentKg(Trainee t, Map<String, Session> plan, Exercise e) {

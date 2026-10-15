@@ -21,6 +21,7 @@ import '../../widgets/common.dart';
 import '../../widgets/muscle_map.dart';
 import '../../widgets/tap.dart';
 import 'challenge_sheet.dart';
+import 'lift_screen.dart' show LiftGoalCard;
 
 /// Everything you have built up: challenge, last week, muscle volume this
 /// week, records and every lift you have logged.
@@ -94,6 +95,17 @@ class ProgressScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             _Volume(sets: muscleSets(plan, dk(ws), dk(addDays(ws, 7)))),
+            if (t.liftGoals.isNotEmpty) ...[
+              const SizedBox(height: 24),
+              SectionTitle(tx('Lift goals')),
+              for (final name in t.liftGoals.keys) ...[
+                const SizedBox(height: 8),
+                Tap(
+                  onTap: () => context.push('/lift/${Uri.encodeComponent(name)}'),
+                  child: LiftGoalCard(name: name, t: t, own: false, title: true),
+                ),
+              ],
+            ],
             const SizedBox(height: 24),
             SectionTitle(tx('Records')),
             const SizedBox(height: 10),

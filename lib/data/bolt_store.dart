@@ -742,6 +742,18 @@ class BoltStore extends Notifier<BoltData> {
     _toast(kg == null ? tx('Max cleared') : tx('Max saved'));
   }
 
+  /// Sets or clears a target max for [name], to reach by day [by].
+  void setLiftGoal(String tid, String name, double? kg, String by) {
+    final t = tr(tid);
+    if (kg == null) {
+      t.liftGoals.remove(name);
+    } else {
+      t.liftGoals[name] = (kg, by);
+    }
+    _commit();
+    _toast(kg == null ? tx('Goal removed') : tx('Goal saved'));
+  }
+
   /// Adds [a] to day [k]'s workout, from a suggestion on Today.
   void addToDay(String tid, String k, ExSeed a) {
     final s = plan(tid)[k];
@@ -1434,6 +1446,7 @@ class BoltStore extends Notifier<BoltData> {
       'injuries': t.injuries.map((i) => i.toJson()).toList(),
       'stats': t.stats.toJson(),
       'maxes': t.maxes,
+      'liftGoals': liftGoalsToJson(t.liftGoals),
       'readiness': {
         for (final e in t.readiness.entries)
           if (e.key.compareTo(dk(addDays(now, -14))) >= 0) e.key: e.value,
@@ -1609,6 +1622,11 @@ class BoltStore extends Notifier<BoltData> {
       t.maxes
         ..clear()
         ..addAll(m.map((k, v) => MapEntry(k, (v as num).toDouble())));
+    }
+    if (packet['liftGoals'] != null) {
+      t.liftGoals
+        ..clear()
+        ..addAll(liftGoalsFromJson(packet['liftGoals']));
     }
     if (packet['readiness'] != null) {
       t.readiness

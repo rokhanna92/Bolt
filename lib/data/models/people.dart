@@ -352,7 +352,9 @@ class Trainee {
     Map<String, List<int>>? readiness,
     this.program,
     this.programStart,
-  }) : body = body ?? Body(),
+    Map<String, (double, String)>? liftGoals,
+  }) : liftGoals = liftGoals ?? {},
+       body = body ?? Body(),
        maxes = maxes ?? {},
        periods = periods ?? [],
        readiness = readiness ?? {};
@@ -395,6 +397,9 @@ class Trainee {
   String? program;
   String? programStart;
 
+  /// One-rep max targets by exercise name: kg and the day to reach it by.
+  final Map<String, (double, String)> liftGoals;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
@@ -412,6 +417,7 @@ class Trainee {
     'readiness': readiness,
     'program': program,
     'programStart': programStart,
+    'liftGoals': liftGoalsToJson(liftGoals),
   };
 
   factory Trainee.fromJson(Map<String, dynamic> j) => Trainee(
@@ -431,8 +437,16 @@ class Trainee {
     readiness: readinessFromJson(j['readiness']),
     program: j['program'] as String?,
     programStart: j['programStart'] as String?,
+    liftGoals: liftGoalsFromJson(j['liftGoals']),
   );
 }
+
+Map<String, Object> liftGoalsToJson(Map<String, (double, String)> g) =>
+    g.map((k, v) => MapEntry(k, {'kg': v.$1, 'by': v.$2}));
+
+Map<String, (double, String)> liftGoalsFromJson(Object? j) => (j as Map<String, dynamic>? ?? {}).map(
+  (k, v) => MapEntry(k, (((v as Map<String, dynamic>)['kg'] as num).toDouble(), v['by'] as String)),
+);
 
 Map<String, List<int>> readinessFromJson(Object? j) =>
     (j as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, [for (final x in v as List) x as int]));

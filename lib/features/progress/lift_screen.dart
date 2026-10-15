@@ -16,6 +16,7 @@ import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/fields.dart';
+import '../../widgets/forms.dart';
 import '../../widgets/sparkline.dart';
 import '../../widgets/tap.dart';
 
@@ -74,6 +75,8 @@ class LiftScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             if (t != null) ...[
               _MaxRow(name: name, tid: t.id, set: t.maxes[name], estimate: best, own: own, metric: metric),
+              const SizedBox(height: 10),
+              LiftGoalCard(name: name, t: t, own: own),
               const SizedBox(height: 10),
               if (hasStandards(name))
                 if (t.maxes[name] ?? best case final max?) ...[
@@ -212,6 +215,168 @@ class _MaxRow extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// A target max by a date: progress, what is left and the pace.
+class LiftGoalCard extends ConsumerWidget {
+  const LiftGoalCard({super.key, required this.name, required this.t, required this.own, this.title = false});
+
+  final String name;
+  final Trainee t;
+
+  /// The owner's lift: the goal can be set or changed.
+  final bool own;
+
+  /// Shows the lift's name, for the list on Progress.
+  final bool title;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final d = ref.watch(boltProvider);
+    final store = ref.read(boltProvider.notifier);
+    final metric = d.settings.kg;
+    final g = t.liftGoals[name];
+    final pace = goalPace(t, store.plan(t.id), name, store.now);
+    void edit() => showBoltSheet<void>(context, (_) => _GoalSheet(name: name, tid: t.id));
+    if (g == null) {
+      if (!own) return const SizedBox.shrink();
+      return OutlineButton(label: tx('+ Set a goal for this lift'), height: 44, radius: 14, fontSize: 13, onTap: edit);
+    }
+    final String line;
+    if (pace == null) {
+      line = tx('Log a set or set a max to track it.');
+    } else if (pace.left <= 0) {
+      line = tx('Goal reached!');
+    } else {
+      final head = tx('{kg} to go', {'kg': fmtWeight(pace.left, metric: metric)});
+      line = pace.eta == null
+          ? tx('{head} · no upward trend yet', {'head': head})
+          : pace.eta!.compareTo(g.$2) <= 0
+          ? tx('{head} · on pace for about {day}', {'head': head, 'day': fmtDay(pace.eta!)})
+          : tx('{head} · behind pace, about {day} at this rate', {'head': head, 'day': fmtDay(pace.eta!)});
+    }
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(BoltColors.lineSoft),
+      radius: 14,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Kicker(
+                  title ? tx(name).toUpperCase() : tx('GOAL'),
+                  size: 9,
+                  spacing: .1,
+                  color: BoltColors.neon,
+                ),
+              ),
+              if (own)
+                Tap(
+                  onTap: edit,
+                  child: Text(tx('Edit'), style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 3),
+          Text(
+            tx('{kg} by {day}', {'kg': fmtWeight(g.$1, metric: metric), 'day': fmtDay(g.$2)}),
+            style: BoltText.a(14, weight: 800),
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: LinearProgressIndicator(
+              value: pace == null ? 0 : (pace.current / g.$1).clamp(0.0, 1.0),
+              minHeight: 6,
+              backgroundColor: BoltColors.lineSoft,
+              valueColor: const AlwaysStoppedAnimation(BoltColors.neon),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(line, style: BoltText.a(12, color: BoltColors.muted, height: 1.4)),
+        ],
+      ),
+    );
+  }
+}
+
+class _GoalSheet extends ConsumerStatefulWidget {
+  const _GoalSheet({required this.name, required this.tid});
+
+  final String name;
+  final String tid;
+
+  @override
+  ConsumerState<_GoalSheet> createState() => _GoalSheetState();
+}
+
+class _GoalSheetState extends ConsumerState<_GoalSheet> {
+  late final bool _metric = ref.read(boltProvider).settings.kg;
+  late final (double, String)? _old = ref.read(boltProvider.notifier).tr(widget.tid).liftGoals[widget.name];
+  late final _c = TextEditingController(text: weightValue(_old?.$1, metric: _metric));
+  String _weeks = '12';
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final store = ref.read(boltProvider.notifier);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(tx('{what} goal', {'what': tx(widget.name)}), style: BoltText.a(20, weight: 900)),
+        const SizedBox(height: 4),
+        Text(
+          tx('A one-rep max to reach. Progress comes from your max, set by hand or estimated from logged sets.'),
+          style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
+        ),
+        const SizedBox(height: 14),
+        BoltField(controller: _c, hint: tx('Target max'), number: true, suffix: weightUnit(_metric)),
+        FieldLabel(tx('IN')),
+        ChoiceChips(
+          options: const ['4', '8', '12', '16', '26'],
+          labels: {
+            for (final w in const ['4', '8', '12', '16', '26']) w: plural(int.parse(w), 'week'),
+          },
+          selected: _weeks,
+          onSelect: (w) => setState(() => _weeks = w),
+        ),
+        const SizedBox(height: 16),
+        NeonButton(
+          label: tx('Save goal'),
+          height: 52,
+          scale: 1,
+          onTap: () {
+            final kg = parseWeight(_c.text, metric: _metric);
+            if (kg != null) {
+              store.setLiftGoal(widget.tid, widget.name, kg, dk(addDays(store.now, 7 * int.parse(_weeks))));
+            }
+            Navigator.of(context).pop();
+          },
+        ),
+        if (_old != null) ...[
+          const SizedBox(height: 8),
+          OutlineButton(
+            label: tx('Remove goal'),
+            color: BoltColors.text,
+            borderColor: BoltColors.line,
+            weight: 700,
+            onTap: () {
+              store.setLiftGoal(widget.tid, widget.name, null, '');
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ],
     );
   }
 }
