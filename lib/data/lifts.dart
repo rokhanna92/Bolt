@@ -85,7 +85,7 @@ List<String> loggedLifts(Map<String, Session> plan) {
 
 /// What happened last time and what to try now.
 class LiftHint {
-  const LiftHint({required this.last, required this.nextKg, required this.up});
+  const LiftHint({required this.last, required this.nextKg, required this.up, this.easy = false});
 
   final LiftDay last;
 
@@ -94,6 +94,9 @@ class LiftHint {
 
   /// Every rep was hit last time, so the weight goes up.
   final bool up;
+
+  /// Every rep was hit with 3 or more left in the tank: a double step.
+  final bool easy;
 }
 
 /// Lower-body compound lifts move up 5 kg at a time, everything else 2.5.
@@ -103,7 +106,8 @@ double _step(String name) {
 }
 
 /// Progressive overload: the same weight until every set reaches the top
-/// of the rep target, then a step up.
+/// of the rep target, then a step up, or two when every working set had 3
+/// or more reps in reserve.
 LiftHint? hintFor(Map<String, Session> plan, Exercise e, String today) {
   final h = liftHistory(plan, e.name, before: today);
   if (h.isEmpty) return null;
@@ -113,7 +117,8 @@ LiftHint? hintFor(Map<String, Session> plan, Exercise e, String today) {
   if (top == null) return LiftHint(last: last, nextKg: null, up: false);
   final working = last.sets.where((s) => s.kg == top).toList();
   final up = target != null && working.isNotEmpty && working.every((s) => (s.reps ?? 0) >= target);
-  return LiftHint(last: last, nextKg: up ? top + _step(e.name) : top, up: up);
+  final easy = up && working.every((s) => (s.rir ?? 0) >= 3);
+  return LiftHint(last: last, nextKg: up ? top + _step(e.name) * (easy ? 2 : 1) : top, up: up, easy: easy);
 }
 
 /// "8, 8, 7" reps of a lift day.

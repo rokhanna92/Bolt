@@ -1,13 +1,18 @@
-/// One logged set: the weight (kg, null for bodyweight) and reps done.
+/// One logged set: the weight (kg, null for bodyweight), reps done and how
+/// many more reps were left in the tank.
 class SetLog {
-  SetLog({this.kg, this.reps});
+  SetLog({this.kg, this.reps, this.rir});
 
   double? kg;
   int? reps;
 
-  Map<String, dynamic> toJson() => {'kg': kg, 'reps': reps};
+  /// Reps in reserve, 0 (failure) to 4 (4 or more); null when not given.
+  int? rir;
 
-  factory SetLog.fromJson(Map<String, dynamic> j) => SetLog(kg: (j['kg'] as num?)?.toDouble(), reps: j['reps'] as int?);
+  Map<String, dynamic> toJson() => {'kg': kg, 'reps': reps, if (rir != null) 'rir': rir};
+
+  factory SetLog.fromJson(Map<String, dynamic> j) =>
+      SetLog(kg: (j['kg'] as num?)?.toDouble(), reps: j['reps'] as int?, rir: j['rir'] as int?);
 }
 
 /// One exercise line in a template or a planned session.

@@ -27,6 +27,7 @@ import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/exercise_rows.dart';
 import '../../widgets/fields.dart';
+import '../../widgets/forms.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/swap_sheet.dart';
 import '../../widgets/tap.dart';
@@ -374,7 +375,9 @@ class _ExerciseCard extends ConsumerWidget {
                           'kg': '${_kg(h.last.topKg!)} ${weightUnit(metric)}',
                           'reps': repsText(h.last),
                         }) +
-                        (h.up
+                        (h.easy
+                            ? tx(' · felt easy, try {kg}', {'kg': '${_kg(h.nextKg!)} ${weightUnit(metric)}'})
+                            : h.up
                             ? tx(' · every rep hit, try {kg}', {'kg': '${_kg(h.nextKg!)} ${weightUnit(metric)}'})
                             : tx(' · same weight, beat the reps')),
               style: BoltText.a(12, weight: 600, color: h.up ? BoltColors.neon : BoltColors.muted),
@@ -432,7 +435,10 @@ class _ExerciseCard extends ConsumerWidget {
           ),
           if (workout.done[e.id]?.contains(true) ?? false) ...[
             const SizedBox(height: 6),
-            Text(tx('Tap a ticked set to change its weight or reps.'), style: BoltText.a(11, color: BoltColors.muted3)),
+            Text(
+              tx('Tap a ticked set to change its weight, reps or reps left in the tank.'),
+              style: BoltText.a(11, color: BoltColors.muted3),
+            ),
           ],
         ],
       ),
@@ -506,6 +512,7 @@ class _SetSheetState extends ConsumerState<_SetSheet> {
   late final SetLog? _log = ref.read(boltProvider).workout?.log(widget.e.id, widget.set);
   late final _kg = TextEditingController(text: weightValue(_log?.kg, metric: _metric));
   late final _reps = TextEditingController(text: _log?.reps?.toString() ?? '');
+  late int? _rir = _log?.rir;
 
   @override
   void dispose() {
@@ -540,6 +547,18 @@ class _SetSheetState extends ConsumerState<_SetSheet> {
             ),
           ],
         ),
+        FieldLabel(tx('REPS LEFT IN THE TANK')),
+        ChoiceChips(
+          options: const ['0', '1', '2', '3', '4'],
+          labels: const {'0': '0', '1': '1', '2': '2', '3': '3', '4': '4+'},
+          selected: _rir?.toString(),
+          onSelect: (v) => setState(() => _rir = _rir == int.parse(v) ? null : int.parse(v)),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          tx('0 means you could not do another rep. 2-3 left is the sweet spot for most sets.'),
+          style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
+        ),
         const SizedBox(height: 16),
         NeonButton(
           label: tx('Save set'),
@@ -552,6 +571,7 @@ class _SetSheetState extends ConsumerState<_SetSheet> {
               SetLog(
                 kg: parseWeight(_kg.text, metric: _metric),
                 reps: int.tryParse(_reps.text.trim()),
+                rir: _rir,
               ),
             );
             Navigator.of(context).pop();

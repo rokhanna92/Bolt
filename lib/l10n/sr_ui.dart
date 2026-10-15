@@ -696,4 +696,8 @@ const kSrUi = <String, String>{
   'Same muscle, with its own reps and load. Exercises that load an injury flag are left out.': 'Isti mišić, sa svojim ponavljanjima i tegom. Vežbe koje opterećuju povredu su izostavljene.',
   'Back to {name}': 'Vrati na {name}',
   'No other exercises for this muscle.': 'Nema drugih vežbi za ovaj mišić.',
+  ' · felt easy, try {kg}': ' · bilo je lako, probaj {kg}',
+  'Tap a ticked set to change its weight, reps or reps left in the tank.': 'Dodirni čekiranu seriju da promeniš teg, ponavljanja ili koliko ti je ostalo u rezervi.',
+  'REPS LEFT IN THE TANK': 'PONAVLJANJA U REZERVI',
+  '0 means you could not do another rep. 2-3 left is the sweet spot for most sets.': '0 znači da nisi mogao još jedno. 2-3 u rezervi je idealno za većinu serija.',
 };
