@@ -59,6 +59,23 @@ class ProgressScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 14),
             Text(tx('Your training'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+            const SizedBox(height: 12),
+            Tap(
+              onTap: () => context.push('/wrap'),
+              child: BoltBox(
+                color: BoltColors.neon,
+                radius: 14,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(tx('Your month in Bolt'), style: BoltText.a(14, weight: 800, color: BoltColors.ink)),
+                    ),
+                    Text('→', style: BoltText.a(16, weight: 800, color: BoltColors.ink)),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
             if (c != null)
               ChallengeCard(

@@ -19,6 +19,26 @@ import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 
+/// Shares the card under [key] as a PNG named [file].
+Future<void> shareCard(GlobalKey key, String file, String subject, BoltStore store) async {
+  try {
+    final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+    final image = await boundary.toImage(pixelRatio: 4);
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    final dir = await getTemporaryDirectory();
+    final f = File('${dir.path}/$file');
+    await f.writeAsBytes(bytes!.buffer.asUint8List());
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(f.path, mimeType: 'image/png')],
+        subject: subject,
+      ),
+    );
+  } catch (_) {
+    store.toast(tx('Could not create the image'));
+  }
+}
+
 /// A finished workout as a card: time, sets, volume, PRs and muscles. Shown
 /// after Finish and from a done day; can be shared as an image.
 class SummaryScreen extends ConsumerStatefulWidget {
@@ -33,25 +53,8 @@ class SummaryScreen extends ConsumerStatefulWidget {
 class _SummaryScreenState extends ConsumerState<SummaryScreen> {
   final _card = GlobalKey();
 
-  Future<void> _share(String title) async {
-    final store = ref.read(boltProvider.notifier);
-    try {
-      final boundary = _card.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-      final image = await boundary.toImage(pixelRatio: 4);
-      final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/bolt-workout-${widget.dayKey}.png');
-      await file.writeAsBytes(bytes!.buffer.asUint8List());
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(file.path, mimeType: 'image/png')],
-          subject: title,
-        ),
-      );
-    } catch (_) {
-      store.toast(tx('Could not create the image'));
-    }
-  }
+  Future<void> _share(String title) =>
+      shareCard(_card, 'bolt-workout-${widget.dayKey}.png', title, ref.read(boltProvider.notifier));
 
   @override
   Widget build(BuildContext context) {

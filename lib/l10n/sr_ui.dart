@@ -752,4 +752,13 @@ const kSrUi = <String, String>{
   'Target max': 'Ciljni maksimum',
   'IN': 'ZA',
   'Lift goals': 'Ciljevi za vežbe',
+  'YOUR WRAP': 'TVOJ PREGLED',
+  'Last month': 'Prošli mesec',
+  'This year': 'Ova godina',
+  'WRAP': 'PREGLED',
+  'PRS': 'REKORDI',
+  'TOP LIFT': 'NAJJAČA VEŽBA',
+  'MOST TRAINED': 'NAJVIŠE TRENIRANO',
+  'My {when} in Bolt': 'Moj {when} u Boltu',
+  'Your month in Bolt': 'Tvoj mesec u Boltu',
 };
