@@ -71,27 +71,48 @@ class BadgesScreen extends ConsumerWidget {
               ),
             ),
           ],
-          const SizedBox(height: 20),
-          for (var r = 0; r < kBadges.length; r += 3) ...[
-            if (r > 0) const SizedBox(height: 18),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (var i = r; i < r + 3; i++) ...[
-                  if (i > r) const SizedBox(width: 10),
-                  Expanded(
-                    child: i < kBadges.length
-                        ? _cell(kBadges[i], on(kBadges[i]), stats.value(kBadges[i].key), pct(kBadges[i]))
-                        : const SizedBox(),
-                  ),
-                ],
-              ],
-            ),
-          ],
+          for (final (key, title) in kBadgeSections)
+            if (kBadges.any((b) => b.key == key)) ..._section(title, _sorted(key), stats, on, pct),
         ],
       ),
     );
   }
+
+  /// Badges on one counter, smallest goal first.
+  List<BadgeDef> _sorted(String key) => kBadges.where((b) => b.key == key).toList()..sort((a, b) => a.goal - b.goal);
+
+  List<Widget> _section(
+    String title,
+    List<BadgeDef> list,
+    TraineeStats stats,
+    bool Function(BadgeDef) on,
+    double Function(BadgeDef) pct,
+  ) => [
+    const SizedBox(height: 26),
+    Row(
+      children: [
+        Expanded(child: Kicker(title.toUpperCase(), size: 10, spacing: .1)),
+        Text('${list.where(on).length} / ${list.length}', style: BoltText.m(10, color: BoltColors.muted)),
+      ],
+    ),
+    const SizedBox(height: 14),
+    for (var r = 0; r < list.length; r += 3) ...[
+      if (r > 0) const SizedBox(height: 18),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = r; i < r + 3; i++) ...[
+            if (i > r) const SizedBox(width: 10),
+            Expanded(
+              child: i < list.length
+                  ? _cell(list[i], on(list[i]), stats.value(list[i].key), pct(list[i]))
+                  : const SizedBox(),
+            ),
+          ],
+        ],
+      ),
+    ],
+  ];
 
   Widget _cell(BadgeDef b, bool on, int v, double pct) {
     return PopIn(
@@ -164,7 +185,9 @@ class BadgesCard extends StatelessWidget {
                 Expanded(
                   child: AspectRatio(
                     aspectRatio: 1,
-                    child: FittedBox(child: BadgeMedal(badge: b, on: badgeEarned(b, stats))),
+                    child: FittedBox(
+                      child: BadgeMedal(badge: b, on: badgeEarned(b, stats)),
+                    ),
                   ),
                 ),
               ],
