@@ -29,8 +29,12 @@ bool appFemale = false;
 
 /// [en] in the current language. `{name}` placeholders are filled from
 /// [args] after translating, so names and numbers are never changed.
-String tx(String en, [Map<String, Object?> args = const {}]) {
-  var s = isSerbian ? ((appFemale ? kSrFemale[en] : null) ?? kSr[en] ?? en) : en;
+String tx(String en, [Map<String, Object?> args = const {}]) => txFor(appFemale, en, args);
+
+/// [tx] for text about someone other than the phone owner, e.g. a trainee
+/// on the coach's screens: female forms follow [female], not the owner.
+String txFor(bool female, String en, [Map<String, Object?> args = const {}]) {
+  var s = isSerbian ? ((female ? kSrFemale[en] : null) ?? kSr[en] ?? en) : en;
   args.forEach((k, v) => s = s.replaceAll('{$k}', '$v'));
   return s;
 }

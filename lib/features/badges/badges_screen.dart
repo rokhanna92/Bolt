@@ -146,11 +146,14 @@ class BadgesScreen extends ConsumerWidget {
 /// closest one to go. On Today it opens the trophy rack; a coach sees one
 /// per trainee.
 class BadgesCard extends StatelessWidget {
-  const BadgesCard({super.key, required this.stats, this.onTap});
+  const BadgesCard({super.key, required this.stats, this.onTap, this.female});
 
   /// As shown on badges, see [displayStats].
   final TraineeStats stats;
   final VoidCallback? onTap;
+
+  /// Whose badges: a trainee on the coach's screens. Null for the owner.
+  final bool? female;
 
   static const _strip = 5;
 
@@ -205,7 +208,7 @@ class BadgesCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    tx('Next: {what}', {'what': tx(next.name)}),
+                    tx('Next: {what}', {'what': txFor(female ?? appFemale, next.name)}),
                     overflow: TextOverflow.ellipsis,
                     style: BoltText.a(13, weight: 700),
                   ),

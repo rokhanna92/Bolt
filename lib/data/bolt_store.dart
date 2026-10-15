@@ -373,12 +373,13 @@ class BoltStore extends Notifier<BoltData> {
 
   void removeTrainee(String tid) {
     final name = trOrNull(tid)?.name ?? '';
+    final female = trOrNull(tid)?.body.sex == 'f';
     state.trainees.removeWhere((t) => t.id == tid);
     state.plans.remove(tid);
     state.visits.remove(tid);
     state.gymIn.remove(tid);
     _commit();
-    _toast(tx('{name} removed', {'name': firstName(name)}));
+    _toast(txFor(female, '{name} removed', {'name': firstName(name)}));
   }
 
   // Gym

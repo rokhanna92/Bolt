@@ -50,12 +50,13 @@ class RosterScreen extends ConsumerWidget {
       final p = store.plan(x.id);
       final ks = p.keys.toList()..sort();
       final fn = firstName(x.name);
+      final she = x.body.sex == 'f';
       for (final k in ks) {
         final s = p[k]!;
         if (s.status == SessionStatus.moved) {
           att.add(
             _Attention(
-              tx('{name} moved {workout}', {'name': fn, 'workout': tx(s.title)}),
+              txFor(she, '{name} moved {workout}', {'name': fn, 'workout': tx(s.title)}),
               '${fmtDay(s.from ?? k)} → ${fmtDay(k)}',
               'OK',
               BoltColors.text,
@@ -67,7 +68,7 @@ class RosterScreen extends ConsumerWidget {
       for (final i in x.injuries.where((i) => i.fresh)) {
         att.add(
           _Attention(
-            tx('{name} reported {area} pain', {'name': fn, 'area': tx(kAreas[i.area]!).toLowerCase()}),
+            txFor(she, '{name} reported {area} pain', {'name': fn, 'area': tx(kAreas[i.area]!).toLowerCase()}),
             i.note,
             tx('Review'),
             BoltColors.warn,
@@ -82,7 +83,7 @@ class RosterScreen extends ConsumerWidget {
       if (pn > 0) {
         att.add(
           _Attention(
-            tx('{name} hasn’t confirmed {n}', {'name': fn, 'n': plural(pn, 'session')}),
+            txFor(she, '{name} hasn’t confirmed {n}', {'name': fn, 'n': plural(pn, 'session')}),
             tx('Sent for approval'),
             tx('Nudge'),
             BoltColors.neon,

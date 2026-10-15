@@ -57,4 +57,10 @@ const kSrFemale = <String, String>{
   'Log 5 workouts you built yourself.': 'Upiši 5 treninga koje si sama složila.',
   'Log 25 workouts you built yourself.': 'Upiši 25 treninga koje si sama složila.',
   'Log 50 workouts you built yourself. Science can wait.': 'Upiši 50 treninga koje si sama složila. Nauka može da sačeka.',
+  '{name} removed': '{name} uklonjena',
+  '{name} moved {workout}': '{name} je pomerila {workout}',
+  '{name} reported {area} pain': '{name} je prijavila bol: {area}',
+  '{name} hasn’t confirmed {n}': '{name} nije potvrdila {n}',
+  'Confirmed by {name}': 'Potvrdila {name}',
+  'Moved by {name}': 'Pomerila {name}',
 };

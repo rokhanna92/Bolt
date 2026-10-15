@@ -47,11 +47,11 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
   }();
   String? _sel;
 
-  String _coachLabel(SessionStatus s, String fn) => switch (s) {
+  String _coachLabel(SessionStatus s, String fn, {required bool female}) => switch (s) {
     SessionStatus.done => tx('Done'),
-    SessionStatus.approved => tx('Confirmed by {name}', {'name': fn}),
+    SessionStatus.approved => txFor(female, 'Confirmed by {name}', {'name': fn}),
     SessionStatus.pending => tx('Waiting for {name}', {'name': fn}),
-    SessionStatus.moved => tx('Moved by {name}', {'name': fn}),
+    SessionStatus.moved => txFor(female, 'Moved by {name}', {'name': fn}),
     SessionStatus.draft => tx('Draft · not sent'),
   };
 
@@ -266,7 +266,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                BadgesCard(stats: displayStats(x.stats, store.now)),
+                BadgesCard(stats: displayStats(x.stats, store.now), female: x.body.sex == 'f'),
                 if (loggedLifts(p).isNotEmpty) ...[
                   const SizedBox(height: 14),
                   Kicker(tx('LIFTS · FROM {name}\'S UPDATES', {'name': fn.toUpperCase()}), size: 10),
@@ -348,7 +348,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                     child: _SelectedDay(
                       tid: x.id,
                       dayKey: _sel!,
-                      label: _coachLabel(sp.status, fn),
+                      label: _coachLabel(sp.status, fn, female: x.body.sex == 'f'),
                       onRemove: () {
                         store.removeDay(x.id, _sel!);
                         setState(() => _sel = null);
