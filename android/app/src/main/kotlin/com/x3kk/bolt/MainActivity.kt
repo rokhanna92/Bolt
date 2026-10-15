@@ -14,11 +14,25 @@ import java.io.File
  * Answers the "bolt/updates" channel: whether Bolt may install packages, the
  * settings screen to allow it, and handing a downloaded APK to the installer.
  * Android never installs silently; the installer always asks the user.
+ *
+ * Also "bolt/shortcuts": the app icon's long-press shortcuts arrive as a
+ * "shortcut" extra, at launch ("initial") or while running ("open").
  */
 class MainActivity : FlutterActivity() {
 
+    private var shortcuts: MethodChannel? = null
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        shortcuts = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/shortcuts").apply {
+            setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "initial" -> result.success(takeShortcut(intent))
+                    "background" -> result.success(moveTaskToBack(true))
+                    else -> result.notImplemented()
+                }
+            }
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/updates")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -32,6 +46,18 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        takeShortcut(intent)?.let { shortcuts?.invokeMethod("open", it) }
+    }
+
+    /** The shortcut an intent carries, read once so it never fires twice. */
+    private fun takeShortcut(intent: Intent?): String? {
+        val s = intent?.getStringExtra("shortcut") ?: return null
+        intent.removeExtra("shortcut")
+        return s
     }
 
     /** Below Android 8 the permission is granted at install time. */

@@ -36,6 +36,10 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Long-press menu on the app icon: scan, today's workout, gym time. -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts"/>
         </activity>
         <!-- flutter_local_notifications ships no receivers in its own manifest,
              so they are declared here. Without these, scheduled reminders are

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/format.dart';
 import '../data/bolt_store.dart';
 import '../data/models/bolt_data.dart';
+import '../data/models/session.dart';
 import '../features/badges/unlock_overlay.dart';
 import '../features/gym/scanner_overlay.dart';
 import '../features/learn/exercise_sheet.dart';
@@ -20,12 +21,38 @@ import 'ui_state.dart';
 NavigatorState get _root => rootNavigatorKey.currentState!;
 
 /// Centre button: trainees land on the gym screen, then the scanner opens.
-void openScanner(BuildContext context, WidgetRef ref) {
+void openScanner(BuildContext context, WidgetRef ref, {bool fromShortcut = false}) {
   if (ref.read(boltProvider).account?.isTrainee ?? false) {
     ref.read(moveFromProvider.notifier).set(null);
     context.go('/gym');
   }
-  _root.push(ScannerRoute());
+  _root.push(ScannerRoute(fromShortcut: fromShortcut));
+}
+
+/// The app icon's long-press shortcuts: scan the plaque, today's workout or
+/// gym time. Ignored before onboarding and on coach screens.
+void openShortcut(String what) {
+  final context = rootNavigatorKey.currentContext;
+  final a = _container.read(boltProvider).account;
+  if (context == null || a == null || !a.isTrainee) return;
+  _container.read(moveFromProvider.notifier).set(null);
+  switch (what) {
+    case 'scan':
+      context.go('/gym');
+      _root.push(ScannerRoute(fromShortcut: true));
+    case 'workout':
+      final store = _store;
+      final k = store.today;
+      final s = store.plan(a.id)[k];
+      context.go('/today');
+      // Nothing to start (rest day, waiting for OK, done): Today shows why.
+      if (s != null && (s.status == SessionStatus.approved || s.status == SessionStatus.moved)) {
+        store.startWorkout(k);
+        WidgetsBinding.instance.addPostFrameCallback((_) => rootNavigatorKey.currentContext?.push('/workout/$k'));
+      }
+    case 'gym':
+      context.go('/gym');
+  }
 }
 
 /// Badge unlock overlays, one after another.

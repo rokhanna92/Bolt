@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Long-press the Bolt icon. Each opens Bolt with a "shortcut" extra that
+     MainActivity hands to Flutter. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="scan"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_scan"
+        android:shortcutShortLabel="@string/shortcut_scan_short"
+        android:shortcutLongLabel="@string/shortcut_scan_long">
+        <intent
+            android:action="com.x3kk.bolt.SHORTCUT"
+            android:targetPackage="com.x3kk.bolt"
+            android:targetClass="com.x3kk.bolt.MainActivity">
+            <extra android:name="shortcut" android:value="scan" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="workout"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_workout"
+        android:shortcutShortLabel="@string/shortcut_workout_short"
+        android:shortcutLongLabel="@string/shortcut_workout_long">
+        <intent
+            android:action="com.x3kk.bolt.SHORTCUT"
+            android:targetPackage="com.x3kk.bolt"
+            android:targetClass="com.x3kk.bolt.MainActivity">
+            <extra android:name="shortcut" android:value="workout" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="gym"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_gym"
+        android:shortcutShortLabel="@string/shortcut_gym_short"
+        android:shortcutLongLabel="@string/shortcut_gym_long">
+        <intent
+            android:action="com.x3kk.bolt.SHORTCUT"
+            android:targetPackage="com.x3kk.bolt"
+            android:targetClass="com.x3kk.bolt.MainActivity">
+            <extra android:name="shortcut" android:value="gym" />
+        </intent>
+    </shortcut>
+</shortcuts>

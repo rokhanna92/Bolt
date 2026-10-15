@@ -21,6 +21,10 @@ abstract class BoltNotifications {
 
   /// Replaces every scheduled session reminder with [list].
   Future<void> replaceSessionReminders(List<Reminder> list);
+
+  /// A live gym timer in the notification shade, counting up from [since].
+  Future<void> showInGym(DateTime since, String sinceText);
+  Future<void> clearInGym();
 }
 
 class NoopNotifications implements BoltNotifications {
@@ -34,6 +38,12 @@ class NoopNotifications implements BoltNotifications {
 
   @override
   Future<void> replaceSessionReminders(List<Reminder> list) async {}
+
+  @override
+  Future<void> showInGym(DateTime since, String sinceText) async {}
+
+  @override
+  Future<void> clearInGym() async {}
 }
 
 class LocalNotifications implements BoltNotifications {
@@ -42,6 +52,7 @@ class LocalNotifications implements BoltNotifications {
   final FlutterLocalNotificationsPlugin _plugin;
 
   static const _checkoutId = 1;
+  static const _inGymId = 2;
   static const _sessionBase = 100;
   static const _sessionSlots = 14;
 
@@ -107,6 +118,43 @@ class LocalNotifications implements BoltNotifications {
   Future<void> cancelCheckout() async {
     try {
       await _plugin.cancel(id: _checkoutId);
+    } catch (_) {}
+  }
+
+  @override
+  Future<void> showInGym(DateTime since, String sinceText) async {
+    try {
+      await _ensurePermission();
+      await _plugin.show(
+        id: _inGymId,
+        title: 'In the gym',
+        body: 'Since $sinceText · scan the plaque on your way out',
+        notificationDetails: NotificationDetails(
+          android: AndroidNotificationDetails(
+            'bolt_gym_timer',
+            'Gym timer',
+            channelDescription: 'Live time while you are checked in',
+            importance: Importance.low,
+            priority: Priority.low,
+            icon: 'ic_stat_bolt',
+            color: _neon,
+            ongoing: true,
+            autoCancel: false,
+            onlyAlertOnce: true,
+            silent: true,
+            showWhen: true,
+            when: since.millisecondsSinceEpoch,
+            usesChronometer: true,
+          ),
+        ),
+      );
+    } catch (_) {}
+  }
+
+  @override
+  Future<void> clearInGym() async {
+    try {
+      await _plugin.cancel(id: _inGymId);
     } catch (_) {}
   }
 

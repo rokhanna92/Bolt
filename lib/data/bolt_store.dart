@@ -56,7 +56,17 @@ class ToastController extends Notifier<ToastMessage?> {
 
 /// Result of scanning the plaque.
 class ScanOutcome {
-  const ScanOutcome({required this.head, required this.sub, this.hype, this.detail, this.unlocked = const []});
+  const ScanOutcome({
+    required this.head,
+    required this.sub,
+    this.checkIn = false,
+    this.hype,
+    this.detail,
+    this.unlocked = const [],
+  });
+
+  /// The scan checked in (rather than out).
+  final bool checkIn;
 
   final String head;
   final String sub;
@@ -248,6 +258,7 @@ class BoltStore extends Notifier<BoltData> {
   /// Erases everything on this phone and returns to onboarding.
   void resetAll() {
     _notify.cancelCheckout();
+    _notify.clearInGym();
     _notify.replaceSessionReminders(const []);
     state = freshData();
     ref.read(repositoryProvider).scheduleSave(state);
@@ -300,6 +311,7 @@ class BoltStore extends Notifier<BoltData> {
     if (g == null) {
       final since = hm(n);
       state.gymIn[id] = GymIn(at: n.millisecondsSinceEpoch, base: 0, since: since);
+      _notify.showInGym(n, since);
       if (state.settings.checkout) {
         _notify.scheduleCheckout(
           Reminder(
@@ -314,6 +326,7 @@ class BoltStore extends Notifier<BoltData> {
       final planned = s != null && s.status != SessionStatus.draft && s.status != SessionStatus.done;
       return ScanOutcome(
         head: 'Checked in',
+        checkIn: true,
         sub: planned ? '$since · today: ${s.title}' : '$since · have a good session',
         hype: _pick(_inHype),
       );
@@ -401,6 +414,7 @@ class BoltStore extends Notifier<BoltData> {
   (Visit, List<String>) _closeVisit(String id, GymIn g, int mins, {required bool auto}) {
     state.gymIn.remove(id);
     _notify.cancelCheckout();
+    _notify.clearInGym();
     final v = Visit(
       date: dk(g.checkInTime()),
       inT: g.since,
@@ -418,6 +432,17 @@ class BoltStore extends Notifier<BoltData> {
     if (toMin(g.since) >= 1260) t.stats.late++;
     if (!auto && mins >= 90) t.stats.long++;
     return (v, newlyUnlocked(before, t.stats));
+  }
+
+  /// Shows the live gym timer when the owner is checked in, e.g. after a
+  /// restart cleared the notification.
+  void syncGymTimer() {
+    final g = state.gymIn[state.account?.id];
+    if (g == null) {
+      _notify.clearInGym();
+    } else {
+      _notify.showInGym(g.checkInTime(), g.since);
+    }
   }
 
   /// Visits still open after 5 hours are closed at 5 hours and flagged auto.

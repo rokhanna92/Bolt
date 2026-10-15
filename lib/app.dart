@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'app/actions.dart';
 import 'app/router.dart';
 import 'data/bolt_store.dart';
+import 'services/shortcuts.dart';
 import 'theme/bolt_theme.dart';
 import 'widgets/toast.dart';
 
@@ -26,6 +28,8 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       store.autoCloseStale();
       store.syncSessionReminders();
+      store.syncGymTimer();
+      AppShortcuts.listen(openShortcut);
     });
     _minute = Timer.periodic(const Duration(minutes: 1), (_) => store.autoCloseStale());
   }

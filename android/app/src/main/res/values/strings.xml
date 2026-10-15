@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Long-press menu on the app icon. -->
+    <string name="shortcut_scan_short">Scan plaque</string>
+    <string name="shortcut_scan_long">Scan the gym plaque</string>
+    <string name="shortcut_workout_short">Today\'s workout</string>
+    <string name="shortcut_workout_long">Start today\'s workout</string>
+    <string name="shortcut_gym_short">Gym time</string>
+    <string name="shortcut_gym_long">Time in the gym</string>
+</resources>

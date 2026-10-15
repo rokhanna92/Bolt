@@ -8,6 +8,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../app/actions.dart';
 import '../../data/bolt_store.dart';
 import '../../data/seed/content.dart';
+import '../../services/shortcuts.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
@@ -19,18 +20,22 @@ import '../plaque/plaque_qr.dart';
 /// Full-screen scanner. The plaque QR toggles check-in / check-out; tapping
 /// the frame simulates a scan (handy without a printed plaque).
 class ScannerRoute extends PageRouteBuilder<void> {
-  ScannerRoute()
+  ScannerRoute({bool fromShortcut = false})
     : super(
         opaque: true,
         transitionDuration: const Duration(milliseconds: 250),
         reverseTransitionDuration: const Duration(milliseconds: 200),
-        pageBuilder: (context, a, s) => const ScannerOverlay(),
+        pageBuilder: (context, a, s) => ScannerOverlay(fromShortcut: fromShortcut),
         transitionsBuilder: (context, a, s, child) => FadeTransition(opacity: a, child: child),
       );
 }
 
 class ScannerOverlay extends ConsumerStatefulWidget {
-  const ScannerOverlay({super.key});
+  const ScannerOverlay({super.key, this.fromShortcut = false});
+
+  /// Opened from the app icon's shortcut: after checking in, Bolt steps out
+  /// of the way and the timer keeps running in the notification.
+  final bool fromShortcut;
 
   @override
   ConsumerState<ScannerOverlay> createState() => _ScannerOverlayState();
@@ -70,6 +75,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
     if (!mounted || res == null) return;
     Navigator.of(context).pop();
     showUnlocks(res.unlocked);
+    if (widget.fromShortcut && res.checkIn) AppShortcuts.toBackground();
   }
 
   void _onDetect(BarcodeCapture c) {
