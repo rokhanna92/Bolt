@@ -1,4 +1,5 @@
 import 'custom_split.dart';
+import 'exercise.dart';
 import 'people.dart';
 import 'session.dart';
 import 'settings.dart';
@@ -38,21 +39,38 @@ class Account {
 
 /// The workout in progress: which sets are checked per exercise id.
 class ActiveWorkout {
-  ActiveWorkout({required this.key, Map<String, List<bool>>? done}) : done = done ?? {};
+  ActiveWorkout({required this.key, Map<String, List<bool>>? done, Map<String, Map<int, SetLog>>? logs})
+    : done = done ?? {},
+      logs = logs ?? {};
 
   final String key;
   final Map<String, List<bool>> done;
+
+  /// Weight and reps per exercise id and set index, for ticked sets.
+  final Map<String, Map<int, SetLog>> logs;
+
+  SetLog? log(String exId, int i) => logs[exId]?[i];
 
   bool isDone(String exId, int i) {
     final a = done[exId];
     return a != null && i < a.length && a[i];
   }
 
-  Map<String, dynamic> toJson() => {'key': key, 'done': done};
+  Map<String, dynamic> toJson() => {
+    'key': key,
+    'done': done,
+    'logs': logs.map((id, m) => MapEntry(id, m.map((i, l) => MapEntry('$i', l.toJson())))),
+  };
 
   factory ActiveWorkout.fromJson(Map<String, dynamic> j) => ActiveWorkout(
     key: j['key'] as String,
     done: (j['done'] as Map<String, dynamic>).map((k, v) => MapEntry(k, (v as List).map((x) => x as bool).toList())),
+    logs: (j['logs'] as Map<String, dynamic>? ?? {}).map(
+      (id, m) => MapEntry(
+        id,
+        (m as Map<String, dynamic>).map((i, l) => MapEntry(int.parse(i), SetLog.fromJson(l as Map<String, dynamic>))),
+      ),
+    ),
   );
 }
 

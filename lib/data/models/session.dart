@@ -19,6 +19,7 @@ class Session {
     this.log,
     this.byCoach = false,
     this.code,
+    this.deload = false,
   });
 
   String tpl;
@@ -41,6 +42,9 @@ class Session {
   /// Calendar code for a day built from muscles, which has no template.
   String? code;
 
+  /// Part of a deload week: sets halved.
+  bool deload;
+
   int get totalSets => ex.fold(0, (a, e) => a + e.sets);
 
   Map<String, dynamic> toJson() => {
@@ -55,6 +59,7 @@ class Session {
     'log': log,
     'byCoach': byCoach,
     'code': code,
+    'deload': deload,
   };
 
   factory Session.fromJson(Map<String, dynamic> j) => Session(
@@ -69,5 +74,6 @@ class Session {
     log: j['log'] as String?,
     byCoach: j['byCoach'] as bool? ?? false,
     code: j['code'] as String?,
+    deload: j['deload'] as bool? ?? false,
   );
 }

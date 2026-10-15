@@ -9,6 +9,7 @@ import '../../data/models/exercise.dart';
 import '../../data/models/people.dart';
 import '../../data/models/session.dart';
 import '../../data/models/template.dart';
+import '../../data/lifts.dart';
 import '../../data/rules.dart';
 import '../../data/seed/exercises.dart';
 import '../../data/seed/templates.dart';
@@ -218,7 +219,10 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               const SizedBox(width: 10),
               Expanded(child: Text(e.name, style: BoltText.a(15, weight: 800))),
               Tap(
-                onTap: () => _edit(() => _store.editExercises(widget.target).remove(e)),
+                onTap: () => _edit(() {
+                  final list = _store.editExercises(widget.target)..remove(e);
+                  normalizeGroups(list);
+                }),
                 child: SizedBox(
                   width: 30,
                   height: 30,
@@ -277,10 +281,37 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
             const SizedBox(height: 6),
             Text('Swapped from ${e.orig}', style: BoltText.m(10, color: BoltColors.muted)),
           ],
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              if (i + 1 < _store.editExercises(widget.target).length) ...[
+                _chip(
+                  e.group != null && _store.editExercises(widget.target)[i + 1].group == e.group
+                      ? 'Superset ${e.group} with next ✓'
+                      : 'Superset with next',
+                  e.group != null && _store.editExercises(widget.target)[i + 1].group == e.group,
+                  () => _edit(() => toggleSuperset(_store.editExercises(widget.target), i)),
+                ),
+                const SizedBox(width: 6),
+              ],
+              _chip(e.drop ? 'Drop set ✓' : 'Drop set', e.drop, () => _edit(() => e.drop = !e.drop)),
+            ],
+          ),
         ],
       ),
     );
   }
+
+  Widget _chip(String label, bool on, VoidCallback onTap) => Tap(
+    onTap: onTap,
+    child: BoltBox(
+      radius: 99,
+      color: on ? const Color(0x1FC6FF1A) : null,
+      stroke: Stroke(on ? BoltColors.neon : BoltColors.line),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      child: Text(label, style: BoltText.a(11, weight: 700, color: on ? BoltColors.neon : BoltColors.muted)),
+    ),
+  );
 
   Widget _step(String l, Color c, VoidCallback f) => Tap(
     onTap: f,

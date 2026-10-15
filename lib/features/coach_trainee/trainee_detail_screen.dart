@@ -14,6 +14,7 @@ import '../../data/seed/splits.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/calendar_grid.dart';
 import '../../widgets/common.dart';
@@ -23,6 +24,8 @@ import '../../widgets/tap.dart';
 import '../badges/badges_screen.dart';
 import '../gym/gym_screen.dart' show VisitRow, visitDay;
 import '../profile/body_card.dart';
+import '../progress/challenge_sheet.dart';
+import '../workouts/deload_sheet.dart';
 import '../workouts/workout_picker.dart';
 
 class TraineeDetailScreen extends ConsumerStatefulWidget {
@@ -213,6 +216,30 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                       child: Text('+ Add injury flag', style: BoltText.a(12, weight: 700, color: BoltColors.warn)),
                     ),
                   ),
+                ),
+                const SizedBox(height: 14),
+                if (x.challenge case final c?) ...[
+                  ChallengeCard(
+                    c: c,
+                    progress: c.progress,
+                    now: store.now,
+                    onTap: () => showBoltSheet<void>(context, (_) => ChallengeSheet(tid: x.id)),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                Row(
+                  children: [
+                    if (x.challenge == null)
+                      Tap(
+                        onTap: () => showBoltSheet<void>(context, (_) => ChallengeSheet(tid: x.id)),
+                        child: Text('+ Set a challenge', style: BoltText.a(12, weight: 700, color: BoltColors.neon)),
+                      ),
+                    const Spacer(),
+                    Tap(
+                      onTap: () => showBoltSheet<void>(context, (_) => DeloadSheet(tid: x.id)),
+                      child: Text('Deload week…', style: BoltText.a(12, weight: 700, color: BoltColors.neon)),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 14),
                 const SectionTitle('Progress', size: 16),

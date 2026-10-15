@@ -7,6 +7,7 @@ import '../../app/actions.dart';
 import '../../app/tick.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
+import '../../data/models/session.dart';
 import '../../data/models/visit.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -120,6 +121,12 @@ class GymScreen extends ConsumerWidget {
             ],
           ),
         ),
+        const SizedBox(height: 22),
+        const SectionTitle('Last 6 months'),
+        const SizedBox(height: 4),
+        Text('Every gym day, brighter for longer sessions.', style: BoltText.a(12, color: BoltColors.muted)),
+        const SizedBox(height: 10),
+        GymHeatmap(visits: visits, plan: store.plan(id), now: now),
         const SizedBox(height: 22),
         const SectionTitle('Visit log'),
         const SizedBox(height: 8),
@@ -297,4 +304,75 @@ class _ArcPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_ArcPainter old) => false;
+}
+
+/// 26 weeks of gym days, Monday to Sunday down, oldest week on the left.
+/// A visit shades by its length; a logged workout without a scan shows
+/// faintly.
+class GymHeatmap extends StatelessWidget {
+  const GymHeatmap({super.key, required this.visits, required this.plan, required this.now});
+
+  final List<Visit> visits;
+  final Map<String, Session> plan;
+  final DateTime now;
+
+  static const _weeks = 26;
+
+  @override
+  Widget build(BuildContext context) {
+    final mins = <String, int>{};
+    for (final v in visits) {
+      mins[v.date] = (mins[v.date] ?? 0) + v.mins;
+    }
+    final today = dk(now);
+    final first = addDays(monday(now), -7 * (_weeks - 1));
+    Color shade(String k) {
+      final m = mins[k];
+      if (m == null) {
+        return plan[k]?.status == SessionStatus.done ? const Color(0x33C6FF1A) : BoltColors.lineSoft;
+      }
+      return m >= 90 ? BoltColors.neon : (m >= 45 ? const Color(0xB3C6FF1A) : const Color(0x66C6FF1A));
+    }
+
+    return LayoutBuilder(
+      builder: (context, box) {
+        const gap = 3.0;
+        final cell = ((box.maxWidth - gap * (_weeks - 1)) / _weeks).floorToDouble();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var r = 0; r < 7; r++) ...[
+              if (r > 0) const SizedBox(height: gap),
+              Row(
+                children: [
+                  for (var w = 0; w < _weeks; w++) ...[
+                    if (w > 0) const SizedBox(width: gap),
+                    Builder(
+                      builder: (context) {
+                        final k = dk(addDays(first, 7 * w + r));
+                        return Container(
+                          width: cell,
+                          height: cell,
+                          decoration: BoxDecoration(
+                            color: k.compareTo(today) > 0 ? Colors.transparent : shade(k),
+                            borderRadius: BorderRadius.circular(2),
+                            border: k == today ? Border.all(color: BoltColors.text) : null,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ],
+              ),
+            ],
+            const SizedBox(height: 8),
+            Text(
+              '${plural(visits.where((v) => v.date.compareTo(dk(first)) >= 0).map((v) => v.date).toSet().length, 'gym day')} since ${fmtDay(dk(first))}',
+              style: BoltText.m(10, color: BoltColors.muted),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

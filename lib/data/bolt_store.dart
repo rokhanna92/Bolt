@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,7 @@ import 'models/people.dart';
 import 'models/session.dart';
 import 'models/template.dart';
 import 'models/visit.dart';
+import 'lifts.dart';
 import 'repositories/bolt_repository.dart';
 import 'rules.dart';
 import 'seed/content.dart';
@@ -260,6 +262,7 @@ class BoltStore extends Notifier<BoltData> {
   /// [fresh] values from a form, keeping [old]'s history and logging today.
   Body _nextBody(Body old, Body fresh) {
     fresh.history.addAll(old.history);
+    fresh.goals.addAll(old.goals);
     return fresh
       ..updated = today
       ..logCurrent(today);
@@ -448,6 +451,7 @@ class BoltStore extends Notifier<BoltData> {
     }
     if (w != null && w.key == k && s.status != SessionStatus.done) {
       state.workout = null;
+      _saveLogs(t, k, w, s);
       _complete(t, k, s, _checkedSets(w, s));
     } else if ({SessionStatus.approved, SessionStatus.moved, SessionStatus.pending}.contains(s.status)) {
       _complete(t, k, s, s.totalSets, checked: false);
@@ -559,8 +563,22 @@ class BoltStore extends Notifier<BoltData> {
       a.add(false);
     }
     a[i] = !a[i];
+    if (!a[i]) w.logs[exId]?.remove(i);
     _commit();
     return a[i];
+  }
+
+  /// Ticks set [i] with the weight and reps done, or updates a ticked one.
+  void logSet(String exId, int i, SetLog log) {
+    final w = state.workout;
+    if (w == null) return;
+    final a = w.done.putIfAbsent(exId, () => []);
+    while (a.length <= i) {
+      a.add(false);
+    }
+    a[i] = true;
+    w.logs.putIfAbsent(exId, () => {})[i] = log;
+    _commit();
   }
 
   void swap(Exercise e) {
@@ -581,12 +599,43 @@ class BoltStore extends Notifier<BoltData> {
       return const [];
     }
     final before = t.stats.copy();
+    final prs = _saveLogs(t, w.key, w, p);
     _complete(t, w.key, p, _checkedSets(w, p));
     final unlocked = newlyUnlocked(before, t.stats);
     _commit();
-    _toast('Workout logged · ${p.log}');
+    _toast(
+      'Workout logged · ${p.log}${prs.isEmpty ? '' : ' · ${prs.length == 1 ? 'PR on ${prs.first}' : '${prs.length} PRs'}'}',
+    );
     syncSessionReminders();
     return unlocked;
+  }
+
+  /// Copies the ticked sets' weight and reps onto the session's exercises
+  /// and counts personal records: a better estimated 1RM or a heavier top
+  /// set than any earlier workout. Returns the lifts with a record.
+  List<String> _saveLogs(Trainee t, String k, ActiveWorkout w, Session p) {
+    final prs = <String>[];
+    for (final e in p.ex) {
+      e.logged
+        ..clear()
+        ..addAll([
+          for (var i = 0; i < e.sets; i++)
+            if (w.isDone(e.id, i)) w.log(e.id, i) ?? SetLog(),
+        ]);
+      if (e.logged.isEmpty || prs.contains(e.name)) continue;
+      final prev = liftHistory(plan(t.id), e.name, before: k);
+      if (prev.isEmpty) continue;
+      final now = LiftDay(k, e.logged);
+      double? most(double? Function(LiftDay) f) =>
+          prev.map(f).whereType<double>().fold<double?>(null, (a, b) => a == null || b > a ? b : a);
+      final best = most((d) => d.best), top = most((d) => d.topKg);
+      if ((now.best != null && best != null && now.best! > best + .01) ||
+          (now.topKg != null && top != null && now.topKg! > top)) {
+        prs.add(e.name);
+      }
+    }
+    t.stats.prs += prs.length;
+    return prs;
   }
 
   int _checkedSets(ActiveWorkout w, Session p) {
@@ -670,6 +719,100 @@ class BoltStore extends Notifier<BoltData> {
       ..perfect += 1
       ..streak = t.stats.lastPerfectWeek == prev ? t.stats.streak + 1 : 1
       ..lastPerfectWeek = wk;
+    t.stats.bestStreak = math.max(t.stats.bestStreak, t.stats.streak);
+  }
+
+  // Deload, challenges, goals
+
+  /// Halves the sets of every session not done yet in the week starting
+  /// [mon], or undoes it when that week is already a deload week.
+  void toggleDeload(String tid, DateTime mon) {
+    final p = plan(tid);
+    final week = [
+      for (var i = 0; i < 7; i++)
+        if (p[dk(addDays(mon, i))] case final Session s when s.status != SessionStatus.done) s,
+    ];
+    if (week.isEmpty) {
+      _toast('Nothing planned that week');
+      return;
+    }
+    final undo = week.any((s) => s.deload);
+    for (final s in week) {
+      if (undo == !s.deload) continue;
+      for (final e in s.ex) {
+        if (undo) {
+          e.sets = e.fullSets ?? e.sets;
+          e.fullSets = null;
+        } else {
+          e.fullSets = e.sets;
+          e.sets = math.max(1, (e.sets / 2).ceil());
+        }
+      }
+      s.deload = !undo;
+      if (undo && s.note == deloadNote) s.note = '';
+      if (!undo && s.note.isEmpty) s.note = deloadNote;
+      if (_isCoach && s.status != SessionStatus.draft) s.status = SessionStatus.draft;
+    }
+    _commit();
+    _toast(undo ? 'Deload undone · full sets back' : 'Deload week · ${plural(week.length, 'session')} halved');
+    if (!_isCoach) syncSessionReminders();
+  }
+
+  /// Sets or clears a challenge. For a coach the returned plan message
+  /// carries it to the trainee.
+  String? setChallenge(String tid, Challenge? c) {
+    tr(tid).challenge = c;
+    _commit();
+    _toast(c == null ? 'Challenge removed' : 'Challenge set · ${c.title}');
+    return _isCoach ? planMessage(tid) : null;
+  }
+
+  void setBodyGoal(String? tid, String key, double? value) {
+    final b = bodyFor(tid);
+    if (b == null) return;
+    if (value == null) {
+      b.goals.remove(key);
+    } else {
+      b.goals[key] = value;
+    }
+    _commit();
+  }
+
+  /// Monday recap card closed for the week starting [weekKey].
+  void dismissRecap(String weekKey) {
+    state.settings.recapSeen = weekKey;
+    _commit();
+  }
+
+  // Backup
+
+  /// Everything on this phone as one file's text.
+  String backupText() => const JsonEncoder.withIndent(' ').convert({'bolt': 'backup', ...state.toJson()});
+
+  /// Replaces everything on this phone with a backup. Returns an error to
+  /// show, or null when it worked.
+  String? restore(String text) {
+    Map<String, dynamic> j;
+    try {
+      j = jsonDecode(text) as Map<String, dynamic>;
+    } catch (_) {
+      return 'That file is not a Bolt backup.';
+    }
+    if (j['bolt'] != 'backup') return 'That file is not a Bolt backup.';
+    if (j['version'] != BoltData.version) return 'This backup is from a different Bolt version.';
+    try {
+      final d = BoltData.fromJson(j);
+      addMissingTemplates(d);
+      _notify.cancelCheckout();
+      state = d;
+      ref.read(repositoryProvider).scheduleSave(state);
+      syncSessionReminders();
+      syncGymTimer();
+      _toast('Backup restored');
+      return null;
+    } catch (_) {
+      return 'That backup could not be read.';
+    }
   }
 
   // Planning, for a coach's trainees and for the owner's own plan. A coach
@@ -1019,6 +1162,7 @@ class BoltStore extends Notifier<BoltData> {
       'name': t.name,
       'coach': coach.name,
       'injuries': t.injuries.map((i) => i.toJson()).toList(),
+      'challenge': t.challenge?.toJson(),
       // Template ids differ between phones, so each day carries its own code.
       'sessions': {
         for (final k in keys)
@@ -1058,6 +1202,8 @@ class BoltStore extends Notifier<BoltData> {
       ],
       'injuries': t.injuries.map((i) => i.toJson()).toList(),
       'stats': t.stats.toJson(),
+      if (t.challenge case final Challenge c)
+        'challenge': {'progress': challengeProgress(c, p, state.visits[t.id] ?? const [])},
       'body': t.body.toJson(last: 90),
     });
     final done = keys.where((k) => p[k]!.status == SessionStatus.done).length;
@@ -1131,6 +1277,7 @@ class BoltStore extends Notifier<BoltData> {
     final coachName = packet['coach'] as String?;
     if (coachName != null && coachName.trim().isNotEmpty) me.coachName = coachName.trim();
     state.linkId = packet['tid'] as String?;
+    me.challenge = packet['challenge'] == null ? null : Challenge.fromJson(packet['challenge'] as Map<String, dynamic>);
     // Coach flags replace earlier coach flags; the trainee's own reports stay.
     final coachFlags = [
       for (final j in packet['injuries'] as List? ?? const []) Injury.fromJson(j as Map<String, dynamic>),
@@ -1199,6 +1346,7 @@ class BoltStore extends Notifier<BoltData> {
       }
     }
     if (packet['stats'] case final Map<String, dynamic> stats) t.stats = TraineeStats.fromJson(stats);
+    if (packet['challenge'] case {'progress': final int n}) t.challenge?.progress = n;
     final body = Body.fromJson(packet['body'] as Map<String, dynamic>?);
     // The trainee's history wins; days only the coach logged are kept.
     if (!body.isEmpty) t.body = body..mergeHistory(t.body.history);

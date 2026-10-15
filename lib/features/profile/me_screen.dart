@@ -113,42 +113,18 @@ class MeScreen extends ConsumerWidget {
           _CoachCard(name: coachName),
         ],
         const SizedBox(height: 24),
-        Tap(
+        _LinkCard(
+          icon: 'plate',
+          title: 'Workouts',
+          sub: 'Templates and splits used when you plan or auto-fill',
           onTap: () => context.push('/workouts'),
-          child: BoltBox(
-            color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
-            radius: 20,
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                const BoltBox(
-                  width: 46,
-                  height: 46,
-                  radius: 14,
-                  stroke: Stroke(BoltColors.neon, 1.5),
-                  alignment: Alignment.center,
-                  child: BoltIcon('plate', color: BoltColors.neon),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Workouts', style: BoltText.a(15, weight: 800)),
-                      const SizedBox(height: 3),
-                      Text(
-                        'Templates and splits used when you plan or auto-fill',
-                        style: BoltText.a(12, color: BoltColors.muted),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 14),
-                const Chevron(),
-              ],
-            ),
-          ),
+        ),
+        const SizedBox(height: 8),
+        _LinkCard(
+          icon: 'barbell',
+          title: 'Progress',
+          sub: 'Lifts, records, muscle volume, last week and challenges',
+          onTap: () => context.push('/progress'),
         ),
         const SizedBox(height: 24),
         const RoleSwitch(),
@@ -265,6 +241,54 @@ class _CoachCard extends ConsumerWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A row that opens another page: icon, title and a line about it.
+class _LinkCard extends StatelessWidget {
+  const _LinkCard({required this.icon, required this.title, required this.sub, required this.onTap});
+
+  final String icon;
+  final String title;
+  final String sub;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tap(
+      onTap: onTap,
+      child: BoltBox(
+        color: BoltColors.surface1,
+        stroke: const Stroke(BoltColors.lineSoft),
+        radius: 20,
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            BoltBox(
+              width: 46,
+              height: 46,
+              radius: 14,
+              stroke: const Stroke(BoltColors.neon, 1.5),
+              alignment: Alignment.center,
+              child: BoltIcon(icon, color: BoltColors.neon),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: BoltText.a(15, weight: 800)),
+                  const SizedBox(height: 3),
+                  Text(sub, style: BoltText.a(12, color: BoltColors.muted)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+            const Chevron(),
+          ],
+        ),
       ),
     );
   }

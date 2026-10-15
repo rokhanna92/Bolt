@@ -8,18 +8,23 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/actions.dart';
 import '../../core/format.dart';
+import '../../core/units.dart';
 import '../../data/bolt_store.dart';
+import '../../data/lifts.dart';
 import '../../data/models/bolt_data.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/people.dart';
 import '../../data/rules.dart';
 import '../../data/seed/learn.dart';
 import '../../data/seed/templates.dart';
+import '../../services/notifications.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/exercise_rows.dart';
+import '../../widgets/fields.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/tap.dart';
 import '../plan/day_sheet.dart';
@@ -38,24 +43,32 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   int _restTotal = 90;
   Timer? _ticker;
 
+  late final BoltNotifications _notify = ref.read(notificationsProvider);
+  String _restNext = '';
+
   @override
   void dispose() {
     _ticker?.cancel();
+    _notify.clearRest();
     super.dispose();
   }
 
-  void _startRest() {
+  /// Rest after a set; [next] says what comes after it, on the lock screen.
+  void _startRest(String next) {
     final secs = ref.read(boltProvider).settings.restSecs;
     setState(() {
       _restTotal = secs;
       _restEnd = DateTime.now().add(Duration(seconds: secs));
+      _restNext = next;
     });
+    _notify.showRest(_restEnd!, next);
     _ticker?.cancel();
     _ticker = Timer.periodic(const Duration(milliseconds: 250), (_) {
       if (!mounted || _restEnd == null) return;
       if (!DateTime.now().isBefore(_restEnd!)) {
         _ticker?.cancel();
         HapticFeedback.vibrate();
+        _notify.clearRest();
         setState(() => _restEnd = null);
       } else {
         setState(() {});
@@ -69,16 +82,52 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
       _restEnd = _restEnd!.add(Duration(seconds: s));
       _restTotal = math.max(1, _restTotal + s);
     });
+    _notify.showRest(_restEnd!, _restNext);
   }
 
   void _skip() {
     _ticker?.cancel();
+    _notify.clearRest();
     setState(() => _restEnd = null);
+  }
+
+  /// What comes after set [j] of exercise [i]: its next set, or the next
+  /// exercise.
+  String _nextAfter(List<Exercise> ex, int i, int j, ActiveWorkout w) {
+    final e = ex[i];
+    for (var k = 0; k < e.sets; k++) {
+      if (k != j && !w.isDone(e.id, k)) return '${e.name} · set ${k + 1}';
+    }
+    return i + 1 < ex.length ? 'Next: ${ex[i + 1].name}' : 'Last set done. Finish the workout.';
+  }
+
+  /// Ticks set [j] with the weight and reps last used in this workout, or
+  /// the suggestion, or the plan. Rest starts unless the superset partner
+  /// comes next.
+  void _tick(List<Exercise> ex, int i, int j, ActiveWorkout w, LiftHint? hint) {
+    final e = ex[i];
+    final store = ref.read(boltProvider.notifier);
+    if (w.isDone(e.id, j)) {
+      showBoltSheet<void>(context, (_) => _SetSheet(e: e, set: j));
+      return;
+    }
+    SetLog? prev;
+    for (var k = j - 1; k >= 0 && prev == null; k--) {
+      prev = w.log(e.id, k);
+    }
+    store.logSet(
+      e.id,
+      j,
+      SetLog(kg: prev?.kg ?? hint?.nextKg ?? loadKg(e.load), reps: prev?.reps ?? targetReps(e.reps)),
+    );
+    final partnerNext = e.group != null && i + 1 < ex.length && ex[i + 1].group == e.group;
+    if (!partnerNext) _startRest(_nextAfter(ex, i, j, w));
   }
 
   void _finish() {
     final unlocked = ref.read(boltProvider.notifier).finish();
     _ticker?.cancel();
+    _notify.clearRest();
     context.go('/today');
     showUnlocks(unlocked);
   }
@@ -166,14 +215,24 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                 const SizedBox(height: 16),
                 for (var i = 0; i < s.ex.length; i++) ...[
                   if (i > 0) const SizedBox(height: 10),
-                  _ExerciseCard(
-                    index: i,
-                    e: s.ex[i],
-                    trainee: t,
-                    workout: w,
-                    load: store.unit(s.ex[i].load),
-                    onSet: (j) {
-                      if (store.toggleSet(s.ex[i].id, j)) _startRest();
+                  Builder(
+                    builder: (context) {
+                      final hint = hintFor(store.plan(t.id), s.ex[i], widget.dayKey);
+                      final warm = warmupFor(s.ex) == s.ex[i]
+                          ? warmups(hint?.nextKg ?? loadKg(s.ex[i].load) ?? 0)
+                          : const <SetLog>[];
+                      return _ExerciseCard(
+                        index: i,
+                        e: s.ex[i],
+                        trainee: t,
+                        workout: w,
+                        load: store.unit(s.ex[i].load),
+                        metric: d.settings.kg,
+                        hint: hint,
+                        warmups: warm,
+                        partner: s.ex[i].group != null && i > 0 && s.ex[i - 1].group == s.ex[i].group,
+                        onSet: (j) => _tick(s.ex, i, j, w, hint),
+                      );
                     },
                   ),
                 ],
@@ -214,6 +273,10 @@ class _ExerciseCard extends ConsumerWidget {
     required this.trainee,
     required this.workout,
     required this.load,
+    required this.metric,
+    required this.hint,
+    required this.warmups,
+    required this.partner,
     required this.onSet,
   });
 
@@ -222,12 +285,25 @@ class _ExerciseCard extends ConsumerWidget {
   final Trainee trainee;
   final ActiveWorkout workout;
   final String load;
+  final bool metric;
+  final LiftHint? hint;
+  final List<SetLog> warmups;
+
+  /// Second exercise of a superset: done straight after the one above.
+  final bool partner;
   final ValueChanged<int> onSet;
+
+  String _kg(double kg) => weightValue(kg, metric: metric);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final all = e.sets > 0 && List.generate(e.sets, (j) => workout.isDone(e.id, j)).every((x) => x);
     final f = isFlagged(trainee, e);
+    final h = hint;
+    final tags = [
+      if (e.group != null) partner ? 'SUPERSET ${e.group} · NO REST BEFORE' : 'SUPERSET ${e.group}',
+      if (e.drop) 'DROP SET ON THE LAST SET',
+    ];
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.all(14),
@@ -239,6 +315,10 @@ class _ExerciseCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (tags.isNotEmpty) ...[
+            Kicker(tags.join(' · '), size: 9, spacing: .1, color: BoltColors.neon),
+            const SizedBox(height: 8),
+          ],
           Row(
             children: [
               Text(
@@ -246,7 +326,12 @@ class _ExerciseCard extends ConsumerWidget {
                 style: BoltText.m(12, weight: 700, color: all ? BoltColors.neon : BoltColors.muted4),
               ),
               const SizedBox(width: 10),
-              Expanded(child: Text(e.name, style: BoltText.a(16, weight: 800))),
+              Expanded(
+                child: Tap(
+                  onTap: h == null ? null : () => context.push('/lift/${Uri.encodeComponent(e.name)}'),
+                  child: Text(e.name, style: BoltText.a(16, weight: 800)),
+                ),
+              ),
               if (kHow.containsKey(e.name)) ...[
                 const SizedBox(width: 10),
                 Tap(
@@ -265,6 +350,16 @@ class _ExerciseCard extends ConsumerWidget {
               Text(load, style: BoltText.m(12, color: BoltColors.muted)),
             ],
           ),
+          if (h != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              h.last.topKg == null
+                  ? 'Last ${fmtDay(h.last.date)}: ${repsText(h.last)} reps · beat it'
+                  : 'Last ${fmtDay(h.last.date)}: ${_kg(h.last.topKg!)} ${weightUnit(metric)} × ${repsText(h.last)}'
+                        '${h.up ? ' · every rep hit, try ${_kg(h.nextKg!)} ${weightUnit(metric)}' : ' · same weight, beat the reps'}',
+              style: BoltText.a(12, weight: 600, color: h.up ? BoltColors.neon : BoltColors.muted),
+            ),
+          ],
           if (f) ...[
             const SizedBox(height: 8),
             Row(
@@ -289,15 +384,33 @@ class _ExerciseCard extends ConsumerWidget {
             const SizedBox(height: 6),
             Text('Swapped from ${e.orig}', style: BoltText.m(10, color: BoltColors.muted)),
           ],
+          if (warmups.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              'WARM-UP  ${warmups.map((x) => '${_kg(x.kg!)}×${x.reps}').join('  ·  ')} ${weightUnit(metric)}',
+              style: BoltText.m(10, color: BoltColors.muted, spacing: .04),
+            ),
+          ],
           const SizedBox(height: 12),
           Wrap(
             spacing: 6,
             runSpacing: 6,
             children: [
               for (var j = 0; j < e.sets; j++)
-                _SetButton(n: j + 1, reps: e.reps, done: workout.isDone(e.id, j), onTap: () => onSet(j)),
+                _SetButton(
+                  n: j + 1,
+                  reps: e.reps,
+                  done: workout.isDone(e.id, j),
+                  logged: workout.log(e.id, j),
+                  metric: metric,
+                  onTap: () => onSet(j),
+                ),
             ],
           ),
+          if (workout.done[e.id]?.contains(true) ?? false) ...[
+            const SizedBox(height: 6),
+            Text('Tap a ticked set to change its weight or reps.', style: BoltText.a(11, color: BoltColors.muted3)),
+          ],
         ],
       ),
     );
@@ -305,16 +418,29 @@ class _ExerciseCard extends ConsumerWidget {
 }
 
 class _SetButton extends StatelessWidget {
-  const _SetButton({required this.n, required this.reps, required this.done, required this.onTap});
+  const _SetButton({
+    required this.n,
+    required this.reps,
+    required this.done,
+    required this.logged,
+    required this.metric,
+    required this.onTap,
+  });
 
   final int n;
   final String reps;
   final bool done;
+  final SetLog? logged;
+  final bool metric;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final fg = done ? BoltColors.ink : BoltColors.text;
+    final l = logged;
+    final value = !done || l == null
+        ? reps
+        : [if (l.kg != null) weightValue(l.kg, metric: metric), if (l.reps != null) '${l.reps}'].join('×');
     return Tap(
       onTap: onTap,
       scale: .94,
@@ -333,10 +459,93 @@ class _SetButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('SET $n', style: BoltText.m(8, spacing: .1, color: fg.withValues(alpha: .75))),
-            Text(reps, style: BoltText.a(14, weight: 800, color: fg)),
+            Text(value.isEmpty ? '✓' : value, style: BoltText.a(14, weight: 800, color: fg)),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Change a ticked set's weight and reps, or untick it.
+class _SetSheet extends ConsumerStatefulWidget {
+  const _SetSheet({required this.e, required this.set});
+
+  final Exercise e;
+  final int set;
+
+  @override
+  ConsumerState<_SetSheet> createState() => _SetSheetState();
+}
+
+class _SetSheetState extends ConsumerState<_SetSheet> {
+  late final bool _metric = ref.read(boltProvider).settings.kg;
+  late final SetLog? _log = ref.read(boltProvider).workout?.log(widget.e.id, widget.set);
+  late final _kg = TextEditingController(text: weightValue(_log?.kg, metric: _metric));
+  late final _reps = TextEditingController(text: _log?.reps?.toString() ?? '');
+
+  @override
+  void dispose() {
+    _kg.dispose();
+    _reps.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final store = ref.read(boltProvider.notifier);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Kicker('SET ${widget.set + 1}', size: 10),
+        const SizedBox(height: 4),
+        Text(widget.e.name, style: BoltText.a(20, weight: 900)),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+              child: BoltField(
+                controller: _kg,
+                hint: 'Weight (empty = bodyweight)',
+                number: true,
+                suffix: weightUnit(_metric),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: BoltField(controller: _reps, hint: 'Reps', number: true),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        NeonButton(
+          label: 'Save set',
+          height: 52,
+          scale: 1,
+          onTap: () {
+            store.logSet(
+              widget.e.id,
+              widget.set,
+              SetLog(
+                kg: parseWeight(_kg.text, metric: _metric),
+                reps: int.tryParse(_reps.text.trim()),
+              ),
+            );
+            Navigator.of(context).pop();
+          },
+        ),
+        const SizedBox(height: 8),
+        OutlineButton(
+          label: 'Untick set',
+          color: BoltColors.text,
+          borderColor: BoltColors.line,
+          weight: 700,
+          onTap: () {
+            store.toggleSet(widget.e.id, widget.set);
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
     );
   }
 }

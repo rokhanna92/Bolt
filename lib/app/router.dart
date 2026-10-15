@@ -16,6 +16,8 @@ import '../features/learn/learn_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/library/library_screen.dart';
 import '../features/measurements/measurements_screen.dart';
+import '../features/progress/lift_screen.dart';
+import '../features/progress/progress_screen.dart';
 import '../features/plan/plan_screen.dart';
 import '../features/plaque/plaque_screen.dart';
 import '../features/profile/edit_profile_screen.dart';
@@ -147,6 +149,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) =>
             _enter(s, EditorScreen(target: DayTarget(s.pathParameters['tid']!, s.pathParameters['key']!))),
+      ),
+      GoRoute(
+        path: '/progress',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const ProgressScreen()),
+      ),
+      GoRoute(
+        path: '/lift/:name',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, LiftScreen(name: s.pathParameters['name']!)),
       ),
       GoRoute(
         path: '/measurements',

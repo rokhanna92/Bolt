@@ -27,9 +27,16 @@ class BodyEntry {
 /// dated history for progress charts. Stored metric (kg, cm) and converted
 /// for display.
 class Body {
-  Body({this.weightKg, this.heightCm, Map<String, double>? cm, this.updated, List<BodyEntry>? history})
-    : cm = cm ?? {},
-      history = history ?? [];
+  Body({
+    this.weightKg,
+    this.heightCm,
+    Map<String, double>? cm,
+    this.updated,
+    List<BodyEntry>? history,
+    Map<String, double>? goals,
+  }) : cm = cm ?? {},
+       history = history ?? [],
+       goals = goals ?? {};
 
   /// Measured parts, in display order.
   static const parts = {'chest': 'Chest', 'waist': 'Waist', 'hips': 'Hips', 'arm': 'Arm', 'thigh': 'Thigh'};
@@ -49,10 +56,13 @@ class Body {
   /// One entry per day, oldest first.
   final List<BodyEntry> history;
 
+  /// Targets by `weight` or part key, metric.
+  final Map<String, double> goals;
+
   bool get isEmpty => weightKg == null && heightCm == null && cm.isEmpty;
 
   /// The latest values without the history.
-  Body clone() => Body(weightKg: weightKg, heightCm: heightCm, cm: {...cm}, updated: updated);
+  Body clone() => Body(weightKg: weightKg, heightCm: heightCm, cm: {...cm}, updated: updated, goals: {...goals});
 
   /// Records the latest weight and measurements as [date]'s entry.
   void logCurrent(String date) {
@@ -92,6 +102,7 @@ class Body {
     'heightCm': heightCm,
     'cm': cm,
     'updated': updated,
+    'goals': goals,
     'history': [
       for (final e in last == null || history.length <= last ? history : history.sublist(history.length - last))
         e.toJson(),
@@ -106,6 +117,7 @@ class Body {
       cm: (j['cm'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, (v as num).toDouble())),
       updated: j['updated'] as String?,
       history: [for (final e in j['history'] as List? ?? const []) BodyEntry.fromJson(e as Map<String, dynamic>)],
+      goals: (j['goals'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, (v as num).toDouble())),
     );
     // Saved before history existed: the latest values become the first entry.
     if (b.history.isEmpty && b.updated != null) b.logCurrent(b.updated!);
@@ -168,6 +180,7 @@ class TraineeStats {
     this.workouts = 0,
     this.sets = 0,
     this.lastPerfectWeek,
+    this.bestStreak = 0,
     this.weekend = 0,
     this.long = 0,
     this.built = 0,
@@ -194,6 +207,9 @@ class TraineeStats {
 
   /// Monday key of the last week where every planned session was done.
   String? lastPerfectWeek;
+
+  /// Longest streak of perfect weeks.
+  int bestStreak;
 
   /// Workouts logged on a Saturday or Sunday.
   int weekend;
@@ -227,6 +243,7 @@ class TraineeStats {
     workouts: workouts,
     sets: sets,
     lastPerfectWeek: lastPerfectWeek,
+    bestStreak: bestStreak,
     weekend: weekend,
     long: long,
     built: built,
@@ -268,6 +285,7 @@ class TraineeStats {
     'workouts': workouts,
     'sets': sets,
     'lastPerfectWeek': lastPerfectWeek,
+    'bestStreak': bestStreak,
     'weekend': weekend,
     'long': long,
     'built': built,
@@ -288,6 +306,7 @@ class TraineeStats {
     workouts: j['workouts'] as int? ?? 0,
     sets: j['sets'] as int? ?? 0,
     lastPerfectWeek: j['lastPerfectWeek'] as String?,
+    bestStreak: j['bestStreak'] as int? ?? (j['streak'] as int? ?? 0),
     weekend: j['weekend'] as int? ?? 0,
     long: j['long'] as int? ?? 0,
     built: j['built'] as int? ?? 0,
@@ -310,6 +329,7 @@ class Trainee {
     required this.stats,
     Body? body,
     this.coachName,
+    this.challenge,
   }) : body = body ?? Body();
 
   final String id;
@@ -332,6 +352,9 @@ class Trainee {
   TraineeStats stats;
   Body body;
 
+  /// A goal for a date range, set by the coach or by a solo user.
+  Challenge? challenge;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
@@ -343,6 +366,7 @@ class Trainee {
     'stats': stats.toJson(),
     'body': body.toJson(),
     'coachName': coachName,
+    'challenge': challenge?.toJson(),
   };
 
   factory Trainee.fromJson(Map<String, dynamic> j) => Trainee(
@@ -356,5 +380,49 @@ class Trainee {
     stats: TraineeStats.fromJson(j['stats'] as Map<String, dynamic>),
     body: Body.fromJson(j['body'] as Map<String, dynamic>?),
     coachName: j['coachName'] as String?,
+    challenge: j['challenge'] == null ? null : Challenge.fromJson(j['challenge'] as Map<String, dynamic>),
+  );
+}
+
+/// A target to reach between two days: workouts logged, gym visits or gym
+/// hours.
+class Challenge {
+  Challenge({required this.kind, required this.target, required this.from, required this.to, this.by, this.progress});
+
+  /// Kinds and their unit words.
+  static const kinds = {'workouts': 'workout', 'visits': 'gym visit', 'hours': 'gym hour'};
+
+  /// `workouts`, `visits` or `hours`.
+  final String kind;
+  final int target;
+
+  /// Day keys, both included.
+  final String from;
+  final String to;
+
+  /// Coach who set it; null when you set it yourself.
+  final String? by;
+
+  /// Progress as last reported by the trainee, on the coach's phone.
+  int? progress;
+
+  String get title => '$target ${kinds[kind]}${target == 1 ? '' : 's'}';
+
+  Map<String, dynamic> toJson() => {
+    'kind': kind,
+    'target': target,
+    'from': from,
+    'to': to,
+    'by': by,
+    'progress': progress,
+  };
+
+  factory Challenge.fromJson(Map<String, dynamic> j) => Challenge(
+    kind: j['kind'] as String,
+    target: j['target'] as int,
+    from: j['from'] as String,
+    to: j['to'] as String,
+    by: j['by'] as String?,
+    progress: j['progress'] as int?,
   );
 }

@@ -11,6 +11,7 @@ import '../../data/models/exercise.dart';
 import '../../data/models/people.dart';
 import '../../data/models/session.dart';
 import '../../data/models/visit.dart';
+import '../../data/lifts.dart';
 import '../../data/rules.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
@@ -20,6 +21,8 @@ import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
 import '../../widgets/sparkline.dart';
 import '../badges/badges_screen.dart';
+import '../progress/challenge_sheet.dart';
+import '../progress/progress_screen.dart' show RecapTiles;
 import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
 import '../sharing/import_sheet.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -145,6 +148,49 @@ class TodayScreen extends ConsumerWidget {
           ),
         ],
         if (nothingAhead) ...[const SizedBox(height: 12), _StartCard(withCoach: withCoach, coachName: coachName)],
+        if (t.challenge case final c? when daysLeft(c, now) > 0 || dk(addDays(now, -3)).compareTo(c.to) <= 0) ...[
+          const SizedBox(height: 12),
+          ChallengeCard(
+            c: c,
+            progress: challengeProgress(c, plan, d.visits[t.id] ?? const []),
+            now: now,
+            onTap: () => context.push('/progress'),
+          ),
+        ],
+        // Monday and Tuesday: last week in one card until it is closed.
+        if (jsDay(now) >= 1 && jsDay(now) <= 2 && d.settings.recapSeen != dk(addDays(ws, -7)))
+          if (weekRecap(plan, d.visits[t.id] ?? const [], t.body, addDays(ws, -7)) case final r when !r.isEmpty) ...[
+            const SizedBox(height: 12),
+            BoltBox(
+              color: BoltColors.surface1,
+              stroke: const Stroke(Color(0x73C6FF1A)),
+              radius: 20,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      const Expanded(child: Kicker('LAST WEEK', color: BoltColors.neon)),
+                      Tap(
+                        onTap: () => store.dismissRecap(dk(addDays(ws, -7))),
+                        child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    r.planned > 0 && r.done >= r.planned
+                        ? 'Every planned session done. New week, same energy.'
+                        : '${plural(r.done, 'workout')} done. Let\'s make this week count.',
+                    style: BoltText.a(16, weight: 800),
+                  ),
+                  const SizedBox(height: 12),
+                  RecapTiles(r: r, metric: d.settings.kg),
+                ],
+              ),
+            ),
+          ],
         if (tp != null && tp.note.isNotEmpty) ...[
           const SizedBox(height: 12),
           BoltBox(
@@ -207,8 +253,8 @@ class TodayScreen extends ConsumerWidget {
           children: [
             const Expanded(child: SectionTitle('Your numbers')),
             Tap(
-              onTap: () => context.go('/gym'),
-              child: Text('Gym time →', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+              onTap: () => context.push('/progress'),
+              child: Text('Progress →', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
             ),
           ],
         ),
@@ -449,7 +495,7 @@ class _WeightTile extends StatelessWidget {
             const SizedBox(width: 16),
             Expanded(
               child: s.length >= 2
-                  ? Sparkline(values: [for (final x in s) x.$2], height: 44)
+                  ? Sparkline(values: [for (final x in s) x.$2], height: 44, goal: body.goals['weight'])
                   : Text(
                       'Log again on another day for a trend',
                       textAlign: TextAlign.right,

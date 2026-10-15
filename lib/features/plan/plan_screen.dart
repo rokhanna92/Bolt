@@ -13,7 +13,9 @@ import '../../widgets/box.dart';
 import '../../widgets/calendar_grid.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
+import '../../widgets/bolt_sheet.dart';
 import '../../widgets/tap.dart';
+import '../workouts/deload_sheet.dart';
 
 class PlanScreen extends ConsumerWidget {
   const PlanScreen({super.key});
@@ -159,6 +161,14 @@ class PlanScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Tap(
+              onTap: () => showBoltSheet<void>(context, (_) => DeloadSheet(tid: t.id)),
+              child: Text('Deload week…', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+            ),
+          ),
+          const SizedBox(height: 6),
           Text(
             d.account?.isSolo ?? false
                 ? 'Tap an empty day to add the next session from your split. Past days too, to log your diary.'

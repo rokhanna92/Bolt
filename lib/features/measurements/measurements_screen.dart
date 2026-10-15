@@ -100,7 +100,15 @@ class MeasurementsScreen extends ConsumerWidget {
             for (final e in Body.tracked.entries)
               if (series[e.key]!.isNotEmpty) ...[
                 const SizedBox(height: 10),
-                _MetricCard(label: e.value, keyName: e.key, series: series[e.key]!, now: store.now, metric: metric),
+                _MetricCard(
+                  label: e.value,
+                  keyName: e.key,
+                  series: series[e.key]!,
+                  now: store.now,
+                  metric: metric,
+                  goal: b?.goals[e.key],
+                  onGoal: () => showBoltSheet<void>(context, (_) => _GoalSheet(tid: tid, keyName: e.key)),
+                ),
               ],
             if (b == null || b.history.isEmpty) ...[
               const SizedBox(height: 14),
@@ -171,6 +179,8 @@ class _MetricCard extends StatelessWidget {
     required this.series,
     required this.now,
     required this.metric,
+    required this.goal,
+    required this.onGoal,
   });
 
   final String label;
@@ -178,6 +188,20 @@ class _MetricCard extends StatelessWidget {
   final List<(String, double)> series;
   final DateTime now;
   final bool metric;
+  final double? goal;
+  final VoidCallback onGoal;
+
+  /// "4.4 kg to go · about 6 weeks at this pace", from the 30-day change.
+  String _goalText(({double delta, String since})? ch) {
+    final g = goal!;
+    final left = g - series.last.$2;
+    if (left.abs() < .05) return 'Goal reached!';
+    final head = '${bodyValue(keyName, left.abs(), metric: metric)} to go';
+    if (ch == null || ch.delta == 0 || ch.delta.sign != left.sign) return head;
+    final perDay = ch.delta / pk(series.last.$1).difference(pk(ch.since)).inDays;
+    final weeks = (left / perDay / 7).ceil();
+    return '$head · about ${plural(weeks, 'week')} at this pace';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -220,9 +244,27 @@ class _MetricCard extends StatelessWidget {
           ),
           if (series.length >= 2) ...[
             const SizedBox(height: 10),
-            Sparkline(values: [for (final x in series) x.$2]),
+            Sparkline(values: [for (final x in series) x.$2], goal: goal),
           ],
           const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  goal == null ? 'No goal set' : 'Goal ${bodyValue(keyName, goal!, metric: metric)} · ${_goalText(ch)}',
+                  style: BoltText.a(12, weight: 700, color: goal == null ? BoltColors.muted3 : BoltColors.text),
+                ),
+              ),
+              Tap(
+                onTap: onGoal,
+                child: Text(
+                  goal == null ? 'Set goal' : 'Edit',
+                  style: BoltText.a(12, weight: 800, color: BoltColors.neon),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
           Text(
             series.length < 2
                 ? 'Log it again on another day to see a trend.'
@@ -308,6 +350,81 @@ class _LogBodySheetState extends ConsumerState<LogBodySheet> {
         ],
         const SizedBox(height: 16),
         NeonButton(label: 'Save', height: 52, scale: 1, onTap: () => _save(metric)),
+      ],
+    );
+  }
+}
+
+/// Set or clear a target for one measurement.
+class _GoalSheet extends ConsumerStatefulWidget {
+  const _GoalSheet({required this.tid, required this.keyName});
+
+  final String? tid;
+  final String keyName;
+
+  @override
+  ConsumerState<_GoalSheet> createState() => _GoalSheetState();
+}
+
+class _GoalSheetState extends ConsumerState<_GoalSheet> {
+  late final bool _metric = ref.read(boltProvider).settings.kg;
+  late final double? _old = ref.read(boltProvider.notifier).bodyFor(widget.tid)?.goals[widget.keyName];
+  late final _c = TextEditingController(
+    text: _old == null
+        ? ''
+        : (widget.keyName == 'weight' ? weightValue(_old, metric: _metric) : lengthValue(_old, metric: _metric)),
+  );
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final store = ref.read(boltProvider.notifier);
+    final weight = widget.keyName == 'weight';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('${Body.tracked[widget.keyName]} goal', style: BoltText.a(20, weight: 900)),
+        const SizedBox(height: 4),
+        Text(
+          'Shows as a dashed line on the trend, with how far there is to go.',
+          style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
+        ),
+        const SizedBox(height: 14),
+        BoltField(
+          controller: _c,
+          hint: 'Target',
+          number: true,
+          suffix: weight ? weightUnit(_metric) : lengthUnit(_metric),
+        ),
+        const SizedBox(height: 16),
+        NeonButton(
+          label: 'Save goal',
+          height: 52,
+          scale: 1,
+          onTap: () {
+            final v = weight ? parseWeight(_c.text, metric: _metric) : parseLength(_c.text, metric: _metric);
+            store.setBodyGoal(widget.tid, widget.keyName, v);
+            Navigator.of(context).pop();
+          },
+        ),
+        if (_old != null) ...[
+          const SizedBox(height: 8),
+          OutlineButton(
+            label: 'Remove goal',
+            color: BoltColors.text,
+            borderColor: BoltColors.line,
+            weight: 700,
+            onTap: () {
+              store.setBodyGoal(widget.tid, widget.keyName, null);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
       ],
     );
   }

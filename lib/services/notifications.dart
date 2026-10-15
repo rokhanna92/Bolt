@@ -25,6 +25,10 @@ abstract class BoltNotifications {
   /// A live gym timer in the notification shade, counting up from [since].
   Future<void> showInGym(DateTime since, String sinceText);
   Future<void> clearInGym();
+
+  /// A rest countdown to [end] that shows on the lock screen.
+  Future<void> showRest(DateTime end, String next);
+  Future<void> clearRest();
 }
 
 class NoopNotifications implements BoltNotifications {
@@ -44,6 +48,12 @@ class NoopNotifications implements BoltNotifications {
 
   @override
   Future<void> clearInGym() async {}
+
+  @override
+  Future<void> showRest(DateTime end, String next) async {}
+
+  @override
+  Future<void> clearRest() async {}
 }
 
 class LocalNotifications implements BoltNotifications {
@@ -53,6 +63,7 @@ class LocalNotifications implements BoltNotifications {
 
   static const _checkoutId = 1;
   static const _inGymId = 2;
+  static const _restId = 3;
   static const _sessionBase = 100;
   static const _sessionSlots = 14;
 
@@ -155,6 +166,44 @@ class LocalNotifications implements BoltNotifications {
   Future<void> clearInGym() async {
     try {
       await _plugin.cancel(id: _inGymId);
+    } catch (_) {}
+  }
+
+  @override
+  Future<void> showRest(DateTime end, String next) async {
+    try {
+      final ms = end.difference(DateTime.now()).inMilliseconds;
+      if (ms <= 0) return;
+      await _plugin.show(
+        id: _restId,
+        title: 'Rest',
+        body: next,
+        notificationDetails: NotificationDetails(
+          android: AndroidNotificationDetails(
+            'bolt_rest_timer',
+            'Rest timer',
+            channelDescription: 'Countdown between sets',
+            importance: Importance.low,
+            priority: Priority.low,
+            icon: 'ic_stat_bolt',
+            color: _neon,
+            onlyAlertOnce: true,
+            silent: true,
+            showWhen: true,
+            when: end.millisecondsSinceEpoch,
+            usesChronometer: true,
+            chronometerCountDown: true,
+            timeoutAfter: ms,
+          ),
+        ),
+      );
+    } catch (_) {}
+  }
+
+  @override
+  Future<void> clearRest() async {
+    try {
+      await _plugin.cancel(id: _restId);
     } catch (_) {}
   }
 
