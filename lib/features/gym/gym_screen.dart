@@ -7,6 +7,7 @@ import '../../app/actions.dart';
 import '../../app/tick.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
+import '../../data/gym_times.dart';
 import '../../data/models/session.dart';
 import '../../data/models/visit.dart';
 import '../../theme/text_styles.dart';
@@ -137,6 +138,15 @@ class GymScreen extends ConsumerWidget {
         const SizedBox(height: 10),
         GymHeatmap(visits: visits, plan: store.plan(id), now: now),
         const SizedBox(height: 22),
+        SectionTitle(tx('Your best gym times')),
+        const SizedBox(height: 4),
+        Text(
+          tx('Minutes per set by day and time, from scanned visits with a logged workout. Fewer means less waiting.'),
+          style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
+        ),
+        const SizedBox(height: 10),
+        _BestTimes(slots: gymSlots(visits, store.plan(id))),
+        const SizedBox(height: 22),
         SectionTitle(tx('Visit log')),
         const SizedBox(height: 8),
         if (g != null)
@@ -168,6 +178,74 @@ class GymScreen extends ConsumerWidget {
         const SizedBox(height: 6),
         Text('${d.day} ${monthsShort[d.month - 1].toUpperCase()}', style: BoltText.m(9, color: BoltColors.muted3)),
       ],
+    );
+  }
+}
+
+/// The fastest slots and the slowest one.
+class _BestTimes extends StatelessWidget {
+  const _BestTimes({required this.slots});
+
+  final List<GymSlot> slots;
+
+  @override
+  Widget build(BuildContext context) {
+    if (slots.length < 2) {
+      return BoltBox(
+        radius: 14,
+        stroke: const Stroke.dashed(BoltColors.line),
+        padding: const EdgeInsets.all(14),
+        child: Text(
+          tx('After a few more scanned workouts at different times, Bolt shows when you train fastest.'),
+          style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
+        ),
+      );
+    }
+    String when(GymSlot s) => '${weekdays[s.weekday % 7]} ${pad(s.hour)}:00-${pad(s.hour + 2)}:00';
+    Widget row(GymSlot s, {bool slow = false}) => Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: BoltColors.divider)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(when(s), style: BoltText.a(14, weight: 800, color: slow ? BoltColors.muted : BoltColors.text)),
+                const SizedBox(height: 2),
+                Text(plural(s.visits, 'gym visit'), style: BoltText.m(10, color: BoltColors.muted)),
+              ],
+            ),
+          ),
+          Text(
+            tx('{n} min a set', {'n': s.minPerSet.toStringAsFixed(1)}),
+            style: BoltText.m(12, weight: 700, color: slow ? BoltColors.warn : BoltColors.neon),
+          ),
+        ],
+      ),
+    );
+    final fast = slots.take(3).toList();
+    final slowest = slots.last;
+    final gain = (100 * (1 - fast.first.minPerSet / slowest.minPerSet)).round();
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(BoltColors.lineSoft),
+      radius: 18,
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            tx('{when} is your quickest slot, {n}% faster than your slowest.', {'when': when(fast.first), 'n': gain}),
+            style: BoltText.a(13, weight: 700, height: 1.4),
+          ),
+          const SizedBox(height: 6),
+          for (final s in fast) row(s),
+          if (!fast.contains(slowest)) row(slowest, slow: true),
+        ],
+      ),
     );
   }
 }

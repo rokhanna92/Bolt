@@ -791,4 +791,9 @@ const kSrUi = <String, String>{
   'Away this week': 'Odsutan ove nedelje',
   'Away…': 'Odsustvo…',
   'Away this week. Your streak is safe, train if you feel like it.': 'Odsutan si ove nedelje. Niz je bezbedan, treniraj ako ti se da.',
+  'Your best gym times': 'Tvoja najbolja vremena u teretani',
+  'Minutes per set by day and time, from scanned visits with a logged workout. Fewer means less waiting.': 'Minuti po seriji po danu i satu, iz skeniranih dolazaka sa upisanim treningom. Manje znači manje čekanja.',
+  'After a few more scanned workouts at different times, Bolt shows when you train fastest.': 'Posle još nekoliko skeniranih treninga u različito vreme, Bolt pokazuje kad treniraš najbrže.',
+  '{n} min a set': '{n} min po seriji',
+  '{when} is your quickest slot, {n}% faster than your slowest.': '{when} ti je najbrži termin, {n}% brži od najsporijeg.',
 };
