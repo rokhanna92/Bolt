@@ -34,6 +34,7 @@ class Body {
     this.heightCm,
     Map<String, double>? cm,
     this.updated,
+    this.sex,
     List<BodyEntry>? history,
     Map<String, double>? goals,
   }) : cm = cm ?? {},
@@ -49,6 +50,10 @@ class Body {
   double? weightKg;
   double? heightCm;
 
+  /// `m`, `f` or null when not set. Body types and strength differ, so tips
+  /// and healthy ranges follow it.
+  String? sex;
+
   /// Circumferences by part key, in cm.
   final Map<String, double> cm;
 
@@ -61,10 +66,11 @@ class Body {
   /// Targets by `weight` or part key, metric.
   final Map<String, double> goals;
 
-  bool get isEmpty => weightKg == null && heightCm == null && cm.isEmpty;
+  bool get isEmpty => weightKg == null && heightCm == null && sex == null && cm.isEmpty;
 
   /// The latest values without the history.
-  Body clone() => Body(weightKg: weightKg, heightCm: heightCm, cm: {...cm}, updated: updated, goals: {...goals});
+  Body clone() =>
+      Body(weightKg: weightKg, heightCm: heightCm, cm: {...cm}, updated: updated, sex: sex, goals: {...goals});
 
   /// Records the latest weight and measurements as [date]'s entry.
   void logCurrent(String date) {
@@ -102,6 +108,7 @@ class Body {
   Map<String, dynamic> toJson({int? last}) => {
     'weightKg': weightKg,
     'heightCm': heightCm,
+    'sex': sex,
     'cm': cm,
     'updated': updated,
     'goals': goals,
@@ -116,6 +123,7 @@ class Body {
     final b = Body(
       weightKg: (j['weightKg'] as num?)?.toDouble(),
       heightCm: (j['heightCm'] as num?)?.toDouble(),
+      sex: j['sex'] as String?,
       cm: (j['cm'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, (v as num).toDouble())),
       updated: j['updated'] as String?,
       history: [for (final e in j['history'] as List? ?? const []) BodyEntry.fromJson(e as Map<String, dynamic>)],

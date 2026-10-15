@@ -162,13 +162,17 @@ class SplitWeek extends StatelessWidget {
 /// Inputs for weight, height and tape measurements in the current unit.
 class BodyForm {
   BodyForm(Body body, {required this.metric})
-    : weight = TextEditingController(text: weightValue(body.weightKg, metric: metric)),
+    : sex = body.sex,
+      weight = TextEditingController(text: weightValue(body.weightKg, metric: metric)),
       height = TextEditingController(text: lengthValue(body.heightCm, metric: metric)),
       parts = {
         for (final p in Body.parts.keys) p: TextEditingController(text: lengthValue(body.cm[p], metric: metric)),
       };
 
   final bool metric;
+
+  /// `m`, `f` or null.
+  String? sex;
   final TextEditingController weight;
   final TextEditingController height;
   final Map<String, TextEditingController> parts;
@@ -182,6 +186,7 @@ class BodyForm {
     return Body(
       weightKg: parseWeight(weight.text, metric: metric),
       heightCm: parseLength(height.text, metric: metric),
+      sex: sex,
       cm: cm,
     );
   }
@@ -193,15 +198,21 @@ class BodyForm {
   }
 }
 
-/// The fields for a [BodyForm]: weight and height, then measurements in two
-/// columns.
-class BodyFields extends StatelessWidget {
+/// The fields for a [BodyForm]: male or female, weight and height, then
+/// measurements in two columns.
+class BodyFields extends StatefulWidget {
   const BodyFields({super.key, required this.form});
 
   final BodyForm form;
 
   @override
+  State<BodyFields> createState() => _BodyFieldsState();
+}
+
+class _BodyFieldsState extends State<BodyFields> {
+  @override
   Widget build(BuildContext context) {
+    final form = widget.form;
     final m = form.metric;
     Widget field(TextEditingController c, String hint, String unit) =>
         BoltField(controller: c, hint: '${tx(hint)} ($unit)', number: true, suffix: unit);
@@ -209,6 +220,13 @@ class BodyFields extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        ChoiceChips(
+          options: const ['m', 'f'],
+          labels: const {'m': 'Male', 'f': 'Female'},
+          selected: form.sex,
+          onSelect: (s) => setState(() => form.sex = form.sex == s ? null : s),
+        ),
+        const SizedBox(height: 10),
         Row(
           children: [
             Expanded(child: field(form.weight, 'Weight', weightUnit(m))),

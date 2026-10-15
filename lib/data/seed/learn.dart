@@ -763,4 +763,16 @@ const kBasics = <(String, List<String>)>[
       'Easy walks count. 8,000-10,000 steps a day is a great base.',
     ],
   ),
+  (
+    'Men and women',
+    [
+      'The same lifts, sets and progressive overload build muscle in both. Train for your goal, not for your sex.',
+      'Men carry more muscle, mostly in the upper body, so they lift more in total. Relative to body size, women\'s legs are nearly as strong.',
+      'Women usually recover faster between sets and get more reps at the same % of their max, so they can often handle a bit more volume.',
+      'Coaches: start women\'s upper body loads lighter compared to their legs, and expect a few extra reps on % based sets.',
+      'Healthy body fat is higher for women (about 20-30%) than for men (about 10-20%). Compare yourself to your own trend, not to the other sex.',
+      'Hormones shift through the monthly cycle. Strength can dip the days before a period: going lighter is fine, and so is training hard when you feel good.',
+      'Protein needs per kg are the same for both. Women who train hard should watch iron, calcium and vitamin D.',
+    ],
+  ),
 ];

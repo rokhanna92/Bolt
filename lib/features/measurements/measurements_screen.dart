@@ -41,6 +41,25 @@ String bodyValue(String key, double v, {required bool metric}) =>
 String bodyDelta(String key, double d, {required bool metric}) =>
     '${d < 0 ? '-' : '+'}${bodyValue(key, d.abs(), metric: metric)}';
 
+/// What to keep in mind when measuring, for `m` or `f`.
+String sexTip(String? sex) => switch (sex) {
+  'f' => tx(
+    'Water can move your weight 1-2 kg over a monthly cycle. Compare the same week of your cycle and trust the monthly trend. Women tend to store more on hips and thighs, so tape those too.',
+  ),
+  'm' => tx(
+    'Men tend to store fat around the belly first, so the waist tells you the most about fat loss. A shrinking waist with steady weight means muscle is replacing fat.',
+  ),
+  _ => tx('Set male or female in the profile to get tips and healthy ranges that fit your body.'),
+};
+
+/// Waist divided by hips with the WHO line for `m` (0.90) or `f` (0.85).
+/// Null without a sex or either measurement.
+({double ratio, double limit})? waistToHip(Body b) {
+  final w = b.cm['waist'], h = b.cm['hips'];
+  if (b.sex == null || w == null || h == null || h == 0) return null;
+  return (ratio: w / h, limit: b.sex == 'f' ? .85 : .90);
+}
+
 /// Weight and tape measurements over time: a trend per measurement and every
 /// entry. For the owner, or a coach looking at a trainee ([tid]).
 class MeasurementsScreen extends ConsumerWidget {
@@ -96,6 +115,8 @@ class MeasurementsScreen extends ConsumerWidget {
               ),
               style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
             ),
+            const SizedBox(height: 8),
+            Text(sexTip(b?.sex), style: BoltText.a(13, color: BoltColors.muted, height: 1.45)),
             const SizedBox(height: 14),
             NeonButton(
               label: tx('+ Log today'),
@@ -114,6 +135,41 @@ class MeasurementsScreen extends ConsumerWidget {
                   metric: metric,
                   goal: b?.goals[e.key],
                   onGoal: () => showBoltSheet<void>(context, (_) => _GoalSheet(tid: tid, keyName: e.key)),
+                ),
+              ],
+            if (b != null)
+              if (waistToHip(b) case final r?) ...[
+                const SizedBox(height: 10),
+                BoltBox(
+                  color: BoltColors.surface1,
+                  stroke: const Stroke(BoltColors.lineSoft),
+                  radius: 18,
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Kicker(tx('WAIST-TO-HIP'), size: 9, spacing: .1),
+                      const SizedBox(height: 3),
+                      Text(
+                        r.ratio.toStringAsFixed(2),
+                        style: BoltText.a(
+                          22,
+                          weight: 900,
+                          color: r.ratio < r.limit ? BoltColors.neon : BoltColors.text,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        tx(
+                          b.sex == 'f'
+                              ? 'Under {limit} is the healthy range for women. Above it, belly fat raises heart and diabetes risk.'
+                              : 'Under {limit} is the healthy range for men. Above it, belly fat raises heart and diabetes risk.',
+                          {'limit': r.limit.toStringAsFixed(2)},
+                        ),
+                        style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             if (b == null || b.history.isEmpty) ...[

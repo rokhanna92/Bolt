@@ -37,6 +37,7 @@ class BodyCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final metric = ref.watch(boltProvider.select((d) => d.settings.kg));
     final items = <(String, String)>[
+      if (body.sex != null) (tx('SEX'), tx(body.sex == 'f' ? 'Female' : 'Male')),
       if (body.weightKg != null) (tx('WEIGHT'), fmtWeight(body.weightKg!, metric: metric)),
       if (body.heightCm != null) (tx('HEIGHT'), fmtLength(body.heightCm!, metric: metric)),
       for (final e in Body.parts.entries)
