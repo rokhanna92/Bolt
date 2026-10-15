@@ -286,7 +286,9 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
             Text(tx('Swapped from {name}', {'name': tx(e.orig)}), style: BoltText.m(10, color: BoltColors.muted)),
           ],
           const SizedBox(height: 10),
-          Row(
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
             children: [
               if (i + 1 < _store.editExercises(widget.target).length) ...[
                 _chip(
@@ -296,9 +298,16 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                   e.group != null && _store.editExercises(widget.target)[i + 1].group == e.group,
                   () => _edit(() => toggleSuperset(_store.editExercises(widget.target), i)),
                 ),
-                const SizedBox(width: 6),
               ],
               _chip(e.drop ? tx('Drop set ✓') : tx('Drop set'), e.drop, () => _edit(() => e.drop = !e.drop)),
+              _chip(
+                e.rest == null ? tx('Rest auto') : tx('Rest {s} s', {'s': e.rest}),
+                e.rest != null,
+                () => _edit(() {
+                  const steps = [null, 60, 90, 120, 180, 240];
+                  e.rest = steps[(steps.indexOf(e.rest) + 1) % steps.length];
+                }),
+              ),
             ],
           ),
         ],

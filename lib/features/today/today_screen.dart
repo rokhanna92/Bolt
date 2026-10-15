@@ -13,6 +13,7 @@ import '../../data/models/session.dart';
 import '../../data/models/visit.dart';
 import '../../data/lifts.dart';
 import '../../data/rules.dart';
+import '../../data/suggestions.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -22,6 +23,7 @@ import '../../widgets/tap.dart';
 import '../../widgets/sparkline.dart';
 import '../badges/badges_screen.dart';
 import '../progress/challenge_sheet.dart';
+import '../workouts/deload_sheet.dart';
 import '../progress/progress_screen.dart' show RecapTiles;
 import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
 import '../sharing/import_sheet.dart';
@@ -233,6 +235,13 @@ class TodayScreen extends ConsumerWidget {
             ),
           ),
         ],
+        for (final h in suggestions(
+          t,
+          plan,
+          now,
+          weekStart: weekStart(now, mondayFirst: d.settings.mondayFirst),
+          seen: d.settings.hintsSeen,
+        )) ...[const SizedBox(height: 10), _HintCard(tid: t.id, h: h)],
         const SizedBox(height: 26),
         Row(
           crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -730,6 +739,71 @@ class _StartCard extends ConsumerWidget {
                 filled: !withCoach,
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One suggestion: what is off this week and a one-tap fix.
+class _HintCard extends ConsumerWidget {
+  const _HintCard({required this.tid, required this.h});
+
+  final String tid;
+  final Hint h;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final store = ref.read(boltProvider.notifier);
+    void act() {
+      switch (h.kind) {
+        case HintKind.missed:
+          store.move(h.day!, h.to!);
+        case HintKind.volume:
+          store.addToDay(tid, h.day!, h.add!);
+        case HintKind.deload:
+          showBoltSheet<void>(context, (_) => DeloadSheet(tid: tid));
+      }
+      store.dismissHint(h.id);
+    }
+
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(Color(0x59C6FF1A)),
+      radius: 16,
+      padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Kicker(tx('SUGGESTION'), size: 9, color: BoltColors.neon),
+                const SizedBox(height: 4),
+                Text(h.text, style: BoltText.a(13, weight: 700, height: 1.35)),
+                const SizedBox(height: 8),
+                Tap(
+                  onTap: act,
+                  child: BoltBox(
+                    radius: 10,
+                    color: BoltColors.neon,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                    child: Text(h.action, style: BoltText.a(12, weight: 800, color: BoltColors.ink)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Tap(
+            onTap: () => store.dismissHint(h.id),
+            child: SizedBox(
+              width: 36,
+              height: 36,
+              child: Center(
+                child: Text('✕', style: BoltText.a(14, color: BoltColors.muted2)),
+              ),
+            ),
           ),
         ],
       ),

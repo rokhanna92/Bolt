@@ -24,6 +24,7 @@ import '../features/profile/edit_profile_screen.dart';
 import '../features/profile/me_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/today/today_screen.dart';
+import '../features/workout/summary_screen.dart';
 import '../features/workout/workout_screen.dart';
 import '../features/workouts/split_editor_screen.dart';
 import '../widgets/common.dart';
@@ -151,6 +152,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             _enter(s, EditorScreen(target: DayTarget(s.pathParameters['tid']!, s.pathParameters['key']!))),
       ),
       GoRoute(
+        path: '/summary/:key',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, SummaryScreen(dayKey: s.pathParameters['key']!)),
+      ),
+      GoRoute(
         path: '/progress',
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) => _enter(s, const ProgressScreen()),
@@ -158,7 +164,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/lift/:name',
         parentNavigatorKey: rootNavigatorKey,
-        pageBuilder: (c, s) => _enter(s, LiftScreen(name: s.pathParameters['name']!)),
+        pageBuilder: (c, s) =>
+            _enter(s, LiftScreen(name: s.pathParameters['name']!, tid: s.uri.queryParameters['tid'])),
       ),
       GoRoute(
         path: '/measurements',

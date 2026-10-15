@@ -20,7 +20,9 @@ class Session {
     this.byCoach = false,
     this.code,
     this.deload = false,
-  });
+    this.took,
+    List<String>? prs,
+  }) : prs = prs ?? [];
 
   String tpl;
   String title;
@@ -45,6 +47,12 @@ class Session {
   /// Part of a deload week: sets halved.
   bool deload;
 
+  /// Minutes from starting the workout in Bolt to finishing it.
+  int? took;
+
+  /// Lifts with a personal record in this workout.
+  final List<String> prs;
+
   int get totalSets => ex.fold(0, (a, e) => a + e.sets);
 
   Map<String, dynamic> toJson() => {
@@ -60,6 +68,8 @@ class Session {
     'byCoach': byCoach,
     'code': code,
     'deload': deload,
+    'took': took,
+    if (prs.isNotEmpty) 'prs': prs,
   };
 
   factory Session.fromJson(Map<String, dynamic> j) => Session(
@@ -75,5 +85,7 @@ class Session {
     byCoach: j['byCoach'] as bool? ?? false,
     code: j['code'] as String?,
     deload: j['deload'] as bool? ?? false,
+    took: j['took'] as int?,
+    prs: [for (final x in j['prs'] as List? ?? const []) x as String],
   );
 }

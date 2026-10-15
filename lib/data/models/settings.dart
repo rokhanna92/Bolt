@@ -8,7 +8,9 @@ class AppSettings {
     this.gymName = '',
     this.recapSeen,
     this.lang = 'en',
-  });
+    this.restAuto = true,
+    List<String>? hintsSeen,
+  }) : hintsSeen = hintsSeen ?? [];
 
   /// Session reminders, 2 hours before a planned session.
   bool remind;
@@ -18,7 +20,15 @@ class AppSettings {
 
   /// kg (true) or lb (false). Loads are stored in kg and converted on display.
   bool kg;
+
+  /// Fixed rest after a set, used when [restAuto] is off.
   int restSecs;
+
+  /// Rest picked per exercise: long for big lifts, short for isolation.
+  bool restAuto;
+
+  /// Suggestions on Today that were closed, by id.
+  final List<String> hintsSeen;
   bool mondayFirst;
 
   /// Home gym, as the user named it.
@@ -39,6 +49,8 @@ class AppSettings {
     'gymName': gymName,
     'recapSeen': recapSeen,
     'lang': lang,
+    'restAuto': restAuto,
+    'hintsSeen': hintsSeen,
   };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
@@ -50,5 +62,7 @@ class AppSettings {
     gymName: j['gymName'] as String? ?? '',
     recapSeen: j['recapSeen'] as String?,
     lang: j['lang'] as String? ?? 'en',
+    restAuto: j['restAuto'] as bool? ?? true,
+    hintsSeen: [for (final x in j['hintsSeen'] as List? ?? const []) x as String],
   );
 }

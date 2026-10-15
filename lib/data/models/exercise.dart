@@ -25,6 +25,7 @@ class Exercise {
     this.group,
     this.drop = false,
     this.fullSets,
+    this.rest,
     List<SetLog>? logged,
   }) : logged = logged ?? [];
 
@@ -53,6 +54,9 @@ class Exercise {
   /// Sets before a deload week halved them.
   int? fullSets;
 
+  /// Rest after each set in seconds; null picks it from the exercise type.
+  int? rest;
+
   /// Sets done in a finished workout, in order.
   final List<SetLog> logged;
 
@@ -68,6 +72,7 @@ class Exercise {
     orig: orig,
     group: group,
     drop: drop,
+    rest: rest,
   );
 
   Map<String, dynamic> toJson() => {
@@ -83,6 +88,7 @@ class Exercise {
     'group': group,
     'drop': drop,
     'fullSets': fullSets,
+    'rest': rest,
     if (logged.isNotEmpty) 'logged': logged.map((x) => x.toJson()).toList(),
   };
 
@@ -99,6 +105,7 @@ class Exercise {
     group: j['group'] as String?,
     drop: j['drop'] as bool? ?? false,
     fullSets: j['fullSets'] as int?,
+    rest: j['rest'] as int?,
     logged: [for (final x in j['logged'] as List? ?? const []) SetLog.fromJson(x as Map<String, dynamic>)],
   );
 }

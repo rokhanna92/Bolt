@@ -9,6 +9,8 @@ import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/session.dart';
 import '../../data/models/visit.dart';
+import '../../core/units.dart';
+import '../../data/lifts.dart';
 import '../../data/rules.dart';
 import '../../data/seed/splits.dart';
 import '../../data/seed/templates.dart';
@@ -264,6 +266,33 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 ),
                 const SizedBox(height: 8),
                 BadgesCard(stats: displayStats(x.stats, store.now)),
+                if (loggedLifts(p).isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  Kicker(tx('LIFTS · FROM {name}\'S UPDATES', {'name': fn.toUpperCase()}), size: 10),
+                  const SizedBox(height: 4),
+                  for (final name in loggedLifts(p).take(8))
+                    Tap(
+                      onTap: () => context.push('/lift/${Uri.encodeComponent(name)}?tid=${x.id}'),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: const BoxDecoration(
+                          border: Border(top: BorderSide(color: BoltColors.divider)),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(child: Text(tx(name), style: BoltText.a(14, weight: 700))),
+                            if (maxFor(x, p, name) case final m?)
+                              Text(
+                                'e1RM ${fmtWeight(m, metric: d.settings.kg)}',
+                                style: BoltText.m(11, weight: 700, color: BoltColors.neon),
+                              ),
+                            const SizedBox(width: 8),
+                            const Chevron(size: 16),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
                 const SizedBox(height: 18),
                 BodyCard(
                   body: x.body,

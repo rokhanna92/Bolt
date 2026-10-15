@@ -174,6 +174,9 @@ class BoltStore extends Notifier<BoltData> {
   Map<String, Session> plan(String tid) => state.plans.putIfAbsent(tid, () => {});
   String unit(String load) => unitLoad(load, kg: state.settings.kg);
 
+  /// Loads and body shown in kg and cm (else lb and in).
+  bool get metric => state.settings.kg;
+
   /// Stored in English (injury flags), translated where shown.
   String _dayLabel(DateTime d) =>
       '${d.day} ${const ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.month - 1]}';
@@ -472,6 +475,7 @@ class BoltStore extends Notifier<BoltData> {
       state.workout = null;
       _saveLogs(t, k, w, s);
       _complete(t, k, s, _checkedSets(w, s));
+      _timeIt(w, s);
     } else if ({SessionStatus.approved, SessionStatus.moved, SessionStatus.pending}.contains(s.status)) {
       _complete(t, k, s, s.totalSets, checked: false);
     }
@@ -571,7 +575,7 @@ class BoltStore extends Notifier<BoltData> {
   // Workout
 
   void startWorkout(String k) {
-    if (state.workout?.key != k) state.workout = ActiveWorkout(key: k);
+    if (state.workout?.key != k) state.workout = ActiveWorkout(key: k, started: now.millisecondsSinceEpoch);
     _commit();
   }
 
@@ -622,6 +626,7 @@ class BoltStore extends Notifier<BoltData> {
     final before = t.stats.copy();
     final prs = _saveLogs(t, w.key, w, p);
     _complete(t, w.key, p, _checkedSets(w, p));
+    _timeIt(w, p);
     final unlocked = newlyUnlocked(before, t.stats);
     _commit();
     _toast(
@@ -659,7 +664,44 @@ class BoltStore extends Notifier<BoltData> {
       }
     }
     t.stats.prs += prs.length;
+    p.prs
+      ..clear()
+      ..addAll(prs);
     return prs;
+  }
+
+  /// Minutes from starting the workout in Bolt to now.
+  void _timeIt(ActiveWorkout w, Session p) {
+    final started = w.started;
+    if (started != null) p.took = math.max(1, ((now.millisecondsSinceEpoch - started) / 60000).round());
+  }
+
+  /// Sets or clears a hand-entered one-rep max for [name].
+  void setMax(String tid, String name, double? kg) {
+    final t = tr(tid);
+    if (kg == null) {
+      t.maxes.remove(name);
+    } else {
+      t.maxes[name] = kg;
+    }
+    _commit();
+    _toast(kg == null ? tx('Max cleared') : tx('Max saved'));
+  }
+
+  /// Adds [a] to day [k]'s workout, from a suggestion on Today.
+  void addToDay(String tid, String k, ExSeed a) {
+    final s = plan(tid)[k];
+    if (s == null || s.status == SessionStatus.done) return;
+    s.ex.add(exerciseFromSeed(a, state.uid()));
+    if (_isCoach && s.status != SessionStatus.draft) s.status = SessionStatus.draft;
+    _commit();
+    _toast(tx('{name} added to {day}', {'name': tx(a.name), 'day': fmtDay(k)}));
+  }
+
+  /// Closes a suggestion on Today for good.
+  void dismissHint(String id) {
+    state.settings.hintsSeen.add(id);
+    _commit();
   }
 
   int _checkedSets(ActiveWorkout w, Session p) {
@@ -1226,7 +1268,21 @@ class BoltStore extends Notifier<BoltData> {
       'tid': state.linkId,
       'name': t.name,
       'sessions': {
-        for (final k in keys) k: {'status': p[k]!.status.name, 'from': p[k]!.from, 'log': p[k]!.log},
+        for (final k in keys)
+          k: {
+            'status': p[k]!.status.name,
+            'from': p[k]!.from,
+            'log': p[k]!.log,
+            // Logged weights and reps, so the coach sees lifts and PRs.
+            if (p[k]!.status == SessionStatus.done) ...{
+              'took': p[k]!.took,
+              'prs': p[k]!.prs,
+              'ex': [
+                for (final e in p[k]!.ex)
+                  if (e.logged.isNotEmpty) {'name': e.name, 'logged': e.logged.map((l) => l.toJson()).toList()},
+              ],
+            },
+          },
       },
       'visits': [
         for (final v in state.visits[t.id] ?? const <Visit>[])
@@ -1234,6 +1290,7 @@ class BoltStore extends Notifier<BoltData> {
       ],
       'injuries': t.injuries.map((i) => i.toJson()).toList(),
       'stats': t.stats.toJson(),
+      'maxes': t.maxes,
       if (t.challenge case final Challenge c)
         'challenge': {'progress': challengeProgress(c, p, state.visits[t.id] ?? const [])},
       'body': t.body.toJson(last: 90),
@@ -1356,7 +1413,21 @@ class BoltStore extends Notifier<BoltData> {
           if (s.status != SessionStatus.done) done++;
           s
             ..status = SessionStatus.done
-            ..log = j['log'] as String?;
+            ..log = j['log'] as String?
+            ..took = j['took'] as int?;
+          s.prs
+            ..clear()
+            ..addAll([for (final x in j['prs'] as List? ?? const []) x as String]);
+          final used = <Exercise>{};
+          for (final x in j['ex'] as List? ?? const []) {
+            final m = x as Map<String, dynamic>;
+            final e = s.ex.where((e) => e.name == m['name'] && !used.contains(e)).firstOrNull;
+            if (e == null) continue;
+            used.add(e);
+            e.logged
+              ..clear()
+              ..addAll([for (final l in m['logged'] as List) SetLog.fromJson(l as Map<String, dynamic>)]);
+          }
         case SessionStatus.moved:
           // Already OK'd by the coach: keep it confirmed.
           if (s.status == SessionStatus.approved && s.from == null) return;
@@ -1384,6 +1455,11 @@ class BoltStore extends Notifier<BoltData> {
     }
     if (packet['stats'] case final Map<String, dynamic> stats) t.stats = TraineeStats.fromJson(stats);
     if (packet['challenge'] case {'progress': final int n}) t.challenge?.progress = n;
+    if (packet['maxes'] case final Map<String, dynamic> m) {
+      t.maxes
+        ..clear()
+        ..addAll(m.map((k, v) => MapEntry(k, (v as num).toDouble())));
+    }
     final body = Body.fromJson(packet['body'] as Map<String, dynamic>?);
     // The trainee's history wins; days only the coach logged are kept.
     if (!body.isEmpty) t.body = body..mergeHistory(t.body.history);
@@ -1424,10 +1500,22 @@ class BoltStore extends Notifier<BoltData> {
     _commit();
   }
 
+  /// Auto, then 60 to 180 seconds, then back to Auto.
   void cycleRest() {
     const steps = [60, 90, 120, 150, 180];
-    final i = steps.indexOf(state.settings.restSecs);
-    state.settings.restSecs = steps[(i + 1) % steps.length];
+    final st = state.settings;
+    if (st.restAuto) {
+      st
+        ..restAuto = false
+        ..restSecs = steps.first;
+    } else {
+      final i = steps.indexOf(st.restSecs);
+      if (i < 0 || i == steps.length - 1) {
+        st.restAuto = true;
+      } else {
+        st.restSecs = steps[i + 1];
+      }
+    }
     _commit();
   }
 

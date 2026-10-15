@@ -39,11 +39,14 @@ class Account {
 
 /// The workout in progress: which sets are checked per exercise id.
 class ActiveWorkout {
-  ActiveWorkout({required this.key, Map<String, List<bool>>? done, Map<String, Map<int, SetLog>>? logs})
+  ActiveWorkout({required this.key, Map<String, List<bool>>? done, Map<String, Map<int, SetLog>>? logs, this.started})
     : done = done ?? {},
       logs = logs ?? {};
 
   final String key;
+
+  /// When the workout was started, epoch milliseconds.
+  final int? started;
   final Map<String, List<bool>> done;
 
   /// Weight and reps per exercise id and set index, for ticked sets.
@@ -58,12 +61,14 @@ class ActiveWorkout {
 
   Map<String, dynamic> toJson() => {
     'key': key,
+    'started': started,
     'done': done,
     'logs': logs.map((id, m) => MapEntry(id, m.map((i, l) => MapEntry('$i', l.toJson())))),
   };
 
   factory ActiveWorkout.fromJson(Map<String, dynamic> j) => ActiveWorkout(
     key: j['key'] as String,
+    started: j['started'] as int?,
     done: (j['done'] as Map<String, dynamic>).map((k, v) => MapEntry(k, (v as List).map((x) => x as bool).toList())),
     logs: (j['logs'] as Map<String, dynamic>? ?? {}).map(
       (id, m) => MapEntry(

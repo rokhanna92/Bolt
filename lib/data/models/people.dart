@@ -332,7 +332,9 @@ class Trainee {
     Body? body,
     this.coachName,
     this.challenge,
-  }) : body = body ?? Body();
+    Map<String, double>? maxes,
+  }) : body = body ?? Body(),
+       maxes = maxes ?? {};
 
   final String id;
   String name;
@@ -357,6 +359,10 @@ class Trainee {
   /// A goal for a date range, set by the coach or by a solo user.
   Challenge? challenge;
 
+  /// One-rep maxes set by hand, kg by exercise name. Percentage loads use
+  /// these, else the best estimated max from logged sets.
+  final Map<String, double> maxes;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
@@ -369,6 +375,7 @@ class Trainee {
     'body': body.toJson(),
     'coachName': coachName,
     'challenge': challenge?.toJson(),
+    'maxes': maxes,
   };
 
   factory Trainee.fromJson(Map<String, dynamic> j) => Trainee(
@@ -383,6 +390,7 @@ class Trainee {
     body: Body.fromJson(j['body'] as Map<String, dynamic>?),
     coachName: j['coachName'] as String?,
     challenge: j['challenge'] == null ? null : Challenge.fromJson(j['challenge'] as Map<String, dynamic>),
+    maxes: (j['maxes'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, (v as num).toDouble())),
   );
 }
 

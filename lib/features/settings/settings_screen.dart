@@ -128,7 +128,12 @@ class SettingsScreen extends ConsumerWidget {
         [
           _Row(tx('Units'), value: s.kg ? 'kg · cm' : 'lb · in', onTap: store.toggleUnits),
           _Row(tx('Week starts on'), value: s.mondayFirst ? tx('Monday') : tx('Sunday'), onTap: store.toggleWeekStart),
-          _Row(tx('Default rest timer'), value: '${s.restSecs} s', onTap: store.cycleRest),
+          _Row(
+            tx('Default rest timer'),
+            sub: s.restAuto ? tx('Longer for big lifts, shorter for isolation') : null,
+            value: s.restAuto ? tx('Auto') : '${s.restSecs} s',
+            onTap: store.cycleRest,
+          ),
         ],
       ),
       (

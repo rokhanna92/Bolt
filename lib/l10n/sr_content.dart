@@ -90,16 +90,14 @@ const kSrContent = <String, String>{
   'Chest, triceps, front shoulders': 'Grudi, triceps, prednja ramena',
   'Feet flat, shoulder blades squeezed back and down': 'Stopala ravno na podu, lopatice stisnute nazad i dole',
   'Grip just wider than shoulders, wrists stacked over elbows': 'Hvat malo širi od ramena, zglobovi iznad laktova',
-  'Lower the bar to the mid chest with elbows about 45° from the body':
-      'Spusti šipku na sredinu grudi sa laktovima oko 45° od tela',
+  'Lower the bar to the mid chest with elbows about 45° from the body': 'Spusti šipku na sredinu grudi sa laktovima oko 45° od tela',
   'Press up and slightly back toward the face': 'Potisni gore i malo unazad ka licu',
   'Bouncing the bar off the chest or flaring elbows to 90°': 'Odbijanje šipke od grudi ili širenje laktova na 90°',
   'Floor Press': 'Potisak sa poda',
   'Incline Bench Press': 'Kosi benč pres',
   'Upper chest, front shoulders, triceps': 'Gornje grudi, prednja ramena, triceps',
   'Bench at 30-45°, shoulder blades pinned': 'Klupa na 30-45°, lopatice priljubljene',
-  'Lower the bar to the upper chest, just below the collarbone':
-      'Spusti šipku na gornje grudi, odmah ispod ključne kosti',
+  'Lower the bar to the upper chest, just below the collarbone': 'Spusti šipku na gornje grudi, odmah ispod ključne kosti',
   'Elbows slightly tucked, forearms vertical': 'Laktovi malo uvučeni, podlaktice vertikalne',
   'Press straight up over the shoulders': 'Potisni pravo gore iznad ramena',
   'Lifting the hips off the bench to make it a flat press': 'Podizanje kukova sa klupe da bi postao ravan potisak',
@@ -107,8 +105,7 @@ const kSrContent = <String, String>{
   'Incline DB Press': 'Kosi potisak bučicama',
   'Upper chest, front shoulders': 'Gornje grudi, prednja ramena',
   'Bench at 30°, not steeper': 'Klupa na 30°, ne strmije',
-  'Dumbbells start at chest level, palms slightly turned in':
-      'Bučice kreću u visini grudi, dlanovi malo okrenuti ka unutra',
+  'Dumbbells start at chest level, palms slightly turned in': 'Bučice kreću u visini grudi, dlanovi malo okrenuti ka unutra',
   'Press up and slightly together without clanking them': 'Potisni gore i malo ka sredini, bez lupanja bučica',
   'Lower slowly until you feel a stretch in the chest': 'Spuštaj polako dok ne osetiš istezanje u grudima',
   'Setting the bench too high so the shoulders take over': 'Previsoko podignuta klupa, pa ramena preuzmu posao',
@@ -117,8 +114,7 @@ const kSrContent = <String, String>{
   'Shoulder blades back, slight arch, feet planted': 'Lopatice nazad, blagi luk, stopala čvrsto na podu',
   'Lower until the dumbbells are level with the chest': 'Spuštaj dok bučice ne budu u ravni sa grudima',
   'Press up in a slight arc so they meet over the chest': 'Potisni gore u blagom luku da se sretnu iznad grudi',
-  'Dropping the dumbbells to the floor from full lockout over the face':
-      'Bacanje bučica na pod iz ispruženih ruku iznad lica',
+  'Dropping the dumbbells to the floor from full lockout over the face': 'Bacanje bučica na pod iz ispruženih ruku iznad lica',
   'Push-up': 'Sklekovi',
   'Decline Bench Press': 'Benč pres na negativnoj klupi',
   'Lower chest, triceps': 'Donje grudi, triceps',
@@ -126,8 +122,7 @@ const kSrContent = <String, String>{
   'Unrack with straight arms over the shoulders': 'Skini šipku ispruženim rukama iznad ramena',
   'Lower to the lower chest under control': 'Spuštaj kontrolisano na donje grudi',
   'Press back up over the shoulders': 'Potisni nazad gore iznad ramena',
-  'Training it without a spotter: getting stuck head-down is dangerous':
-      'Rad bez čuvara: zaglaviti se glavom nadole je opasno',
+  'Training it without a spotter: getting stuck head-down is dangerous': 'Rad bez čuvara: zaglaviti se glavom nadole je opasno',
   'Chest Dip': 'Propadanja za grudi',
   'Lower chest, triceps, front shoulders': 'Donje grudi, triceps, prednja ramena',
   'Lean the torso forward about 30°': 'Nagni trup napred oko 30°',
@@ -175,19 +170,16 @@ const kSrContent = <String, String>{
   'Chest, lats, serratus': 'Grudi, latovi, serratus',
   'Upper back across a bench, hips low': 'Gornji deo leđa poprečno na klupi, kukovi nisko',
   'Hold one dumbbell over the chest, elbows slightly bent': 'Drži jednu bučicu iznad grudi, laktovi blago savijeni',
-  'Lower it back behind the head in an arc until you feel the stretch':
-      'Spuštaj je u luku iza glave dok ne osetiš istezanje',
+  'Lower it back behind the head in an arc until you feel the stretch': 'Spuštaj je u luku iza glave dok ne osetiš istezanje',
   'Pull it back over the chest': 'Vrati je iznad grudi',
   'Going so far back that the shoulders hurt': 'Odlazak toliko nazad da ramena bole',
   'Straight-arm Pulldown': 'Povlačenje opruženim rukama',
   'Deadlift': 'Mrtvo dizanje',
   'Hamstrings, glutes, back, grip': 'Zadnja loža, gluteus, leđa, stisak',
   'Bar over mid foot, shins almost touching it': 'Šipka iznad sredine stopala, potkolenice skoro je dodiruju',
-  'Hinge down, grip outside the knees, chest up, back flat':
-      'Pregni se u kukovima, hvat spolja od kolena, grudi gore, leđa ravna',
+  'Hinge down, grip outside the knees, chest up, back flat': 'Pregni se u kukovima, hvat spolja od kolena, grudi gore, leđa ravna',
   'Take the slack out of the bar, then push the floor away': 'Zategni šipku, pa odgurni pod',
-  'Stand tall with hips through, then hinge back down under control':
-      'Ispravi se sa kukovima napred, pa se kontrolisano vrati nadole',
+  'Stand tall with hips through, then hinge back down under control': 'Ispravi se sa kukovima napred, pa se kontrolisano vrati nadole',
   'Rounding the lower back or jerking the bar off the floor': 'Krivljenje donjeg dela leđa ili trzanje šipke sa poda',
   'Trap Bar Deadlift': 'Mrtvo dizanje trap šipkom',
   'Pull-up': 'Zgibovi',
@@ -227,8 +219,7 @@ const kSrContent = <String, String>{
   'Elbow close to the body': 'Lakat blizu tela',
   'Let it hang to a full stretch at the bottom': 'Pusti je da visi do punog istezanja na dnu',
   'Twisting the torso open to lift more': 'Uvrtanje trupa da bi se podiglo više',
-  'Thighs locked under the pads, grip a bit wider than shoulders':
-      'Butine zaključane ispod jastučića, hvat malo širi od ramena',
+  'Thighs locked under the pads, grip a bit wider than shoulders': 'Butine zaključane ispod jastučića, hvat malo širi od ramena',
   'Lean back slightly, chest up': 'Blago se zavali, grudi gore',
   'Pull the bar to the upper chest by driving elbows down': 'Povuci šipku do gornjih grudi vukući laktove nadole',
   'Let the arms straighten fully at the top': 'Pusti ruke da se potpuno isprave gore',
@@ -238,8 +229,7 @@ const kSrContent = <String, String>{
   'Sit tall, knees soft, chest up': 'Sedi uspravno, kolena blago savijena, grudi gore',
   'Pull the handle to the belly': 'Vuci ručku ka stomaku',
   'Squeeze the shoulder blades together': 'Stisni lopatice',
-  'Reach forward to stretch without rounding the lower back':
-      'Ispruži se napred za istezanje bez krivljenja donjih leđa',
+  'Reach forward to stretch without rounding the lower back': 'Ispruži se napred za istezanje bez krivljenja donjih leđa',
   'Rocking back and forth to move the weight': 'Ljuljanje napred-nazad da bi se pomerio teg',
   'Chest on an incline bench, feet planted': 'Grudi na kosoj klupi, stopala čvrsto na podu',
   'Arms hang straight under the shoulders': 'Ruke vise pravo ispod ramena',
@@ -282,14 +272,10 @@ const kSrContent = <String, String>{
   'Bird Dog': 'Bird dog (ptica-pas)',
   'Overhead Press': 'Vojnički potisak',
   'Shoulders, triceps, upper back': 'Ramena, triceps, gornja leđa',
-  'Bar on the front of the shoulders, grip just outside them':
-      'Šipka na prednjem delu ramena, hvat odmah spolja od njih',
-  'Squeeze glutes and brace the core so the lower back does not arch':
-      'Stegni gluteus i trbuh da se donji deo leđa ne izvija',
-  'Press straight up, moving the head back slightly to clear the bar':
-      'Potisni pravo gore, glavu malo pomeri nazad da šipka prođe',
-  'Finish with the bar over the middle of the foot, head through':
-      'Završi sa šipkom iznad sredine stopala, glava kroz ruke',
+  'Bar on the front of the shoulders, grip just outside them': 'Šipka na prednjem delu ramena, hvat odmah spolja od njih',
+  'Squeeze glutes and brace the core so the lower back does not arch': 'Stegni gluteus i trbuh da se donji deo leđa ne izvija',
+  'Press straight up, moving the head back slightly to clear the bar': 'Potisni pravo gore, glavu malo pomeri nazad da šipka prođe',
+  'Finish with the bar over the middle of the foot, head through': 'Završi sa šipkom iznad sredine stopala, glava kroz ruke',
   'Leaning back to turn it into an incline press': 'Zavaljivanje unazad pa postaje kosi potisak',
   'Landmine Press': 'Landmine potisak',
   'Seated DB Press': 'Potisak bučicama sedeći',
@@ -315,8 +301,7 @@ const kSrContent = <String, String>{
   'Push Press': 'Push press',
   'Shoulders, triceps, legs': 'Ramena, triceps, noge',
   'Front rack position, feet hip-width': 'Šipka na prednjem delu ramena, stopala u širini kukova',
-  'Dip a few centimetres by bending the knees, torso upright':
-      'Spusti se par centimetara savijanjem kolena, trup uspravan',
+  'Dip a few centimetres by bending the knees, torso upright': 'Spusti se par centimetara savijanjem kolena, trup uspravan',
   'Drive up hard with the legs and press the bar overhead': 'Snažno se odgurni nogama i potisni šipku iznad glave',
   'Lower to the shoulders, absorbing with the knees': 'Spusti na ramena, amortizuj kolenima',
   'Dipping too deep or letting the chest fall forward': 'Preduboko spuštanje ili padanje grudi napred',
@@ -369,8 +354,7 @@ const kSrContent = <String, String>{
   'Pull the bar up along the body leading with the elbows': 'Vuci šipku gore uz telo vodeći laktovima',
   'Stop when the elbows reach shoulder height': 'Stani kad laktovi dođu u visinu ramena',
   'Lower under control': 'Spuštaj kontrolisano',
-  'A narrow grip and pulling to the chin, which pinches the shoulder':
-      'Uzak hvat i vučenje do brade, što priklješti rame',
+  'A narrow grip and pulling to the chin, which pinches the shoulder': 'Uzak hvat i vučenje do brade, što priklješti rame',
   'Front Raise': 'Podizanje bučica napred',
   'Front shoulders': 'Prednja ramena',
   'Stand tall, dumbbells in front of the thighs': 'Stoj uspravno, bučice ispred butina',
@@ -596,8 +580,7 @@ const kSrContent = <String, String>{
   'Holding the breath until dizzy': 'Zadržavanje daha dok se ne zavrti u glavi',
   'Back Squat': 'Čučanj',
   'Quads, glutes, adductors': 'Kvadricepsi, gluteus, aduktori',
-  'Bar on upper back, feet shoulder-width, toes slightly out':
-      'Šipka na gornjim leđima, stopala u širini ramena, prsti malo ka spolja',
+  'Bar on upper back, feet shoulder-width, toes slightly out': 'Šipka na gornjim leđima, stopala u širini ramena, prsti malo ka spolja',
   'Brace the core hard before each rep': 'Jako učvrsti trbuh pre svakog ponavljanja',
   'Sit down between the hips, knees track over toes': 'Sedi između kukova, kolena prate prste',
   'Go as deep as you can with a flat back, then drive up': 'Idi što dublje možeš ravnih leđa, pa se odgurni gore',
@@ -638,8 +621,7 @@ const kSrContent = <String, String>{
   'Dropping onto the box and relaxing': 'Padanje na kutiju i opuštanje',
   'Bulgarian Split Squat': 'Bugarski čučanj',
   'Rear foot on a bench, front foot a long step ahead': 'Zadnja noga na klupi, prednja dug korak napred',
-  'Lower straight down until the back knee nearly touches':
-      'Spuštaj se pravo dole dok zadnje koleno skoro ne dodirne pod',
+  'Lower straight down until the back knee nearly touches': 'Spuštaj se pravo dole dok zadnje koleno skoro ne dodirne pod',
   'Front heel stays down': 'Prednja peta ostaje na podu',
   'Drive up through the front foot': 'Odgurni se prednjom nogom',
   'Front foot too close so the heel lifts': 'Prednja noga preblizu pa se peta diže',
@@ -685,8 +667,7 @@ const kSrContent = <String, String>{
   'Hamstrings, glutes, lower back': 'Zadnja loža, gluteus, donja leđa',
   'Bar on the upper back, soft knees': 'Šipka na gornjim leđima, kolena blago savijena',
   'Hinge forward pushing the hips back': 'Pregni se napred gurajući kukove nazad',
-  'Stop when the torso is near parallel or the back starts to round':
-      'Stani kad je trup skoro paralelan ili leđa počnu da se krive',
+  'Stop when the torso is near parallel or the back starts to round': 'Stani kad je trup skoro paralelan ili leđa počnu da se krive',
   'Drive the hips forward to stand': 'Gurni kukove napred da se ispraviš',
   'Going heavy before the hinge is solid': 'Teški tegovi pre nego što je pregib u kuku savladan',
   'Lying Leg Curl': 'Pregib nogu ležeći',
@@ -739,8 +720,7 @@ const kSrContent = <String, String>{
   'Front knee caving in': 'Prednje koleno upada ka unutra',
   'Kettlebell Swing': 'Kettlebell zamah',
   'Glutes, hamstrings, core': 'Gluteus, zadnja loža, kor',
-  'Hike the bell back between the legs like a football snap':
-      'Zabaci girju nazad između nogu kao kod centra u američkom fudbalu',
+  'Hike the bell back between the legs like a football snap': 'Zabaci girju nazad između nogu kao kod centra u američkom fudbalu',
   'Snap the hips forward to float it to chest height': 'Naglo gurni kukove napred da odleti do visine grudi',
   'Arms stay loose, the hips do the work': 'Ruke ostaju opuštene, posao rade kukovi',
   'Let it fall back and hinge again': 'Pusti je da padne nazad i ponovo se pregni',
@@ -783,8 +763,7 @@ const kSrContent = <String, String>{
   'Pause at the top and bottom': 'Zastani gore i dole',
   'Rushing through half reps': 'Žurenje kroz pola ponavljanja',
   'Donkey Calf Raise': 'Magareće podizanje na prste',
-  'Hinge forward with hands on a support, balls of the feet on a step':
-      'Pregni se napred sa rukama na osloncu, jastučići stopala na stepeniku',
+  'Hinge forward with hands on a support, balls of the feet on a step': 'Pregni se napred sa rukama na osloncu, jastučići stopala na stepeniku',
   'Legs almost straight': 'Noge skoro ispružene',
   'Drop the heels for a deep stretch': 'Spusti pete za duboko istezanje',
   'Rise high and squeeze': 'Podigni se visoko i stisni',
@@ -901,13 +880,11 @@ const kSrContent = <String, String>{
   'Long lunge, back knee down or up': 'Dug iskorak, zadnje koleno dole ili gore',
   'Same-side elbow down toward the instep': 'Lakat sa iste strane spusti ka unutrašnjoj strani stopala',
   'Rotate and reach that arm to the ceiling': 'Rotiraj se i ispruži tu ruku ka plafonu',
-  'Straighten the front leg to stretch the hamstring, then switch':
-      'Ispravi prednju nogu da istegneš zadnju ložu, pa promeni',
+  'Straighten the front leg to stretch the hamstring, then switch': 'Ispravi prednju nogu da istegneš zadnju ložu, pa promeni',
   'Holding the breath': 'Zadržavanje daha',
   '90/90 Hip Switch': '90/90 rotacija kukova',
   'Hip rotation': 'Rotacija kuka',
-  'Sit with both knees bent at 90°, one in front, one to the side':
-      'Sedi sa oba kolena savijena pod 90°, jedno napred, jedno u stranu',
+  'Sit with both knees bent at 90°, one in front, one to the side': 'Sedi sa oba kolena savijena pod 90°, jedno napred, jedno u stranu',
   'Rotate the knees to the other side': 'Prebaci kolena na drugu stranu',
   'Stay tall through the spine': 'Drži kičmu uspravno',
   'Use the hands for support at first': 'U početku se oslanjaj na ruke',
@@ -948,468 +925,290 @@ const kSrContent = <String, String>{
   'Traps': 'Trapezi',
   'Abs & core': 'Trbuh i kor',
   'Cardio': 'Kardio',
-  'Pectoralis major (upper/clavicular and lower/sternal fibres), pectoralis minor':
-      'Veliki grudni mišić (gornja/ključna i donja/grudna vlakna), mali grudni mišić',
-  'Pushes the arms forward and brings them across the body. Every press, push-up and dip uses it.':
-      'Gura ruke napred i privlači ih preko tela. Koristi ga svaki potisak, sklek i propadanje.',
-  'Keep shoulder blades pinned back and down so the chest, not the front shoulders, does the pressing.':
-      'Drži lopatice nazad i dole da potisak radi grudi, a ne prednja ramena.',
-  'Incline work (30°) biases the upper chest, flat and decline the lower fibres.':
-      'Kosa klupa (30°) naglašava gornje grudi, ravna i negativna donja vlakna.',
-  'Flyes and cable crossovers add stretch and squeeze that presses miss.':
-      'Razvlačenja i ukrštanja sajli dodaju istezanje i stezanje koje potisci propuštaju.',
+  'Pectoralis major (upper/clavicular and lower/sternal fibres), pectoralis minor': 'Veliki grudni mišić (gornja/ključna i donja/grudna vlakna), mali grudni mišić',
+  'Pushes the arms forward and brings them across the body. Every press, push-up and dip uses it.': 'Gura ruke napred i privlači ih preko tela. Koristi ga svaki potisak, sklek i propadanje.',
+  'Keep shoulder blades pinned back and down so the chest, not the front shoulders, does the pressing.': 'Drži lopatice nazad i dole da potisak radi grudi, a ne prednja ramena.',
+  'Incline work (30°) biases the upper chest, flat and decline the lower fibres.': 'Kosa klupa (30°) naglašava gornje grudi, ravna i negativna donja vlakna.',
+  'Flyes and cable crossovers add stretch and squeeze that presses miss.': 'Razvlačenja i ukrštanja sajli dodaju istezanje i stezanje koje potisci propuštaju.',
   '10-20 sets a week': '10-20 serija nedeljno',
-  'Lats, rhomboids, middle traps, teres major, spinal erectors':
-      'Latovi, romboidi, srednji trapezi, veliki obli mišić, opružači kičme',
-  'Pulls the arms down and back and keeps the spine upright. Width comes from the lats, thickness from rows.':
-      'Vuče ruke dole i nazad i drži kičmu uspravno. Širina dolazi od latova, debljina od veslanja.',
-  'Train both a vertical pull (pull-ups, pulldowns) for width and a horizontal pull (rows) for thickness.':
-      'Treniraj i vertikalno vučenje (zgibovi, povlačenja) za širinu i horizontalno (veslanja) za debljinu.',
-  'Start each pull by moving the shoulder blades, then drive the elbows. Think of the hands as hooks.':
-      'Svako vučenje počni pokretom lopatica, pa vuci laktovima. Zamisli da su šake kuke.',
-  'Use straps on heavy pulls when grip gives out before the back does.':
-      'Koristi trake na teškim vučenjima kad stisak popusti pre leđa.',
-  'Deltoids: front, side and rear heads, plus the rotator cuff underneath':
-      'Deltoidi: prednja, bočna i zadnja glava, plus rotatorna manžetna ispod',
-  'Lifts the arm in every direction. Side delts give width, rear delts keep the shoulder healthy and balanced.':
-      'Podiže ruku u svim pravcima. Bočna ramena daju širinu, zadnja drže rame zdravim i uravnoteženim.',
-  'Front delts already work hard on every press. Most people need more side and rear delt work, not more front.':
-      'Prednja ramena već jako rade na svakom potisku. Većini treba više rada za bočna i zadnja ramena, ne za prednja.',
-  'Lateral raises respond to higher reps (12-20) and strict control.':
-      'Bočna podizanja najbolje reaguju na više ponavljanja (12-20) i strogu kontrolu.',
-  'Face pulls and rear delt flyes balance out a lot of pressing.':
-      'Face pull i razvlačenja za zadnja ramena uravnotežuju mnogo potisaka.',
+  'Lats, rhomboids, middle traps, teres major, spinal erectors': 'Latovi, romboidi, srednji trapezi, veliki obli mišić, opružači kičme',
+  'Pulls the arms down and back and keeps the spine upright. Width comes from the lats, thickness from rows.': 'Vuče ruke dole i nazad i drži kičmu uspravno. Širina dolazi od latova, debljina od veslanja.',
+  'Train both a vertical pull (pull-ups, pulldowns) for width and a horizontal pull (rows) for thickness.': 'Treniraj i vertikalno vučenje (zgibovi, povlačenja) za širinu i horizontalno (veslanja) za debljinu.',
+  'Start each pull by moving the shoulder blades, then drive the elbows. Think of the hands as hooks.': 'Svako vučenje počni pokretom lopatica, pa vuci laktovima. Zamisli da su šake kuke.',
+  'Use straps on heavy pulls when grip gives out before the back does.': 'Koristi trake na teškim vučenjima kad stisak popusti pre leđa.',
+  'Deltoids: front, side and rear heads, plus the rotator cuff underneath': 'Deltoidi: prednja, bočna i zadnja glava, plus rotatorna manžetna ispod',
+  'Lifts the arm in every direction. Side delts give width, rear delts keep the shoulder healthy and balanced.': 'Podiže ruku u svim pravcima. Bočna ramena daju širinu, zadnja drže rame zdravim i uravnoteženim.',
+  'Front delts already work hard on every press. Most people need more side and rear delt work, not more front.': 'Prednja ramena već jako rade na svakom potisku. Većini treba više rada za bočna i zadnja ramena, ne za prednja.',
+  'Lateral raises respond to higher reps (12-20) and strict control.': 'Bočna podizanja najbolje reaguju na više ponavljanja (12-20) i strogu kontrolu.',
+  'Face pulls and rear delt flyes balance out a lot of pressing.': 'Face pull i razvlačenja za zadnja ramena uravnotežuju mnogo potisaka.',
   '8-16 sets a week for side and rear delts': '8-16 serija nedeljno za bočna i zadnja ramena',
-  'Biceps long and short heads, brachialis, brachioradialis':
-      'Duga i kratka glava bicepsa, brahijalis, brahioradijalis',
-  'Bends the elbow and turns the palm up. The brachialis under it adds arm thickness.':
-      'Savija lakat i okreće dlan gore. Brahijalis ispod njega dodaje debljinu ruke.',
-  'Hammer curls hit the brachialis and forearm, supinated curls the biceps peak.':
-      'Hammer pregibi pogađaju brahijalis i podlakticu, pregibi sa okrenutim dlanom vrh bicepsa.',
-  'Incline curls stretch the long head, preacher curls load the short head.':
-      'Kosi pregibi istežu dugu glavu, pregibi na Skotovoj klupi opterećuju kratku.',
-  'Rows and pull-ups already train the biceps, so a few direct sets go a long way.':
-      'Veslanja i zgibovi već treniraju biceps, pa je i nekoliko direktnih serija dovoljno.',
+  'Biceps long and short heads, brachialis, brachioradialis': 'Duga i kratka glava bicepsa, brahijalis, brahioradijalis',
+  'Bends the elbow and turns the palm up. The brachialis under it adds arm thickness.': 'Savija lakat i okreće dlan gore. Brahijalis ispod njega dodaje debljinu ruke.',
+  'Hammer curls hit the brachialis and forearm, supinated curls the biceps peak.': 'Hammer pregibi pogađaju brahijalis i podlakticu, pregibi sa okrenutim dlanom vrh bicepsa.',
+  'Incline curls stretch the long head, preacher curls load the short head.': 'Kosi pregibi istežu dugu glavu, pregibi na Skotovoj klupi opterećuju kratku.',
+  'Rows and pull-ups already train the biceps, so a few direct sets go a long way.': 'Veslanja i zgibovi već treniraju biceps, pa je i nekoliko direktnih serija dovoljno.',
   '6-14 direct sets a week': '6-14 direktnih serija nedeljno',
   'Long, lateral and medial heads': 'Duga, bočna i srednja glava',
-  'Straightens the elbow. It is about two thirds of upper arm size, so big arms need big triceps.':
-      'Opruža lakat. Čini oko dve trećine nadlaktice, pa velikim rukama treba veliki triceps.',
-  'The long head crosses the shoulder: overhead extensions stretch it best.':
-      'Duga glava prelazi preko ramena: ekstenzije iznad glave je najbolje istežu.',
-  'Close-grip bench and dips let you go heavy, pushdowns finish it off.':
-      'Benč uskim hvatom i propadanja dozvoljavaju teške tegove, potisci na sajli ga dovršavaju.',
-  'Keep elbows still. If they drift, the shoulders take over.':
-      'Drži laktove mirno. Ako lutaju, ramena preuzimaju posao.',
+  'Straightens the elbow. It is about two thirds of upper arm size, so big arms need big triceps.': 'Opruža lakat. Čini oko dve trećine nadlaktice, pa velikim rukama treba veliki triceps.',
+  'The long head crosses the shoulder: overhead extensions stretch it best.': 'Duga glava prelazi preko ramena: ekstenzije iznad glave je najbolje istežu.',
+  'Close-grip bench and dips let you go heavy, pushdowns finish it off.': 'Benč uskim hvatom i propadanja dozvoljavaju teške tegove, potisci na sajli ga dovršavaju.',
+  'Keep elbows still. If they drift, the shoulders take over.': 'Drži laktove mirno. Ako lutaju, ramena preuzimaju posao.',
   'Forearms': 'Podlaktice',
-  'Wrist flexors and extensors, brachioradialis, grip muscles':
-      'Pregibači i opružači šake, brahioradijalis, mišići stiska',
-  'Grips, bends and turns the wrist. Grip strength limits deadlifts, rows and carries.':
-      'Steže, savija i okreće šaku. Snaga stiska ograničava mrtvo dizanje, veslanja i nošenja.',
-  'Heavy carries and dead hangs build grip that transfers to every pull.':
-      'Teška nošenja i mrtvi visovi grade stisak koji pomaže u svakom vučenju.',
-  'Wrist curls and reverse curls add size, usually at the end of an arm day.':
-      'Pregibi šake i obrnuti pregibi dodaju masu, obično na kraju treninga ruku.',
-  'Skip straps on lighter sets to train grip on the way.':
-      'Na lakšim serijama preskoči trake da usput treniraš stisak.',
+  'Wrist flexors and extensors, brachioradialis, grip muscles': 'Pregibači i opružači šake, brahioradijalis, mišići stiska',
+  'Grips, bends and turns the wrist. Grip strength limits deadlifts, rows and carries.': 'Steže, savija i okreće šaku. Snaga stiska ograničava mrtvo dizanje, veslanja i nošenja.',
+  'Heavy carries and dead hangs build grip that transfers to every pull.': 'Teška nošenja i mrtvi visovi grade stisak koji pomaže u svakom vučenju.',
+  'Wrist curls and reverse curls add size, usually at the end of an arm day.': 'Pregibi šake i obrnuti pregibi dodaju masu, obično na kraju treninga ruku.',
+  'Skip straps on lighter sets to train grip on the way.': 'Na lakšim serijama preskoči trake da usput treniraš stisak.',
   '4-10 sets a week': '4-10 serija nedeljno',
   'Upper, middle and lower trapezius': 'Gornji, srednji i donji trapez',
-  'Shrugs, pulls the shoulder blades together and tilts them up for overhead work.':
-      'Podiže ramena, spaja lopatice i rotira ih nagore za rad iznad glave.',
-  'Shrugs train the upper traps, rows and face pulls the middle and lower.':
-      'Slegovi treniraju gornje trapeze, veslanja i face pull srednje i donje.',
-  'Deadlifts and carries build a lot of trap size on their own.':
-      'Mrtvo dizanje i nošenja sami grade dosta mase trapeza.',
+  'Shrugs, pulls the shoulder blades together and tilts them up for overhead work.': 'Podiže ramena, spaja lopatice i rotira ih nagore za rad iznad glave.',
+  'Shrugs train the upper traps, rows and face pulls the middle and lower.': 'Slegovi treniraju gornje trapeze, veslanja i face pull srednje i donje.',
+  'Deadlifts and carries build a lot of trap size on their own.': 'Mrtvo dizanje i nošenja sami grade dosta mase trapeza.',
   'Pause at the top of shrugs, do not roll the shoulders.': 'Zastani na vrhu slega, ne kruži ramenima.',
   '6-12 sets a week': '6-12 serija nedeljno',
   'Rectus abdominis, obliques, transverse abdominis': 'Pravi trbušni mišić, kosi mišići, poprečni trbušni mišić',
-  'Bends and twists the trunk and, more importantly, stops it bending when you lift heavy.':
-      'Savija i uvrće trup i, što je važnije, sprečava ga da se savija kad dižeš teško.',
-  'Train both moving (crunches, leg raises) and resisting movement (planks, pallof press).':
-      'Treniraj i pokret (krančevi, podizanja nogu) i otpor pokretu (plank, pallof potisak).',
-  'Abs grow like any muscle: add load or reps over time.':
-      'Trbušnjaci rastu kao svaki mišić: vremenom dodaj teg ili ponavljanja.',
-  'Visible abs come from low body fat, which is a diet job.':
-      'Vidljivi trbušnjaci dolaze od niskog procenta masti, a to je posao ishrane.',
-  'Rectus femoris, vastus lateralis, medialis and intermedius':
-      'Pravi butni mišić, spoljašnji, unutrašnji i srednji široki mišić',
-  'Straightens the knee. The biggest muscle group on the front of the body.':
-      'Opruža koleno. Najveća mišićna grupa na prednjoj strani tela.',
-  'Squats, leg press and lunges are the base; leg extensions isolate them.':
-      'Čučnjevi, nožna presa i iskoraci su osnova; opružanja na mašini ih izoluju.',
+  'Bends and twists the trunk and, more importantly, stops it bending when you lift heavy.': 'Savija i uvrće trup i, što je važnije, sprečava ga da se savija kad dižeš teško.',
+  'Train both moving (crunches, leg raises) and resisting movement (planks, pallof press).': 'Treniraj i pokret (krančevi, podizanja nogu) i otpor pokretu (plank, pallof potisak).',
+  'Abs grow like any muscle: add load or reps over time.': 'Trbušnjaci rastu kao svaki mišić: vremenom dodaj teg ili ponavljanja.',
+  'Visible abs come from low body fat, which is a diet job.': 'Vidljivi trbušnjaci dolaze od niskog procenta masti, a to je posao ishrane.',
+  'Rectus femoris, vastus lateralis, medialis and intermedius': 'Pravi butni mišić, spoljašnji, unutrašnji i srednji široki mišić',
+  'Straightens the knee. The biggest muscle group on the front of the body.': 'Opruža koleno. Najveća mišićna grupa na prednjoj strani tela.',
+  'Squats, leg press and lunges are the base; leg extensions isolate them.': 'Čučnjevi, nožna presa i iskoraci su osnova; opružanja na mašini ih izoluju.',
   'Deep knee bend under control grows quads best.': 'Duboko kontrolisano savijanje kolena najbolje gradi kvadricepse.',
-  'Heels raised or a narrower stance shifts more work to the quads.':
-      'Podignute pete ili uži stav prebacuju više posla na kvadricepse.',
+  'Heels raised or a narrower stance shifts more work to the quads.': 'Podignute pete ili uži stav prebacuju više posla na kvadricepse.',
   'Biceps femoris, semitendinosus, semimembranosus': 'Dvoglavi butni mišić, polutetivni, poluopnasti mišić',
-  'Bends the knee and extends the hip. Strong hamstrings protect the knees and power sprinting.':
-      'Savija koleno i opruža kuk. Jaka zadnja loža štiti kolena i daje snagu sprintu.',
-  'Train both jobs: a hip hinge (RDL, good morning) and a knee curl (leg curl).':
-      'Treniraj oba posla: pregib u kuku (rumunsko mrtvo, gud morning) i pregib kolena (pregib nogu).',
-  'Slow lowering on curls and RDLs builds strength that resists strains.':
-      'Sporo spuštanje na pregibima i rumunskom mrtvom gradi snagu koja štiti od istegnuća.',
-  'Nordic curls are hard but among the best hamstring injury-prevention exercises.':
-      'Nordijski pregibi su teški, ali među najboljim vežbama za prevenciju povreda zadnje lože.',
+  'Bends the knee and extends the hip. Strong hamstrings protect the knees and power sprinting.': 'Savija koleno i opruža kuk. Jaka zadnja loža štiti kolena i daje snagu sprintu.',
+  'Train both jobs: a hip hinge (RDL, good morning) and a knee curl (leg curl).': 'Treniraj oba posla: pregib u kuku (rumunsko mrtvo, gud morning) i pregib kolena (pregib nogu).',
+  'Slow lowering on curls and RDLs builds strength that resists strains.': 'Sporo spuštanje na pregibima i rumunskom mrtvom gradi snagu koja štiti od istegnuća.',
+  'Nordic curls are hard but among the best hamstring injury-prevention exercises.': 'Nordijski pregibi su teški, ali među najboljim vežbama za prevenciju povreda zadnje lože.',
   '8-16 sets a week': '8-16 serija nedeljno',
   'Gluteus maximus, medius and minimus': 'Veliki, srednji i mali gluteus',
-  'Extends and opens the hip. The largest muscle in the body and key for posture and power.':
-      'Opruža i otvara kuk. Najveći mišić u telu i ključ za držanje i snagu.',
-  'Hip thrusts and bridges load the glutes at full hip extension, squats and lunges at the stretch.':
-      'Potisci kukovima i mostovi opterećuju gluteus u punoj ekstenziji kuka, čučnjevi i iskoraci u istezanju.',
-  'Abduction work (band walks, cable kickouts) trains the glute medius that keeps knees stable.':
-      'Abdukcija (hod sa gumom, odvođenje na sajli) trenira srednji gluteus koji drži kolena stabilnim.',
+  'Extends and opens the hip. The largest muscle in the body and key for posture and power.': 'Opruža i otvara kuk. Najveći mišić u telu i ključ za držanje i snagu.',
+  'Hip thrusts and bridges load the glutes at full hip extension, squats and lunges at the stretch.': 'Potisci kukovima i mostovi opterećuju gluteus u punoj ekstenziji kuka, čučnjevi i iskoraci u istezanju.',
+  'Abduction work (band walks, cable kickouts) trains the glute medius that keeps knees stable.': 'Abdukcija (hod sa gumom, odvođenje na sajli) trenira srednji gluteus koji drži kolena stabilnim.',
   'Squeeze hard at the top of every hip extension.': 'Jako stisni na vrhu svakog opružanja kuka.',
   '8-20 sets a week': '8-20 serija nedeljno',
   'Gastrocnemius and soleus': 'Gastroknemius i soleus',
-  'Points the foot. Gastrocnemius works best with straight legs, the soleus with bent knees.':
-      'Ispruža stopalo. Gastroknemius najbolje radi sa ispruženim nogama, soleus sa savijenim kolenima.',
-  'Full stretch at the bottom and a pause matter more than weight.':
-      'Puno istezanje na dnu i pauza važniji su od težine.',
-  'Do standing (straight knee) and seated (bent knee) raises to hit both muscles.':
-      'Radi podizanja stojeći (opruženo koleno) i sedeći (savijeno koleno) da pogodiš oba mišića.',
+  'Points the foot. Gastrocnemius works best with straight legs, the soleus with bent knees.': 'Ispruža stopalo. Gastroknemius najbolje radi sa ispruženim nogama, soleus sa savijenim kolenima.',
+  'Full stretch at the bottom and a pause matter more than weight.': 'Puno istezanje na dnu i pauza važniji su od težine.',
+  'Do standing (straight knee) and seated (bent knee) raises to hit both muscles.': 'Radi podizanja stojeći (opruženo koleno) i sedeći (savijeno koleno) da pogodiš oba mišića.',
   'Calves recover fast and tolerate frequent training.': 'Listovi se brzo oporavljaju i podnose čest trening.',
   'Heart, lungs and the whole-body engine': 'Srce, pluća i motor celog tela',
-  'Moves oxygen to the muscles. A better engine means faster recovery between sets and better health.':
-      'Nosi kiseonik do mišića. Bolja kondicija znači brži oporavak između serija i bolje zdravlje.',
-  'Mix easy zone 2 work (you can still talk) with a little hard interval work.':
-      'Kombinuj lagani rad u zoni 2 (možeš da pričaš) sa malo teških intervala.',
-  'Low-impact options (bike, rower, sled) spare the joints on lifting weeks.':
-      'Opcije sa malim udarom (bicikl, veslanje, sanke) štede zglobove u nedeljama sa tegovima.',
-  'Do hard cardio after lifting or on separate days so strength work stays fresh.':
-      'Težak kardio radi posle tegova ili drugim danima da trening snage ostane svež.',
+  'Moves oxygen to the muscles. A better engine means faster recovery between sets and better health.': 'Nosi kiseonik do mišića. Bolja kondicija znači brži oporavak između serija i bolje zdravlje.',
+  'Mix easy zone 2 work (you can still talk) with a little hard interval work.': 'Kombinuj lagani rad u zoni 2 (možeš da pričaš) sa malo teških intervala.',
+  'Low-impact options (bike, rower, sled) spare the joints on lifting weeks.': 'Opcije sa malim udarom (bicikl, veslanje, sanke) štede zglobove u nedeljama sa tegovima.',
+  'Do hard cardio after lifting or on separate days so strength work stays fresh.': 'Težak kardio radi posle tegova ili drugim danima da trening snage ostane svež.',
   '150 easy minutes or 75 hard minutes a week': '150 laganih ili 75 teških minuta nedeljno',
-  'Groups every muscle that presses away from the body: chest, front shoulders and triceps.':
-      'Okuplja sve mišiće koji guraju od tela: grudi, prednja ramena i triceps.',
+  'Groups every muscle that presses away from the body: chest, front shoulders and triceps.': 'Okuplja sve mišiće koji guraju od tela: grudi, prednja ramena i triceps.',
   'Because the triceps and shoulders already work during bench and overhead press, training them on the same day avoids hitting them again when they are still recovering.': 'Pošto triceps i ramena već rade na benču i vojničkom potisku, trening istog dana sprečava da ih ponovo opteretiš dok se još oporavljaju.',
-  'Start with the heaviest compound press while fresh, then move to lighter isolation work.':
-      'Počni sa najtežim višezglobnim potiskom dok si svež, pa pređi na lakše izolacione vežbe.',
-  'Groups every muscle that pulls toward the body: lats, upper back, rear shoulders and biceps.':
-      'Okuplja sve mišiće koji vuku ka telu: latove, gornja leđa, zadnja ramena i biceps.',
+  'Start with the heaviest compound press while fresh, then move to lighter isolation work.': 'Počni sa najtežim višezglobnim potiskom dok si svež, pa pređi na lakše izolacione vežbe.',
+  'Groups every muscle that pulls toward the body: lats, upper back, rear shoulders and biceps.': 'Okuplja sve mišiće koji vuku ka telu: latove, gornja leđa, zadnja ramena i biceps.',
   'Rows and pull-ups already load the biceps and grip, so they get their direct work the same day and rest on push day.': 'Veslanja i zgibovi već opterećuju biceps i stisak, pa direktan rad dobijaju istog dana, a odmaraju na dan potiska.',
-  'Deadlift goes first because it is the most demanding lift and needs a fresh lower back.':
-      'Mrtvo dizanje ide prvo jer je najzahtevnije i traži odmoran donji deo leđa.',
-  'Trains quads, hamstrings, glutes and calves together, the biggest muscles in the body.':
-      'Trenira kvadricepse, zadnju ložu, gluteus i listove zajedno, najveće mišiće u telu.',
-  'Leg sessions are the most tiring, so they get their own day and at least 48 hours before being trained again.':
-      'Treninzi nogu su najnaporniji, pa dobijaju svoj dan i bar 48 sati pre sledećeg treninga.',
-  'A squat pattern and a hinge pattern every session keep the front and back of the legs balanced.':
-      'Čučanj i pregib u kuku na svakom treningu drže prednju i zadnju stranu nogu u ravnoteži.',
-  'Combines push and pull for the whole upper body in one session.':
-      'Spaja potisak i vučenje za ceo gornji deo tela u jednom treningu.',
-  'Lets each muscle be trained twice a week on a 4-day plan, which is a good frequency for growth.':
-      'Dozvoljava da se svaki mišić trenira dva puta nedeljno u planu od 4 dana, što je dobra učestalost za rast.',
-  'Pressing and pulling are paired so the shoulders stay balanced.':
-      'Potisci i vučenja su u paru pa ramena ostaju uravnotežena.',
-  'Hits every major muscle group in one session with one exercise each.':
-      'Pogađa svaku veliku mišićnu grupu u jednom treningu sa po jednom vežbom.',
-  'Best for beginners and people with 2-3 days a week: each muscle still gets trained 2-3 times weekly.':
-      'Najbolje za početnike i one sa 2-3 dana nedeljno: svaki mišić se ipak trenira 2-3 puta nedeljno.',
-  'Low volume per session means less soreness and quicker recovery.':
-      'Mali obim po treningu znači manje upale mišića i brži oporavak.',
-  'Builds heart and lung capacity and work capacity, not maximum strength.':
-      'Gradi kapacitet srca i pluća i radni kapacitet, a ne maksimalnu snagu.',
-  'A fitter engine means faster recovery between sets and between sessions.':
-      'Bolja kondicija znači brži oporavak između serija i između treninga.',
-  'Short hard intervals with rest give most of the benefit in under 40 minutes.':
-      'Kratki teški intervali sa odmorom daju najveći deo koristi za manje od 40 minuta.',
+  'Deadlift goes first because it is the most demanding lift and needs a fresh lower back.': 'Mrtvo dizanje ide prvo jer je najzahtevnije i traži odmoran donji deo leđa.',
+  'Trains quads, hamstrings, glutes and calves together, the biggest muscles in the body.': 'Trenira kvadricepse, zadnju ložu, gluteus i listove zajedno, najveće mišiće u telu.',
+  'Leg sessions are the most tiring, so they get their own day and at least 48 hours before being trained again.': 'Treninzi nogu su najnaporniji, pa dobijaju svoj dan i bar 48 sati pre sledećeg treninga.',
+  'A squat pattern and a hinge pattern every session keep the front and back of the legs balanced.': 'Čučanj i pregib u kuku na svakom treningu drže prednju i zadnju stranu nogu u ravnoteži.',
+  'Combines push and pull for the whole upper body in one session.': 'Spaja potisak i vučenje za ceo gornji deo tela u jednom treningu.',
+  'Lets each muscle be trained twice a week on a 4-day plan, which is a good frequency for growth.': 'Dozvoljava da se svaki mišić trenira dva puta nedeljno u planu od 4 dana, što je dobra učestalost za rast.',
+  'Pressing and pulling are paired so the shoulders stay balanced.': 'Potisci i vučenja su u paru pa ramena ostaju uravnotežena.',
+  'Hits every major muscle group in one session with one exercise each.': 'Pogađa svaku veliku mišićnu grupu u jednom treningu sa po jednom vežbom.',
+  'Best for beginners and people with 2-3 days a week: each muscle still gets trained 2-3 times weekly.': 'Najbolje za početnike i one sa 2-3 dana nedeljno: svaki mišić se ipak trenira 2-3 puta nedeljno.',
+  'Low volume per session means less soreness and quicker recovery.': 'Mali obim po treningu znači manje upale mišića i brži oporavak.',
+  'Builds heart and lung capacity and work capacity, not maximum strength.': 'Gradi kapacitet srca i pluća i radni kapacitet, a ne maksimalnu snagu.',
+  'A fitter engine means faster recovery between sets and between sessions.': 'Bolja kondicija znači brži oporavak između serija i između treninga.',
+  'Short hard intervals with rest give most of the benefit in under 40 minutes.': 'Kratki teški intervali sa odmorom daju najveći deo koristi za manje od 40 minuta.',
   'Improves range of motion in hips, spine and shoulders.': 'Poboljšava opseg pokreta u kukovima, kičmi i ramenima.',
   'Better mobility lets you reach correct positions in squats, presses and hinges, which lowers injury risk.': 'Bolja mobilnost ti dozvoljava pravilne položaje u čučnjevima, potiscima i pregibima, što smanjuje rizik od povreda.',
-  'Used on light days or after injury, it keeps you moving without adding fatigue.':
-      'Na lakim danima ili posle povrede drži te u pokretu bez dodatnog umora.',
-  'The old school pairing: chest presses already tire the triceps, so they get finished off the same day.':
-      'Old school par: potisci za grudi već zamaraju triceps, pa se on dovršava istog dana.',
+  'Used on light days or after injury, it keeps you moving without adding fatigue.': 'Na lakim danima ili posle povrede drži te u pokretu bez dodatnog umora.',
+  'The old school pairing: chest presses already tire the triceps, so they get finished off the same day.': 'Old school par: potisci za grudi već zamaraju triceps, pa se on dovršava istog dana.',
   'Heavy flat and incline pressing first, dips and flyes for stretch, then two triceps moves to fill the sleeves.': 'Prvo teški ravni i kosi potisci, propadanja i razvlačenja za istezanje, pa dve vežbe za triceps da napuniš rukave.',
-  'A full week before chest comes around again gives plenty of recovery for a high-volume session.':
-      'Cela nedelja do sledećih grudi daje dovoljno oporavka za trening velikog obima.',
-  'Shoulders and biceps on one day leaves chest and triceps fully rested from the day before.':
-      'Ramena i biceps istog dana ostavljaju grudi i triceps potpuno odmorne od prethodnog dana.',
-  'Overhead pressing first while fresh, then side and rear delts for width, then curls from three angles.':
-      'Prvo potisak iznad glave dok si svež, pa bočna i zadnja ramena za širinu, pa pregibi iz tri ugla.',
-  'A favourite of golden era lifters who wanted round delts and peaked arms.':
-      'Omiljen kod dizača zlatne ere koji su hteli okrugla ramena i bicepse sa vrhom.',
-  'A whole session for the back: deadlifts for thickness, pull-ups for width, rows for detail.':
-      'Ceo trening za leđa: mrtvo dizanje za debljinu, zgibovi za širinu, veslanja za detalje.',
-  'Giving the back its own day lets you go heavy on deadlifts without them ruining a leg day.':
-      'Kad leđa imaju svoj dan, možeš teško mrtvo dizanje a da ne upropastiš dan za noge.',
-  'Shrugs at the end build the traps that frame the back and neck.':
-      'Slegovi na kraju grade trapeze koji uokviruju leđa i vrat.',
-  'One muscle, all your energy: flat, incline and dips cover every part of the chest.':
-      'Jedan mišić, sva tvoja energija: ravna, kosa klupa i propadanja pokrivaju svaki deo grudi.',
-  'Flyes and pullovers add the deep stretch that presses alone miss.':
-      'Razvlačenja i puloveri dodaju duboko istezanje koje sami potisci propuštaju.',
+  'A full week before chest comes around again gives plenty of recovery for a high-volume session.': 'Cela nedelja do sledećih grudi daje dovoljno oporavka za trening velikog obima.',
+  'Shoulders and biceps on one day leaves chest and triceps fully rested from the day before.': 'Ramena i biceps istog dana ostavljaju grudi i triceps potpuno odmorne od prethodnog dana.',
+  'Overhead pressing first while fresh, then side and rear delts for width, then curls from three angles.': 'Prvo potisak iznad glave dok si svež, pa bočna i zadnja ramena za širinu, pa pregibi iz tri ugla.',
+  'A favourite of golden era lifters who wanted round delts and peaked arms.': 'Omiljen kod dizača zlatne ere koji su hteli okrugla ramena i bicepse sa vrhom.',
+  'A whole session for the back: deadlifts for thickness, pull-ups for width, rows for detail.': 'Ceo trening za leđa: mrtvo dizanje za debljinu, zgibovi za širinu, veslanja za detalje.',
+  'Giving the back its own day lets you go heavy on deadlifts without them ruining a leg day.': 'Kad leđa imaju svoj dan, možeš teško mrtvo dizanje a da ne upropastiš dan za noge.',
+  'Shrugs at the end build the traps that frame the back and neck.': 'Slegovi na kraju grade trapeze koji uokviruju leđa i vrat.',
+  'One muscle, all your energy: flat, incline and dips cover every part of the chest.': 'Jedan mišić, sva tvoja energija: ravna, kosa klupa i propadanja pokrivaju svaki deo grudi.',
+  'Flyes and pullovers add the deep stretch that presses alone miss.': 'Razvlačenja i puloveri dodaju duboko istezanje koje sami potisci propuštaju.',
   'Classic Monday session on a five-day bro split.': 'Klasičan ponedeljak u bro splitu od pet dana.',
-  'Presses for mass, lateral raises for width, rear delts and face pulls for balance and healthy shoulders.':
-      'Potisci za masu, bočna podizanja za širinu, zadnja ramena i face pull za ravnotežu i zdrava ramena.',
-  'Wide side delts make the waist look smaller: the V-taper every golden era physique chased.':
-      'Široka bočna ramena čine da struk izgleda uži: V oblik koji je jurila svaka figura zlatne ere.',
+  'Presses for mass, lateral raises for width, rear delts and face pulls for balance and healthy shoulders.': 'Potisci za masu, bočna podizanja za širinu, zadnja ramena i face pull za ravnotežu i zdrava ramena.',
+  'Wide side delts make the waist look smaller: the V-taper every golden era physique chased.': 'Široka bočna ramena čine da struk izgleda uži: V oblik koji je jurila svaka figura zlatne ere.',
   'Shrugs finish the session for the upper traps.': 'Slegovi završavaju trening za gornje trapeze.',
-  'Biceps and triceps alternate so one rests while the other works, which keeps the pump going.':
-      'Biceps i triceps se smenjuju pa jedan odmara dok drugi radi, što održava pumpu.',
-  'Heavy close-grip bench and barbell curls first, isolation and forearms after.':
-      'Prvo težak benč uskim hvatom i pregibi šipkom, posle izolacija i podlaktice.',
-  'Triceps are two thirds of the upper arm, so they get as much work as the biceps.':
-      'Triceps čini dve trećine nadlaktice, pa dobija koliko i biceps.',
-  'Every row and pull-up works the biceps, so finishing them the same day makes sense.':
-      'Svako veslanje i zgib rade biceps, pa ima smisla dovršiti ga istog dana.',
-  'Vertical pulls for width and horizontal rows for thickness, then two curl variations.':
-      'Vertikalna vučenja za širinu i horizontalna veslanja za debljinu, pa dve varijante pregiba.',
-  'Pairs with Chest & Triceps for the most common gym split in the world.':
-      'Uz Grudi i triceps čini najčešći split u teretanama sveta.',
-  'Arnold\'s pairing: chest and back are opposite muscles, so you can superset a press with a pull.':
-      'Arnoldov par: grudi i leđa su suprotni mišići, pa možeš da spojiš potisak i vučenje u superset.',
-  'While one muscle works the other rests, which saves time and builds a huge pump through the whole torso.':
-      'Dok jedan mišić radi, drugi odmara, što štedi vreme i pravi ogromnu pumpu kroz ceo trup.',
-  'Demanding, high-volume work. Eat and sleep well when you run it twice a week.':
-      'Zahtevan rad velikog obima. Dobro jedi i spavaj kad ga radiš dva puta nedeljno.',
-  'Arnold\'s second day: delts, biceps and triceps in one session, often supersetting curls with triceps work.':
-      'Arnoldov drugi dan: ramena, biceps i triceps u jednom treningu, često sa pregibima u supersetu sa tricepsom.',
-  'Arms get trained hard twice a week on the Arnold split, which is how the golden era built 20-inch arms.':
-      'Ruke se u Arnold splitu jako treniraju dva puta nedeljno, tako je zlatna era gradila ruke od 50 cm.',
-  'Keep strict form on the raises, save the heavy weight for presses and curls.':
-      'Na podizanjima drži strogu tehniku, teške tegove čuvaj za potiske i pregibe.',
-  'Mike Mentzer\'s Heavy Duty idea: one all-out set per exercise after a warm-up, taken to complete failure.':
-      'Heavy Duty ideja Majka Mencera: posle zagrevanja po jedna serija do kraja po vežbi, do potpunog otkaza.',
-  'Very short sessions, lots of recovery. Quality of effort beats number of sets.':
-      'Vrlo kratki treninzi, puno oporavka. Kvalitet napora pobeđuje broj serija.',
-  'Only works if every set really goes to failure with perfect form. Use a spotter on presses.':
-      'Radi samo ako svaka serija stvarno ide do otkaza sa savršenom tehnikom. Na potiscima koristi čuvara.',
-  'Hip thrusts load the glutes at full hip extension, RDLs and split squats at the stretch.':
-      'Potisci kukovima opterećuju gluteus u punoj ekstenziji kuka, rumunsko mrtvo i bugarski čučnjevi u istezanju.',
+  'Biceps and triceps alternate so one rests while the other works, which keeps the pump going.': 'Biceps i triceps se smenjuju pa jedan odmara dok drugi radi, što održava pumpu.',
+  'Heavy close-grip bench and barbell curls first, isolation and forearms after.': 'Prvo težak benč uskim hvatom i pregibi šipkom, posle izolacija i podlaktice.',
+  'Triceps are two thirds of the upper arm, so they get as much work as the biceps.': 'Triceps čini dve trećine nadlaktice, pa dobija koliko i biceps.',
+  'Every row and pull-up works the biceps, so finishing them the same day makes sense.': 'Svako veslanje i zgib rade biceps, pa ima smisla dovršiti ga istog dana.',
+  'Vertical pulls for width and horizontal rows for thickness, then two curl variations.': 'Vertikalna vučenja za širinu i horizontalna veslanja za debljinu, pa dve varijante pregiba.',
+  'Pairs with Chest & Triceps for the most common gym split in the world.': 'Uz Grudi i triceps čini najčešći split u teretanama sveta.',
+  'Arnold\'s pairing: chest and back are opposite muscles, so you can superset a press with a pull.': 'Arnoldov par: grudi i leđa su suprotni mišići, pa možeš da spojiš potisak i vučenje u superset.',
+  'While one muscle works the other rests, which saves time and builds a huge pump through the whole torso.': 'Dok jedan mišić radi, drugi odmara, što štedi vreme i pravi ogromnu pumpu kroz ceo trup.',
+  'Demanding, high-volume work. Eat and sleep well when you run it twice a week.': 'Zahtevan rad velikog obima. Dobro jedi i spavaj kad ga radiš dva puta nedeljno.',
+  'Arnold\'s second day: delts, biceps and triceps in one session, often supersetting curls with triceps work.': 'Arnoldov drugi dan: ramena, biceps i triceps u jednom treningu, često sa pregibima u supersetu sa tricepsom.',
+  'Arms get trained hard twice a week on the Arnold split, which is how the golden era built 20-inch arms.': 'Ruke se u Arnold splitu jako treniraju dva puta nedeljno, tako je zlatna era gradila ruke od 50 cm.',
+  'Keep strict form on the raises, save the heavy weight for presses and curls.': 'Na podizanjima drži strogu tehniku, teške tegove čuvaj za potiske i pregibe.',
+  'Mike Mentzer\'s Heavy Duty idea: one all-out set per exercise after a warm-up, taken to complete failure.': 'Heavy Duty ideja Majka Mencera: posle zagrevanja po jedna serija do kraja po vežbi, do potpunog otkaza.',
+  'Very short sessions, lots of recovery. Quality of effort beats number of sets.': 'Vrlo kratki treninzi, puno oporavka. Kvalitet napora pobeđuje broj serija.',
+  'Only works if every set really goes to failure with perfect form. Use a spotter on presses.': 'Radi samo ako svaka serija stvarno ide do otkaza sa savršenom tehnikom. Na potiscima koristi čuvara.',
+  'Hip thrusts load the glutes at full hip extension, RDLs and split squats at the stretch.': 'Potisci kukovima opterećuju gluteus u punoj ekstenziji kuka, rumunsko mrtvo i bugarski čučnjevi u istezanju.',
   'Hamstrings get both jobs: hip hinge and knee curl.': 'Zadnja loža radi oba posla: pregib u kuku i pregib kolena.',
-  'Abduction work trains the side glutes that keep knees and hips stable.':
-      'Abdukcija trenira bočni gluteus koji drži kolena i kukove stabilnim.',
-  'Covers all three jobs of the core: bending, resisting bending and resisting rotation.':
-      'Pokriva sva tri posla kora: savijanje, otpor savijanju i otpor rotaciji.',
-  'Short session you can add after any workout or on a rest day.':
-      'Kratak trening koji možeš dodati posle bilo kog treninga ili na dan odmora.',
-  'The stomach vacuum is a golden era trick for a tight, narrow waist.':
-      'Vakuum stomaka je trik zlatne ere za čvrst, uzak struk.',
-  'Five sets of five on the big lifts: heavy enough to build strength, enough reps to build muscle.':
-      'Pet serija po pet na velikim vežbama: dovoljno teško za snagu, dovoljno ponavljanja za mišiće.',
-  'Reg Park made 5×5 famous in the 1950s and Arnold trained it as a teenager.':
-      'Reg Park je proslavio 5×5 pedesetih, a Arnold ga je radio kao tinejdžer.',
-  'Add a little weight every session while all 25 reps are clean.':
-      'Dodaj malo tega svaki trening dok su svih 25 ponavljanja čista.',
-  'Alternates with Strength A so squats happen every session and the other lifts every other one.':
-      'Smenjuje se sa Snagom A pa je čučanj na svakom treningu, a ostale vežbe na svakom drugom.',
-  'One heavy deadlift set is enough after five sets of squats.':
-      'Jedna teška serija mrtvog dizanja je dovoljna posle pet serija čučnja.',
-  'Simple, measurable and brutally effective for beginners and returning lifters.':
-      'Jednostavno, merljivo i brutalno efikasno za početnike i one koji se vraćaju.',
-  'Bodyweight only: pull-ups, push-ups, dips and pistols build real strength and control.':
-      'Samo sopstvena težina: zgibovi, sklekovi, propadanja i pištolj čučnjevi grade pravu snagu i kontrolu.',
-  'Make it harder with slower reps, pauses, harder variations or a weight vest.':
-      'Otežaj sporijim ponavljanjima, pauzama, težim varijantama ili prslukom sa tegom.',
+  'Abduction work trains the side glutes that keep knees and hips stable.': 'Abdukcija trenira bočni gluteus koji drži kolena i kukove stabilnim.',
+  'Covers all three jobs of the core: bending, resisting bending and resisting rotation.': 'Pokriva sva tri posla kora: savijanje, otpor savijanju i otpor rotaciji.',
+  'Short session you can add after any workout or on a rest day.': 'Kratak trening koji možeš dodati posle bilo kog treninga ili na dan odmora.',
+  'The stomach vacuum is a golden era trick for a tight, narrow waist.': 'Vakuum stomaka je trik zlatne ere za čvrst, uzak struk.',
+  'Five sets of five on the big lifts: heavy enough to build strength, enough reps to build muscle.': 'Pet serija po pet na velikim vežbama: dovoljno teško za snagu, dovoljno ponavljanja za mišiće.',
+  'Reg Park made 5×5 famous in the 1950s and Arnold trained it as a teenager.': 'Reg Park je proslavio 5×5 pedesetih, a Arnold ga je radio kao tinejdžer.',
+  'Add a little weight every session while all 25 reps are clean.': 'Dodaj malo tega svaki trening dok su svih 25 ponavljanja čista.',
+  'Alternates with Strength A so squats happen every session and the other lifts every other one.': 'Smenjuje se sa Snagom A pa je čučanj na svakom treningu, a ostale vežbe na svakom drugom.',
+  'One heavy deadlift set is enough after five sets of squats.': 'Jedna teška serija mrtvog dizanja je dovoljna posle pet serija čučnja.',
+  'Simple, measurable and brutally effective for beginners and returning lifters.': 'Jednostavno, merljivo i brutalno efikasno za početnike i one koji se vraćaju.',
+  'Bodyweight only: pull-ups, push-ups, dips and pistols build real strength and control.': 'Samo sopstvena težina: zgibovi, sklekovi, propadanja i pištolj čučnjevi grade pravu snagu i kontrolu.',
+  'Make it harder with slower reps, pauses, harder variations or a weight vest.': 'Otežaj sporijim ponavljanjima, pauzama, težim varijantama ili prslukom sa tegom.',
   'Train anywhere: park, home or hotel.': 'Treniraj bilo gde: park, kuća ili hotel.',
   'Everything you need with two dumbbells and a bench or floor.': 'Sve što ti treba sa dve bučice i klupom ili podom.',
-  'Covers squat, hinge, push, pull and press in under an hour.':
-      'Pokriva čučanj, pregib u kuku, potisak, vučenje i potisak iznad glave za manje od sat vremena.',
-  'Raise reps or slow down the lowering when the dumbbells get too light.':
-      'Povećaj ponavljanja ili uspori spuštanje kad bučice postanu prelake.',
-  'Short, hard intervals that push heart rate up and burn a lot of energy in 30 minutes.':
-      'Kratki, teški intervali koji dižu puls i troše mnogo energije za 30 minuta.',
+  'Covers squat, hinge, push, pull and press in under an hour.': 'Pokriva čučanj, pregib u kuku, potisak, vučenje i potisak iznad glave za manje od sat vremena.',
+  'Raise reps or slow down the lowering when the dumbbells get too light.': 'Povećaj ponavljanja ili uspori spuštanje kad bučice postanu prelake.',
+  'Short, hard intervals that push heart rate up and burn a lot of energy in 30 minutes.': 'Kratki, teški intervali koji dižu puls i troše mnogo energije za 30 minuta.',
   'Builds conditioning without long boring cardio sessions.': 'Gradi kondiciju bez dugih dosadnih kardio treninga.',
-  'Keep it to 1-2 times a week so it does not eat into recovery for lifting.':
-      'Drži ga na 1-2 puta nedeljno da ne pojede oporavak za tegove.',
-  'Easy cardio where you can still talk. It builds the aerobic base that helps you recover between sets.':
-      'Lagan kardio uz koji možeš da pričaš. Gradi aerobnu bazu koja pomaže oporavku između serija.',
-  'Good for heart health, fat burning and a light day between heavy sessions.':
-      'Dobro za zdravlje srca, sagorevanje masti i lak dan između teških treninga.',
-  'Does not cut into strength gains the way hard cardio can.':
-      'Ne smanjuje napredak u snazi kao što to može težak kardio.',
+  'Keep it to 1-2 times a week so it does not eat into recovery for lifting.': 'Drži ga na 1-2 puta nedeljno da ne pojede oporavak za tegove.',
+  'Easy cardio where you can still talk. It builds the aerobic base that helps you recover between sets.': 'Lagan kardio uz koji možeš da pričaš. Gradi aerobnu bazu koja pomaže oporavku između serija.',
+  'Good for heart health, fat burning and a light day between heavy sessions.': 'Dobro za zdravlje srca, sagorevanje masti i lak dan između teških treninga.',
+  'Does not cut into strength gains the way hard cardio can.': 'Ne smanjuje napredak u snazi kao što to može težak kardio.',
   'Old School Split': 'Old school split',
   'Golden era bodybuilders of the 60s, 70s and 80s': 'Bodibilderi zlatne ere 60-ih, 70-ih i 80-ih',
   'Chest & Triceps, Biceps & Shoulders, Legs, Back. Every muscle gets one big, high-volume day a week: heavy basics first, then pump work until it is fully trained.': 'Grudi i triceps, biceps i ramena, noge, leđa. Svaki mišić dobija jedan veliki dan velikog obima nedeljno: prvo teške osnovne vežbe, pa rad na pumpi dok ne bude potpuno istreniran.',
-  'All your energy goes into one or two muscles, so you can push them harder than in a full body session.':
-      'Sva energija ide u jedan ili dva mišića, pa ih možeš jače pogurati nego na treningu celog tela.',
+  'All your energy goes into one or two muscles, so you can push them harder than in a full body session.': 'Sva energija ide u jedan ili dva mišića, pa ih možeš jače pogurati nego na treningu celog tela.',
   'A full week of recovery for each muscle.': 'Cela nedelja oporavka za svaki mišić.',
-  'Simple, fun and built around the pump and the mind-muscle connection.':
-      'Jednostavno, zabavno i izgrađeno oko pumpe i veze uma i mišića.',
-  'Miss one session and that muscle waits two weeks. Keep your attendance high.':
-      'Propustiš jedan trening i taj mišić čeka dve nedelje. Drži dolaske redovnim.',
+  'Simple, fun and built around the pump and the mind-muscle connection.': 'Jednostavno, zabavno i izgrađeno oko pumpe i veze uma i mišića.',
+  'Miss one session and that muscle waits two weeks. Keep your attendance high.': 'Propustiš jedan trening i taj mišić čeka dve nedelje. Drži dolaske redovnim.',
   'Arnold Split': 'Arnold split',
   'Arnold Schwarzenegger, 7× Mr. Olympia': 'Arnold Švarceneger, 7× Mr. Olimpija',
   'Chest & Back, Shoulders & Arms, Legs, then repeat: six days a week. Chest and back are often supersetted, a press straight into a pull.': 'Grudi i leđa, ramena i ruke, noge, pa ponovo: šest dana nedeljno. Grudi i leđa se često rade u supersetu, potisak pravo u vučenje.',
   'Every muscle trained twice a week with high volume.': 'Svaki mišić se trenira dva puta nedeljno uz veliki obim.',
-  'Supersetting opposite muscles saves time and makes a huge pump through the torso.':
-      'Superseti suprotnih mišića štede vreme i prave ogromnu pumpu kroz trup.',
-  'Arms get direct work twice a week, which is where the famous golden era arms came from.':
-      'Ruke dobijaju direktan rad dva puta nedeljno, odatle čuvene ruke zlatne ere.',
-  'Very demanding. It needs serious food, 8 hours of sleep and some experience.':
-      'Veoma zahtevno. Traži ozbiljnu ishranu, 8 sati sna i nešto iskustva.',
+  'Supersetting opposite muscles saves time and makes a huge pump through the torso.': 'Superseti suprotnih mišića štede vreme i prave ogromnu pumpu kroz trup.',
+  'Arms get direct work twice a week, which is where the famous golden era arms came from.': 'Ruke dobijaju direktan rad dva puta nedeljno, odatle čuvene ruke zlatne ere.',
+  'Very demanding. It needs serious food, 8 hours of sleep and some experience.': 'Veoma zahtevno. Traži ozbiljnu ishranu, 8 sati sna i nešto iskustva.',
   'Bro Split': 'Bro split',
-  'The classic magazine routine used by countless pro bodybuilders':
-      'Klasična rutina iz časopisa koju su koristili bezbrojni profesionalni bodibilderi',
-  'Chest, Back, Shoulders, Arms, Legs: one muscle group a day, five days a week.':
-      'Grudi, leđa, ramena, ruke, noge: jedna mišićna grupa dnevno, pet dana nedeljno.',
+  'The classic magazine routine used by countless pro bodybuilders': 'Klasična rutina iz časopisa koju su koristili bezbrojni profesionalni bodibilderi',
+  'Chest, Back, Shoulders, Arms, Legs: one muscle group a day, five days a week.': 'Grudi, leđa, ramena, ruke, noge: jedna mišićna grupa dnevno, pet dana nedeljno.',
   'Lots of exercises and angles for every muscle.': 'Mnogo vežbi i uglova za svaki mišić.',
-  'Each session is focused and short enough to go all out.':
-      'Svaki trening je fokusiran i dovoljno kratak da daš sve od sebe.',
+  'Each session is focused and short enough to go all out.': 'Svaki trening je fokusiran i dovoljno kratak da daš sve od sebe.',
   'Easy to follow and easy to adjust: just swap exercises.': 'Lako za praćenje i prilagođavanje: samo zameni vežbe.',
-  'Each muscle once a week. Make every set count and do not skip legs.':
-      'Svaki mišić jednom nedeljno. Neka se svaka serija računa i ne preskači noge.',
+  'Each muscle once a week. Make every set count and do not skip legs.': 'Svaki mišić jednom nedeljno. Neka se svaka serija računa i ne preskači noge.',
   'Back & Bi / Chest & Tri': 'Leđa i bi / Grudi i tri',
   'The most common gym pairing in the world': 'Najčešći par u teretanama sveta',
-  'Chest & Triceps, Back & Biceps, Shoulders, Legs over four days.':
-      'Grudi i triceps, leđa i biceps, ramena, noge kroz četiri dana.',
-  'Muscles that work together are trained together: presses tire the triceps, pulls tire the biceps.':
-      'Mišići koji rade zajedno treniraju se zajedno: potisci zamaraju triceps, vučenja biceps.',
+  'Chest & Triceps, Back & Biceps, Shoulders, Legs over four days.': 'Grudi i triceps, leđa i biceps, ramena, noge kroz četiri dana.',
+  'Muscles that work together are trained together: presses tire the triceps, pulls tire the biceps.': 'Mišići koji rade zajedno treniraju se zajedno: potisci zamaraju triceps, vučenja biceps.',
   'Small muscles get finished off when they are already warm.': 'Mali mišići se dovršavaju kad su već zagrejani.',
   'Four days fits most schedules.': 'Četiri dana se uklapa u većinu rasporeda.',
-  'Arms are already tired from the big lifts, so lower the weight on curls and extensions.':
-      'Ruke su već umorne od velikih vežbi, pa smanji težinu na pregibima i ekstenzijama.',
+  'Arms are already tired from the big lifts, so lower the weight on curls and extensions.': 'Ruke su već umorne od velikih vežbi, pa smanji težinu na pregibima i ekstenzijama.',
   'Heavy Duty (HIT)': 'Heavy Duty (HIT)',
   'Mike Mentzer (perfect 300 score at the 1978 Mr. Universe) and Dorian Yates, 6× Mr. Olympia, with his Blood & Guts version': 'Majk Mencer (savršenih 300 poena na Mr. Univerzumu 1978) i Dorijan Jejts, 6× Mr. Olimpija, sa svojom Blood & Guts verzijom',
   'After warm-up sets, one single all-out working set per exercise taken to total failure. Few exercises, short sessions, lots of rest days.': 'Posle serija zagrevanja, jedna jedina radna serija po vežbi do potpunog otkaza. Malo vežbi, kratki treninzi, mnogo dana odmora.',
-  'Maximum intensity, minimum time: sessions take 30-45 minutes.':
-      'Maksimalni intenzitet, minimum vremena: treninzi traju 30-45 minuta.',
-  'Lots of recovery suits busy people and lifters who recover slowly.':
-      'Mnogo oporavka odgovara zauzetim ljudima i onima koji se sporo oporavljaju.',
+  'Maximum intensity, minimum time: sessions take 30-45 minutes.': 'Maksimalni intenzitet, minimum vremena: treninzi traju 30-45 minuta.',
+  'Lots of recovery suits busy people and lifters who recover slowly.': 'Mnogo oporavka odgovara zauzetim ljudima i onima koji se sporo oporavljaju.',
   'Forces you to focus on perfect form and real effort.': 'Tera te da se fokusiraš na savršenu tehniku i pravi napor.',
-  'Only works if the set truly goes to failure. Use a spotter, and warm up properly before that one set.':
-      'Radi samo ako serija stvarno ide do otkaza. Koristi čuvara i dobro se zagrej pre te jedne serije.',
+  'Only works if the set truly goes to failure. Use a spotter, and warm up properly before that one set.': 'Radi samo ako serija stvarno ide do otkaza. Koristi čuvara i dobro se zagrej pre te jedne serije.',
   'Push / Pull / Legs': 'Push / Pull / Legs',
-  'The modern standard, run by everyone from beginners to pros':
-      'Moderni standard, koriste ga svi od početnika do profesionalaca',
-  'Pushing muscles one day, pulling the next, legs the third. Run it 3 days a week, or twice through for 6.':
-      'Mišići za potisak jednog dana, za vučenje sledećeg, noge trećeg. Radi ga 3 dana nedeljno ili dvaput za 6.',
+  'The modern standard, run by everyone from beginners to pros': 'Moderni standard, koriste ga svi od početnika do profesionalaca',
+  'Pushing muscles one day, pulling the next, legs the third. Run it 3 days a week, or twice through for 6.': 'Mišići za potisak jednog dana, za vučenje sledećeg, noge trećeg. Radi ga 3 dana nedeljno ili dvaput za 6.',
   'Muscles that work together rest together.': 'Mišići koji rade zajedno i odmaraju zajedno.',
   'Twice a week frequency on the 6-day version.': 'Dva puta nedeljno u verziji od 6 dana.',
-  'Easy to balance pushing and pulling for healthy shoulders.':
-      'Lako je uravnotežiti potisak i vučenje za zdrava ramena.',
+  'Easy to balance pushing and pulling for healthy shoulders.': 'Lako je uravnotežiti potisak i vučenje za zdrava ramena.',
   'Six days a week is a lot. Start with three if you are new.': 'Šest dana nedeljno je mnogo. Počni sa tri ako si nov.',
   'Upper / Lower': 'Gornji / Donji deo',
   'Strength athletes and busy lifters': 'Sportisti snage i zauzeti vežbači',
-  'Upper body and lower body on alternating days, four days a week.':
-      'Gornji i donji deo tela naizmenično, četiri dana nedeljno.',
+  'Upper body and lower body on alternating days, four days a week.': 'Gornji i donji deo tela naizmenično, četiri dana nedeljno.',
   'Every muscle twice a week.': 'Svaki mišić dva puta nedeljno.',
   'Good balance of heavy compound work and accessories.': 'Dobar balans teških višezglobnih i pomoćnih vežbi.',
   'Easy to fit around work: four days with rest between.': 'Lako se uklapa uz posao: četiri dana sa odmorom između.',
   'Upper days get long. Keep the accessories short.': 'Dani za gornji deo su dugi. Drži pomoćne vežbe kratkim.',
-  'Steve Reeves and the 1940s-50s pioneers, and most beginners today':
-      'Stiv Rivs i pioniri 40-ih i 50-ih, a danas većina početnika',
-  'The whole body in every session, three days a week, a few hard sets per muscle.':
-      'Celo telo na svakom treningu, tri dana nedeljno, nekoliko teških serija po mišiću.',
+  'Steve Reeves and the 1940s-50s pioneers, and most beginners today': 'Stiv Rivs i pioniri 40-ih i 50-ih, a danas većina početnika',
+  'The whole body in every session, three days a week, a few hard sets per muscle.': 'Celo telo na svakom treningu, tri dana nedeljno, nekoliko teških serija po mišiću.',
   'Every muscle three times a week.': 'Svaki mišić tri puta nedeljno.',
   'Missing a day costs little.': 'Propušten dan malo košta.',
   'Best way to learn the main lifts fast.': 'Najbolji način da brzo naučiš glavne vežbe.',
-  'Hard to give every muscle lots of volume. Keep the exercises few and the effort high.':
-      'Teško je dati svakom mišiću veliki obim. Drži malo vežbi i veliki napor.',
+  'Hard to give every muscle lots of volume. Keep the exercises few and the effort high.': 'Teško je dati svakom mišiću veliki obim. Drži malo vežbi i veliki napor.',
   '5×5 Strength': 'Snaga 5×5',
-  'Reg Park, 3× Mr. Universe and Arnold\'s idol, made it famous':
-      'Proslavio ga je Reg Park, 3× Mr. Univerzum i Arnoldov idol',
+  'Reg Park, 3× Mr. Universe and Arnold\'s idol, made it famous': 'Proslavio ga je Reg Park, 3× Mr. Univerzum i Arnoldov idol',
   'Squat every session plus bench and row, or overhead press and deadlift, for 5 sets of 5. Add weight every session.': 'Čučanj na svakom treningu plus benč i veslanje, ili vojnički potisak i mrtvo dizanje, 5 serija po 5. Dodaj teg svaki trening.',
   'Fast, measurable strength gains.': 'Brz, merljiv napredak u snazi.',
   'Builds a solid base of muscle on the big lifts.': 'Gradi čvrstu mišićnu bazu na velikim vežbama.',
   'Only three exercises a day: simple and quick.': 'Samo tri vežbe dnevno: jednostavno i brzo.',
-  'When you stall three sessions in a row, drop the weight 10% and build back up.':
-      'Kad zapneš tri treninga zaredom, smanji teg 10% i gradi ponovo.',
-  'Gymnasts, street workout athletes and anyone without a gym':
-      'Gimnastičari, street workout sportisti i svi bez teretane',
-  'Pull-ups, push-ups, dips, pistols and core work, made harder with slower tempo and tougher variations.':
-      'Zgibovi, sklekovi, propadanja, pištolj čučnjevi i rad na koru, otežani sporijim tempom i težim varijantama.',
+  'When you stall three sessions in a row, drop the weight 10% and build back up.': 'Kad zapneš tri treninga zaredom, smanji teg 10% i gradi ponovo.',
+  'Gymnasts, street workout athletes and anyone without a gym': 'Gimnastičari, street workout sportisti i svi bez teretane',
+  'Pull-ups, push-ups, dips, pistols and core work, made harder with slower tempo and tougher variations.': 'Zgibovi, sklekovi, propadanja, pištolj čučnjevi i rad na koru, otežani sporijim tempom i težim varijantama.',
   'Train anywhere, for free.': 'Treniraj bilo gde, besplatno.',
   'Builds relative strength and body control.': 'Gradi relativnu snagu i kontrolu tela.',
   'Joint-friendly when progressed slowly.': 'Prijateljski prema zglobovima kad se napreduje polako.',
-  'Legs need hard variations (pistols, jumps) or they get left behind.':
-      'Nogama trebaju teške varijante (pištolji, skokovi) ili zaostaju.',
+  'Legs need hard variations (pistols, jumps) or they get left behind.': 'Nogama trebaju teške varijante (pištolji, skokovi) ili zaostaju.',
   'Glute Focus': 'Fokus na gluteus',
-  'Physique and bikini competitors, and anyone who wants stronger hips':
-      'Takmičarke u physique i bikini kategoriji i svi koji žele jače kukove',
-  'Two glute-and-hamstring days a week, one upper day, one leg day.':
-      'Dva dana za gluteus i zadnju ložu nedeljno, jedan za gornji deo, jedan za noge.',
-  'Glutes recover fast and grow well with frequent, varied work.':
-      'Gluteus se brzo oporavlja i dobro raste uz čest i raznovrstan rad.',
+  'Physique and bikini competitors, and anyone who wants stronger hips': 'Takmičarke u physique i bikini kategoriji i svi koji žele jače kukove',
+  'Two glute-and-hamstring days a week, one upper day, one leg day.': 'Dva dana za gluteus i zadnju ložu nedeljno, jedan za gornji deo, jedan za noge.',
+  'Glutes recover fast and grow well with frequent, varied work.': 'Gluteus se brzo oporavlja i dobro raste uz čest i raznovrstan rad.',
   'Strong glutes help the lower back and knees.': 'Jak gluteus pomaže donjim leđima i kolenima.',
   'The upper day keeps the physique balanced.': 'Dan za gornji deo drži figuru u ravnoteži.',
   'Do not skip the upper day.': 'Ne preskači dan za gornji deo.',
-  'Hybrid athletes who want to look strong and run far':
-      'Hibridni sportisti koji žele da izgledaju snažno i trče daleko',
-  'Lifting on upper, lower and full body days, plus one easy zone 2 day and one HIIT day.':
-      'Tegovi kroz dane za gornji, donji deo i celo telo, plus jedan lagan dan u zoni 2 i jedan HIIT dan.',
+  'Hybrid athletes who want to look strong and run far': 'Hibridni sportisti koji žele da izgledaju snažno i trče daleko',
+  'Lifting on upper, lower and full body days, plus one easy zone 2 day and one HIIT day.': 'Tegovi kroz dane za gornji, donji deo i celo telo, plus jedan lagan dan u zoni 2 i jedan HIIT dan.',
   'Strength and engine at the same time.': 'Snaga i kondicija u isto vreme.',
   'Easy cardio helps you recover between sets and sessions.': 'Lagan kardio pomaže oporavku između serija i treninga.',
   'Great all-round health.': 'Odlično opšte zdravlje.',
-  'Keep the zone 2 really easy, or it will cut into your lifting.':
-      'Drži zonu 2 stvarno laganom, inače će smetati tegovima.',
+  'Keep the zone 2 really easy, or it will cut into your lifting.': 'Drži zonu 2 stvarno laganom, inače će smetati tegovima.',
   'Anyone training at home with a pair of dumbbells': 'Svi koji treniraju kod kuće sa parom bučica',
   'Full body dumbbell sessions plus one HIIT day.': 'Treninzi celog tela bučicama plus jedan HIIT dan.',
   'Minimal equipment, no commute.': 'Minimum opreme, bez putovanja.',
   'Unilateral work fixes left-right imbalances.': 'Rad jednom stranom ispravlja razlike između leve i desne strane.',
   'Works as a backup plan when you cannot get to the gym.': 'Radi kao rezervni plan kad ne možeš do teretane.',
-  'When the dumbbells get light, slow down, pause and add reps.':
-      'Kad bučice postanu lake, uspori, zastani i dodaj ponavljanja.',
+  'When the dumbbells get light, slow down, pause and add reps.': 'Kad bučice postanu lake, uspori, zastani i dodaj ponavljanja.',
   'Supersets': 'Superseti',
-  'Two exercises back to back with no rest, often for opposite muscles like chest and back.':
-      'Dve vežbe jedna za drugom bez odmora, često za suprotne mišiće kao grudi i leđa.',
-  'Saves time and builds a big pump. Arnold supersetted almost everything.':
-      'Štedi vreme i pravi veliku pumpu. Arnold je skoro sve radio u supersetu.',
+  'Two exercises back to back with no rest, often for opposite muscles like chest and back.': 'Dve vežbe jedna za drugom bez odmora, često za suprotne mišiće kao grudi i leđa.',
+  'Saves time and builds a big pump. Arnold supersetted almost everything.': 'Štedi vreme i pravi veliku pumpu. Arnold je skoro sve radio u supersetu.',
   'Drop sets': 'Drop setovi',
-  'At failure, drop the weight by 20-30% and keep going, once or twice.':
-      'Na otkazu smanji teg 20-30% i nastavi, jednom ili dvaput.',
-  'On the last set of an isolation exercise. Machines and dumbbells make it quick.':
-      'Na poslednjoj seriji izolacione vežbe. Mašine i bučice to ubrzavaju.',
+  'At failure, drop the weight by 20-30% and keep going, once or twice.': 'Na otkazu smanji teg 20-30% i nastavi, jednom ili dvaput.',
+  'On the last set of an isolation exercise. Machines and dumbbells make it quick.': 'Na poslednjoj seriji izolacione vežbe. Mašine i bučice to ubrzavaju.',
   'Rest-pause': 'Rest-pause',
-  'Go to failure, rest 10-20 seconds, then squeeze out a few more reps. Repeat once or twice.':
-      'Idi do otkaza, odmori 10-20 sekundi, pa iscedi još nekoliko ponavljanja. Ponovi jednom ili dvaput.',
-  'Gets more hard reps out of one set. A Heavy Duty favourite.':
-      'Izvlači više teških ponavljanja iz jedne serije. Omiljeno u Heavy Duty.',
+  'Go to failure, rest 10-20 seconds, then squeeze out a few more reps. Repeat once or twice.': 'Idi do otkaza, odmori 10-20 sekundi, pa iscedi još nekoliko ponavljanja. Ponovi jednom ili dvaput.',
+  'Gets more hard reps out of one set. A Heavy Duty favourite.': 'Izvlači više teških ponavljanja iz jedne serije. Omiljeno u Heavy Duty.',
   'Pre-exhaust': 'Predzamor',
-  'An isolation move right before a compound: flyes then bench, leg extensions then leg press.':
-      'Izolaciona vežba odmah pre višezglobne: razvlačenje pa benč, opružanje nogu pa nožna presa.',
-  'When the triceps or another helper muscle gives out before the target muscle.':
-      'Kad triceps ili drugi pomoćni mišić otkaže pre ciljanog mišića.',
+  'An isolation move right before a compound: flyes then bench, leg extensions then leg press.': 'Izolaciona vežba odmah pre višezglobne: razvlačenje pa benč, opružanje nogu pa nožna presa.',
+  'When the triceps or another helper muscle gives out before the target muscle.': 'Kad triceps ili drugi pomoćni mišić otkaže pre ciljanog mišića.',
   'Forced reps': 'Forsirana ponavljanja',
-  'A partner helps just enough to finish 1-3 reps past failure.':
-      'Partner pomaže tek toliko da završiš 1-3 ponavljanja posle otkaza.',
+  'A partner helps just enough to finish 1-3 reps past failure.': 'Partner pomaže tek toliko da završiš 1-3 ponavljanja posle otkaza.',
   'Sparingly, on the last set. Needs a good spotter.': 'Retko, na poslednjoj seriji. Treba dobar čuvar.',
   '21s': '21-ice',
-  '7 reps in the bottom half, 7 in the top half, 7 full reps, no rest.':
-      '7 ponavljanja u donjoj polovini, 7 u gornjoj, 7 punih, bez odmora.',
+  '7 reps in the bottom half, 7 in the top half, 7 full reps, no rest.': '7 ponavljanja u donjoj polovini, 7 u gornjoj, 7 punih, bez odmora.',
   'Classic for biceps curls. Brutal pump.': 'Klasika za pregibe bicepsa. Brutalna pumpa.',
   'Giant sets': 'Džinovski setovi',
   'Four or more exercises for one muscle back to back.': 'Četiri ili više vežbi za jedan mišić jedna za drugom.',
   'Old school finisher for a lagging muscle.': 'Old school završnica za mišić koji zaostaje.',
   'Cheat reps': 'Varanje u ponavljanjima',
-  'A little body English to get the weight past the sticking point, then a slow lowering.':
-      'Malo pomoći telom da teg prođe kritičnu tačku, pa sporo spuštanje.',
-  'Only on the last reps, only when you can control the negative. Arnold used them on curls.':
-      'Samo na poslednjim ponavljanjima i samo kad kontrolišeš spuštanje. Arnold ih je koristio na pregibima.',
+  'A little body English to get the weight past the sticking point, then a slow lowering.': 'Malo pomoći telom da teg prođe kritičnu tačku, pa sporo spuštanje.',
+  'Only on the last reps, only when you can control the negative. Arnold used them on curls.': 'Samo na poslednjim ponavljanjima i samo kad kontrolišeš spuštanje. Arnold ih je koristio na pregibima.',
   'Slow negatives': 'Spore negative',
   'Lower the weight over 3-5 seconds.': 'Spuštaj teg 3-5 sekundi.',
-  'Builds strength and muscle with less weight, and is easier on joints.':
-      'Gradi snagu i mišiće sa manje tega i štedi zglobove.',
+  'Builds strength and muscle with less weight, and is easier on joints.': 'Gradi snagu i mišiće sa manje tega i štedi zglobove.',
   'Peak contraction': 'Vršna kontrakcija',
   'Hold the squeezed position for 1-2 seconds every rep.': 'Zadrži stegnut položaj 1-2 sekunde svako ponavljanje.',
-  'Isolation work: curls, lateral raises, leg curls, calf raises.':
-      'Izolacione vežbe: pregibi, bočna podizanja, pregibi nogu, podizanja na prste.',
+  'Isolation work: curls, lateral raises, leg curls, calf raises.': 'Izolacione vežbe: pregibi, bočna podizanja, pregibi nogu, podizanja na prste.',
   'The best split is the one you show up for': 'Najbolji split je onaj na koji dolaziš',
-  'Bro split, old school, PPL or full body all build muscle when the effort is high and you keep coming back.':
-      'Bro split, old school, PPL ili celo telo, svi grade mišiće kad je napor veliki i kad dolaziš redovno.',
-  'Pick what you enjoy and what fits your week. Variety keeps training fun and fun keeps you consistent.':
-      'Izaberi šta voliš i šta ti se uklapa u nedelju. Raznovrsnost drži trening zabavnim, a zabava te drži redovnim.',
-  'Change exercises every few months to keep it fresh, but keep the main lifts long enough to see progress.':
-      'Menjaj vežbe na nekoliko meseci da bude sveže, ali glavne vežbe drži dovoljno dugo da vidiš napredak.',
+  'Bro split, old school, PPL or full body all build muscle when the effort is high and you keep coming back.': 'Bro split, old school, PPL ili celo telo, svi grade mišiće kad je napor veliki i kad dolaziš redovno.',
+  'Pick what you enjoy and what fits your week. Variety keeps training fun and fun keeps you consistent.': 'Izaberi šta voliš i šta ti se uklapa u nedelju. Raznovrsnost drži trening zabavnim, a zabava te drži redovnim.',
+  'Change exercises every few months to keep it fresh, but keep the main lifts long enough to see progress.': 'Menjaj vežbe na nekoliko meseci da bude sveže, ali glavne vežbe drži dovoljno dugo da vidiš napredak.',
   'Progressive overload': 'Progresivno opterećenje',
-  'Muscles grow when you ask them for a bit more than last time: more weight, more reps, or cleaner reps.':
-      'Mišići rastu kad od njih tražiš malo više nego prošli put: više tega, više ponavljanja ili čistija ponavljanja.',
+  'Muscles grow when you ask them for a bit more than last time: more weight, more reps, or cleaner reps.': 'Mišići rastu kad od njih tražiš malo više nego prošli put: više tega, više ponavljanja ili čistija ponavljanja.',
   'Write it down. Beat the logbook a little most weeks.': 'Zapisuj. Nadmaši dnevnik malo skoro svake nedelje.',
-  'When the top of the rep range is easy for all sets, add weight.':
-      'Kad je gornja granica ponavljanja laka u svim serijama, dodaj teg.',
+  'When the top of the rep range is easy for all sets, add weight.': 'Kad je gornja granica ponavljanja laka u svim serijama, dodaj teg.',
   'How hard to train': 'Koliko jako trenirati',
-  'Most working sets should end with 0-3 reps left in the tank.':
-      'Većina radnih serija treba da se završi sa 0-3 ponavljanja u rezervi.',
-  'Warm-up sets do not count. Easy sets far from failure build little.':
-      'Serije zagrevanja se ne računaju. Lake serije daleko od otkaza malo grade.',
-  'Go to full failure mainly on machines and isolation work, not heavy squats or deadlifts.':
-      'Do potpunog otkaza idi uglavnom na mašinama i izolacionim vežbama, ne na teškim čučnjevima i mrtvom dizanju.',
+  'Most working sets should end with 0-3 reps left in the tank.': 'Većina radnih serija treba da se završi sa 0-3 ponavljanja u rezervi.',
+  'Warm-up sets do not count. Easy sets far from failure build little.': 'Serije zagrevanja se ne računaju. Lake serije daleko od otkaza malo grade.',
+  'Go to full failure mainly on machines and isolation work, not heavy squats or deadlifts.': 'Do potpunog otkaza idi uglavnom na mašinama i izolacionim vežbama, ne na teškim čučnjevima i mrtvom dizanju.',
   'Sets and reps': 'Serije i ponavljanja',
   'Strength: 1-6 reps with heavier weight and longer rest.': 'Snaga: 1-6 ponavljanja sa težim tegom i dužim odmorom.',
-  'Muscle: anything from about 6 to 20 reps works if the sets are hard.':
-      'Mišići: bilo šta od oko 6 do 20 ponavljanja radi ako su serije teške.',
-  'Most people grow well on 10-20 hard sets per muscle per week.':
-      'Većina dobro raste na 10-20 teških serija po mišiću nedeljno.',
+  'Muscle: anything from about 6 to 20 reps works if the sets are hard.': 'Mišići: bilo šta od oko 6 do 20 ponavljanja radi ako su serije teške.',
+  'Most people grow well on 10-20 hard sets per muscle per week.': 'Većina dobro raste na 10-20 teških serija po mišiću nedeljno.',
   'Rest between sets': 'Odmor između serija',
-  '2-3 minutes on big compound lifts so you can lift heavy again.':
-      '2-3 minuta na velikim višezglobnim vežbama da možeš ponovo teško.',
+  '2-3 minutes on big compound lifts so you can lift heavy again.': '2-3 minuta na velikim višezglobnim vežbama da možeš ponovo teško.',
   '1-2 minutes on isolation work.': '1-2 minuta na izolacionim vežbama.',
   'Supersets and drop sets are the exception, on purpose.': 'Superseti i drop setovi su namerno izuzetak.',
   'Warm up properly': 'Zagrej se kako treba',
@@ -1419,79 +1218,58 @@ const kSrContent = <String, String>{
   'Mind-muscle connection': 'Veza uma i mišića',
   'Think about the muscle you are training and feel it contract. Old school lifters swore by it, and research backs it up for isolation work.': 'Misli na mišić koji treniraš i oseti kako se steže. Old school dizači su se kleli u to, a istraživanja to potvrđuju za izolacione vežbe.',
   'Slow down the lowering part and squeeze at the top.': 'Uspori spuštanje i stisni na vrhu.',
-  'Lighter weight with a great contraction beats heavy weight with sloppy form.':
-      'Lakši teg sa odličnom kontrakcijom pobeđuje težak teg sa lošom tehnikom.',
+  'Lighter weight with a great contraction beats heavy weight with sloppy form.': 'Lakši teg sa odličnom kontrakcijom pobeđuje težak teg sa lošom tehnikom.',
   'Recovery and sleep': 'Oporavak i san',
   'Muscles grow between sessions, not during them.': 'Mišići rastu između treninga, ne tokom njih.',
   '7-9 hours of sleep. Nothing you can buy beats it.': '7-9 sati sna. Ništa što možeš da kupiš ne pobeđuje to.',
-  'Sore is fine. Sharp pain in a joint is not: stop and flag it in Bolt.':
-      'Upala mišića je u redu. Oštar bol u zglobu nije: stani i označi ga u Boltu.',
+  'Sore is fine. Sharp pain in a joint is not: stop and flag it in Bolt.': 'Upala mišića je u redu. Oštar bol u zglobu nije: stani i označi ga u Boltu.',
   'Eat for your goal': 'Jedi za svoj cilj',
   'Protein: 1.6-2.2 g per kg of bodyweight every day.': 'Proteini: 1,6-2,2 g po kg telesne težine svaki dan.',
-  'To gain muscle, eat a little more than you burn (about 200-400 kcal over).':
-      'Za rast mišića jedi malo više nego što trošiš (oko 200-400 kcal više).',
-  'To lose fat, eat a little less (about 300-500 kcal under) and keep lifting heavy to keep muscle.':
-      'Za gubitak masti jedi malo manje (oko 300-500 kcal manje) i nastavi teško da dižeš da sačuvaš mišiće.',
+  'To gain muscle, eat a little more than you burn (about 200-400 kcal over).': 'Za rast mišića jedi malo više nego što trošiš (oko 200-400 kcal više).',
+  'To lose fat, eat a little less (about 300-500 kcal under) and keep lifting heavy to keep muscle.': 'Za gubitak masti jedi malo manje (oko 300-500 kcal manje) i nastavi teško da dižeš da sačuvaš mišiće.',
   'Deloads': 'Deload',
-  'Every 4-8 weeks, take an easier week: half the sets, lighter weight.':
-      'Na svakih 4-8 nedelja uzmi lakšu nedelju: upola manje serija, lakši teg.',
+  'Every 4-8 weeks, take an easier week: half the sets, lighter weight.': 'Na svakih 4-8 nedelja uzmi lakšu nedelju: upola manje serija, lakši teg.',
   'Comes back stronger, joints feel better.': 'Vraćaš se jači, zglobovi se osećaju bolje.',
-  'Also a good time to change exercises or try a new split.':
-      'Takođe dobro vreme da promeniš vežbe ili probaš novi split.',
+  'Also a good time to change exercises or try a new split.': 'Takođe dobro vreme da promeniš vežbe ili probaš novi split.',
   'Cardio and lifting': 'Kardio i tegovi',
-  'Some cardio helps recovery and health without hurting muscle gains.':
-      'Malo kardija pomaže oporavku i zdravlju bez štete po mišiće.',
+  'Some cardio helps recovery and health without hurting muscle gains.': 'Malo kardija pomaže oporavku i zdravlju bez štete po mišiće.',
   'Do hard cardio after lifting or on another day.': 'Težak kardio radi posle tegova ili drugog dana.',
-  'Easy walks count. 8,000-10,000 steps a day is a great base.':
-      'Lagane šetnje se računaju. 8.000-10.000 koraka dnevno je odlična osnova.',
+  'Easy walks count. 8,000-10,000 steps a day is a great base.': 'Lagane šetnje se računaju. 8.000-10.000 koraka dnevno je odlična osnova.',
   'Creatine monohydrate': 'Kreatin monohidrat',
   'STRONG EVIDENCE': 'JAKI DOKAZI',
   'The most researched supplement in sport. It refills the fast energy system used in short heavy efforts, which means a few more reps per set and more strength and muscle over time.': 'Najistraženiji suplement u sportu. Puni brzi energetski sistem koji se koristi u kratkim teškim naporima, što znači nekoliko ponavljanja više po seriji i vremenom više snage i mišića.',
-  '3-5 g every day, any time, with water or food. No loading phase needed. Keep taking it on rest days.':
-      '3-5 g svaki dan, bilo kad, sa vodom ili hranom. Faza punjenja nije potrebna. Uzimaj ga i danima odmora.',
+  '3-5 g every day, any time, with water or food. No loading phase needed. Keep taking it on rest days.': '3-5 g svaki dan, bilo kad, sa vodom ili hranom. Faza punjenja nije potrebna. Uzimaj ga i danima odmora.',
   'Some water weight gain in the first weeks is normal.': 'Malo vode na kilaži u prvim nedeljama je normalno.',
   'Protein powder': 'Protein u prahu',
-  'Not magic, just a convenient way to reach a daily protein target. Total protein is what builds muscle.':
-      'Nije magija, samo zgodan način da dostigneš dnevni unos proteina. Ukupni proteini grade mišiće.',
+  'Not magic, just a convenient way to reach a daily protein target. Total protein is what builds muscle.': 'Nije magija, samo zgodan način da dostigneš dnevni unos proteina. Ukupni proteini grade mišiće.',
   'Aim for 1.6-2.2 g of protein per kg of bodyweight per day in total. Use a 25-40 g scoop when food alone falls short, ideally spread over 3-5 meals.': 'Cilj je ukupno 1,6-2,2 g proteina po kg telesne težine dnevno. Koristi mericu od 25-40 g kad hrana nije dovoljna, najbolje raspoređeno u 3-5 obroka.',
-  'Whey for most people; pea or soy blends if dairy is a problem.':
-      'Whey za većinu; mešavine graška ili soje ako je mleko problem.',
+  'Whey for most people; pea or soy blends if dairy is a problem.': 'Whey za većinu; mešavine graška ili soje ako je mleko problem.',
   'Caffeine': 'Kofein',
-  'Improves focus, power and endurance, and makes hard sessions feel easier.':
-      'Poboljšava fokus, snagu i izdržljivost i čini da teški treninzi deluju lakše.',
-  '3 mg per kg of bodyweight about 30-60 minutes before training. Start lower to check tolerance.':
-      '3 mg po kg telesne težine oko 30-60 minuta pre treninga. Počni sa manje da proveriš toleranciju.',
-  'Avoid within 8 hours of sleep. Sleep matters more than any supplement.':
-      'Izbegavaj 8 sati pre spavanja. San je važniji od bilo kog suplementa.',
+  'Improves focus, power and endurance, and makes hard sessions feel easier.': 'Poboljšava fokus, snagu i izdržljivost i čini da teški treninzi deluju lakše.',
+  '3 mg per kg of bodyweight about 30-60 minutes before training. Start lower to check tolerance.': '3 mg po kg telesne težine oko 30-60 minuta pre treninga. Počni sa manje da proveriš toleranciju.',
+  'Avoid within 8 hours of sleep. Sleep matters more than any supplement.': 'Izbegavaj 8 sati pre spavanja. San je važniji od bilo kog suplementa.',
   'Vitamin D3': 'Vitamin D3',
   'IF LOW': 'AKO NEDOSTAJE',
-  'Supports bone, muscle and immune function. Many people are low in winter or with little sun.':
-      'Podržava kosti, mišiće i imunitet. Mnogima nedostaje zimi ili uz malo sunca.',
-  '1000-2000 IU per day with a meal that contains fat. Best to test blood levels first.':
-      '1000-2000 IU dnevno uz obrok koji sadrži masti. Najbolje je prvo proveriti nivo u krvi.',
+  'Supports bone, muscle and immune function. Many people are low in winter or with little sun.': 'Podržava kosti, mišiće i imunitet. Mnogima nedostaje zimi ili uz malo sunca.',
+  '1000-2000 IU per day with a meal that contains fat. Best to test blood levels first.': '1000-2000 IU dnevno uz obrok koji sadrži masti. Najbolje je prvo proveriti nivo u krvi.',
   'More is not better; very high doses can be harmful.': 'Više nije bolje; veoma visoke doze mogu da štete.',
   'Omega-3 (fish oil)': 'Omega-3 (riblje ulje)',
   'MODERATE': 'UMERENI DOKAZI',
-  'Supports heart health and may reduce joint soreness. Useful if you eat fish less than twice a week.':
-      'Podržava zdravlje srca i može smanjiti bol u zglobovima. Korisno ako jedeš ribu ređe od dva puta nedeljno.',
+  'Supports heart health and may reduce joint soreness. Useful if you eat fish less than twice a week.': 'Podržava zdravlje srca i može smanjiti bol u zglobovima. Korisno ako jedeš ribu ređe od dva puta nedeljno.',
   '1-2 g of combined EPA and DHA per day with food.': '1-2 g EPA i DHA zajedno dnevno uz hranu.',
-  'Check the EPA + DHA amount on the label, not the total oil.':
-      'Proveri količinu EPA + DHA na etiketi, ne ukupno ulje.',
+  'Check the EPA + DHA amount on the label, not the total oil.': 'Proveri količinu EPA + DHA na etiketi, ne ukupno ulje.',
   'Electrolytes': 'Elektroliti',
   'SITUATIONAL': 'PO POTREBI',
   'Replace sodium lost in sweat during long or hot sessions, helping performance and preventing cramps.': 'Nadoknađuju natrijum izgubljen znojenjem na dugim ili toplim treninzima, pomažu performansu i sprečavaju grčeve.',
-  'Add to water for sessions longer than an hour or when sweating heavily.':
-      'Dodaj u vodu za treninge duže od sat vremena ili kad se jako znojiš.',
+  'Add to water for sessions longer than an hour or when sweating heavily.': 'Dodaj u vodu za treninge duže od sat vremena ili kad se jako znojiš.',
   'Not needed for a normal one-hour session.': 'Nisu potrebni za običan trening od sat vremena.',
   'Beta-alanine': 'Beta-alanin',
   'Raises carnosine in muscle, which buffers the burn in hard efforts lasting about 1-4 minutes. Useful for high-rep sets, circuits and HIIT.': 'Podiže karnozin u mišićima, što ublažava pečenje u teškim naporima od oko 1-4 minuta. Korisno za serije sa mnogo ponavljanja, kružne treninge i HIIT.',
   '3.2-6.4 g per day split into doses of 0.8-1.6 g with meals. It works by building up over 4+ weeks, so timing around training does not matter.': '3,2-6,4 g dnevno podeljeno u doze od 0,8-1,6 g uz obroke. Deluje nakupljanjem tokom 4+ nedelje, pa vreme uzimanja oko treninga nije bitno.',
-  'The tingling skin feeling is harmless. Smaller split doses or slow-release versions reduce it.':
-      'Peckanje kože je bezopasno. Manje podeljene doze ili verzije sa sporim oslobađanjem ga smanjuju.',
+  'The tingling skin feeling is harmless. Smaller split doses or slow-release versions reduce it.': 'Peckanje kože je bezopasno. Manje podeljene doze ili verzije sa sporim oslobađanjem ga smanjuju.',
   'Sodium bicarbonate': 'Natrijum bikarbonat',
   'Baking soda buffers acid in the blood and helps repeated all-out efforts of 1-7 minutes, like rowing intervals or sprint circuits.': 'Soda bikarbona neutrališe kiselinu u krvi i pomaže ponovljenim maksimalnim naporima od 1-7 minuta, kao što su intervali na veslanju ili sprint krugovi.',
-  '0.2-0.3 g per kg of bodyweight 60-180 minutes before, with a carb-rich meal and plenty of water.':
-      '0,2-0,3 g po kg telesne težine 60-180 minuta pre, uz obrok bogat ugljenim hidratima i dosta vode.',
+  '0.2-0.3 g per kg of bodyweight 60-180 minutes before, with a carb-rich meal and plenty of water.': '0,2-0,3 g po kg telesne težine 60-180 minuta pre, uz obrok bogat ugljenim hidratima i dosta vode.',
   'Stomach upset is common. Try it on a training day, never first time before a competition. Avoid with high blood pressure or on a low-salt diet.': 'Stomačne tegobe su česte. Probaj ga na treningu, nikad prvi put pre takmičenja. Izbegavaj uz visok pritisak ili ishranu sa malo soli.',
   'Ashwagandha': 'Ašvaganda',
   'An Ayurvedic herb (an adaptogen). Studies on root extracts show lower stress and cortisol, better sleep and small gains in strength and recovery.': 'Ajurvedska biljka (adaptogen). Studije sa ekstraktom korena pokazuju manje stresa i kortizola, bolji san i mali napredak u snazi i oporavku.',
@@ -1499,112 +1277,78 @@ const kSrContent = <String, String>{
   'Avoid when pregnant, with thyroid or autoimmune conditions, or with sedatives. Rare cases of liver problems are reported: stop if you notice dark urine or yellow skin.': 'Izbegavaj u trudnoći, uz bolesti štitne žlezde ili autoimune bolesti i uz sedative. Zabeleženi su retki problemi sa jetrom: prestani ako primetiš tamnu mokraću ili žutu kožu.',
   'Guarana': 'Guarana',
   'A seed from the Amazon with roughly two to four times the caffeine of coffee beans by weight. The energy and focus boost is mostly that caffeine. Common in energy drinks and pre-workouts.': 'Seme iz Amazonije sa otprilike dva do četiri puta više kofeina od zrna kafe po težini. Podizanje energije i fokusa je uglavnom od tog kofeina. Često u energetskim pićima i pre-workout proizvodima.',
-  'Dose it by its caffeine content and count it toward the same 3 mg per kg limit as coffee, 30-60 minutes before training.':
-      'Doziraj je prema sadržaju kofeina i računaj u isti limit od 3 mg po kg kao kafu, 30-60 minuta pre treninga.',
+  'Dose it by its caffeine content and count it toward the same 3 mg per kg limit as coffee, 30-60 minutes before training.': 'Doziraj je prema sadržaju kofeina i računaj u isti limit od 3 mg po kg kao kafu, 30-60 minuta pre treninga.',
   'Easy to double up without noticing: coffee + guarana + pre-workout adds up fast. Same rule as caffeine: none within 8 hours of sleep.': 'Lako je nesvesno uzeti duplo: kafa + guarana + pre-workout se brzo saberu. Isto pravilo kao za kofein: ništa 8 sati pre spavanja.',
   'Citrulline malate': 'Citrulin malat',
-  'Raises nitric oxide, which widens blood vessels. It can mean a bigger pump and a few more reps on high-rep sets.':
-      'Podiže azot-monoksid, koji širi krvne sudove. Može da znači veću pumpu i par ponavljanja više u dugim serijama.',
-  '6-8 g of citrulline malate (or 3-5 g pure L-citrulline) 30-60 minutes before training.':
-      '6-8 g citrulin malata (ili 3-5 g čistog L-citrulina) 30-60 minuta pre treninga.',
-  'Research is mixed; some people feel a clear difference, others none.':
-      'Istraživanja su podeljena; neki osete jasnu razliku, drugi nikakvu.',
+  'Raises nitric oxide, which widens blood vessels. It can mean a bigger pump and a few more reps on high-rep sets.': 'Podiže azot-monoksid, koji širi krvne sudove. Može da znači veću pumpu i par ponavljanja više u dugim serijama.',
+  '6-8 g of citrulline malate (or 3-5 g pure L-citrulline) 30-60 minutes before training.': '6-8 g citrulin malata (ili 3-5 g čistog L-citrulina) 30-60 minuta pre treninga.',
+  'Research is mixed; some people feel a clear difference, others none.': 'Istraživanja su podeljena; neki osete jasnu razliku, drugi nikakvu.',
   'Beetroot juice (nitrate)': 'Sok od cvekle (nitrati)',
   'Dietary nitrate turns into nitric oxide and makes muscles use oxygen more efficiently. Best for endurance and repeated sprints.': 'Nitrati iz hrane prelaze u azot-monoksid i pomažu mišićima da efikasnije koriste kiseonik. Najbolje za izdržljivost i ponovljene sprintove.',
-  '300-600 mg of nitrate (about 500 ml of beet juice or one concentrated shot) 2-3 hours before.':
-      '300-600 mg nitrata (oko 500 ml soka od cvekle ili jedan koncentrovani šot) 2-3 sata pre.',
-  'Pink urine afterwards is harmless. Antibacterial mouthwash blocks the effect.':
-      'Ružičasta mokraća posle je bezopasna. Antibakterijska tečnost za ispiranje usta blokira efekat.',
+  '300-600 mg of nitrate (about 500 ml of beet juice or one concentrated shot) 2-3 hours before.': '300-600 mg nitrata (oko 500 ml soka od cvekle ili jedan koncentrovani šot) 2-3 sata pre.',
+  'Pink urine afterwards is harmless. Antibacterial mouthwash blocks the effect.': 'Ružičasta mokraća posle je bezopasna. Antibakterijska tečnost za ispiranje usta blokira efekat.',
   'L-theanine': 'L-teanin',
-  'An amino acid from tea that calms without making you sleepy. Paired with caffeine it gives smoother focus with fewer jitters.':
-      'Aminokiselina iz čaja koja smiruje bez pospanosti. Uz kofein daje mirniji fokus sa manje drhtanja.',
-  '100-200 mg together with your caffeine, roughly 2 parts theanine to 1 part caffeine.':
-      '100-200 mg zajedno sa kofeinom, otprilike 2 dela teanina na 1 deo kofeina.',
-  'Safe for most people. On its own it is relaxing rather than energising.':
-      'Bezbedan za većinu. Sam po sebi više opušta nego što daje energiju.',
+  'An amino acid from tea that calms without making you sleepy. Paired with caffeine it gives smoother focus with fewer jitters.': 'Aminokiselina iz čaja koja smiruje bez pospanosti. Uz kofein daje mirniji fokus sa manje drhtanja.',
+  '100-200 mg together with your caffeine, roughly 2 parts theanine to 1 part caffeine.': '100-200 mg zajedno sa kofeinom, otprilike 2 dela teanina na 1 deo kofeina.',
+  'Safe for most people. On its own it is relaxing rather than energising.': 'Bezbedan za većinu. Sam po sebi više opušta nego što daje energiju.',
   'Collagen + vitamin C': 'Kolagen + vitamin C',
   'EMERGING': 'NOVI DOKAZI',
   'Early research suggests gelatin or collagen with vitamin C before training helps the body build tendon and ligament collagen.': 'Rana istraživanja ukazuju da želatin ili kolagen sa vitaminom C pre treninga pomažu telu da gradi kolagen tetiva i ligamenata.',
-  '10-15 g of gelatin or collagen with about 50 mg of vitamin C, 30-60 minutes before training or rehab exercises.':
-      '10-15 g želatina ili kolagena sa oko 50 mg vitamina C, 30-60 minuta pre treninga ili vežbi rehabilitacije.',
-  'Not a muscle builder: it is a poor protein source. Think of it as joint and tendon support.':
-      'Ne gradi mišiće: loš je izvor proteina. Posmatraj ga kao podršku zglobovima i tetivama.',
+  '10-15 g of gelatin or collagen with about 50 mg of vitamin C, 30-60 minutes before training or rehab exercises.': '10-15 g želatina ili kolagena sa oko 50 mg vitamina C, 30-60 minuta pre treninga ili vežbi rehabilitacije.',
+  'Not a muscle builder: it is a poor protein source. Think of it as joint and tendon support.': 'Ne gradi mišiće: loš je izvor proteina. Posmatraj ga kao podršku zglobovima i tetivama.',
   'Magnesium': 'Magnezijum',
-  'Needed for muscle contraction, nerves and sleep. Many people fall short, especially if they sweat a lot.':
-      'Potreban za kontrakciju mišića, nerve i san. Mnogima nedostaje, naročito ako se mnogo znoje.',
-  '200-400 mg per day as glycinate or citrate, often in the evening.':
-      '200-400 mg dnevno kao glicinat ili citrat, često uveče.',
+  'Needed for muscle contraction, nerves and sleep. Many people fall short, especially if they sweat a lot.': 'Potreban za kontrakciju mišića, nerve i san. Mnogima nedostaje, naročito ako se mnogo znoje.',
+  '200-400 mg per day as glycinate or citrate, often in the evening.': '200-400 mg dnevno kao glicinat ili citrat, često uveče.',
   'Magnesium oxide is poorly absorbed. High doses loosen the stool. Check with a doctor if you have kidney disease.': 'Magnezijum oksid se slabo upija. Visoke doze razmekšavaju stolicu. Posavetuj se sa lekarom ako imaš bolest bubrega.',
   'Zinc': 'Cink',
   'Supports immunity, healing and hormones. It only helps testosterone if you are actually low, which can happen with heavy sweating or little meat.': 'Podržava imunitet, zarastanje i hormone. Pomaže testosteronu samo ako ti stvarno nedostaje, što se dešava uz jako znojenje ili malo mesa.',
   '10-25 mg per day with food.': '10-25 mg dnevno uz hranu.',
-  'Over 40 mg a day for long periods drains copper. Take it away from iron and calcium.':
-      'Preko 40 mg dnevno duže vreme iscrpljuje bakar. Uzimaj ga odvojeno od gvožđa i kalcijuma.',
+  'Over 40 mg a day for long periods drains copper. Take it away from iron and calcium.': 'Preko 40 mg dnevno duže vreme iscrpljuje bakar. Uzimaj ga odvojeno od gvožđa i kalcijuma.',
   'Iron': 'Gvožđe',
   'Carries oxygen in the blood. Low iron means tiredness and poor endurance. Common in women, vegetarians and endurance athletes.': 'Prenosi kiseonik u krvi. Nisko gvožđe znači umor i slabu izdržljivost. Često kod žena, vegetarijanaca i sportista izdržljivosti.',
-  'Only after a blood test shows you are low. Take with vitamin C, away from coffee, tea and calcium.':
-      'Samo kad analiza krvi pokaže da ti nedostaje. Uzimaj sa vitaminom C, odvojeno od kafe, čaja i kalcijuma.',
-  'Too much iron is toxic. Never supplement it just in case.':
-      'Previše gvožđa je toksično. Nikad ga ne uzimaj za svaki slučaj.',
+  'Only after a blood test shows you are low. Take with vitamin C, away from coffee, tea and calcium.': 'Samo kad analiza krvi pokaže da ti nedostaje. Uzimaj sa vitaminom C, odvojeno od kafe, čaja i kalcijuma.',
+  'Too much iron is toxic. Never supplement it just in case.': 'Previše gvožđa je toksično. Nikad ga ne uzimaj za svaki slučaj.',
   'Casein protein': 'Kazein protein',
-  'A slow-digesting milk protein that releases amino acids over several hours.':
-      'Mlečni protein koji se sporo vari i oslobađa aminokiseline tokom nekoliko sati.',
-  '30-40 g before bed if you struggle to reach your daily protein target.':
-      '30-40 g pre spavanja ako teško dostižeš dnevni unos proteina.',
-  'Total daily protein matters far more than which protein you take before bed.':
-      'Ukupni dnevni proteini su mnogo važniji od toga koji protein uzimaš pre spavanja.',
+  'A slow-digesting milk protein that releases amino acids over several hours.': 'Mlečni protein koji se sporo vari i oslobađa aminokiseline tokom nekoliko sati.',
+  '30-40 g before bed if you struggle to reach your daily protein target.': '30-40 g pre spavanja ako teško dostižeš dnevni unos proteina.',
+  'Total daily protein matters far more than which protein you take before bed.': 'Ukupni dnevni proteini su mnogo važniji od toga koji protein uzimaš pre spavanja.',
   'Essential amino acids (EAA)': 'Esencijalne aminokiseline (EAA)',
   'The amino acids your body cannot make. Useful when a full protein meal is not practical, or for plant-based diets low in leucine.': 'Aminokiseline koje telo ne može samo da napravi. Korisne kad pun proteinski obrok nije praktičan ili za biljnu ishranu siromašnu leucinom.',
   '10-15 g around training.': '10-15 g oko treninga.',
-  'If you already eat enough protein, they add little. Whey contains all of them.':
-      'Ako već unosiš dovoljno proteina, malo dodaju. Whey ih sadrži sve.',
+  'If you already eat enough protein, they add little. Whey contains all of them.': 'Ako već unosiš dovoljno proteina, malo dodaju. Whey ih sadrži sve.',
   'Pre-workout blends': 'Pre-workout mešavine',
-  'Mostly caffeine plus citrulline and beta-alanine. Can give a real energy and focus boost if the doses are right.':
-      'Uglavnom kofein plus citrulin i beta-alanin. Mogu stvarno da podignu energiju i fokus ako su doze dobre.',
+  'Mostly caffeine plus citrulline and beta-alanine. Can give a real energy and focus boost if the doses are right.': 'Uglavnom kofein plus citrulin i beta-alanin. Mogu stvarno da podignu energiju i fokus ako su doze dobre.',
   'Read the label: check the caffeine per scoop and avoid proprietary blends that hide the amounts. Start with half a scoop.': 'Čitaj etiketu: proveri kofein po merici i izbegavaj zaštićene mešavine koje kriju količine. Počni sa pola merice.',
-  'Count it toward your daily caffeine. Do not take it late in the day.':
-      'Računaj ga u dnevni kofein. Ne uzimaj ga kasno u toku dana.',
+  'Count it toward your daily caffeine. Do not take it late in the day.': 'Računaj ga u dnevni kofein. Ne uzimaj ga kasno u toku dana.',
   'Multivitamin': 'Multivitamin',
-  'Insurance for a diet that is low in fruit, vegetables or variety. It does not boost performance on its own.':
-      'Osiguranje za ishranu siromašnu voćem, povrćem ili raznovrsnošću. Sam ne poboljšava performanse.',
+  'Insurance for a diet that is low in fruit, vegetables or variety. It does not boost performance on its own.': 'Osiguranje za ishranu siromašnu voćem, povrćem ili raznovrsnošću. Sam ne poboljšava performanse.',
   'One a day with a meal.': 'Jedan dnevno uz obrok.',
   'Food first. Megadose formulas are not better.': 'Prvo hrana. Formule sa megadozama nisu bolje.',
   'Melatonin': 'Melatonin',
-  'A hormone that signals night time. Helps with jet lag and shift work, less so for everyday sleep.':
-      'Hormon koji signalizira noć. Pomaže kod džet-lega i rada u smenama, manje za svakodnevni san.',
+  'A hormone that signals night time. Helps with jet lag and shift work, less so for everyday sleep.': 'Hormon koji signalizira noć. Pomaže kod džet-lega i rada u smenama, manje za svakodnevni san.',
   '0.5-3 mg 30-60 minutes before bed, short term.': '0,5-3 mg 30-60 minuta pre spavanja, kratkoročno.',
-  'Prescription-only in some countries. Fix light, caffeine and screen habits first.':
-      'U nekim zemljama samo na recept. Prvo sredi navike sa svetlom, kofeinom i ekranima.',
+  'Prescription-only in some countries. Fix light, caffeine and screen habits first.': 'U nekim zemljama samo na recept. Prvo sredi navike sa svetlom, kofeinom i ekranima.',
   'Mass gainer': 'Gejner',
-  'A shake of carbs and protein for people who struggle to eat enough to gain weight.':
-      'Šejk od ugljenih hidrata i proteina za one koji teško pojedu dovoljno da dobiju na težini.',
-  'One serving between meals. A homemade one of oats, whey, milk and peanut butter works the same and costs less.':
-      'Jedna porcija između obroka. Domaći od ovsa, wheya, mleka i kikiriki putera radi isto i košta manje.',
-  'Many are mostly sugar. Only useful if you really cannot eat more food.':
-      'Mnogi su uglavnom šećer. Korisni samo ako stvarno ne možeš da pojedeš više hrane.',
+  'A shake of carbs and protein for people who struggle to eat enough to gain weight.': 'Šejk od ugljenih hidrata i proteina za one koji teško pojedu dovoljno da dobiju na težini.',
+  'One serving between meals. A homemade one of oats, whey, milk and peanut butter works the same and costs less.': 'Jedna porcija između obroka. Domaći od ovsa, wheya, mleka i kikiriki putera radi isto i košta manje.',
+  'Many are mostly sugar. Only useful if you really cannot eat more food.': 'Mnogi su uglavnom šećer. Korisni samo ako stvarno ne možeš da pojedeš više hrane.',
   'Electrolyte tablets with caffeine': 'Elektrolitske tablete sa kofeinom',
-  'Some electrolyte tablets add caffeine for long sessions in the heat.':
-      'Neke elektrolitske tablete dodaju kofein za duge treninge na vrućini.',
-  'Use during sessions longer than 90 minutes or in hot weather.':
-      'Koristi na treninzima dužim od 90 minuta ili po vrućem vremenu.',
-  'Count the caffeine. Plain electrolytes are enough for most sessions.':
-      'Računaj kofein. Obični elektroliti su dovoljni za većinu treninga.',
+  'Some electrolyte tablets add caffeine for long sessions in the heat.': 'Neke elektrolitske tablete dodaju kofein za duge treninge na vrućini.',
+  'Use during sessions longer than 90 minutes or in hot weather.': 'Koristi na treninzima dužim od 90 minuta ili po vrućem vremenu.',
+  'Count the caffeine. Plain electrolytes are enough for most sessions.': 'Računaj kofein. Obični elektroliti su dovoljni za većinu treninga.',
   'Taurine': 'Taurin',
   'WEAK': 'SLABI DOKAZI',
-  'An amino acid found in energy drinks. It may slightly help endurance and muscle function.':
-      'Aminokiselina iz energetskih pića. Može malo da pomogne izdržljivosti i radu mišića.',
+  'An amino acid found in energy drinks. It may slightly help endurance and muscle function.': 'Aminokiselina iz energetskih pića. Može malo da pomogne izdržljivosti i radu mišića.',
   '1-3 g per day.': '1-3 g dnevno.',
   'Very safe, the effects are just small.': 'Veoma bezbedan, samo su efekti mali.',
   'Rhodiola rosea': 'Rodiola roza',
-  'An adaptogen herb that may reduce mental fatigue during stressful periods.':
-      'Adaptogena biljka koja može smanjiti mentalni umor u stresnim periodima.',
+  'An adaptogen herb that may reduce mental fatigue during stressful periods.': 'Adaptogena biljka koja može smanjiti mentalni umor u stresnim periodima.',
   '200-600 mg of a standardised extract in the morning.': '200-600 mg standardizovanog ekstrakta ujutru.',
   'Can feel stimulating; avoid in the evening.': 'Može da deluje stimulativno; izbegavaj uveče.',
   'Tongkat ali': 'Tongkat ali',
   'A Southeast Asian herb. Small studies show modest improvements in testosterone and stress in men who are stressed or low.': 'Biljka iz jugoistočne Azije. Male studije pokazuju umeren pomak u testosteronu i stresu kod muškaraca pod stresom ili sa niskim nivoom.',
   '200-400 mg per day of a standardised extract.': '200-400 mg dnevno standardizovanog ekstrakta.',
-  'Product quality varies a lot; buy third-party tested. Not for under 18s.':
-      'Kvalitet proizvoda mnogo varira; kupuj nezavisno testirane. Nije za mlađe od 18.',
+  'Product quality varies a lot; buy third-party tested. Not for under 18s.': 'Kvalitet proizvoda mnogo varira; kupuj nezavisno testirane. Nije za mlađe od 18.',
   'Fenugreek': 'Piskavica',
   'A seed extract marketed for testosterone. Some small studies show a slight libido and strength benefit, but no clear hormone boost.': 'Ekstrakt semena koji se reklamira za testosteron. Neke male studije pokazuju blagu korist za libido i snagu, ali bez jasnog porasta hormona.',
   '500-600 mg of extract per day.': '500-600 mg ekstrakta dnevno.',
@@ -1612,52 +1356,41 @@ const kSrContent = <String, String>{
   'Shilajit': 'Šilajit',
   'A mineral resin from mountain rocks, rich in fulvic acid. Small studies suggest energy and testosterone benefits.': 'Mineralna smola sa planinskih stena, bogata fulvinskom kiselinom. Male studije ukazuju na korist za energiju i testosteron.',
   '250-500 mg per day of a purified product.': '250-500 mg dnevno prečišćenog proizvoda.',
-  'Raw or untested shilajit can contain heavy metals. Only buy lab-tested brands.':
-      'Sirov ili netestiran šilajit može da sadrži teške metale. Kupuj samo laboratorijski testirane brendove.',
+  'Raw or untested shilajit can contain heavy metals. Only buy lab-tested brands.': 'Sirov ili netestiran šilajit može da sadrži teške metale. Kupuj samo laboratorijski testirane brendove.',
   'Panax ginseng': 'Panaks ženšen',
   'A traditional root used for energy and mental focus.': 'Tradicionalni koren za energiju i mentalni fokus.',
   '200-400 mg of extract per day.': '200-400 mg ekstrakta dnevno.',
-  'Can interact with blood thinners and diabetes medication.':
-      'Može da reaguje sa lekovima za razređivanje krvi i lekovima za dijabetes.',
+  'Can interact with blood thinners and diabetes medication.': 'Može da reaguje sa lekovima za razređivanje krvi i lekovima za dijabetes.',
   'Maca': 'Maka',
-  'A Peruvian root used for libido and energy. It does not affect muscle or hormones in studies.':
-      'Peruanski koren za libido i energiju. U studijama ne utiče na mišiće ni hormone.',
+  'A Peruvian root used for libido and energy. It does not affect muscle or hormones in studies.': 'Peruanski koren za libido i energiju. U studijama ne utiče na mišiće ni hormone.',
   '1.5-3 g of powder per day.': '1,5-3 g praha dnevno.',
   'Harmless for most, just do not expect muscle gains.': 'Bezopasna za većinu, samo ne očekuj rast mišića.',
   'Cordyceps': 'Kordiceps',
   'A mushroom said to boost endurance. A few small studies show minor improvements in oxygen use.': 'Gljiva za koju se kaže da podiže izdržljivost. Nekoliko malih studija pokazuje mala poboljšanja u korišćenju kiseonika.',
   'Evidence is thin; quality varies.': 'Dokazi su slabi; kvalitet varira.',
   'Curcumin (turmeric)': 'Kurkumin (kurkuma)',
-  'The active part of turmeric. May reduce soreness and joint pain a little.':
-      'Aktivni sastojak kurkume. Može malo da smanji upalu mišića i bol u zglobovima.',
-  '500-1000 mg with black pepper extract (piperine), which helps absorption.':
-      '500-1000 mg sa ekstraktom crnog bibera (piperin), koji pomaže upijanju.',
-  'Interacts with blood thinners. Rare liver issues with high-absorption products.':
-      'Reaguje sa lekovima za razređivanje krvi. Retki problemi sa jetrom kod proizvoda sa visokim upijanjem.',
+  'The active part of turmeric. May reduce soreness and joint pain a little.': 'Aktivni sastojak kurkume. Može malo da smanji upalu mišića i bol u zglobovima.',
+  '500-1000 mg with black pepper extract (piperine), which helps absorption.': '500-1000 mg sa ekstraktom crnog bibera (piperin), koji pomaže upijanju.',
+  'Interacts with blood thinners. Rare liver issues with high-absorption products.': 'Reaguje sa lekovima za razređivanje krvi. Retki problemi sa jetrom kod proizvoda sa visokim upijanjem.',
   'HMB': 'HMB',
   'A breakdown product of leucine. May help beginners and older adults hold on to muscle, little effect in trained lifters.': 'Proizvod razgradnje leucina. Može pomoći početnicima i starijima da sačuvaju mišiće, mali efekat kod istreniranih.',
   '3 g per day.': '3 g dnevno.',
   'Spend the money on food and protein first.': 'Prvo potroši novac na hranu i proteine.',
   'BCAAs': 'BCAA',
-  'Three of the essential amino acids. If you eat enough protein, extra BCAAs do not build more muscle.':
-      'Tri esencijalne aminokiseline. Ako unosiš dovoljno proteina, dodatni BCAA ne grade više mišića.',
+  'Three of the essential amino acids. If you eat enough protein, extra BCAAs do not build more muscle.': 'Tri esencijalne aminokiseline. Ako unosiš dovoljno proteina, dodatni BCAA ne grade više mišića.',
   'Not needed. A scoop of whey contains plenty.': 'Nisu potrebni. Merica wheya sadrži dovoljno.',
   'Mostly marketing; they taste nice, that is about it.': 'Uglavnom marketing; imaju lep ukus, i to je otprilike sve.',
   'Glutamine': 'Glutamin',
-  'Popular for recovery, but studies in healthy lifters show no benefit for muscle or strength.':
-      'Popularan za oporavak, ali studije kod zdravih vežbača ne pokazuju korist za mišiće ni snagu.',
+  'Popular for recovery, but studies in healthy lifters show no benefit for muscle or strength.': 'Popularan za oporavak, ali studije kod zdravih vežbača ne pokazuju korist za mišiće ni snagu.',
   'Not needed for gym goals.': 'Nije potreban za ciljeve u teretani.',
   'Your body makes plenty of it.': 'Telo ga samo pravi dovoljno.',
   'Glucosamine': 'Glukozamin',
-  'Marketed for joints. Results for joint pain are mixed and mostly small.':
-      'Reklamira se za zglobove. Rezultati za bol u zglobovima su podeljeni i uglavnom mali.',
+  'Marketed for joints. Results for joint pain are mixed and mostly small.': 'Reklamira se za zglobove. Rezultati za bol u zglobovima su podeljeni i uglavnom mali.',
   '1500 mg per day if you want to try it for 3 months.': '1500 mg dnevno ako želiš da ga probaš 3 meseca.',
   'Shellfish allergy: check the source.': 'Alergija na školjke: proveri poreklo.',
   'Probiotics': 'Probiotici',
-  'Support gut bacteria. May help digestion and immunity in some people; no direct gym effect.':
-      'Podržavaju crevne bakterije. Kod nekih mogu pomoći varenju i imunitetu; nemaju direktan efekat u teretani.',
-  'Follow the product dose; yogurt, kefir and fermented food do a similar job.':
-      'Prati dozu sa proizvoda; jogurt, kefir i fermentisana hrana rade sličan posao.',
+  'Support gut bacteria. May help digestion and immunity in some people; no direct gym effect.': 'Podržavaju crevne bakterije. Kod nekih mogu pomoći varenju i imunitetu; nemaju direktan efekat u teretani.',
+  'Follow the product dose; yogurt, kefir and fermented food do a similar job.': 'Prati dozu sa proizvoda; jogurt, kefir i fermentisana hrana rade sličan posao.',
   'Benefits are strain-specific and vary between people.': 'Koristi zavise od soja i razlikuju se od osobe do osobe.',
   'Tribulus terrestris': 'Tribulus terrestris',
   'NO EVIDENCE': 'BEZ DOKAZA',
@@ -1845,16 +1578,13 @@ const kSrContent = <String, String>{
   'Finish every planned session in eight different weeks.': 'Završi svaki planirani trening u osam različitih nedelja.',
   '8 WEEKS': '8 NEDELJA',
   'Perfectionist': 'Perfekcionista',
-  'Finish every planned session in twelve different weeks.':
-      'Završi svaki planirani trening u dvanaest različitih nedelja.',
+  'Finish every planned session in twelve different weeks.': 'Završi svaki planirani trening u dvanaest različitih nedelja.',
   '12 WEEKS': '12 NEDELJA',
   'The Machine': 'Mašina',
-  'Finish every planned session in twenty-six different weeks.':
-      'Završi svaki planirani trening u dvadeset šest različitih nedelja.',
+  'Finish every planned session in twenty-six different weeks.': 'Završi svaki planirani trening u dvadeset šest različitih nedelja.',
   '26 WEEKS': '26 NEDELJA',
   'Immaculate': 'Bezgrešno',
-  'Finish every planned session in fifty-two different weeks.':
-      'Završi svaki planirani trening u pedeset dve različite nedelje.',
+  'Finish every planned session in fifty-two different weeks.': 'Završi svaki planirani trening u pedeset dve različite nedelje.',
   '52 WEEKS': '52 NEDELJE',
   'Every Last Set': 'Do poslednje serije',
   'Finish a workout with every set checked off.': 'Završi trening sa svakom štikliranom serijom.',
@@ -1885,16 +1615,14 @@ const kSrContent = <String, String>{
   'Encyclopedia': 'Enciklopedija',
   'Log 20 different workouts.': 'Upiši 20 različitih treninga.',
   'Architect': 'Arhitekta',
-  'Log a workout you built yourself, from muscles or your own template.':
-      'Upiši trening koji si sam složio, od mišića ili iz svog šablona.',
+  'Log a workout you built yourself, from muscles or your own template.': 'Upiši trening koji si sam složio, od mišića ili iz svog šablona.',
   'DIY': 'SVOJ',
   'Designer': 'Dizajner',
   'Log 5 workouts you built yourself.': 'Upiši 5 treninga koje si sam složio.',
   'Master Builder': 'Majstor graditelj',
   'Log 25 workouts you built yourself.': 'Upiši 25 treninga koje si sam složio.',
   'My Way': 'Na moj način',
-  'Log 50 workouts you built yourself. Science can wait.':
-      'Upiši 50 treninga koje si sam složio. Nauka može da sačeka.',
+  'Log 50 workouts you built yourself. Science can wait.': 'Upiši 50 treninga koje si sam složio. Nauka može da sačeka.',
   'First Pump': 'Prva pumpa',
   'Log a workout that trains chest.': 'Upiši trening koji trenira grudi.',
   'CHEST': 'GRUDI',
@@ -1999,6 +1727,5 @@ const kSrContent = <String, String>{
   'Hips': 'Kukovi',
   'Arm': 'Nadlaktica',
   'Thigh': 'Butina',
-  'Deload week: half the sets, about 10% lighter, stop 3 or more reps before failure.':
-      'Deload nedelja: upola manje serija, oko 10% lakše, stani 3 ili više ponavljanja pre otkaza.',
+  'Deload week: half the sets, about 10% lighter, stop 3 or more reps before failure.': 'Deload nedelja: upola manje serija, oko 10% lakše, stani 3 ili više ponavljanja pre otkaza.',
 };

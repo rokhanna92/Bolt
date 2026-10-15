@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/actions.dart';
+import '../../app/router.dart';
+import '../../app/tick.dart';
 import '../../core/format.dart';
 import '../../core/units.dart';
 import '../../data/bolt_store.dart';
@@ -28,6 +30,7 @@ import '../../widgets/fields.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/tap.dart';
 import '../plan/day_sheet.dart';
+import '../today/today_screen.dart' show clockText;
 
 class WorkoutScreen extends ConsumerStatefulWidget {
   const WorkoutScreen({super.key, required this.dayKey});
@@ -54,8 +57,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   }
 
   /// Rest after a set; [next] says what comes after it, on the lock screen.
-  void _startRest(String next) {
-    final secs = ref.read(boltProvider).settings.restSecs;
+  void _startRest(String next, int secs) {
     setState(() {
       _restTotal = secs;
       _restEnd = DateTime.now().add(Duration(seconds: secs));
@@ -106,9 +108,10 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   /// Ticks set [j] with the weight and reps last used in this workout, or
   /// the suggestion, or the plan. Rest starts unless the superset partner
   /// comes next.
-  void _tick(List<Exercise> ex, int i, int j, ActiveWorkout w, LiftHint? hint) {
+  void _tick(List<Exercise> ex, int i, int j, ActiveWorkout w, LiftHint? hint, double? pctKg) {
     final e = ex[i];
     final store = ref.read(boltProvider.notifier);
+    final st = ref.read(boltProvider).settings;
     if (w.isDone(e.id, j)) {
       showBoltSheet<void>(context, (_) => _SetSheet(e: e, set: j));
       return;
@@ -120,10 +123,10 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     store.logSet(
       e.id,
       j,
-      SetLog(kg: prev?.kg ?? hint?.nextKg ?? loadKg(e.load), reps: prev?.reps ?? targetReps(e.reps)),
+      SetLog(kg: prev?.kg ?? pctKg ?? hint?.nextKg ?? loadKg(e.load), reps: prev?.reps ?? targetReps(e.reps)),
     );
     final partnerNext = e.group != null && i + 1 < ex.length && ex[i + 1].group == e.group;
-    if (!partnerNext) _startRest(_nextAfter(ex, i, j, w));
+    if (!partnerNext) _startRest(_nextAfter(ex, i, j, w), restFor(e, auto: st.restAuto, fixed: st.restSecs));
   }
 
   void _finish() {
@@ -131,6 +134,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     _ticker?.cancel();
     _notify.clearRest();
     context.go('/today');
+    rootNavigatorKey.currentContext?.push('/summary/${widget.dayKey}');
     showUnlocks(unlocked);
   }
 
@@ -169,7 +173,8 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                   children: [
                     BackBox(onTap: () => context.pop()),
                     const SizedBox(width: 12),
-                    Kicker(tx('SESSION · {day}', {'day': fmtDay(widget.dayKey).toUpperCase()})),
+                    Expanded(child: Kicker(tx('SESSION · {day}', {'day': fmtDay(widget.dayKey).toUpperCase()}))),
+                    if (w.started != null) _Elapsed(started: w.started!),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -220,20 +225,21 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                   Builder(
                     builder: (context) {
                       final hint = hintFor(store.plan(t.id), s.ex[i], widget.dayKey);
+                      final pct = percentKg(t, store.plan(t.id), s.ex[i]);
                       final warm = warmupFor(s.ex) == s.ex[i]
-                          ? warmups(hint?.nextKg ?? loadKg(s.ex[i].load) ?? 0)
+                          ? warmups(pct ?? hint?.nextKg ?? loadKg(s.ex[i].load) ?? 0)
                           : const <SetLog>[];
                       return _ExerciseCard(
                         index: i,
                         e: s.ex[i],
                         trainee: t,
                         workout: w,
-                        load: store.unit(s.ex[i].load),
+                        load: loadText(t, store.plan(t.id), s.ex[i], metric: d.settings.kg),
                         metric: d.settings.kg,
                         hint: hint,
                         warmups: warm,
                         partner: s.ex[i].group != null && i > 0 && s.ex[i - 1].group == s.ex[i].group,
-                        onSet: (j) => _tick(s.ex, i, j, w, hint),
+                        onSet: (j) => _tick(s.ex, i, j, w, hint, pct),
                       );
                     },
                   ),
@@ -646,5 +652,18 @@ class _RestBar extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Time since the workout started, ticking.
+class _Elapsed extends ConsumerWidget {
+  const _Elapsed({required this.started});
+
+  final int started;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mins = (watchNow(ref).millisecondsSinceEpoch - started) / 60000;
+    return Text(clockText(mins), style: BoltText.m(14, weight: 700, color: BoltColors.neon));
   }
 }

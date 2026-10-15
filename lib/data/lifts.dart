@@ -4,6 +4,8 @@
 import 'dart:math' as math;
 
 import '../core/format.dart';
+import '../core/units.dart';
+import 'rules.dart' show unitLoad;
 import 'models/exercise.dart';
 import 'models/people.dart';
 import 'models/session.dart';
@@ -130,7 +132,7 @@ List<SetLog> warmups(double kg) {
 Exercise? warmupFor(List<Exercise> ex) {
   for (final e in ex) {
     if (kExerciseByName[e.name]?.compound ?? false) {
-      return loadKg(e.load) != null ? e : null;
+      return loadKg(e.load) != null || percentLoad(e.load) != null ? e : null;
     }
   }
   return null;
@@ -263,4 +265,49 @@ void toggleSuperset(List<Exercise> ex, int i) {
     }
   }
   normalizeGroups(ex);
+}
+
+/// Rest after a set of [e] in seconds: its own setting, else by type when
+/// [auto] (3 min for big lower-body and back lifts, 2 for other compounds,
+/// 75 s for isolation, 60 for cardio and mobility), else [fixed].
+int restFor(Exercise e, {required bool auto, required int fixed}) {
+  if (e.rest != null) return e.rest!;
+  final x = kExerciseByName[e.name];
+  if (!auto || x == null) return fixed;
+  if (x.muscle == 'cardio' || x.muscle == 'mobility') return 60;
+  if (x.compound && const {'quads', 'hamstrings', 'glutes', 'back'}.contains(x.muscle)) return 180;
+  return x.compound ? 120 : 75;
+}
+
+/// A percentage load like `80%` as a fraction, else null.
+double? percentLoad(String load) {
+  final m = RegExp(r'^(\d+(?:\.\d+)?)\s?%$').firstMatch(load.trim());
+  return m == null ? null : double.parse(m[1]!) / 100;
+}
+
+/// The one-rep max for [name]: set by hand, else the best estimated max
+/// from logged sets.
+double? maxFor(Trainee t, Map<String, Session> plan, String name) {
+  final set = t.maxes[name];
+  if (set != null) return set;
+  return liftHistory(
+    plan,
+    name,
+  ).map((d) => d.best).whereType<double>().fold<double?>(null, (a, b) => a == null || b > a ? b : a);
+}
+
+/// Kilograms for a percentage load, rounded to plates; null when the load
+/// is not a percentage or there is no max yet.
+double? percentKg(Trainee t, Map<String, Session> plan, Exercise e) {
+  final p = percentLoad(e.load);
+  final max = p == null ? null : maxFor(t, plan, e.name);
+  return max == null ? null : plates(max * p!);
+}
+
+/// A planned load for display: `80% · 76 kg` for percentages with a known
+/// max, otherwise the load in the chosen unit.
+String loadText(Trainee t, Map<String, Session> plan, Exercise e, {required bool metric}) {
+  if (percentLoad(e.load) == null) return unitLoad(e.load, kg: metric);
+  final kg = percentKg(t, plan, e);
+  return kg == null ? e.load : '${e.load} · ${fmtWeight(kg, metric: metric)}';
 }

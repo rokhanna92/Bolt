@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/format.dart';
 import '../data/bolt_store.dart';
+import '../data/lifts.dart';
 import '../data/models/exercise.dart';
 import '../data/models/people.dart';
 import '../data/rules.dart';
@@ -46,7 +47,9 @@ class ExerciseRows extends ConsumerWidget {
 
   Widget _row(BoltStore store, int i, Exercise e) {
     final f = isFlagged(trainee, e);
-    final load = e.load.isNotEmpty && e.load != '—' ? ' · ${store.unit(e.load)}' : '';
+    final t = trainee;
+    final shown = t == null ? store.unit(e.load) : loadText(t, store.plan(t.id), e, metric: store.metric);
+    final load = e.load.isNotEmpty && e.load != '—' ? ' · $shown' : '';
     return Container(
       padding: EdgeInsets.symmetric(vertical: compact ? 9 : 10),
       decoration: const BoxDecoration(

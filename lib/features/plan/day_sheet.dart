@@ -112,6 +112,18 @@ class DaySheet extends ConsumerWidget {
             tx('Logged · {log}', {'log': logText(s.log)}),
             style: BoltText.a(14, weight: 700, color: BoltColors.neon),
           ),
+          if (s.ex.any((e) => e.logged.isNotEmpty)) ...[
+            const SizedBox(height: 10),
+            NeonButton(
+              label: tx('Workout summary'),
+              height: 48,
+              scale: 1,
+              onTap: () {
+                close();
+                rootNavigatorKey.currentContext!.push('/summary/$dayKey');
+              },
+            ),
+          ],
           if (fillIn) ...[
             const SizedBox(height: 10),
             OutlineButton(
