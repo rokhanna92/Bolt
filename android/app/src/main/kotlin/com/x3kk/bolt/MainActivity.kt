@@ -1,5 +1,6 @@
 package com.x3kk.bolt
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -17,10 +18,15 @@ import java.io.File
  *
  * Also "bolt/shortcuts": the app icon's long-press shortcuts arrive as a
  * "shortcut" extra, at launch ("initial") or while running ("open").
+ *
+ * And "bolt/backup": Android's own pickers to save a backup file anywhere
+ * ("save") and to pick one to restore ("open"). Null means cancelled.
  */
 class MainActivity : FlutterActivity() {
 
     private var shortcuts: MethodChannel? = null
+    private var pending: MethodChannel.Result? = null
+    private var pendingText: String? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -31,6 +37,37 @@ class MainActivity : FlutterActivity() {
                     "background" -> result.success(moveTaskToBack(true))
                     else -> result.notImplemented()
                 }
+            }
+        }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/backup").setMethodCallHandler { call, result ->
+            if (pending != null) {
+                result.error("busy", "a picker is already open", null)
+                return@setMethodCallHandler
+            }
+            when (call.method) {
+                "save" -> {
+                    pending = result
+                    pendingText = call.argument<String>("text")
+                    startActivityForResult(
+                        Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "application/json"
+                            putExtra(Intent.EXTRA_TITLE, call.argument<String>("name"))
+                        },
+                        SAVE,
+                    )
+                }
+                "open" -> {
+                    pending = result
+                    startActivityForResult(
+                        Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "*/*"
+                        },
+                        OPEN,
+                    )
+                }
+                else -> result.notImplemented()
             }
         }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/updates")
@@ -46,6 +83,31 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    @Deprecated("Picker results")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != SAVE && requestCode != OPEN) return
+        val result = pending ?: return
+        val text = pendingText
+        pending = null
+        pendingText = null
+        val uri = data?.data
+        if (resultCode != Activity.RESULT_OK || uri == null) {
+            result.success(null)
+            return
+        }
+        try {
+            if (requestCode == SAVE) {
+                contentResolver.openOutputStream(uri, "wt")?.use { it.write((text ?: "").toByteArray()) }
+                result.success(true)
+            } else {
+                result.success(contentResolver.openInputStream(uri)?.use { String(it.readBytes()) })
+            }
+        } catch (e: Exception) {
+            result.error("io", e.message, null)
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -90,5 +152,10 @@ class MainActivity : FlutterActivity() {
         }
     } catch (e: Exception) {
         false
+    }
+
+    companion object {
+        private const val SAVE = 41
+        private const val OPEN = 42
     }
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/share.dart';
 import '../../data/bolt_store.dart';
+import '../../services/backup.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -35,6 +36,37 @@ class SettingsScreen extends ConsumerWidget {
     if (ok && context.mounted) {
       ref.read(boltProvider.notifier).resetAll();
       context.go('/welcome');
+    }
+  }
+
+  /// Saves everything as one file wherever the user picks.
+  Future<void> _backup(WidgetRef ref) async {
+    final store = ref.read(boltProvider.notifier);
+    try {
+      final ok = await BackupFiles.save('bolt-backup-${store.today}.json', store.backupText());
+      if (ok == true) store.toast('Backup saved');
+    } catch (_) {
+      store.toast('Could not save the backup');
+    }
+  }
+
+  /// Replaces everything with a backup file the user picks.
+  Future<void> _restore(BuildContext context, WidgetRef ref) async {
+    final ok = await confirmSheet(
+      context,
+      title: 'Restore a backup?',
+      body: 'Everything on this phone is replaced by the backup you pick: profile, plans, workouts, visits and badges.',
+      confirm: 'Pick backup file',
+    );
+    if (!ok) return;
+    final store = ref.read(boltProvider.notifier);
+    try {
+      final text = await BackupFiles.open();
+      if (text == null) return;
+      final error = store.restore(text);
+      if (error != null) store.toast(error);
+    } catch (_) {
+      store.toast('Could not read that file');
     }
   }
 
@@ -100,6 +132,23 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => context.push('/edit-profile'),
           ),
           _Row('Check-in plaque', value: 'Print', onTap: () => context.push('/plaque')),
+        ],
+      ),
+      (
+        'DATA',
+        [
+          _Row(
+            'Back up to a file',
+            sub: 'Save everything to Drive, Downloads or any folder',
+            value: '',
+            onTap: () => _backup(ref),
+          ),
+          _Row(
+            'Restore from a backup',
+            sub: 'Replaces everything on this phone',
+            value: '',
+            onTap: () => _restore(context, ref),
+          ),
         ],
       ),
       (
