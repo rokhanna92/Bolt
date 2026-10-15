@@ -7,6 +7,7 @@ import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/features/gym/scanner_overlay.dart';
 import 'package:bolt/features/updates/update_sheet.dart';
+import 'package:bolt/services/coach_directory.dart';
 import 'package:bolt/services/updater.dart';
 import 'package:bolt/widgets/common.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,22 @@ class FakeUpdater extends Updater {
   Future<CheckResult> check() async => result;
 }
 
-Future<ProviderContainer> pumpApp(WidgetTester tester, {BoltData? data, Updater? updater}) async {
+/// Serves the coach list without the network; null means it failed.
+class FakeDirectory extends CoachDirectory {
+  FakeDirectory(this.coaches);
+
+  final List<ListedCoach>? coaches;
+
+  @override
+  Future<List<ListedCoach>?> fetch() async => coaches;
+}
+
+Future<ProviderContainer> pumpApp(
+  WidgetTester tester, {
+  BoltData? data,
+  Updater? updater,
+  List<ListedCoach>? coaches = const [],
+}) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 2.75;
   addTearDown(tester.view.reset);
@@ -40,6 +56,7 @@ Future<ProviderContainer> pumpApp(WidgetTester tester, {BoltData? data, Updater?
         clockProvider.overrideWithValue(() => wed),
         initialDataProvider.overrideWithValue(data ?? freshData()),
         updaterProvider.overrideWithValue(updater ?? FakeUpdater(const UpToDate())),
+        coachDirectoryProvider.overrideWithValue(FakeDirectory(coaches)),
         // Test codes; the real ones are not in the source.
         licenseProvider.overrideWithValue(
           (c) => switch (c) {
@@ -151,6 +168,39 @@ void main() {
     await tapText(tester, 'Auto-fill 3 wks');
     final tid = c.read(boltProvider).trainees.single.id;
     expect(c.read(boltProvider).plans[tid], hasLength(8));
+    await unmount(tester);
+  });
+
+  testWidgets('a trainee picks their coach from the list', (tester) async {
+    final c = await pumpApp(
+      tester,
+      coaches: const [ListedCoach('Marko Ilić', 'Strength & Hypertrophy'), ListedCoach('Sara Novak', '')],
+    );
+    await tapText(tester, 'With a coach');
+    expect(find.text('Strength & Hypertrophy'), findsOneWidget);
+    expect(find.text('Not listed? Type their name.'), findsOneWidget);
+    await typeInto(tester, 'Your name', 'Ana');
+    // The split already has its tick; the coach gets the second.
+    expect(find.text('✓'), findsOneWidget);
+    await tapText(tester, 'Marko Ilić');
+    expect(find.text('✓'), findsNWidgets(2));
+    await tapText(tester, 'Continue');
+    await tapText(tester, 'Start training');
+    expect(c.read(boltProvider).trainees.single.coachName, 'Marko Ilić');
+    await tapText(tester, 'Me');
+    expect(find.text('Trainee · Coach Marko Ilić'), findsOneWidget);
+    await unmount(tester);
+  });
+
+  testWidgets('without the coach list a trainee types the name', (tester) async {
+    final c = await pumpApp(tester, coaches: null);
+    await tapText(tester, 'With a coach');
+    expect(find.text('Could not load the coach list. Type your coach\'s name instead.'), findsOneWidget);
+    await typeInto(tester, 'Your name', 'Ana');
+    await typeInto(tester, 'Coach\'s name (optional)', 'Marko');
+    await tapText(tester, 'Continue');
+    await tapText(tester, 'Start training');
+    expect(c.read(boltProvider).trainees.single.coachName, 'Marko');
     await unmount(tester);
   });
 

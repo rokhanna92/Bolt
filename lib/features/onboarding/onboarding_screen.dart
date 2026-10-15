@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/licenses.dart';
 import '../../data/models/bolt_data.dart';
 import '../../data/models/people.dart';
 import '../../data/seed/splits.dart';
+import '../../services/coach_directory.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
@@ -271,7 +273,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ],
         if (_role == Role.trainee) ...[
           const FieldLabel('YOUR COACH'),
-          BoltField(controller: _coach, hint: 'Coach\'s name (optional)', words: true),
+          ..._coachList(),
+          BoltField(
+            controller: _coach,
+            hint: 'Coach\'s name (optional)',
+            words: true,
+            onChanged: (_) => setState(() {}),
+          ),
         ],
         const FieldLabel('GYM'),
         BoltField(controller: _gym, hint: 'Where you train (optional)', words: true),
@@ -288,6 +296,60 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               : null,
         ),
       ],
+    );
+  }
+
+  /// Licensed coaches from Bolt's list. Tapping one fills in the name field
+  /// below, which also takes a coach who is not listed.
+  List<Widget> _coachList() {
+    Widget note(String text) => Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(text, style: BoltText.a(12, color: BoltColors.muted)),
+    );
+    return switch (ref.watch(listedCoachesProvider)) {
+      AsyncData(value: null) || AsyncError() => [
+        note('Could not load the coach list. Type your coach\'s name instead.'),
+      ],
+      AsyncData(value: final coaches?) => [
+        for (final c in coaches) _coachRow(c),
+        if (coaches.isNotEmpty) note('Not listed? Type their name.'),
+      ],
+      _ => [note('Loading coaches…')],
+    };
+  }
+
+  Widget _coachRow(ListedCoach c) {
+    final on = _coach.text.trim() == c.name;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Tap(
+        onTap: () => setState(() => _coach.text = on ? '' : c.name),
+        child: BoltBox(
+          color: BoltColors.surface1,
+          stroke: Stroke(on ? BoltColors.neon : BoltColors.lineSoft, on ? 1.5 : 1),
+          radius: 16,
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Avatar(ini: initials(c.name), size: 40, fill: on ? BoltColors.neon : null, ring: BoltColors.neon),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(c.name, style: BoltText.a(14, weight: 800)),
+                    if (c.specialty.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(c.specialty, style: BoltText.a(12, color: BoltColors.muted)),
+                    ],
+                  ],
+                ),
+              ),
+              if (on) Text('✓', style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
