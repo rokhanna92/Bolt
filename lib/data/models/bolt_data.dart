@@ -11,7 +11,7 @@ enum Role { solo, trainee, coach }
 /// The phone's owner. One person per phone; their data never leaves it except
 /// through plans and updates they choose to share.
 class Account {
-  const Account(this.role, this.id);
+  const Account(this.role, this.id, {this.admin = false});
 
   /// Id of the owner's own trainee or coach record.
   static const ownerId = 'me';
@@ -19,16 +19,20 @@ class Account {
   final Role role;
   final String id;
 
+  /// Unlocked with the admin key: has both a coach and a trainee record and
+  /// can switch between all three roles.
+  final bool admin;
+
   bool get isCoach => role == Role.coach;
 
   /// Uses the trainee screens (solo or trainee).
   bool get isTrainee => role != Role.coach;
   bool get isSolo => role == Role.solo;
 
-  Map<String, dynamic> toJson() => {'role': role.name, 'id': id};
+  Map<String, dynamic> toJson() => {'role': role.name, 'id': id, 'admin': admin};
 
   factory Account.fromJson(Map<String, dynamic> j) =>
-      Account(Role.values.byName(j['role'] as String), j['id'] as String);
+      Account(Role.values.byName(j['role'] as String), j['id'] as String, admin: j['admin'] as bool? ?? false);
 }
 
 /// The workout in progress: which sets are checked per exercise id.

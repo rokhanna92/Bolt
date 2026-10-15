@@ -24,7 +24,9 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late final String _id = widget.tid ?? Account.ownerId;
   late final BoltStore _store = ref.read(boltProvider.notifier);
-  late final Trainee? _trainee = _store.trOrNull(_id);
+  // An admin has both records; the coach view edits the coach one.
+  late final bool _ownCoach = widget.tid == null && (ref.read(boltProvider).account?.isCoach ?? false);
+  late final Trainee? _trainee = _ownCoach ? null : _store.trOrNull(_id);
   late final Coach? _coach = _trainee == null ? _store.coOrNull(_id) : null;
   late final _name = TextEditingController(text: _trainee?.name ?? _coach?.name ?? '');
   late final _coachName = TextEditingController(text: _trainee?.coachName ?? '');

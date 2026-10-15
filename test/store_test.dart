@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import 'package:bolt/core/format.dart';
 import 'package:bolt/data/bolt_store.dart';
+import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/models/session.dart';
 import 'package:bolt/data/models/visit.dart';
@@ -355,6 +356,30 @@ void ownerTests() {
       f.store.createProfile(Role.coach, const ProfileInput(name: 'Sara', specialty: ''));
       expect(f.data.coaches.single.role, 'Coach');
       expect(f.data.account!.isCoach, isTrue);
+    });
+
+    test('an admin has both records and switches roles', () {
+      final f = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Dani'), admin: true);
+      expect(f.data.coaches.single.id, Account.ownerId);
+      expect(f.data.trainees.single.coach, '');
+      f.store.switchRole(Role.solo);
+      expect(f.data.account!.role, Role.solo);
+      expect(f.data.account!.admin, isTrue);
+      final json = jsonEncode(f.data.toJson());
+      expect(BoltData.fromJson(jsonDecode(json) as Map<String, dynamic>).account!.admin, isTrue);
+
+      final coach = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Sara'));
+      coach.store.switchRole(Role.solo);
+      expect(coach.data.account!.role, Role.coach);
+      expect(coach.data.trainees, isEmpty);
+    });
+
+    test('license codes', () {
+      for (final c in ['', '00000', '000000', 'abcde', '1234', '1234567']) {
+        expect(checkLicense(c), isNull, reason: c);
+      }
+      expect(licenseHash('12345'), licenseHash('12345'));
+      expect(licenseHash('12345'), isNot(licenseHash('12346')));
     });
 
     test('profile edits save body and stamp the date', () {

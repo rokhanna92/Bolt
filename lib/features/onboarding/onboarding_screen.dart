@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/bolt_store.dart';
+import '../../data/licenses.dart';
 import '../../data/models/bolt_data.dart';
 import '../../data/models/people.dart';
 import '../../data/seed/splits.dart';
@@ -14,7 +15,8 @@ import '../../widgets/forms.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/tap.dart';
 
-/// First launch: how do you train, who are you, and (optionally) your body.
+/// First launch: how do you train, a license code for coaches, who are you,
+/// and (optionally) your body.
 /// Finishing creates the phone owner's profile; the router takes it from there.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -26,6 +28,9 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   int _step = 0;
   Role _role = Role.solo;
+  bool _admin = false;
+  String? _codeError;
+  final _code = TextEditingController();
   final _name = TextEditingController();
   final _coach = TextEditingController();
   final _specialty = TextEditingController();
@@ -37,7 +42,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   void dispose() {
-    for (final c in [_name, _coach, _specialty, _gym]) {
+    for (final c in [_code, _name, _coach, _specialty, _gym]) {
       c.dispose();
     }
     _body?.dispose();
@@ -69,6 +74,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             body: withBody ? _bodyForm.read() : null,
           ),
           autoPlan: _role == Role.solo && _autoPlan,
+          admin: _admin,
         );
   }
 
@@ -78,7 +84,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return PopScope(
       canPop: _step == 0,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) setState(() => _step--);
+        if (!didPop) _back();
       },
       child: BoltPage(
         child: ScreenScroll(
@@ -89,7 +95,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               key: ValueKey(_step),
               child: switch (_step) {
                 0 => _roleStep(),
-                1 => _aboutStep(),
+                1 => _codeStep(),
+                2 => _aboutStep(),
                 _ => _bodyStep(),
               },
             ),
@@ -99,13 +106,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
+  /// Steps: 0 role, 1 license code (coaches only), 2 about you, 3 body.
+  void _back() => setState(() => _step = _step == 2 && _role != Role.coach ? 0 : _step - 1);
+
   Widget _header(String kicker, String title, {String? sub}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
-            BackBox(onTap: () => setState(() => _step--)),
+            BackBox(onTap: _back),
             const SizedBox(width: 12),
             Kicker(kicker),
           ],
@@ -126,7 +136,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: Tap(
         onTap: () => setState(() {
           _role = role;
-          _step = 1;
+          _admin = false;
+          _step = role == Role.coach ? 1 : 2;
         }),
         scale: .98,
         child: BoltBox(
@@ -178,7 +189,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           'With a coach',
           'Follow the plan your coach sends you. Accept it, move days, log it.',
         ),
-        option(Role.coach, 'group', 'I coach people', 'Plan your trainees\' weeks and send each of them their plan.'),
+        option(
+          Role.coach,
+          'group',
+          'I coach people',
+          'Plan your trainees\' weeks and send each of them their plan. Needs a coach license code.',
+        ),
         const SizedBox(height: 14),
         Text(
           'Everything you enter stays on this phone.',
@@ -189,6 +205,51 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
+  Widget _codeStep() {
+    final ok = _code.text.trim().length >= 5;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _header(
+          'COACH LICENSE',
+          'Your coach code',
+          sub: 'Coaching in Bolt needs a 5-digit license code. No code? Go back and train on your own or with a coach.',
+        ),
+        const FieldLabel('CODE', top: 22),
+        BoltField(
+          controller: _code,
+          hint: '5-digit code',
+          number: true,
+          onChanged: (_) => setState(() => _codeError = null),
+        ),
+        if (_codeError != null) ...[
+          const SizedBox(height: 8),
+          Text(_codeError!, style: BoltText.a(13, weight: 600, color: BoltColors.warn)),
+        ],
+        const SizedBox(height: 22),
+        NeonButton(
+          label: 'Unlock',
+          color: ok ? BoltColors.neon : BoltColors.line,
+          textColor: ok ? BoltColors.ink : BoltColors.muted,
+          onTap: ok ? _unlock : null,
+        ),
+      ],
+    );
+  }
+
+  void _unlock() {
+    final license = ref.read(licenseProvider)(_code.text);
+    if (license == null) {
+      setState(() => _codeError = 'That code is not valid. Check it and try again.');
+      return;
+    }
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _admin = license == License.admin;
+      _step = 2;
+    });
+  }
+
   Widget _aboutStep() {
     final coach = _role == Role.coach;
     final ok = _name.text.trim().isNotEmpty;
@@ -196,7 +257,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _header('STEP 1 OF 2', 'About you'),
+        _header(_admin ? 'ADMIN · STEP 1 OF 2' : 'STEP 1 OF 2', 'About you'),
         const FieldLabel('NAME', top: 22),
         BoltField(controller: _name, hint: 'Your name', words: true, onChanged: (_) => setState(() {})),
         if (coach) ...[
@@ -222,7 +283,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           onTap: ok
               ? () {
                   FocusScope.of(context).unfocus();
-                  setState(() => _step = 2);
+                  setState(() => _step = 3);
                 }
               : null,
         ),

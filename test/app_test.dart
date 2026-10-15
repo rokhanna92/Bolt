@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bolt/app.dart';
 import 'package:bolt/data/bolt_store.dart';
+import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/features/gym/scanner_overlay.dart';
@@ -39,6 +40,14 @@ Future<ProviderContainer> pumpApp(WidgetTester tester, {BoltData? data, Updater?
         clockProvider.overrideWithValue(() => wed),
         initialDataProvider.overrideWithValue(data ?? freshData()),
         updaterProvider.overrideWithValue(updater ?? FakeUpdater(const UpToDate())),
+        // Test codes; the real ones are not in the source.
+        licenseProvider.overrideWithValue(
+          (c) => switch (c) {
+            '11111' => License.coach,
+            '222222' => License.admin,
+            _ => null,
+          },
+        ),
       ],
       child: const BoltApp(),
     ),
@@ -77,10 +86,14 @@ Future<void> loadFont(String family, String path) async {
   await (FontLoader(family)..addFont(Future.value(bytes))).load();
 }
 
-/// Goes through onboarding as [role] with [name].
-Future<void> onboard(WidgetTester tester, String role, String name, {String? weight}) async {
+/// Goes through onboarding as [role] with [name]. Coaches enter [code].
+Future<void> onboard(WidgetTester tester, String role, String name, {String? weight, String code = '11111'}) async {
   expect(find.text('HOW DO YOU TRAIN?'), findsOneWidget);
   await tapText(tester, role);
+  if (role == 'I coach people') {
+    await typeInto(tester, '5-digit code', code);
+    await tapText(tester, 'Unlock');
+  }
   await typeInto(tester, 'Your name', name);
   await tapText(tester, 'Continue');
   expect(find.text('Your body'), findsOneWidget);
@@ -141,6 +154,55 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('coaching needs a license code', (tester) async {
+    await pumpApp(tester);
+    await tapText(tester, 'I coach people');
+    expect(find.text('Your coach code'), findsOneWidget);
+    await typeInto(tester, '5-digit code', '12345');
+    await tapText(tester, 'Unlock');
+    expect(find.text('That code is not valid. Check it and try again.'), findsOneWidget);
+    await typeInto(tester, '5-digit code', '11111');
+    await tapText(tester, 'Unlock');
+    expect(find.text('About you'), findsOneWidget);
+    expect(find.text('STEP 1 OF 2'), findsOneWidget);
+    // Back from the profile step returns to the code, then to the roles.
+    await tester.tap(find.text('‹'));
+    await settle(tester);
+    expect(find.text('Your coach code'), findsOneWidget);
+    await tester.tap(find.text('‹'));
+    await settle(tester);
+    expect(find.text('HOW DO YOU TRAIN?'), findsOneWidget);
+    // Trainees and solo users skip the code.
+    await tapText(tester, 'With a coach');
+    expect(find.text('About you'), findsOneWidget);
+    await unmount(tester);
+  });
+
+  testWidgets('the admin key switches between every role', (tester) async {
+    final c = await pumpApp(tester);
+    await tapText(tester, 'I coach people');
+    await typeInto(tester, '5-digit code', '222222');
+    await tapText(tester, 'Unlock');
+    expect(find.text('ADMIN · STEP 1 OF 2'), findsOneWidget);
+    await typeInto(tester, 'Your name', 'Dani');
+    await tapText(tester, 'Continue');
+    await tapText(tester, 'Start coaching');
+    expect(find.text('Coach Dani'), findsOneWidget);
+    // The admin's own trainee record is not one of their trainees.
+    expect(find.text('TRAINEES · 0'), findsOneWidget);
+
+    await tapText(tester, 'Profile');
+    expect(find.text('ADMIN · VIEW AS'), findsOneWidget);
+    await tapText(tester, 'Trainee');
+    expect(find.text('Hey Dani'), findsOneWidget);
+    await tapText(tester, 'Me');
+    expect(find.text('Trainee'), findsWidgets);
+    await tapText(tester, 'Solo');
+    expect(find.text('Training solo'), findsOneWidget);
+    expect(c.read(boltProvider).account!.admin, isTrue);
+    await unmount(tester);
+  });
+
   testWidgets('scan button checks in from the frame', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
@@ -169,6 +231,7 @@ void main() {
     );
     await onboard(tester, 'On my own', 'Dani');
     await tapText(tester, 'Me');
+    expect(find.text('ADMIN · VIEW AS'), findsNothing);
     expect(find.text('Bolt 1.2.0'), findsOneWidget);
     await tapText(tester, 'Update');
     expect(find.text('BOLT 1.3.0'), findsOneWidget);

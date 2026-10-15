@@ -148,14 +148,16 @@ class BoltStore extends Notifier<BoltData> {
   // Profile
 
   /// Onboarding: creates the phone owner's profile. Solo users can have their
-  /// first three weeks planned from their split right away.
-  void createProfile(Role role, ProfileInput p, {bool autoPlan = false}) {
+  /// first three weeks planned from their split right away. An admin gets
+  /// both a coach and a trainee record so every role works.
+  void createProfile(Role role, ProfileInput p, {bool autoPlan = false, bool admin = false}) {
     final body = (p.body ?? Body())..updated = (p.body?.isEmpty ?? true) ? null : today;
-    if (role == Role.coach) {
+    if (role == Role.coach || admin) {
       state.coaches
         ..clear()
         ..add(Coach(id: Account.ownerId, name: p.name.trim(), role: _or(p.specialty, 'Coach'), body: body));
-    } else {
+    }
+    if (role != Role.coach || admin) {
       state.trainees.removeWhere((t) => t.id == Account.ownerId);
       state.trainees.add(
         Trainee(
@@ -173,8 +175,17 @@ class BoltStore extends Notifier<BoltData> {
       );
     }
     state.settings.gymName = p.gym?.trim() ?? '';
-    state.account = Account(role, Account.ownerId);
+    state.account = Account(role, Account.ownerId, admin: admin);
     if (autoPlan && role != Role.coach) _fill(Account.ownerId, SessionStatus.approved);
+    _commit();
+    syncSessionReminders();
+  }
+
+  /// Admin only: shows the app as a coach, trainee or solo user.
+  void switchRole(Role role) {
+    final a = state.account;
+    if (a == null || !a.admin || a.role == role) return;
+    state.account = Account(role, a.id, admin: true);
     _commit();
     syncSessionReminders();
   }
