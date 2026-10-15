@@ -19,6 +19,8 @@ import java.io.File
  * Also "bolt/shortcuts": the app icon's long-press shortcuts arrive as a
  * "shortcut" extra, at launch ("initial") or while running ("open").
  *
+ * "bolt/widget" saves what the home screen widget shows.
+ *
  * And "bolt/backup": Android's own pickers to save a backup file anywhere
  * ("save") and to pick one to restore ("open"). Null means cancelled.
  */
@@ -37,6 +39,15 @@ class MainActivity : FlutterActivity() {
                     "background" -> result.success(moveTaskToBack(true))
                     else -> result.notImplemented()
                 }
+            }
+        }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/widget").setMethodCallHandler { call, result ->
+            if (call.method == "update") {
+                @Suppress("UNCHECKED_CAST")
+                BoltWidget.save(this, call.arguments as Map<String, Any?>)
+                result.success(true)
+            } else {
+                result.notImplemented()
             }
         }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/backup").setMethodCallHandler { call, result ->

@@ -41,6 +41,17 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts"/>
         </activity>
+        <!-- Home screen widget: today's workout, gym timer, streak, scan. -->
+        <receiver
+            android:name=".BoltWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/bolt_widget_info"/>
+        </receiver>
         <!-- flutter_local_notifications ships no receivers in its own manifest,
              so they are declared here. Without these, scheduled reminders are
              accepted by the plugin and then silently never fire. -->
