@@ -31,9 +31,11 @@ class DaySheet extends ConsumerWidget {
     final coachName = store.coachNameOf(t);
     final c = chipFor(s.status);
     final today = store.today;
-    // Confirmed days that are not over can be reshaped by the trainee.
-    final editable =
-        (s.status == SessionStatus.approved || s.status == SessionStatus.moved) && dayKey.compareTo(today) >= 0;
+    // Confirmed days that are not over can be reshaped by the trainee; a solo
+    // user can also fill in and log days behind them from their diary.
+    final open = s.status == SessionStatus.approved || s.status == SessionStatus.moved;
+    final logPast = open && store.canLogPast(t.id, dayKey);
+    final editable = open && (dayKey.compareTo(today) >= 0 || logPast);
     final sum = '${plural(s.ex.length, 'exercise')} · ${plural(s.totalSets, 'set')} · ~${s.mins} min'.toUpperCase();
     void close() => Navigator.of(context).pop();
 
@@ -140,8 +142,18 @@ class DaySheet extends ConsumerWidget {
               startWorkout(rootNavigatorKey.currentContext!, ref, dayKey);
             },
           ),
+        if (logPast)
+          NeonButton(
+            label: 'Log as done',
+            height: 52,
+            scale: 1,
+            onTap: () {
+              close();
+              showUnlocks(store.logPast(dayKey));
+            },
+          ),
         if (editable) ...[
-          if (dayKey == today) const SizedBox(height: 8),
+          if (dayKey == today || logPast) const SizedBox(height: 8),
           Row(
             children: [
               Expanded(

@@ -160,7 +160,9 @@ class PlanScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap an empty day to add the next session from your split.',
+            d.account?.isSolo ?? false
+                ? 'Tap an empty day to add the next session from your split. Past days too, to log your diary.'
+                : 'Tap an empty day to add the next session from your split.',
             style: BoltText.a(12, color: BoltColors.muted),
           ),
         ],

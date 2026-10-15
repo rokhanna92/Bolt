@@ -443,6 +443,26 @@ class BoltStore extends Notifier<BoltData> {
     return unlocked;
   }
 
+  /// Logs a past day from a solo user's diary: done with every set, counted
+  /// toward badges like a finished workout. Returns badges it unlocked.
+  List<String> logPast(String k) {
+    final t = tr(state.account!.id);
+    final p = plan(t.id)[k];
+    if (p == null || !canLogPast(t.id, k)) return const [];
+    if (p.status != SessionStatus.approved && p.status != SessionStatus.moved) return const [];
+    p.status = SessionStatus.done;
+    p.log = '${p.totalSets}/${p.totalSets} sets';
+    final before = t.stats.copy();
+    t.stats
+      ..workouts += 1
+      ..sets += p.totalSets;
+    _checkPerfectWeek(t);
+    final unlocked = newlyUnlocked(before, t.stats);
+    _commit();
+    _toast('${fmtDay(k)} logged · ${p.log}');
+    return unlocked;
+  }
+
   /// Every planned session this week done: a perfect week, which also
   /// extends the streak.
   void _checkPerfectWeek(Trainee t) {
@@ -468,11 +488,17 @@ class BoltStore extends Notifier<BoltData> {
 
   SessionStatus get _newStatus => _isCoach ? SessionStatus.draft : SessionStatus.approved;
 
-  /// Tapping an empty future day adds the next workout in the rotation.
+  /// Solo users can fill in days already behind them from their own diary.
+  /// Trainees and coaches plan from today on.
+  bool canLogPast(String tid, String k) =>
+      state.account?.role == Role.solo && tid == state.account!.id && k.compareTo(today) < 0;
+
+  /// Tapping an empty day adds the next workout in the rotation: from today
+  /// on, or on a past day for a solo user's diary.
   bool addFromRotation(String tid, String k) {
     final t = tr(tid);
     final p = plan(tid);
-    if (p[k] != null || k.compareTo(today) < 0) return false;
+    if (p[k] != null || (k.compareTo(today) < 0 && !canLogPast(tid, k))) return false;
     p[k] = sessionFromTemplate(state, nextInRotation(p, t.split, k), _newStatus);
     _commit();
     if (!_isCoach) syncSessionReminders();

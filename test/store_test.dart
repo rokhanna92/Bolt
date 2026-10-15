@@ -435,6 +435,31 @@ void ownerTests() {
       expect(f.toast, 'Session saved');
     });
 
+    test('solo users fill in and log past days from their diary', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      expect(f.store.addFromRotation(Account.ownerId, '2026-10-07'), isTrue);
+      final s = f.mine['2026-10-07']!;
+      expect(s.status, SessionStatus.approved);
+      expect(f.store.logPast('2026-10-07'), ['lg1']);
+      expect(s.status, SessionStatus.done);
+      expect(s.log, '${s.totalSets}/${s.totalSets} sets');
+      expect(f.toast, 'Wed 7 Oct logged · ${s.log}');
+      final stats = f.data.trainees.single.stats;
+      expect(stats.workouts, 1);
+      expect(stats.sets, s.totalSets);
+      // Logging twice, or a day not behind us, changes nothing.
+      expect(f.store.logPast('2026-10-07'), isEmpty);
+      f.store.addFromRotation(Account.ownerId, '2026-10-15');
+      expect(f.store.logPast('2026-10-15'), isEmpty);
+      expect(stats.workouts, 1);
+
+      final ana = Fresh()..store.createProfile(Role.trainee, const ProfileInput(name: 'Ana'));
+      expect(ana.store.addFromRotation(Account.ownerId, '2026-10-07'), isFalse);
+      final coach = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Marko'));
+      final tid = coach.store.addTrainee(const ProfileInput(name: 'Ana'));
+      expect(coach.store.addFromRotation(tid, '2026-10-07'), isFalse);
+    });
+
     test('moving your own session does not mark it moved', () {
       final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'), autoPlan: true);
       expect(f.store.move('2026-10-16', '2026-10-17'), isTrue);

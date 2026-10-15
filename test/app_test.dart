@@ -4,6 +4,7 @@ import 'package:bolt/app.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/bolt_data.dart';
+import 'package:bolt/data/models/session.dart';
 import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/features/gym/scanner_overlay.dart';
 import 'package:bolt/features/updates/update_sheet.dart';
@@ -154,6 +155,33 @@ void main() {
     expect(find.text('Train smarter'), findsOneWidget);
     expect(find.text('Supplements'), findsOneWidget);
     expect(find.text('‹'), findsNothing);
+    await unmount(tester);
+  });
+
+  testWidgets('solo users log past days from their diary', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapText(tester, 'Plan');
+    expect(find.textContaining('Past days too'), findsOneWidget);
+    await tapText(tester, '13');
+    expect(find.text('Log as done'), findsOneWidget);
+    expect(find.text('Edit exercises'), findsOneWidget);
+    await tapText(tester, 'Log as done');
+    expect(find.text('BADGE UNLOCKED'), findsOneWidget);
+    await tapText(tester, 'Tap to continue');
+    final s = c.read(boltProvider).plans[Account.ownerId]!['2026-10-13']!;
+    expect(s.status, SessionStatus.done);
+    expect(c.read(boltProvider).trainees.single.stats.workouts, 1);
+    await unmount(tester);
+  });
+
+  testWidgets('trainees cannot add days behind them', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'With a coach', 'Ana');
+    await tapText(tester, 'Plan');
+    expect(find.textContaining('Past days too'), findsNothing);
+    await tapText(tester, '13');
+    expect(c.read(boltProvider).plans[Account.ownerId]!['2026-10-13'], isNull);
     await unmount(tester);
   });
 
