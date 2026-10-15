@@ -5,6 +5,8 @@ import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/features/gym/scanner_overlay.dart';
+import 'package:bolt/features/updates/update_sheet.dart';
+import 'package:bolt/services/updater.dart';
 import 'package:bolt/widgets/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +16,20 @@ import 'package:flutter_test/flutter_test.dart';
 /// Wednesday 14 Oct 2026, 18:00.
 final wed = DateTime(2026, 10, 14, 18);
 
-Future<ProviderContainer> pumpApp(WidgetTester tester, {BoltData? data}) async {
+/// Answers update checks without the network.
+class FakeUpdater extends Updater {
+  FakeUpdater(this.result);
+
+  final CheckResult result;
+
+  @override
+  Future<Installed> installed() async => const Installed('1.2.0', 3);
+
+  @override
+  Future<CheckResult> check() async => result;
+}
+
+Future<ProviderContainer> pumpApp(WidgetTester tester, {BoltData? data, Updater? updater}) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 2.75;
   addTearDown(tester.view.reset);
@@ -23,6 +38,7 @@ Future<ProviderContainer> pumpApp(WidgetTester tester, {BoltData? data}) async {
       overrides: [
         clockProvider.overrideWithValue(() => wed),
         initialDataProvider.overrideWithValue(data ?? freshData()),
+        updaterProvider.overrideWithValue(updater ?? FakeUpdater(const UpToDate())),
       ],
       child: const BoltApp(),
     ),
@@ -139,6 +155,25 @@ void main() {
     await settle(tester);
     expect(find.byType(ScannerOverlay), findsNothing);
     expect(find.text('Scan to check out'), findsOneWidget);
+    await unmount(tester);
+  });
+
+  testWidgets('the profile has an update button', (tester) async {
+    await pumpApp(
+      tester,
+      updater: FakeUpdater(
+        const UpdateFound(
+          Release(title: 'BOLT 1.3.0', version: '1.3.0', build: 4, notes: '• Faster', apkUrl: 'u', apkBytes: 28311552),
+        ),
+      ),
+    );
+    await onboard(tester, 'On my own', 'Dani');
+    await tapText(tester, 'Me');
+    expect(find.text('Bolt 1.2.0'), findsOneWidget);
+    await tapText(tester, 'Update');
+    expect(find.text('BOLT 1.3.0'), findsOneWidget);
+    expect(find.text('• Faster'), findsOneWidget);
+    expect(find.text('Download and install'), findsOneWidget);
     await unmount(tester);
   });
 }

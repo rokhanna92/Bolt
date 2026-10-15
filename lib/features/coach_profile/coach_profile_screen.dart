@@ -12,6 +12,7 @@ import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
 import '../plaque/plaque_qr.dart';
 import '../profile/body_card.dart';
+import '../updates/update_sheet.dart';
 import '../profile/me_screen.dart' show ProfileHeader;
 
 class CoachProfileScreen extends ConsumerWidget {
@@ -105,6 +106,8 @@ class CoachProfileScreen extends ConsumerWidget {
             ),
           ),
         ),
+        const SizedBox(height: 24),
+        const UpdateCard(),
       ],
     );
   }

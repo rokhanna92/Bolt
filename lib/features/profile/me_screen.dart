@@ -18,6 +18,7 @@ import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
 import '../sharing/import_sheet.dart';
+import '../updates/update_sheet.dart';
 import 'body_card.dart';
 
 class MeScreen extends ConsumerWidget {
@@ -144,6 +145,8 @@ class MeScreen extends ConsumerWidget {
             ),
           ),
         ),
+        const SizedBox(height: 24),
+        const UpdateCard(),
       ],
     );
   }
