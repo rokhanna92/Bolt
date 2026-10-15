@@ -108,7 +108,7 @@ List<CalCell> buildCalendar({
       CalCell(
         k: k,
         n: d.day,
-        lab: p == null ? '' : (tpl?.code ?? (title.length > 4 ? title.substring(0, 4) : title).toUpperCase()),
+        lab: p == null ? '' : (p.code ?? tpl?.code ?? (title.length > 4 ? title.substring(0, 4) : title).toUpperCase()),
         bg: bg,
         stroke: stroke,
         num: num,

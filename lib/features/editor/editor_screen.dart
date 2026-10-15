@@ -10,6 +10,7 @@ import '../../data/models/people.dart';
 import '../../data/models/session.dart';
 import '../../data/models/template.dart';
 import '../../data/rules.dart';
+import '../../data/seed/exercises.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -305,42 +306,83 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
   );
 }
 
-/// Every exercise from the templates.
-class _Picker extends ConsumerWidget {
+/// Every exercise Bolt knows, grouped by muscle, with a muscle filter.
+class _Picker extends ConsumerStatefulWidget {
   const _Picker({required this.target});
 
   final EditTarget target;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_Picker> createState() => _PickerState();
+}
+
+class _PickerState extends ConsumerState<_Picker> {
+  String? _group;
+
+  @override
+  Widget build(BuildContext context) {
+    final groups = _group == null ? kExerciseGroups.keys.toList() : [_group!];
+    Widget chip(String? k, String label) => Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: Tap(
+        onTap: () => setState(() => _group = k),
+        child: BoltBox(
+          radius: 99,
+          color: _group == k ? BoltColors.neon : BoltColors.surface2,
+          stroke: Stroke(_group == k ? BoltColors.neon : BoltColors.line),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          child: Text(label, style: BoltText.a(12, weight: 700, color: _group == k ? BoltColors.ink : BoltColors.text)),
+        ),
+      ),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text('Add exercise', style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 10),
-        for (final a in kAllExercises)
-          Tap(
-            onTap: () {
-              ref.read(boltProvider.notifier).addExercise(target, a);
-              Navigator.of(context).pop();
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: BoltColors.divider)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(child: Text(a.name, style: BoltText.a(14, weight: 700))),
-                  const SizedBox(width: 10),
-                  Text(
-                    '${a.sets} × ${a.reps}${a.load != '—' ? ' · ${a.load}' : ''}'.toUpperCase(),
-                    style: BoltText.m(9, color: BoltColors.muted),
-                  ),
-                ],
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: [chip(null, 'All'), for (final e in kExerciseGroups.entries) chip(e.key, e.value)]),
+        ),
+        for (final g in groups) ...[
+          const SizedBox(height: 14),
+          Kicker(kExerciseGroups[g]!.toUpperCase(), size: 10, spacing: .1),
+          const SizedBox(height: 4),
+          for (final a in kExercises.where((e) => e.muscle == g))
+            Tap(
+              onTap: () {
+                ref
+                    .read(boltProvider.notifier)
+                    .addExercise(widget.target, ExSeed(a.name, a.sets, a.reps, a.load, a.area, a.alt));
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: const BoxDecoration(
+                  border: Border(top: BorderSide(color: BoltColors.divider)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(a.name, style: BoltText.a(14, weight: 700)),
+                          const SizedBox(height: 2),
+                          Text(a.works, style: BoltText.a(11, color: BoltColors.muted)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      '${a.sets} × ${a.reps}${a.load != '—' ? ' · ${a.load}' : ''}'.toUpperCase(),
+                      style: BoltText.m(9, color: BoltColors.muted),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
+        ],
       ],
     );
   }

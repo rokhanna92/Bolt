@@ -23,6 +23,7 @@ import '../../widgets/tap.dart';
 import '../badges/badges_screen.dart';
 import '../gym/gym_screen.dart' show VisitRow, visitDay;
 import '../profile/body_card.dart';
+import '../workouts/workout_picker.dart';
 
 class TraineeDetailScreen extends ConsumerStatefulWidget {
   const TraineeDetailScreen({super.key, required this.tid});
@@ -135,7 +136,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                     children: [
                       Expanded(
                         child: Tap(
-                          onTap: () => store.cycleSplit(x.id),
+                          onTap: () => showSplitSheet(x.id),
                           child: BoltBox(
                             radius: 14,
                             stroke: const Stroke(BoltColors.line),
@@ -145,7 +146,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                               children: [
                                 Kicker('DEFAULT SPLIT · TAP TO CHANGE', size: 9, spacing: .1),
                                 const SizedBox(height: 2),
-                                Text(kSplits[x.split]!.name, style: BoltText.a(13, weight: 800)),
+                                Text(splitOf(d, x.split).name, style: BoltText.a(13, weight: 800)),
                               ],
                             ),
                           ),
@@ -346,7 +347,7 @@ class _SelectedDay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final d = ref.watch(boltProvider);
+    ref.watch(boltProvider);
     final store = ref.read(boltProvider.notifier);
     final s = store.plan(tid)[dayKey];
     if (s == null) return const SizedBox.shrink();
@@ -385,29 +386,7 @@ class _SelectedDay extends ConsumerWidget {
           ],
           if (editable) ...[
             const SizedBox(height: 10),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (final id in d.tpls.keys) ...[
-                    Tap(
-                      onTap: () => store.setTemplate(tid, dayKey, id),
-                      child: BoltBox(
-                        radius: 99,
-                        color: s.tpl == id ? BoltColors.neon : BoltColors.surface2,
-                        stroke: Stroke(s.tpl == id ? BoltColors.neon : BoltColors.line),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                        child: Text(
-                          d.tpls[id]!.name,
-                          style: BoltText.a(12, weight: 700, color: s.tpl == id ? BoltColors.ink : BoltColors.text),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                  ],
-                ],
-              ),
-            ),
+            ChangeWorkoutButton(onTap: () => changeDayWorkout(tid, dayKey)),
           ],
           const SizedBox(height: 10),
           ExerciseRows(trainee: store.tr(tid), exercises: s.ex, canSwap: editable, compact: true),

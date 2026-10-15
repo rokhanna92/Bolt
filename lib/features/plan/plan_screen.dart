@@ -127,7 +127,7 @@ class PlanScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Tap(
-                    onTap: () => store.cycleSplit(t.id),
+                    onTap: () => showSplitSheet(t.id),
                     child: BoltBox(
                       radius: 14,
                       stroke: const Stroke(BoltColors.line),
@@ -137,7 +137,7 @@ class PlanScreen extends ConsumerWidget {
                         children: [
                           const Kicker('YOUR SPLIT · TAP TO CHANGE', size: 9, spacing: .1),
                           const SizedBox(height: 2),
-                          Text(kSplits[t.split]!.name, style: BoltText.a(13, weight: 800)),
+                          Text(splitOf(d, t.split).name, style: BoltText.a(13, weight: 800)),
                         ],
                       ),
                     ),

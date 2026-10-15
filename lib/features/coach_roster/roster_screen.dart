@@ -91,7 +91,7 @@ class RosterScreen extends ConsumerWidget {
         att.add(
           _Attention(
             '$fn has nothing planned',
-            'Auto-fill from ${kSplits[x.split]!.name}',
+            'Auto-fill from ${splitOf(d, x.split).name}',
             'Plan',
             BoltColors.muted2,
             () => open(x.id),
@@ -343,7 +343,7 @@ class _TraineeCard extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 5),
-                  Text('${x.goal} · ${kSplits[x.split]!.short}', style: BoltText.a(12, color: BoltColors.muted)),
+                  Text('${x.goal} · ${splitOf(d, x.split).short}', style: BoltText.a(12, color: BoltColors.muted)),
                   const SizedBox(height: 5),
                   Row(
                     children: [
@@ -393,6 +393,7 @@ class _AddTraineeSheetState extends ConsumerState<AddTraineeSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final d = ref.watch(boltProvider);
     final ok = _name.text.trim().isNotEmpty;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -409,9 +410,9 @@ class _AddTraineeSheetState extends ConsumerState<AddTraineeSheet> {
         ChoiceChips(options: kGoals, selected: _goal, onSelect: (g) => setState(() => _goal = g)),
         const FieldLabel('WEEKLY SPLIT'),
         ChoiceChips(
-          options: kSplitOrder,
+          options: splitIds(d),
           selected: _split,
-          labels: {for (final k in kSplitOrder) k: kSplits[k]!.name},
+          labels: {for (final k in splitIds(d)) k: splitOf(d, k).name},
           onSelect: (s) => setState(() => _split = s),
         ),
         const SizedBox(height: 16),

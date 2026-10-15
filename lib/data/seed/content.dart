@@ -21,6 +21,9 @@ abstract final class Gym {
   }
 }
 
+/// Template id of a day built from muscles; it has no template of its own.
+const mixTpl = 'mix';
+
 Exercise exerciseFromSeed(ExSeed a, String id) =>
     Exercise(id: id, name: a.name, sets: a.sets, reps: a.reps, load: a.load, area: a.area, alt: a.alt);
 
@@ -39,17 +42,17 @@ Session sessionFromTemplate(BoltData d, String tplId, SessionStatus status) {
 
 /// Puts each split day of the week starting at [mon] into [plan] where empty.
 void fillWeek(BoltData d, Map<String, Session> plan, String split, DateTime mon, SessionStatus status) {
-  for (final day in kSplits[split]!.days) {
+  for (final day in splitOf(d, split).days) {
     final k = dk(addDays(mon, day.weekday - 1));
     plan.putIfAbsent(k, () => sessionFromTemplate(d, day.tpl, status));
   }
 }
 
-/// A brand-new phone: the built-in templates and nothing else. The owner's
-/// profile is created during onboarding.
-BoltData freshData() {
-  final d = BoltData(tpls: {}, coaches: [], trainees: [], plans: {}, visits: {}, gymIn: {}, settings: AppSettings());
+/// Adds built-in templates a saved phone does not have yet, so workouts
+/// added in an update show up for existing users too.
+void addMissingTemplates(BoltData d) {
   kTemplates.forEach((k, t) {
+    if (d.tpls.containsKey(k)) return;
     d.tpls[k] = WorkoutTemplate(
       id: k,
       name: t.name,
@@ -59,5 +62,12 @@ BoltData freshData() {
       ex: [for (final e in t.ex) exerciseFromSeed(e, d.uid())],
     );
   });
+}
+
+/// A brand-new phone: the built-in templates and nothing else. The owner's
+/// profile is created during onboarding.
+BoltData freshData() {
+  final d = BoltData(tpls: {}, coaches: [], trainees: [], plans: {}, visits: {}, gymIn: {}, settings: AppSettings());
+  addMissingTemplates(d);
   return d;
 }

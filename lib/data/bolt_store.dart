@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/format.dart';
 import '../services/notifications.dart';
 import 'models/bolt_data.dart';
+import 'models/custom_split.dart';
 import 'models/exercise.dart';
 import 'models/people.dart';
 import 'models/session.dart';
@@ -13,6 +14,7 @@ import 'models/visit.dart';
 import 'repositories/bolt_repository.dart';
 import 'rules.dart';
 import 'seed/content.dart';
+import 'seed/muscles.dart';
 import 'seed/splits.dart';
 import 'seed/templates.dart';
 import 'share_codes.dart';
@@ -332,6 +334,7 @@ class BoltStore extends Notifier<BoltData> {
     t.stats.mins += mins;
     if (toMin(g.since) < 420) t.stats.early++;
     if (toMin(g.since) >= 1260) t.stats.late++;
+    if (!auto && mins >= 90) t.stats.long++;
     return (v, newlyUnlocked(before, t.stats));
   }
 
@@ -435,6 +438,8 @@ class BoltStore extends Notifier<BoltData> {
     t.stats
       ..workouts += 1
       ..sets += dn;
+    if (dn > 0 && dn == p.totalSets) t.stats.full++;
+    _countWorkout(t, w.key, p);
     _checkPerfectWeek(t);
     final unlocked = newlyUnlocked(before, t.stats);
     _commit();
@@ -455,12 +460,26 @@ class BoltStore extends Notifier<BoltData> {
     final before = t.stats.copy();
     t.stats
       ..workouts += 1
-      ..sets += p.totalSets;
+      ..sets += p.totalSets
+      ..diary += 1;
+    _countWorkout(t, k, p);
     _checkPerfectWeek(t);
     final unlocked = newlyUnlocked(before, t.stats);
     _commit();
     _toast('${fmtDay(k)} logged · ${p.log}');
     return unlocked;
+  }
+
+  /// Counters for the kind of workout logged on day [k]: weekend, variety,
+  /// custom-built and the muscle groups it trained.
+  void _countWorkout(Trainee t, String k, Session p) {
+    final s = t.stats;
+    if (pk(k).weekday >= DateTime.saturday) s.weekend++;
+    s.kinds.add(p.title.trim().toLowerCase());
+    if (p.tpl == mixTpl || (state.tpls[p.tpl]?.custom ?? false)) s.built++;
+    for (final g in sessionGroups(p)) {
+      s.muscles[g] = (s.muscles[g] ?? 0) + 1;
+    }
   }
 
   /// Every planned session this week done: a perfect week, which also
@@ -499,7 +518,7 @@ class BoltStore extends Notifier<BoltData> {
     final t = tr(tid);
     final p = plan(tid);
     if (p[k] != null || (k.compareTo(today) < 0 && !canLogPast(tid, k))) return false;
-    p[k] = sessionFromTemplate(state, nextInRotation(p, t.split, k), _newStatus);
+    p[k] = sessionFromTemplate(state, nextInRotation(p, splitOf(state, t.split), k), _newStatus);
     _commit();
     if (!_isCoach) syncSessionReminders();
     return true;
@@ -516,6 +535,53 @@ class BoltStore extends Notifier<BoltData> {
     _commit();
   }
 
+  /// Replaces day [k] with a workout built from [muscles]: [ex] as picked in
+  /// the muscle builder. Kept as a one-off day, or saved to the Library as a
+  /// template when [save] is set.
+  void useMuscles(String tid, String k, List<String> muscles, List<ExSeed> ex, {bool save = false}) {
+    if (save) {
+      setTemplate(tid, k, templateFromMuscles(muscles, ex));
+      _toast('${musclesTitle(muscles)} saved to your Library');
+      return;
+    }
+    final p = plan(tid);
+    final o = p[k];
+    if (o != null && o.status == SessionStatus.done) return;
+    p[k] = Session(
+      tpl: mixTpl,
+      title: musclesTitle(muscles),
+      focus: [for (final m in muscles) kMuscles[m]?.name ?? m].join(' · '),
+      mins: _minsFor(ex),
+      ex: [for (final e in ex) exerciseFromSeed(e, state.uid())],
+      status: _isCoach ? SessionStatus.draft : (o?.status ?? SessionStatus.approved),
+      note: o?.note ?? '',
+      from: o?.from,
+      byCoach: o?.byCoach ?? false,
+      code: musclesCode(muscles),
+    );
+    _commit();
+    if (!_isCoach) syncSessionReminders();
+  }
+
+  /// Saves a muscle-builder workout as a custom template. Returns its id.
+  String templateFromMuscles(List<String> muscles, List<ExSeed> ex) {
+    final id = _newTemplateId();
+    state.tpls[id] = WorkoutTemplate(
+      id: id,
+      name: musclesTitle(muscles),
+      code: musclesCode(muscles),
+      focus: [for (final m in muscles) kMuscles[m]?.name ?? m].join(' · '),
+      mins: _minsFor(ex),
+      ex: [for (final e in ex) exerciseFromSeed(e, state.uid())],
+      custom: true,
+    );
+    _commit();
+    return id;
+  }
+
+  /// About three minutes a set, warm-up included.
+  int _minsFor(List<ExSeed> ex) => (ex.fold(0, (a, e) => a + e.sets) * 3).clamp(20, 120);
+
   void removeDay(String tid, String k) {
     final was = plan(tid).remove(k)?.status;
     _commit();
@@ -526,7 +592,7 @@ class BoltStore extends Notifier<BoltData> {
   /// Next 3 weeks from this Monday: each split day on its weekday when that
   /// date is today or later and empty.
   void autoFill(String tid) {
-    final split = kSplits[tr(tid).split]!;
+    final split = splitOf(state, tr(tid).split);
     final n = _fill(tid, _newStatus);
     _commit();
     _toast(
@@ -541,7 +607,7 @@ class BoltStore extends Notifier<BoltData> {
     final p = plan(tid);
     var n = 0;
     for (var w = 0; w < 3; w++) {
-      for (final d in kSplits[tr(tid).split]!.days) {
+      for (final d in splitOf(state, tr(tid).split).days) {
         final k = dk(addDays(mon0, 7 * w + d.weekday - 1));
         if (k.compareTo(today) >= 0 && p[k] == null) {
           p[k] = sessionFromTemplate(state, d.tpl, status);
@@ -552,10 +618,53 @@ class BoltStore extends Notifier<BoltData> {
     return n;
   }
 
-  void cycleSplit(String tid) {
-    final t = tr(tid);
-    t.split = kSplitOrder[(kSplitOrder.indexOf(t.split) + 1) % kSplitOrder.length];
+  void setSplit(String tid, String id) {
+    tr(tid).split = id;
     _commit();
+    _toast('Split set to ${splitOf(state, id).name}');
+  }
+
+  // Custom splits
+
+  /// A new empty split. Returns its id.
+  String newSplit() {
+    var n = state.splits.length + 1;
+    while (state.splits.containsKey('sp$n')) {
+      n++;
+    }
+    final id = 'sp$n';
+    state.splits[id] = CustomSplit(id: id, name: 'My split $n');
+    _commit();
+    return id;
+  }
+
+  void renameSplit(String id, String name) {
+    final x = state.splits[id];
+    if (x == null) return;
+    x.name = name.trim().isEmpty ? x.name : name.trim();
+    _commit();
+  }
+
+  /// Sets the workout on weekday [wd] (1 = Monday), or a rest day when null.
+  void setSplitDay(String id, int wd, String? tpl) {
+    final x = state.splits[id];
+    if (x == null) return;
+    if (tpl == null) {
+      x.days.remove(wd);
+    } else {
+      x.days[wd] = tpl;
+    }
+    _commit();
+  }
+
+  /// Deletes a custom split; anyone on it goes back to Push / Pull / Legs.
+  void deleteSplit(String id) {
+    final name = state.splits.remove(id)?.name;
+    for (final t in state.trainees) {
+      if (t.split == id) t.split = 'ppl';
+    }
+    _commit();
+    if (name != null) _toast('$name deleted');
   }
 
   /// Coach OKs a moved session.
@@ -664,9 +773,17 @@ class BoltStore extends Notifier<BoltData> {
     }
   }
 
+  String _newTemplateId() {
+    var n = state.tpls.keys.where((k) => k.startsWith('cu')).length + 1;
+    while (state.tpls.containsKey('cu$n')) {
+      n++;
+    }
+    return 'cu$n';
+  }
+
   String newTemplate() {
-    final n = state.tpls.keys.where((k) => k.startsWith('cu')).length + 1;
-    final id = 'cu$n';
+    final id = _newTemplateId();
+    final n = id.substring(2);
     state.tpls[id] = WorkoutTemplate(
       id: id,
       name: 'Custom $n',
@@ -709,7 +826,11 @@ class BoltStore extends Notifier<BoltData> {
       'name': t.name,
       'coach': coach.name,
       'injuries': t.injuries.map((i) => i.toJson()).toList(),
-      'sessions': {for (final k in keys) k: plan(tid)[k]!.toJson()},
+      // Template ids differ between phones, so each day carries its own code.
+      'sessions': {
+        for (final k in keys)
+          k: plan(tid)[k]!.toJson()..['code'] = plan(tid)[k]!.code ?? state.tpls[plan(tid)[k]!.tpl]?.code,
+      },
     });
     final range = keys.isEmpty ? '' : ', ${fmtDay(keys.first)} to ${fmtDay(keys.last)}';
     return '${firstName(t.name)}, here is your Bolt plan from ${firstName(coach.name)}: '
@@ -810,6 +931,7 @@ class BoltStore extends Notifier<BoltData> {
         note: s.note,
         from: s.from,
         byCoach: true,
+        code: s.code,
       );
       n++;
     });

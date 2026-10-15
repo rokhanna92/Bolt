@@ -255,7 +255,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget _aboutStep() {
     final coach = _role == Role.coach;
     final ok = _name.text.trim().isNotEmpty;
-    final tpls = ref.read(boltProvider).tpls;
+    final d = ref.read(boltProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -269,7 +269,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           const FieldLabel('GOAL'),
           ChoiceChips(options: kGoals, selected: _goal, onSelect: (g) => setState(() => _goal = g)),
           const FieldLabel('WEEKLY SPLIT'),
-          SplitPicker(selected: _split, tpls: tpls, onSelect: (s) => setState(() => _split = s)),
+          SplitPicker(selected: _split, data: d, onSelect: (s) => setState(() => _split = s)),
         ],
         if (_role == Role.trainee) ...[
           const FieldLabel('YOUR COACH'),
@@ -307,9 +307,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: Text(text, style: BoltText.a(12, color: BoltColors.muted)),
     );
     return switch (ref.watch(listedCoachesProvider)) {
-      AsyncData(value: null) || AsyncError() => [
-        note('Could not load the coach list. Type your coach\'s name instead.'),
-      ],
+      AsyncData(value: null) ||
+      AsyncError() => [note('Could not load the coach list. Type your coach\'s name instead.')],
       AsyncData(value: final coaches?) => [
         for (final c in coaches) _coachRow(c),
         if (coaches.isNotEmpty) note('Not listed? Type their name.'),
@@ -407,7 +406,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       children: [
                         Text('Plan my next 3 weeks', style: BoltText.a(14, weight: 700)),
                         const SizedBox(height: 2),
-                        Text('From your ${kSplits[_split]!.name}', style: BoltText.a(12, color: BoltColors.muted)),
+                        Text(
+                          'From your ${splitOf(ref.read(boltProvider), _split).name}',
+                          style: BoltText.a(12, color: BoltColors.muted),
+                        ),
                       ],
                     ),
                   ),

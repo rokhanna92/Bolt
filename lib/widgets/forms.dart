@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Split;
 
 import '../core/format.dart';
 import '../core/units.dart';
+import '../data/models/bolt_data.dart';
 import '../data/models/people.dart';
 import '../data/models/template.dart';
 import '../data/seed/splits.dart';
@@ -64,19 +65,23 @@ class ChoiceChips extends StatelessWidget {
   }
 }
 
-/// Weekly split cards with a 7-day preview, like the Library.
+/// Weekly split cards with a 7-day preview, like the Library: the built-in
+/// splits, then the owner's own.
 class SplitPicker extends StatelessWidget {
-  const SplitPicker({super.key, required this.selected, required this.onSelect, required this.tpls});
+  const SplitPicker({super.key, required this.selected, required this.onSelect, required this.data, this.onEdit});
 
   final String selected;
   final ValueChanged<String> onSelect;
-  final Map<String, WorkoutTemplate> tpls;
+  final BoltData data;
+
+  /// Shows "Edit" on custom splits.
+  final ValueChanged<String>? onEdit;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        for (final k in kSplitOrder) ...[
+        for (final k in splitIds(data)) ...[
           Tap(
             onTap: () => onSelect(k),
             child: BoltBox(
@@ -89,12 +94,20 @@ class SplitPicker extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: Text(kSplits[k]!.name, style: BoltText.a(14, weight: 800))),
+                      Expanded(child: Text(splitOf(data, k).name, style: BoltText.a(14, weight: 800))),
+                      if (onEdit != null && data.splits.containsKey(k))
+                        Tap(
+                          onTap: () => onEdit!(k),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            child: Text('Edit', style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
+                          ),
+                        ),
                       if (k == selected) Text('✓', style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  _week(k),
+                  SplitWeek(split: splitOf(data, k), tpls: data.tpls),
                 ],
               ),
             ),
@@ -104,12 +117,21 @@ class SplitPicker extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _week(String k) {
-    final byDay = {for (final d in kSplits[k]!.days) d.weekday: d.tpl};
+/// Monday to Sunday with each training day's workout code.
+class SplitWeek extends StatelessWidget {
+  const SplitWeek({super.key, required this.split, required this.tpls});
+
+  final Split split;
+  final Map<String, WorkoutTemplate> tpls;
+
+  @override
+  Widget build(BuildContext context) {
+    final byDay = {for (final d in split.days) d.weekday: d.tpl};
     return Row(
       children: [
-        for (final (i, wd) in const [1, 2, 3, 4, 5, 6, 0].indexed) ...[
+        for (final (i, wd) in kWeekOrder.indexed) ...[
           if (i > 0) const SizedBox(width: 4),
           Expanded(
             child: BoltBox(
@@ -121,7 +143,7 @@ class SplitPicker extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(weekdays[wd][0], style: BoltText.m(8, color: BoltColors.muted3)),
+                  Text(weekdays[wd % 7][0], style: BoltText.m(8, color: BoltColors.muted3)),
                   const SizedBox(height: 1),
                   Text(
                     byDay[wd] == null ? '' : tpls[byDay[wd]]?.code ?? '',

@@ -115,7 +115,12 @@ class _CoachCalendarScreenState extends ConsumerState<CoachCalendarScreen> {
           children: [
             Text(
               fmtDay(_sel).toUpperCase(),
-              style: BoltText.m(11, weight: 700, spacing: .1, color: _sel == today ? BoltColors.neon : BoltColors.muted),
+              style: BoltText.m(
+                11,
+                weight: 700,
+                spacing: .1,
+                color: _sel == today ? BoltColors.neon : BoltColors.muted,
+              ),
             ),
             const SizedBox(width: 8),
             const Expanded(child: Divider(height: 1, thickness: 1, color: BoltColors.divider)),

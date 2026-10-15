@@ -14,6 +14,7 @@ import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/exercise_rows.dart';
 import '../../widgets/tap.dart';
+import '../workouts/workout_picker.dart';
 
 /// Trainee's day sheet: the session, its exercises and what they can do.
 class DaySheet extends ConsumerWidget {
@@ -86,32 +87,7 @@ class DaySheet extends ConsumerWidget {
           const SizedBox(height: 12),
           CoachNote(ini: initials(s.byCoach ? (coachName ?? 'Coach') : t.name), note: s.note),
         ],
-        if (editable) ...[
-          const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (final id in d.tpls.keys) ...[
-                  Tap(
-                    onTap: () => store.setTemplate(t.id, dayKey, id),
-                    child: BoltBox(
-                      radius: 99,
-                      color: s.tpl == id ? BoltColors.neon : BoltColors.surface2,
-                      stroke: Stroke(s.tpl == id ? BoltColors.neon : BoltColors.line),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                      child: Text(
-                        d.tpls[id]!.name,
-                        style: BoltText.a(12, weight: 700, color: s.tpl == id ? BoltColors.ink : BoltColors.text),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                ],
-              ],
-            ),
-          ),
-        ],
+        if (editable) ...[const SizedBox(height: 12), ChangeWorkoutButton(onTap: () => changeDayWorkout(t.id, dayKey))],
         const SizedBox(height: 12),
         ExerciseRows(trainee: t, exercises: s.ex, canSwap: true, onHow: showExerciseSheet),
         if (s.status == SessionStatus.done) ...[

@@ -18,6 +18,7 @@ Future<void> main() async {
   // Everything lives on this phone. First launch (or an old demo install)
   // starts empty and goes through onboarding.
   final data = repo.load() ?? freshData();
+  addMissingTemplates(data);
 
   runApp(
     ProviderScope(

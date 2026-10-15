@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/actions.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/bolt_data.dart';
 import '../../data/models/template.dart';
 import '../../data/seed/splits.dart';
+import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
+import '../../widgets/forms.dart';
 import '../../widgets/tap.dart';
 
 class LibraryScreen extends ConsumerWidget {
@@ -21,7 +24,21 @@ class LibraryScreen extends ConsumerWidget {
     final d = ref.watch(boltProvider);
     final store = ref.read(boltProvider.notifier);
     final coach = d.account?.isCoach ?? false;
-    final tpls = d.tpls.values.toList();
+    final custom = [
+      for (final t in d.tpls.values)
+        if (t.custom) t.id,
+    ];
+    final groups = [
+      for (final (title, ids) in kTemplateGroups)
+        (
+          title,
+          [
+            for (final id in ids)
+              if (d.tpls[id] != null) id,
+          ],
+        ),
+      ('Your workouts', custom),
+    ];
     return ScreenScroll(
       children: [
         // A tab for coaches; pushed from Me for everyone else.
@@ -36,24 +53,35 @@ class LibraryScreen extends ConsumerWidget {
             ],
           ),
         const SizedBox(height: 4),
+        Text('Workouts', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+        const SizedBox(height: 6),
+        Text(
+          'Templates used by auto-fill and splits. Edit once, every future plan follows.',
+          style: BoltText.a(13, color: BoltColors.muted),
+        ),
+        const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: Text('Workouts', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02))),
-            Tap(
-              onTap: () => context.push('/editor/tpl/${store.newTemplate()}'),
-              child: BoltBox(
-                color: BoltColors.neon,
+            Expanded(
+              child: NeonButton(
+                label: '+ From muscles',
+                height: 44,
                 radius: 12,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                child: Text('+ New', style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                fontSize: 13,
+                onTap: newTemplateFromMuscles,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlineButton(
+                label: '+ Empty',
+                height: 44,
+                radius: 12,
+                fontSize: 13,
+                onTap: () => context.push('/editor/tpl/${store.newTemplate()}'),
               ),
             ),
           ],
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'Default templates used by auto-fill. Edit once, every future plan follows.',
-          style: BoltText.a(13, color: BoltColors.muted),
         ),
         const SizedBox(height: 12),
         Align(
@@ -61,31 +89,45 @@ class LibraryScreen extends ConsumerWidget {
           child: Tap(
             onTap: () => context.push('/guide'),
             child: Text(
-              'Learn: workout reasoning, form & supplements →',
+              'Learn: styles, muscles, form & supplements →',
               style: BoltText.a(13, weight: 700, color: BoltColors.neon),
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        for (var r = 0; r < tpls.length; r += 2) ...[
-          if (r > 0) const SizedBox(height: 8),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(child: _tplCard(context, tpls[r])),
-                const SizedBox(width: 8),
-                Expanded(child: r + 1 < tpls.length ? _tplCard(context, tpls[r + 1]) : const SizedBox()),
-              ],
-            ),
-          ),
-        ],
+        for (final (title, ids) in groups)
+          if (ids.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            Kicker(title.toUpperCase(), size: 10, spacing: .1),
+            const SizedBox(height: 8),
+            for (var r = 0; r < ids.length; r += 2) ...[
+              if (r > 0) const SizedBox(height: 8),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: _tplCard(context, d.tpls[ids[r]]!)),
+                    const SizedBox(width: 8),
+                    Expanded(child: r + 1 < ids.length ? _tplCard(context, d.tpls[ids[r + 1]]!) : const SizedBox()),
+                  ],
+                ),
+              ),
+            ],
+          ],
         const SizedBox(height: 24),
-        const SectionTitle('Weekly splits'),
+        Row(
+          children: [
+            const Expanded(child: SectionTitle('Weekly splits')),
+            Tap(
+              onTap: () => context.push('/split/${store.newSplit()}'),
+              child: Text('+ Build a split', style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
+            ),
+          ],
+        ),
         const SizedBox(height: 10),
-        for (final k in kSplitOrder) ...[
+        for (final k in splitIds(d)) ...[
           _splitCard(
-            d.tpls,
+            context,
+            d,
             k,
             coach
                 ? plural(d.trainees.where((x) => x.split == k).length, 'trainee').toUpperCase()
@@ -129,56 +171,34 @@ class LibraryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _splitCard(Map<String, WorkoutTemplate> tpls, String k, String used) {
-    final s = kSplits[k]!;
-    final byDay = {for (final d in s.days) d.weekday: d.tpl};
-    return BoltBox(
-      color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
-      radius: 18,
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Expanded(child: Text(s.name, style: BoltText.a(14, weight: 800))),
-              Text(used, style: BoltText.m(9, color: BoltColors.muted)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              for (final (i, wd) in const [1, 2, 3, 4, 5, 6, 0].indexed) ...[
-                if (i > 0) const SizedBox(width: 4),
-                Expanded(
-                  child: BoltBox(
-                    height: 40,
-                    borderBox: true,
-                    radius: 9,
-                    color: byDay[wd] != null ? BoltColors.surface2 : Colors.transparent,
-                    stroke: byDay[wd] != null
-                        ? const Stroke(BoltColors.line)
-                        : const Stroke.dashed(BoltColors.lineFaint),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(weekdays[wd][0], style: BoltText.m(8, color: BoltColors.muted3)),
-                        const SizedBox(height: 1),
-                        Text(
-                          byDay[wd] == null ? '' : tpls[byDay[wd]]?.code ?? '',
-                          style: BoltText.m(8, weight: 700, color: BoltColors.neon),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+  Widget _splitCard(BuildContext context, BoltData d, String k, String used) {
+    final custom = d.splits.containsKey(k);
+    return Tap(
+      onTap: custom ? () => context.push('/split/$k') : null,
+      child: BoltBox(
+        color: BoltColors.surface1,
+        stroke: const Stroke(BoltColors.lineSoft),
+        radius: 18,
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Expanded(child: Text(splitOf(d, k).name, style: BoltText.a(14, weight: 800))),
+                Text(used, style: BoltText.m(9, color: BoltColors.muted)),
+                if (custom) ...[
+                  const SizedBox(width: 8),
+                  Text('Edit', style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
+                ],
               ],
-            ],
-          ),
-        ],
+            ),
+            const SizedBox(height: 10),
+            SplitWeek(split: splitOf(d, k), tpls: d.tpls),
+          ],
+        ),
       ),
     );
   }

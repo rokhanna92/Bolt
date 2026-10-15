@@ -1,3 +1,4 @@
+import 'custom_split.dart';
 import 'people.dart';
 import 'session.dart';
 import 'settings.dart';
@@ -70,7 +71,8 @@ class BoltData {
     this.workout,
     this.nextId = 0,
     this.linkId,
-  });
+    Map<String, CustomSplit>? splits,
+  }) : splits = splits ?? {};
 
   /// Saved data format. Anything older (the v1.0 demo) is discarded.
   static const version = 2;
@@ -97,6 +99,9 @@ class BoltData {
   /// plan, so updates sent back land on the right person.
   String? linkId;
 
+  /// Weekly splits the owner built, by id.
+  final Map<String, CustomSplit> splits;
+
   String uid() => 'e${++nextId}';
 
   Map<String, dynamic> toJson() => {
@@ -112,6 +117,7 @@ class BoltData {
     'workout': workout?.toJson(),
     'nextId': nextId,
     'linkId': linkId,
+    'splits': splits.values.map((x) => x.toJson()).toList(),
   };
 
   factory BoltData.fromJson(Map<String, dynamic> j) {
@@ -133,6 +139,10 @@ class BoltData {
       workout: j['workout'] == null ? null : ActiveWorkout.fromJson(m(j['workout'])),
       nextId: j['nextId'] as int? ?? 0,
       linkId: j['linkId'] as String?,
+      splits: {
+        for (final x in j['splits'] as List? ?? const [])
+          (x as Map<String, dynamic>)['id'] as String: CustomSplit.fromJson(x),
+      },
     );
   }
 }

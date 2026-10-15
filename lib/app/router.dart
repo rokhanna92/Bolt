@@ -22,6 +22,7 @@ import '../features/profile/me_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/today/today_screen.dart';
 import '../features/workout/workout_screen.dart';
+import '../features/workouts/split_editor_screen.dart';
 import '../widgets/common.dart';
 import 'shell.dart';
 
@@ -145,6 +146,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) =>
             _enter(s, EditorScreen(target: DayTarget(s.pathParameters['tid']!, s.pathParameters['key']!))),
+      ),
+      GoRoute(
+        path: '/split/:id',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, SplitEditorScreen(id: s.pathParameters['id']!)),
       ),
       GoRoute(
         path: '/guide',

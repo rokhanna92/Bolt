@@ -59,7 +59,7 @@ class MeScreen extends ConsumerWidget {
           spacing: 6,
           runSpacing: 6,
           children: [
-            for (final c in [t.goal, kSplits[t.split]!.name, 'Since ${t.since}'])
+            for (final c in [t.goal, splitOf(d, t.split).name, 'Since ${t.since}'])
               BoltBox(
                 radius: 99,
                 stroke: const Stroke(BoltColors.line),

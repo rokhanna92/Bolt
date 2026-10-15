@@ -85,7 +85,15 @@ class TraineeStats {
     this.workouts = 0,
     this.sets = 0,
     this.lastPerfectWeek,
-  });
+    this.weekend = 0,
+    this.long = 0,
+    this.built = 0,
+    this.diary = 0,
+    this.full = 0,
+    Set<String>? kinds,
+    Map<String, int>? muscles,
+  }) : kinds = kinds ?? {},
+       muscles = muscles ?? {};
 
   int sessions;
   int mins;
@@ -104,6 +112,27 @@ class TraineeStats {
   /// Monday key of the last week where every planned session was done.
   String? lastPerfectWeek;
 
+  /// Workouts logged on a Saturday or Sunday.
+  int weekend;
+
+  /// Gym visits of 90 minutes or more.
+  int long;
+
+  /// Workouts logged that were built from muscles or a custom template.
+  int built;
+
+  /// Past days logged from the diary.
+  int diary;
+
+  /// Workouts finished with every set checked off.
+  int full;
+
+  /// Distinct workout titles logged.
+  final Set<String> kinds;
+
+  /// Workouts logged per muscle group (`chest`, `back`, `legs`, ...).
+  final Map<String, int> muscles;
+
   TraineeStats copy() => TraineeStats(
     sessions: sessions,
     mins: mins,
@@ -115,6 +144,13 @@ class TraineeStats {
     workouts: workouts,
     sets: sets,
     lastPerfectWeek: lastPerfectWeek,
+    weekend: weekend,
+    long: long,
+    built: built,
+    diary: diary,
+    full: full,
+    kinds: {...kinds},
+    muscles: {...muscles},
   );
 
   /// Badge counter by key, hours derived from minutes.
@@ -128,6 +164,13 @@ class TraineeStats {
     'perfect' => perfect,
     'workouts' => workouts,
     'sets' => sets,
+    'weekend' => weekend,
+    'long' => long,
+    'built' => built,
+    'diary' => diary,
+    'full' => full,
+    'kinds' => kinds.length,
+    _ when key.startsWith('m_') => muscles[key.substring(2)] ?? 0,
     _ => 0,
   };
 
@@ -142,6 +185,13 @@ class TraineeStats {
     'workouts': workouts,
     'sets': sets,
     'lastPerfectWeek': lastPerfectWeek,
+    'weekend': weekend,
+    'long': long,
+    'built': built,
+    'diary': diary,
+    'full': full,
+    'kinds': kinds.toList(),
+    'muscles': muscles,
   };
 
   factory TraineeStats.fromJson(Map<String, dynamic> j) => TraineeStats(
@@ -155,6 +205,13 @@ class TraineeStats {
     workouts: j['workouts'] as int? ?? 0,
     sets: j['sets'] as int? ?? 0,
     lastPerfectWeek: j['lastPerfectWeek'] as String?,
+    weekend: j['weekend'] as int? ?? 0,
+    long: j['long'] as int? ?? 0,
+    built: j['built'] as int? ?? 0,
+    diary: j['diary'] as int? ?? 0,
+    full: j['full'] as int? ?? 0,
+    kinds: {for (final k in j['kinds'] as List? ?? const []) k as String},
+    muscles: (j['muscles'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, v as int)),
   );
 }
 
@@ -183,7 +240,7 @@ class Trainee {
   String? coachName;
   String goal;
 
-  /// Split id (`ppl`, `ul`, `fb`, `rehab`).
+  /// Split id: a built-in one (`ppl`, `old4`, ...) or a custom split.
   String split;
 
   /// "Mar 2026".
