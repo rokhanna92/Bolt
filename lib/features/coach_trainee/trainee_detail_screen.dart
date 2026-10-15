@@ -13,6 +13,7 @@ import '../../core/units.dart';
 import '../../data/lifts.dart';
 import '../../data/rules.dart';
 import '../../data/seed/splits.dart';
+import '../../data/strength.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -283,7 +284,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                             Expanded(child: Text(tx(name), style: BoltText.a(14, weight: 700))),
                             if (maxFor(x, p, name) case final m?)
                               Text(
-                                'e1RM ${fmtWeight(m, metric: d.settings.kg)}',
+                                'e1RM ${fmtWeight(m, metric: d.settings.kg)}${levelSuffix(name, m, x.body)}',
                                 style: BoltText.m(11, weight: 700, color: BoltColors.neon),
                               ),
                             const SizedBox(width: 8),

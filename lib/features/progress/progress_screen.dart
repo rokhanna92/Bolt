@@ -7,10 +7,12 @@ import '../../core/units.dart';
 import '../../data/bolt_store.dart';
 import '../../data/lifts.dart';
 import '../../data/models/bolt_data.dart';
+import '../../data/models/people.dart';
 import '../../data/models/session.dart';
 import '../../data/models/visit.dart';
 import '../../data/rules.dart';
 import '../../data/seed/muscles.dart';
+import '../../data/strength.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -97,7 +99,7 @@ class ProgressScreen extends ConsumerWidget {
               style: BoltText.a(12, color: BoltColors.muted),
             ),
             const SizedBox(height: 8),
-            for (final name in lifts) _LiftRow(name: name, days: liftHistory(plan, name), metric: metric),
+            for (final name in lifts) _LiftRow(name: name, days: liftHistory(plan, name), metric: metric, t: t),
           ],
         ),
       ),
@@ -285,11 +287,12 @@ class _Records extends StatelessWidget {
 }
 
 class _LiftRow extends StatelessWidget {
-  const _LiftRow({required this.name, required this.days, required this.metric});
+  const _LiftRow({required this.name, required this.days, required this.metric, required this.t});
 
   final String name;
   final List<LiftDay> days;
   final bool metric;
+  final Trainee t;
 
   @override
   Widget build(BuildContext context) {
@@ -311,7 +314,8 @@ class _LiftRow extends StatelessWidget {
                   Text(tx(name), style: BoltText.a(14, weight: 800)),
                   const SizedBox(height: 2),
                   Text(
-                    tx('{n} · last {day}', {'n': plural(days.length, 'workout'), 'day': fmtDay(days.last.date)}),
+                    tx('{n} · last {day}', {'n': plural(days.length, 'workout'), 'day': fmtDay(days.last.date)}) +
+                        levelSuffix(name, t.maxes[name] ?? best, t.body),
                     style: BoltText.a(11, color: BoltColors.muted),
                   ),
                 ],

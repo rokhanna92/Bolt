@@ -7,7 +7,9 @@ import '../../core/format.dart';
 import '../../core/units.dart';
 import '../../data/bolt_store.dart';
 import '../../data/lifts.dart';
+import '../../data/models/people.dart';
 import '../../data/seed/learn.dart';
+import '../../data/strength.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -73,6 +75,11 @@ class LiftScreen extends ConsumerWidget {
             if (t != null) ...[
               _MaxRow(name: name, tid: t.id, set: t.maxes[name], estimate: best, own: own, metric: metric),
               const SizedBox(height: 10),
+              if (hasStandards(name))
+                if (t.maxes[name] ?? best case final max?) ...[
+                  _LevelCard(name: name, max: max, body: t.body, metric: metric),
+                  const SizedBox(height: 10),
+                ],
             ],
             StatRow(
               children: [
@@ -203,6 +210,69 @@ class _MaxRow extends StatelessWidget {
                 style: BoltText.a(13, weight: 800, color: BoltColors.neon),
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Where the max sits against strength standards for the lifter's sex and
+/// bodyweight.
+class _LevelCard extends StatelessWidget {
+  const _LevelCard({required this.name, required this.max, required this.body, required this.metric});
+
+  final String name;
+  final double max;
+  final Body body;
+  final bool metric;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = strengthLevel(name, max, body);
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(BoltColors.lineSoft),
+      radius: 14,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Kicker(tx('STRENGTH LEVEL'), size: 9, spacing: .1),
+          const SizedBox(height: 3),
+          if (l == null)
+            Text(
+              tx('Add bodyweight and male or female in the profile to see the strength level.'),
+              style: BoltText.a(13, color: BoltColors.muted, height: 1.4),
+            )
+          else ...[
+            Text(
+              tx('{level} · {x}× bodyweight', {'level': tx(kStrengthLevels[l.level]), 'x': l.ratio.toStringAsFixed(2)}),
+              style: BoltText.a(14, weight: 800),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                for (var i = 0; i < kStrengthLevels.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 3),
+                  Expanded(
+                    child: Container(
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: i <= l.level ? BoltColors.neon : BoltColors.lineSoft,
+                        borderRadius: BorderRadius.circular(99),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${l.nextKg == null ? tx('Top level.') : tx('Next: {level} at {kg}.', {'level': tx(kStrengthLevels[l.level + 1]), 'kg': fmtWeight(plates(l.nextKg!), metric: metric)})} '
+              '${tx(body.sex == 'f' ? 'Standards for women.' : 'Standards for men.')}',
+              style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
+            ),
+          ],
         ],
       ),
     );
