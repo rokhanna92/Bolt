@@ -22,6 +22,7 @@ import '../../widgets/fields.dart';
 import '../../widgets/forms.dart';
 import '../../widgets/tap.dart';
 import '../sharing/import_sheet.dart';
+import 'bulk_sheet.dart';
 
 class _Attention {
   const _Attention(this.text, this.sub, this.act, this.dot, this.onAct);
@@ -76,6 +77,24 @@ class RosterScreen extends ConsumerWidget {
               store.markInjuriesSeen(x.id);
               open(x.id);
             },
+          ),
+        );
+      }
+      // Confirmed days earlier this week that are still not done.
+      final mon = weekStart(store.now, mondayFirst: d.settings.mondayFirst);
+      final behind = [
+        for (var i = 0; i < 7; i++)
+          if (dk(addDays(mon, i)) case final k when k.compareTo(today) < 0)
+            if (p[k] case final s? when s.status == SessionStatus.approved || s.status == SessionStatus.moved) k,
+      ];
+      if (behind.isNotEmpty) {
+        att.add(
+          _Attention(
+            txFor(she, '{name} is behind this week', {'name': fn}),
+            tx('{n} not done yet', {'n': plural(behind.length, 'session')}),
+            tx('Open'),
+            BoltColors.warn,
+            () => open(x.id),
           ),
         );
       }
@@ -138,6 +157,13 @@ class RosterScreen extends ConsumerWidget {
         Row(
           children: [
             Expanded(child: Kicker('${tx('TRAINEES')} · ${my.length}')),
+            if (my.length > 1) ...[
+              Tap(
+                onTap: () => showBoltSheet<void>(context, (_) => BulkSheet(trainees: my), maxHeight: .92),
+                child: Text(tx('Several…'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+              ),
+              const SizedBox(width: 16),
+            ],
             if (my.isNotEmpty)
               Tap(
                 onTap: () => showBoltSheet<void>(context, (_) => const ImportSheet()),
