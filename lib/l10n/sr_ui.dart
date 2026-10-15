@@ -691,4 +691,9 @@ const kSrUi = <String, String>{
   'FRONT VIEW': 'SPREDA',
   'BACK VIEW': 'POZADI',
   'MUSCLE VOLUME THIS WEEK': 'OBIM PO MIŠIĆU OVE NEDELJE',
+  '{n} swapped for your injury flags': 'Zamenjeno zbog povreda: {n}',
+  'Swap {name}': 'Zameni {name}',
+  'Same muscle, with its own reps and load. Exercises that load an injury flag are left out.': 'Isti mišić, sa svojim ponavljanjima i tegom. Vežbe koje opterećuju povredu su izostavljene.',
+  'Back to {name}': 'Vrati na {name}',
+  'No other exercises for this muscle.': 'Nema drugih vežbi za ovaj mišić.',
 };

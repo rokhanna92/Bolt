@@ -28,6 +28,7 @@ import '../../widgets/common.dart';
 import '../../widgets/exercise_rows.dart';
 import '../../widgets/fields.dart';
 import '../../widgets/motion.dart';
+import '../../widgets/swap_sheet.dart';
 import '../../widgets/tap.dart';
 import '../plan/day_sheet.dart';
 import '../today/today_screen.dart' show clockText;
@@ -354,6 +355,10 @@ class _ExerciseCard extends ConsumerWidget {
                     child: Text(tx('i'), style: BoltText.a(13, weight: 800, color: BoltColors.neon, height: 1)),
                   ),
                 ),
+              ],
+              if (!(workout.done[e.id]?.contains(true) ?? false) && swapOptions(e, trainee).isNotEmpty) ...[
+                const SizedBox(width: 8),
+                SwapIcon(onTap: () => showSwapSheet(context, e, trainee)),
               ],
               const SizedBox(width: 10),
               Text(load, style: BoltText.m(12, color: BoltColors.muted)),

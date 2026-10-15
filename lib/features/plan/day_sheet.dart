@@ -105,7 +105,13 @@ class DaySheet extends ConsumerWidget {
           ChangeWorkoutButton(onTap: () => changeDayWorkout(t.id, dayKey)),
         ],
         const SizedBox(height: 12),
-        ExerciseRows(trainee: t, exercises: s.ex, canSwap: true, onHow: showExerciseSheet),
+        ExerciseRows(
+          trainee: t,
+          exercises: s.ex,
+          canSwap: true,
+          onHow: showExerciseSheet,
+          swapAny: s.status != SessionStatus.done,
+        ),
         if (s.status == SessionStatus.done) ...[
           const SizedBox(height: 12),
           Text(

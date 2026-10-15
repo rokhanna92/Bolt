@@ -32,6 +32,16 @@ void swapExercise(Exercise e) {
   e.swapped = true;
 }
 
+/// Other exercises for [e]'s muscle, the same kind (compound or isolation)
+/// first, leaving out ones that load an injured area of [t].
+List<ExInfo> swapOptions(Exercise e, Trainee? t) {
+  final x = kExerciseByName[e.name];
+  if (x == null) return const [];
+  final hurt = {for (final i in t?.injuries ?? const <Injury>[]) i.area};
+  return kExercises.where((o) => o.muscle == x.muscle && o.name != x.name && !hurt.contains(o.area)).toList()
+    ..sort((a, b) => (a.compound == x.compound ? 0 : 1) - (b.compound == x.compound ? 0 : 1));
+}
+
 /// Template for an empty day [k]: the one after the most recent earlier
 /// session in the split rotation, or the first one. A split without days
 /// falls back to full body.

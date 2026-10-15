@@ -16,6 +16,7 @@ import 'lifts.dart';
 import 'repositories/bolt_repository.dart';
 import 'rules.dart';
 import 'seed/content.dart';
+import 'seed/exercises.dart';
 import 'seed/muscles.dart';
 import 'seed/splits.dart';
 import 'seed/templates.dart';
@@ -587,8 +588,23 @@ class BoltStore extends Notifier<BoltData> {
 
   // Workout
 
+  /// Starts day [k]'s workout. A fresh start swaps exercises that load a
+  /// flagged injury to their safer alternative.
   void startWorkout(String k) {
-    if (state.workout?.key != k) state.workout = ActiveWorkout(key: k, started: now.millisecondsSinceEpoch);
+    if (state.workout?.key != k) {
+      state.workout = ActiveWorkout(key: k, started: now.millisecondsSinceEpoch);
+      final t = trOrNull(state.account!.id);
+      final flagged = [
+        for (final e in plan(t?.id ?? '')[k]?.ex ?? const <Exercise>[])
+          if (isFlagged(t, e) && e.alt != null) e,
+      ];
+      for (final e in flagged) {
+        swapExercise(e);
+      }
+      if (flagged.isNotEmpty) {
+        _toast(tx('{n} swapped for your injury flags', {'n': plural(flagged.length, 'exercise')}));
+      }
+    }
     _commit();
   }
 
@@ -623,6 +639,30 @@ class BoltStore extends Notifier<BoltData> {
     swapExercise(e);
     _commit();
     _toast(tx('Swapped to {name}', {'name': tx(e.name)}));
+  }
+
+  /// Swaps [e] for [name], another exercise for the same muscle, with that
+  /// exercise's reps and load. Picking the original again undoes the swap.
+  /// A coach's change turns the day back into a draft.
+  void swapTo(Exercise e, String name) {
+    final x = kExerciseByName[name];
+    if (x == null) return;
+    final first = e.swapped ? e.orig : e.name;
+    e
+      ..name = name
+      ..reps = x.reps
+      ..load = x.load
+      ..area = x.area
+      ..alt = x.alt
+      ..swapped = name != first
+      ..orig = name != first ? first : '';
+    if (_isCoach) {
+      for (final s in state.plans.values.expand((p) => p.values)) {
+        if (s.ex.contains(e) && s.status != SessionStatus.done) s.status = SessionStatus.draft;
+      }
+    }
+    _commit();
+    _toast(tx('Swapped to {name}', {'name': tx(name)}));
   }
 
   /// Logs the workout and returns badges it unlocked.

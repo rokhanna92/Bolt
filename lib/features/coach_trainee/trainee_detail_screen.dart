@@ -470,7 +470,7 @@ class _SelectedDay extends ConsumerWidget {
             ChangeWorkoutButton(onTap: () => changeDayWorkout(tid, dayKey)),
           ],
           const SizedBox(height: 10),
-          ExerciseRows(trainee: store.tr(tid), exercises: s.ex, canSwap: editable, compact: true),
+          ExerciseRows(trainee: store.tr(tid), exercises: s.ex, canSwap: editable, compact: true, swapAny: editable),
           if (editable) ...[
             const SizedBox(height: 12),
             Row(

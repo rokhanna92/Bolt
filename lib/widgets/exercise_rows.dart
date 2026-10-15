@@ -12,6 +12,7 @@ import '../data/seed/templates.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
 import 'box.dart';
+import 'swap_sheet.dart';
 import 'tap.dart';
 
 /// Numbered exercise list with injury flags and swaps (`exRows`), used by the
@@ -24,6 +25,7 @@ class ExerciseRows extends ConsumerWidget {
     required this.canSwap,
     this.onHow,
     this.compact = false,
+    this.swapAny = false,
   });
 
   final Trainee? trainee;
@@ -36,16 +38,19 @@ class ExerciseRows extends ConsumerWidget {
   /// Coach detail sizing (14 px names, 9 px padding).
   final bool compact;
 
+  /// Any exercise can be swapped for another one for the same muscle.
+  final bool swapAny;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final store = ref.read(boltProvider.notifier);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [for (var i = 0; i < exercises.length; i++) _row(store, i, exercises[i])],
+      children: [for (var i = 0; i < exercises.length; i++) _row(context, store, i, exercises[i])],
     );
   }
 
-  Widget _row(BoltStore store, int i, Exercise e) {
+  Widget _row(BuildContext context, BoltStore store, int i, Exercise e) {
     final f = isFlagged(trainee, e);
     final t = trainee;
     final shown = t == null ? store.unit(e.load) : loadText(t, store.plan(t.id), e, metric: store.metric);
@@ -80,6 +85,10 @@ class ExerciseRows extends ConsumerWidget {
                     child: Text(tx('i'), style: BoltText.a(11, weight: 800, color: BoltColors.neon, height: 1)),
                   ),
                 ),
+              ],
+              if (swapAny && swapOptions(e, t).isNotEmpty) ...[
+                const SizedBox(width: 8),
+                SwapIcon(onTap: () => showSwapSheet(context, e, t), size: 24),
               ],
               const SizedBox(width: 10),
               Text('${e.sets} × ${e.reps}$load', style: BoltText.m(11, color: BoltColors.muted)),
