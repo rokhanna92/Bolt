@@ -1,10 +1,41 @@
-/// Body weight, height and tape measurements. Stored metric (kg, cm) and
-/// converted for display.
+/// One day's weigh-in and tape measurements, stored metric.
+class BodyEntry {
+  BodyEntry({required this.date, this.weightKg, Map<String, double>? cm}) : cm = cm ?? {};
+
+  /// Day key.
+  final String date;
+  double? weightKg;
+
+  /// Circumferences by part key, in cm.
+  final Map<String, double> cm;
+
+  /// `weight` or a part key.
+  double? value(String key) => key == 'weight' ? weightKg : cm[key];
+
+  bool get isEmpty => weightKg == null && cm.isEmpty;
+
+  Map<String, dynamic> toJson() => {'date': date, 'weightKg': weightKg, 'cm': cm};
+
+  factory BodyEntry.fromJson(Map<String, dynamic> j) => BodyEntry(
+    date: j['date'] as String,
+    weightKg: (j['weightKg'] as num?)?.toDouble(),
+    cm: (j['cm'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, (v as num).toDouble())),
+  );
+}
+
+/// Body weight, height and tape measurements: the latest values plus a
+/// dated history for progress charts. Stored metric (kg, cm) and converted
+/// for display.
 class Body {
-  Body({this.weightKg, this.heightCm, Map<String, double>? cm, this.updated}) : cm = cm ?? {};
+  Body({this.weightKg, this.heightCm, Map<String, double>? cm, this.updated, List<BodyEntry>? history})
+    : cm = cm ?? {},
+      history = history ?? [];
 
   /// Measured parts, in display order.
   static const parts = {'chest': 'Chest', 'waist': 'Waist', 'hips': 'Hips', 'arm': 'Arm', 'thigh': 'Thigh'};
+
+  /// Everything with a history: weight, then the parts.
+  static const tracked = {'weight': 'Weight', ...parts};
 
   double? weightKg;
   double? heightCm;
@@ -15,18 +46,70 @@ class Body {
   /// Day key of the last change.
   String? updated;
 
+  /// One entry per day, oldest first.
+  final List<BodyEntry> history;
+
   bool get isEmpty => weightKg == null && heightCm == null && cm.isEmpty;
 
-  Map<String, dynamic> toJson() => {'weightKg': weightKg, 'heightCm': heightCm, 'cm': cm, 'updated': updated};
+  /// The latest values without the history.
+  Body clone() => Body(weightKg: weightKg, heightCm: heightCm, cm: {...cm}, updated: updated);
+
+  /// Records the latest weight and measurements as [date]'s entry.
+  void logCurrent(String date) {
+    history.removeWhere((e) => e.date == date);
+    final e = BodyEntry(date: date, weightKg: weightKg, cm: {...cm});
+    if (!e.isEmpty) history.add(e);
+    history.sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  /// Latest values from the history after an entry is removed; height stays.
+  void recomputeLatest() {
+    double? last(String key) {
+      for (final e in history.reversed) {
+        if (e.value(key) != null) return e.value(key);
+      }
+      return null;
+    }
+
+    weightKg = last('weight');
+    cm.clear();
+    for (final k in parts.keys) {
+      if (last(k) case final double v) cm[k] = v;
+    }
+  }
+
+  /// Adds [other]'s entries for days this history does not have.
+  void mergeHistory(List<BodyEntry> other) {
+    final have = {for (final e in history) e.date};
+    history
+      ..addAll(other.where((e) => !have.contains(e.date)))
+      ..sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  /// [last] keeps only the newest entries, for shared updates.
+  Map<String, dynamic> toJson({int? last}) => {
+    'weightKg': weightKg,
+    'heightCm': heightCm,
+    'cm': cm,
+    'updated': updated,
+    'history': [
+      for (final e in last == null || history.length <= last ? history : history.sublist(history.length - last))
+        e.toJson(),
+    ],
+  };
 
   factory Body.fromJson(Map<String, dynamic>? j) {
     if (j == null) return Body();
-    return Body(
+    final b = Body(
       weightKg: (j['weightKg'] as num?)?.toDouble(),
       heightCm: (j['heightCm'] as num?)?.toDouble(),
       cm: (j['cm'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, (v as num).toDouble())),
       updated: j['updated'] as String?,
+      history: [for (final e in j['history'] as List? ?? const []) BodyEntry.fromJson(e as Map<String, dynamic>)],
     );
+    // Saved before history existed: the latest values become the first entry.
+    if (b.history.isEmpty && b.updated != null) b.logCurrent(b.updated!);
+    return b;
   }
 }
 

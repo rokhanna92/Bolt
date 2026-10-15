@@ -237,6 +237,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                   titleSize: 16,
                   empty: 'No measurements yet. Add them here, or they arrive with $fn\'s updates.',
                   onEdit: () => context.push('/edit-profile/${x.id}'),
+                  onProgress: () => context.push('/measurements/${x.id}'),
                 ),
                 const SizedBox(height: 18),
                 Row(

@@ -18,7 +18,9 @@ import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
+import '../../widgets/sparkline.dart';
 import '../badges/badges_screen.dart';
+import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
 import '../sharing/import_sheet.dart';
 import '../../widgets/bolt_sheet.dart';
 
@@ -212,6 +214,8 @@ class TodayScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 12),
         _Numbers(stats: t.stats, plan: plan, visits: d.visits[t.id] ?? const [], now: now, weekStart: ws),
+        const SizedBox(height: 8),
+        _WeightTile(body: t.body, now: now, metric: d.settings.kg),
         const SizedBox(height: 22),
         BadgesCard(stats: displayStats(t.stats, now), onTap: () => context.push('/badges')),
         if (pend.isNotEmpty) ...[
@@ -383,6 +387,78 @@ class _Numbers extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// Weight at a glance with its trend; opens the measurements page.
+class _WeightTile extends StatelessWidget {
+  const _WeightTile({required this.body, required this.now, required this.metric});
+
+  final Body body;
+  final DateTime now;
+  final bool metric;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = bodySeries(body, 'weight');
+    final ch = bodyChange(s, now);
+    void open() => context.push('/measurements');
+    if (s.isEmpty) {
+      return Tap(
+        onTap: open,
+        child: BoltBox(
+          radius: 14,
+          stroke: const Stroke.dashed(BoltColors.line),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text('Log your weight to see your trend', style: BoltText.a(13, color: BoltColors.muted)),
+              ),
+              Text('+ Log', style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
+            ],
+          ),
+        ),
+      );
+    }
+    return Tap(
+      onTap: open,
+      child: BoltBox(
+        color: BoltColors.surface1,
+        stroke: const Stroke(BoltColors.lineSoft),
+        radius: 14,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Kicker('WEIGHT', size: 9, spacing: .1),
+                const SizedBox(height: 4),
+                Text(bodyValue('weight', s.last.$2, metric: metric), style: BoltText.a(20, weight: 800)),
+                const SizedBox(height: 2),
+                Text(
+                  ch == null
+                      ? 'Logged ${fmtDay(s.last.$1)}'
+                      : '${bodyDelta('weight', ch.delta, metric: metric)} since ${fmtDay(ch.since)}',
+                  style: BoltText.a(11, color: BoltColors.muted),
+                ),
+              ],
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: s.length >= 2
+                  ? Sparkline(values: [for (final x in s) x.$2], height: 44)
+                  : Text(
+                      'Log again on another day for a trend',
+                      textAlign: TextAlign.right,
+                      style: BoltText.a(12, color: BoltColors.muted),
+                    ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -170,6 +170,7 @@ class BoltStore extends Notifier<BoltData> {
   /// both a coach and a trainee record so every role works.
   void createProfile(Role role, ProfileInput p, {bool autoPlan = false, bool admin = false}) {
     final body = (p.body ?? Body())..updated = (p.body?.isEmpty ?? true) ? null : today;
+    if (!body.isEmpty) body.logCurrent(today);
     if (role == Role.coach || admin) {
       state.coaches
         ..clear()
@@ -188,7 +189,8 @@ class BoltStore extends Notifier<BoltData> {
           since: _sinceLabel,
           injuries: [],
           stats: TraineeStats(),
-          body: body,
+          // An admin's coach record has the same values in its own object.
+          body: admin ? (body.clone()..logCurrent(today)) : body,
         ),
       );
     }
@@ -242,17 +244,60 @@ class BoltStore extends Notifier<BoltData> {
       if (p.goal != null) t.goal = p.goal!;
       if (p.split != null) t.split = p.split!;
       if (p.coachName != null) t.coachName = _orNull(p.coachName);
-      if (p.body != null) t.body = p.body!..updated = today;
+      if (p.body != null) t.body = _nextBody(t.body, p.body!.clone());
     }
     final c = coOrNull(id);
     if (c != null) {
       c.name = p.name.trim().isEmpty ? c.name : p.name.trim();
       if (p.specialty != null) c.role = _or(p.specialty, 'Coach');
-      if (p.body != null) c.body = p.body!..updated = today;
+      if (p.body != null) c.body = _nextBody(c.body, p.body!.clone());
     }
     if (p.gym != null && id == Account.ownerId) state.settings.gymName = p.gym!.trim();
     _commit();
     _toast('Profile saved');
+  }
+
+  /// [fresh] values from a form, keeping [old]'s history and logging today.
+  Body _nextBody(Body old, Body fresh) {
+    fresh.history.addAll(old.history);
+    return fresh
+      ..updated = today
+      ..logCurrent(today);
+  }
+
+  /// The body on show: a trainee's when [tid] is given, otherwise the
+  /// owner's, the coach record on coach screens.
+  Body? bodyFor(String? tid) {
+    if (tid != null) return trOrNull(tid)?.body;
+    final me = Account.ownerId;
+    return (state.account?.isCoach ?? false) ? coOrNull(me)?.body : trOrNull(me)?.body;
+  }
+
+  /// Today's weigh-in or measurements: only the values given change.
+  void logBody(String? tid, double? weightKg, Map<String, double> cm) {
+    final b = bodyFor(tid);
+    if (b == null || (weightKg == null && cm.isEmpty)) return;
+    var e = b.history.where((x) => x.date == today).firstOrNull;
+    if (e == null) {
+      e = BodyEntry(date: today);
+      b.history
+        ..add(e)
+        ..sort((a, c) => a.date.compareTo(c.date));
+    }
+    if (weightKg != null) b.weightKg = e.weightKg = weightKg;
+    cm.forEach((k, v) => b.cm[k] = e!.cm[k] = v);
+    b.updated = today;
+    _commit();
+    _toast('Logged for today');
+  }
+
+  void deleteBodyEntry(String? tid, String date) {
+    final b = bodyFor(tid);
+    if (b == null) return;
+    b.history.removeWhere((e) => e.date == date);
+    b.recomputeLatest();
+    _commit();
+    _toast('${fmtDay(date)} removed');
   }
 
   /// Erases everything on this phone and returns to onboarding.
@@ -282,7 +327,9 @@ class BoltStore extends Notifier<BoltData> {
         since: _sinceLabel,
         injuries: [],
         stats: TraineeStats(),
-        body: (p.body ?? Body())..updated = (p.body?.isEmpty ?? true) ? null : today,
+        body: (p.body ?? Body())
+          ..updated = (p.body?.isEmpty ?? true) ? null : today
+          ..logCurrent(today),
       ),
     );
     state.plans[id] = {};
@@ -1011,7 +1058,7 @@ class BoltStore extends Notifier<BoltData> {
       ],
       'injuries': t.injuries.map((i) => i.toJson()).toList(),
       'stats': t.stats.toJson(),
-      'body': t.body.toJson(),
+      'body': t.body.toJson(last: 90),
     });
     final done = keys.where((k) => p[k]!.status == SessionStatus.done).length;
     final coach = coachNameOf(t);
@@ -1153,7 +1200,8 @@ class BoltStore extends Notifier<BoltData> {
     }
     if (packet['stats'] case final Map<String, dynamic> stats) t.stats = TraineeStats.fromJson(stats);
     final body = Body.fromJson(packet['body'] as Map<String, dynamic>?);
-    if (!body.isEmpty) t.body = body;
+    // The trainee's history wins; days only the coach logged are kept.
+    if (!body.isEmpty) t.body = body..mergeHistory(t.body.history);
     _commit();
     _toast('Update from ${firstName(t.name)} · $ok confirmed, $moved moved, $done done');
     return null;

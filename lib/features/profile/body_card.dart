@@ -11,12 +11,23 @@ import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
 
-/// "Body" section: weight, height and measurements with an Edit link.
+/// "Body" section: weight, height and measurements with Progress and Edit
+/// links.
 class BodyCard extends ConsumerWidget {
-  const BodyCard({super.key, required this.body, required this.onEdit, this.empty, this.titleSize = 17});
+  const BodyCard({
+    super.key,
+    required this.body,
+    required this.onEdit,
+    required this.onProgress,
+    this.empty,
+    this.titleSize = 17,
+  });
 
   final Body body;
   final VoidCallback onEdit;
+
+  /// Opens the measurements page with the history and trends.
+  final VoidCallback onProgress;
 
   /// Shown when nothing is recorded yet.
   final String? empty;
@@ -38,6 +49,13 @@ class BodyCard extends ConsumerWidget {
         Row(
           children: [
             Expanded(child: SectionTitle('Body', size: titleSize)),
+            if (body.history.isNotEmpty) ...[
+              Tap(
+                onTap: onProgress,
+                child: Text('Progress', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+              ),
+              const SizedBox(width: 16),
+            ],
             Tap(
               onTap: onEdit,
               child: Text(items.isEmpty ? '+ Add' : 'Edit', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
@@ -90,7 +108,17 @@ class BodyCard extends ConsumerWidget {
                 ],
                 if (updated != null) ...[
                   const SizedBox(height: 12),
-                  Kicker('UPDATED ${fmtDay(updated).toUpperCase()}', size: 9, color: BoltColors.muted3),
+                  Tap(
+                    onTap: onProgress,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Kicker('UPDATED ${fmtDay(updated).toUpperCase()}', size: 9, color: BoltColors.muted3),
+                        ),
+                        Text('+ Log · history ›', style: BoltText.a(12, weight: 700, color: BoltColors.neon)),
+                      ],
+                    ),
+                  ),
                 ],
               ],
             ),

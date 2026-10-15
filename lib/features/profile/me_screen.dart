@@ -77,7 +77,11 @@ class MeScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 24),
-        BodyCard(body: t.body, onEdit: () => context.push('/edit-profile')),
+        BodyCard(
+          body: t.body,
+          onEdit: () => context.push('/edit-profile'),
+          onProgress: () => context.push('/measurements'),
+        ),
         const SizedBox(height: 24),
         Row(
           children: [

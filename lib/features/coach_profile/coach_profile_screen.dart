@@ -68,7 +68,11 @@ class CoachProfileScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 24),
-        BodyCard(body: c.body, onEdit: () => context.push('/edit-profile')),
+        BodyCard(
+          body: c.body,
+          onEdit: () => context.push('/edit-profile'),
+          onProgress: () => context.push('/measurements'),
+        ),
         const SizedBox(height: 20),
         Tap(
           onTap: () => context.push('/plaque'),
