@@ -149,6 +149,13 @@ class MeasurementsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(sexTip(b?.sex), style: BoltText.a(13, color: BoltColors.muted, height: 1.45)),
+            if (b != null && b.sex == null) ...[
+              const SizedBox(height: 6),
+              Tap(
+                onTap: () => context.push(tid == null ? '/edit-profile' : '/edit-profile/$tid'),
+                child: Text(tx('Set male or female →'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
+              ),
+            ],
             const SizedBox(height: 14),
             NeonButton(
               label: tx('+ Log today'),

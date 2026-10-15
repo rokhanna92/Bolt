@@ -113,6 +113,7 @@ class TodayScreen extends ConsumerWidget {
             ),
           ),
         ],
+        if (!d.settings.hintsSeen.contains(_newId)) ...[const SizedBox(height: 18), const _NewCard()],
         if (t.stats.away.contains(dk(monday(now)))) ...[
           const SizedBox(height: 18),
           BoltBox(
@@ -129,10 +130,6 @@ class TodayScreen extends ConsumerWidget {
         if (tp != null && tp.status != SessionStatus.done) ...[
           const SizedBox(height: 18),
           _HeroCard(session: tp, flagged: tp.ex.where((e) => isFlagged(t, e)).toList(), today: today),
-          if (tp.status != SessionStatus.pending && tp.ex.isNotEmpty && d.workout?.key != today) ...[
-            const SizedBox(height: 12),
-            ReadinessCard(trainee: t, session: tp, dayKey: today),
-          ],
         ],
         if (tp != null && tp.status == SessionStatus.done) ...[
           const SizedBox(height: 18),
@@ -173,6 +170,10 @@ class TodayScreen extends ConsumerWidget {
           ),
         ],
         if (nothingAhead) ...[const SizedBox(height: 12), _StartCard(withCoach: withCoach, coachName: coachName)],
+        if (tp?.status != SessionStatus.done && d.workout?.key != today) ...[
+          const SizedBox(height: 12),
+          ReadinessCard(trainee: t, session: tp, dayKey: today),
+        ],
         if (t.challenge case final c? when daysLeft(c, now) > 0 || dk(addDays(now, -3)).compareTo(c.to) <= 0) ...[
           const SizedBox(height: 12),
           ChallengeCard(
@@ -707,6 +708,96 @@ class _HeroCard extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+const _newId = 'new:1.16';
+
+/// What 1.16 added and where to find it, until closed.
+class _NewCard extends ConsumerWidget {
+  const _NewCard();
+
+  static const _items = [
+    (
+      'Programs and away weeks',
+      'Multi-week programs for the main lifts, and away weeks that keep your streak.',
+      '/plan',
+    ),
+    (
+      'Lifts, goals and strength levels',
+      'Set a max and a goal on any main lift and see your level for your sex and weight.',
+      '/progress',
+    ),
+    ('Muscle map and your wrap', 'Your week on a body map, and your month or year as a card to share.', '/progress'),
+    (
+      'Body fat and cycle',
+      'Log your neck for a body fat estimate. Women can track their cycle. Set male or female first.',
+      '/measurements',
+    ),
+    ('Best gym times', 'When you train fastest, from your scanned visits.', '/gym'),
+    (
+      'Readiness and reps in reserve',
+      'A quick check-in below, and tap a ticked set to log reps left in the tank.',
+      null,
+    ),
+    ('Swaps', 'Tap ⇄ next to an exercise to swap it for another one for the same muscle.', null),
+  ];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final store = ref.read(boltProvider.notifier);
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(Color(0x73C6FF1A)),
+      radius: 20,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Kicker(tx('NEW IN BOLT 1.16'), color: BoltColors.neon)),
+              Tap(
+                onTap: () => store.dismissHint(_newId),
+                child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),
+              ),
+            ],
+          ),
+          for (final (title, line, route) in _items)
+            Tap(
+              onTap: route == null
+                  ? null
+                  : () => route.startsWith('/plan') || route == '/gym' ? context.go(route) : context.push(route),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: BoltColors.divider)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(tx(title), style: BoltText.a(14, weight: 800)),
+                          const SizedBox(height: 2),
+                          Text(tx(line), style: BoltText.a(12, color: BoltColors.muted, height: 1.35)),
+                        ],
+                      ),
+                    ),
+                    if (route != null) ...[const SizedBox(width: 8), const Chevron(size: 16)],
+                  ],
+                ),
+              ),
+            ),
+          const SizedBox(height: 10),
+          Tap(
+            onTap: () => store.dismissHint(_newId),
+            child: Text(tx('Got it'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
+          ),
+        ],
       ),
     );
   }

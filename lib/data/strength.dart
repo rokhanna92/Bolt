@@ -22,6 +22,9 @@ const _standards = <String, (List<double>, List<double>)>{
   'Hip Thrust': ([1, 1.5, 2.25, 3], [.9, 1.4, 2, 2.75]),
 };
 
+/// Lifts with strength standards, in table order.
+List<String> get kStandardLifts => _standards.keys.toList();
+
 /// Whether [lift] has strength standards.
 bool hasStandards(String lift) => _standards.containsKey(lift);
 

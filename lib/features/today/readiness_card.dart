@@ -35,7 +35,9 @@ class ReadinessCard extends ConsumerStatefulWidget {
   const ReadinessCard({super.key, required this.trainee, required this.session, required this.dayKey});
 
   final Trainee trainee;
-  final Session session;
+
+  /// Today's workout, if any: a low score can make it lighter.
+  final Session? session;
   final String dayKey;
 
   @override
@@ -44,6 +46,12 @@ class ReadinessCard extends ConsumerStatefulWidget {
 
 class _ReadinessCardState extends ConsumerState<ReadinessCard> {
   final _picked = <int?>[null, null, null];
+
+  /// A confirmed workout today that has not been made lighter yet.
+  bool get _canLighten {
+    final s = widget.session;
+    return s != null && s.status != SessionStatus.pending && s.ex.isNotEmpty && s.note != lighterNote;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +89,7 @@ class _ReadinessCardState extends ConsumerState<ReadinessCard> {
             ],
           ] else ...[
             Text(tx(kReadinessText[level]!), style: BoltText.a(14, weight: 700, height: 1.4)),
-            if (level == 'low' && widget.session.note != lighterNote) ...[
+            if (level == 'low' && _canLighten) ...[
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerLeft,

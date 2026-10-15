@@ -128,6 +128,34 @@ class ProgressScreen extends ConsumerWidget {
             const SizedBox(height: 10),
             _Records(d: d, plan: plan, visits: visits, metric: metric, bestStreak: t.stats.bestStreak),
             const SizedBox(height: 24),
+            SectionTitle(tx('Main lifts')),
+            const SizedBox(height: 4),
+            Text(
+              tx('Set a max and a goal on any of them, logged or not, and see your strength level.'),
+              style: BoltText.a(12, color: BoltColors.muted),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final name in kStandardLifts)
+                  Tap(
+                    onTap: () => context.push('/lift/${Uri.encodeComponent(name)}'),
+                    child: BoltBox(
+                      radius: 99,
+                      color: BoltColors.surface2,
+                      stroke: Stroke(t.liftGoals.containsKey(name) ? BoltColors.neon : BoltColors.line),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Text(
+                        '${tx(name)}${levelSuffix(name, maxFor(t, plan, name), t.body)}',
+                        style: BoltText.a(12, weight: 700),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 24),
             SectionTitle(tx('Lifts')),
             const SizedBox(height: 4),
             Text(
