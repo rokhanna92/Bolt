@@ -5,6 +5,8 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../l10n/l10n.dart';
+
 /// A reminder the app wants on the device.
 class Reminder {
   const Reminder({required this.at, required this.title, required this.body});
@@ -138,13 +140,13 @@ class LocalNotifications implements BoltNotifications {
       await _ensurePermission();
       await _plugin.show(
         id: _inGymId,
-        title: 'In the gym',
-        body: 'Since $sinceText · scan the plaque on your way out',
+        title: tx('In the gym'),
+        body: tx('Since {time} · scan the plaque on your way out', {'time': sinceText}),
         notificationDetails: NotificationDetails(
           android: AndroidNotificationDetails(
             'bolt_gym_timer',
-            'Gym timer',
-            channelDescription: 'Live time while you are checked in',
+            tx('Gym timer'),
+            channelDescription: tx('Live time while you are checked in'),
             importance: Importance.low,
             priority: Priority.low,
             icon: 'ic_stat_bolt',
@@ -176,13 +178,13 @@ class LocalNotifications implements BoltNotifications {
       if (ms <= 0) return;
       await _plugin.show(
         id: _restId,
-        title: 'Rest',
+        title: tx('Rest'),
         body: next,
         notificationDetails: NotificationDetails(
           android: AndroidNotificationDetails(
             'bolt_rest_timer',
-            'Rest timer',
-            channelDescription: 'Countdown between sets',
+            tx('Rest timer'),
+            channelDescription: tx('Countdown between sets'),
             importance: Importance.low,
             priority: Priority.low,
             icon: 'ic_stat_bolt',

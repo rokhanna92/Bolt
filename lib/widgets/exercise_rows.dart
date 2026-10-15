@@ -63,7 +63,7 @@ class ExerciseRows extends ConsumerWidget {
                 child: Text(pad(i + 1), style: BoltText.m(11, color: BoltColors.muted4)),
               ),
               const SizedBox(width: 10),
-              Expanded(child: Text(e.name, style: BoltText.a(compact ? 14 : 15, weight: 700))),
+              Expanded(child: Text(tx(e.name), style: BoltText.a(compact ? 14 : 15, weight: 700))),
               if (onHow != null && kHow.containsKey(e.name)) ...[
                 const SizedBox(width: 10),
                 Tap(
@@ -74,7 +74,7 @@ class ExerciseRows extends ConsumerWidget {
                     circle: true,
                     stroke: const Stroke(BoltColors.line),
                     alignment: Alignment.center,
-                    child: Text('i', style: BoltText.a(11, weight: 800, color: BoltColors.neon, height: 1)),
+                    child: Text(tx('i'), style: BoltText.a(11, weight: 800, color: BoltColors.neon, height: 1)),
                   ),
                 ),
               ],
@@ -89,7 +89,9 @@ class ExerciseRows extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      '${kAreas[e.area]} flag${e.alt != null ? ' · try ${e.alt}' : ' · ask your coach'}',
+                      e.alt != null
+                          ? tx('{area} flag · try {alt}', {'area': tx(kAreas[e.area]!), 'alt': tx(e.alt!)})
+                          : tx('{area} flag · ask your coach', {'area': tx(kAreas[e.area]!)}),
                       style: BoltText.a(12, color: BoltColors.warn),
                     ),
                   ),
@@ -100,7 +102,10 @@ class ExerciseRows extends ConsumerWidget {
           if (e.swapped)
             Padding(
               padding: const EdgeInsets.only(left: 26, top: 3),
-              child: Text('Swapped from ${e.orig}', style: BoltText.m(10, color: BoltColors.muted)),
+              child: Text(
+                tx('Swapped from {name}', {'name': tx(e.orig)}),
+                style: BoltText.m(10, color: BoltColors.muted),
+              ),
             ),
         ],
       ),
@@ -126,7 +131,7 @@ class SwapButton extends StatelessWidget {
         color: BoltColors.warn,
         radius: 8,
         padding: padding,
-        child: Text('Swap', style: BoltText.a(12, weight: 800, color: BoltColors.ink)),
+        child: Text(tx('Swap'), style: BoltText.a(12, weight: 800, color: BoltColors.ink)),
       ),
     );
   }

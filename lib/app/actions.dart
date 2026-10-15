@@ -111,7 +111,7 @@ Future<void> newTemplateFromMuscles() async {
   final b = await _buildFromMuscles(libraryOnly: true);
   if (b == null) return;
   final id = _store.templateFromMuscles(b.muscles, b.ex);
-  _store.toast('Saved to your Library');
+  _store.toast(tx('Saved to your Library'));
   rootNavigatorKey.currentContext!.push('/editor/tpl/$id');
 }
 

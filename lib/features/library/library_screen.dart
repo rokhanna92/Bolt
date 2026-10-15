@@ -37,26 +37,26 @@ class LibraryScreen extends ConsumerWidget {
               if (d.tpls[id] != null) id,
           ],
         ),
-      ('Your workouts', custom),
+      (tx('Your workouts'), custom),
     ];
     return ScreenScroll(
       children: [
         // A tab for coaches; pushed from Me for everyone else.
         if (coach)
-          const Kicker('LIBRARY')
+          Kicker(tx('LIBRARY'))
         else
           Row(
             children: [
               BackBox(onTap: () => context.pop()),
               const SizedBox(width: 12),
-              const Kicker('LIBRARY'),
+              Kicker(tx('LIBRARY')),
             ],
           ),
         const SizedBox(height: 4),
-        Text('Workouts', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+        Text(tx('Workouts'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
         const SizedBox(height: 6),
         Text(
-          'Templates used by auto-fill and splits. Edit once, every future plan follows.',
+          tx('Templates used by auto-fill and splits. Edit once, every future plan follows.'),
           style: BoltText.a(13, color: BoltColors.muted),
         ),
         const SizedBox(height: 12),
@@ -64,7 +64,7 @@ class LibraryScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: NeonButton(
-                label: '+ From muscles',
+                label: tx('+ From muscles'),
                 height: 44,
                 radius: 12,
                 fontSize: 13,
@@ -74,7 +74,7 @@ class LibraryScreen extends ConsumerWidget {
             const SizedBox(width: 8),
             Expanded(
               child: OutlineButton(
-                label: '+ Empty',
+                label: tx('+ Empty'),
                 height: 44,
                 radius: 12,
                 fontSize: 13,
@@ -89,7 +89,7 @@ class LibraryScreen extends ConsumerWidget {
           child: Tap(
             onTap: () => context.push('/guide'),
             child: Text(
-              'Learn: styles, muscles, form & supplements →',
+              tx('Learn: styles, muscles, form & supplements →'),
               style: BoltText.a(13, weight: 700, color: BoltColors.neon),
             ),
           ),
@@ -97,7 +97,7 @@ class LibraryScreen extends ConsumerWidget {
         for (final (title, ids) in groups)
           if (ids.isNotEmpty) ...[
             const SizedBox(height: 20),
-            Kicker(title.toUpperCase(), size: 10, spacing: .1),
+            Kicker(tx(title).toUpperCase(), size: 10, spacing: .1),
             const SizedBox(height: 8),
             for (var r = 0; r < ids.length; r += 2) ...[
               if (r > 0) const SizedBox(height: 8),
@@ -116,10 +116,10 @@ class LibraryScreen extends ConsumerWidget {
         const SizedBox(height: 24),
         Row(
           children: [
-            const Expanded(child: SectionTitle('Weekly splits')),
+            Expanded(child: SectionTitle(tx('Weekly splits'))),
             Tap(
               onTap: () => context.push('/split/${store.newSplit()}'),
-              child: Text('+ Build a split', style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
+              child: Text(tx('+ Build a split'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
             ),
           ],
         ),
@@ -131,7 +131,7 @@ class LibraryScreen extends ConsumerWidget {
             k,
             coach
                 ? plural(d.trainees.where((x) => x.split == k).length, 'trainee').toUpperCase()
-                : (store.trOrNull(Account.ownerId)?.split == k ? 'YOUR SPLIT' : ''),
+                : (store.trOrNull(Account.ownerId)?.split == k ? tx('YOUR SPLIT') : ''),
           ),
           const SizedBox(height: 8),
         ],
@@ -154,10 +154,10 @@ class LibraryScreen extends ConsumerWidget {
             children: [
               Text(t.code, style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.neon)),
               const SizedBox(height: 6),
-              Text(t.name, style: BoltText.a(18, weight: 900)),
+              Text(tx(t.name), style: BoltText.a(18, weight: 900)),
               const SizedBox(height: 6),
               Expanded(
-                child: Text(t.focus, style: BoltText.a(11, color: BoltColors.muted)),
+                child: Text(tx(t.focus), style: BoltText.a(11, color: BoltColors.muted)),
               ),
               const SizedBox(height: 6),
               Text(
@@ -187,11 +187,11 @@ class LibraryScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Expanded(child: Text(splitOf(d, k).name, style: BoltText.a(14, weight: 800))),
+                Expanded(child: Text(tx(splitOf(d, k).name), style: BoltText.a(14, weight: 800))),
                 Text(used, style: BoltText.m(9, color: BoltColors.muted)),
                 if (custom) ...[
                   const SizedBox(width: 8),
-                  Text('Edit', style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
+                  Text(tx('Edit'), style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
                 ],
               ],
             ),

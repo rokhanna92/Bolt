@@ -55,7 +55,7 @@ class ChoiceChips extends StatelessWidget {
               stroke: Stroke(o == selected ? BoltColors.neon : BoltColors.line),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
               child: Text(
-                labels?[o] ?? o,
+                tx(labels?[o] ?? o),
                 style: BoltText.a(13, weight: 700, color: o == selected ? BoltColors.ink : BoltColors.text),
               ),
             ),
@@ -94,13 +94,13 @@ class SplitPicker extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: Text(splitOf(data, k).name, style: BoltText.a(14, weight: 800))),
+                      Expanded(child: Text(tx(splitOf(data, k).name), style: BoltText.a(14, weight: 800))),
                       if (onEdit != null && data.splits.containsKey(k))
                         Tap(
                           onTap: () => onEdit!(k),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            child: Text('Edit', style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
+                            child: Text(tx('Edit'), style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
                           ),
                         ),
                       if (k == selected) Text('✓', style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
@@ -204,7 +204,7 @@ class BodyFields extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = form.metric;
     Widget field(TextEditingController c, String hint, String unit) =>
-        BoltField(controller: c, hint: '$hint ($unit)', number: true, suffix: unit);
+        BoltField(controller: c, hint: '${tx(hint)} ($unit)', number: true, suffix: unit);
     final keys = Body.parts.keys.toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -216,7 +216,7 @@ class BodyFields extends StatelessWidget {
             Expanded(child: field(form.height, 'Height', lengthUnit(m))),
           ],
         ),
-        const FieldLabel('MEASUREMENTS'),
+        FieldLabel(tx('MEASUREMENTS')),
         for (var i = 0; i < keys.length; i += 2) ...[
           if (i > 0) const SizedBox(height: 8),
           Row(

@@ -7,6 +7,7 @@ class AppSettings {
     this.mondayFirst = true,
     this.gymName = '',
     this.recapSeen,
+    this.lang = 'en',
   });
 
   /// Session reminders, 2 hours before a planned session.
@@ -26,6 +27,9 @@ class AppSettings {
   /// Monday key of the week whose recap card was closed.
   String? recapSeen;
 
+  /// App language: `en` or `sr` (Serbian, Latin script).
+  String lang;
+
   Map<String, dynamic> toJson() => {
     'remind': remind,
     'checkout': checkout,
@@ -34,6 +38,7 @@ class AppSettings {
     'mondayFirst': mondayFirst,
     'gymName': gymName,
     'recapSeen': recapSeen,
+    'lang': lang,
   };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
@@ -44,5 +49,6 @@ class AppSettings {
     mondayFirst: j['mondayFirst'] as bool? ?? true,
     gymName: j['gymName'] as String? ?? '',
     recapSeen: j['recapSeen'] as String?,
+    lang: j['lang'] as String? ?? 'en',
   );
 }

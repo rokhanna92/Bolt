@@ -133,7 +133,9 @@ class WeekdayHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final letters = mondayFirst ? 'MTWTFSS' : 'SMTWTFS';
+    final letters = isSerbian
+        ? (mondayFirst ? [...weekdays.skip(1), weekdays[0]] : weekdays).map((d) => d[0]).join()
+        : (mondayFirst ? 'MTWTFSS' : 'SMTWTFS');
     return Row(
       children: [
         for (var i = 0; i < 7; i++) ...[
@@ -343,7 +345,7 @@ class Legend extends StatelessWidget {
             children: [
               BoltBox(width: 12, height: 12, borderBox: true, radius: 4, color: l.bg, stroke: l.stroke),
               const SizedBox(width: 6),
-              Text(l.label, style: BoltText.a(11, color: BoltColors.muted)),
+              Text(tx(l.label), style: BoltText.a(11, color: BoltColors.muted)),
             ],
           ),
       ],

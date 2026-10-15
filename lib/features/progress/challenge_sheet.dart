@@ -51,7 +51,7 @@ class _ChallengeSheetState extends ConsumerState<ChallengeSheet> {
     );
     Navigator.of(context).pop();
     if (msg != null) {
-      final hint = await shareMessage(msg, subject: 'Your Bolt challenge');
+      final hint = await shareMessage(msg, subject: tx('Your Bolt challenge'));
       if (hint != null) store.toast(hint);
     }
   }
@@ -64,15 +64,18 @@ class _ChallengeSheetState extends ConsumerState<ChallengeSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Set a challenge', style: BoltText.a(20, weight: 900)),
+        Text(tx('Set a challenge'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 4),
         Text(
           coach
-              ? 'A goal for ${firstName(name)}. It goes out with the plan message and their progress comes back with every update.'
-              : 'A goal to chase. Progress counts itself from your workouts and gym scans.',
+              ? tx(
+                  'A goal for {name}. It goes out with the plan message and their progress comes back with every update.',
+                  {'name': firstName(name)},
+                )
+              : tx('A goal to chase. Progress counts itself from your workouts and gym scans.'),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
-        const FieldLabel('WHAT'),
+        FieldLabel(tx('WHAT')),
         ChoiceChips(
           options: Challenge.kinds.keys.toList(),
           labels: const {'workouts': 'Workouts', 'visits': 'Gym visits', 'hours': 'Gym hours'},
@@ -82,7 +85,7 @@ class _ChallengeSheetState extends ConsumerState<ChallengeSheet> {
             _target = _defaults[k]!;
           }),
         ),
-        const FieldLabel('HOW MANY'),
+        FieldLabel(tx('HOW MANY')),
         Row(
           children: [
             SquareButton(onTap: () => setState(() => _target = (_target - 1).clamp(1, 999)), label: '−'),
@@ -96,7 +99,7 @@ class _ChallengeSheetState extends ConsumerState<ChallengeSheet> {
             SquareButton(onTap: () => setState(() => _target = (_target + 1).clamp(1, 999)), label: '+'),
           ],
         ),
-        const FieldLabel('WHEN'),
+        FieldLabel(tx('WHEN')),
         ChoiceChips(
           options: _periods.keys.toList(),
           labels: _periods,
@@ -105,7 +108,7 @@ class _ChallengeSheetState extends ConsumerState<ChallengeSheet> {
         ),
         const SizedBox(height: 18),
         NeonButton(
-          label: coach ? 'Save & send to ${firstName(name)}' : 'Start challenge',
+          label: coach ? tx('Save & send to {name}', {'name': firstName(name)}) : tx('Start challenge'),
           height: 52,
           scale: 1,
           onTap: _save,
@@ -113,14 +116,14 @@ class _ChallengeSheetState extends ConsumerState<ChallengeSheet> {
         if (_old != null) ...[
           const SizedBox(height: 8),
           OutlineButton(
-            label: 'Remove challenge',
+            label: tx('Remove challenge'),
             color: BoltColors.warn,
             borderColor: BoltColors.line,
             weight: 700,
             onTap: () async {
               final msg = store.setChallenge(widget.tid, null);
               Navigator.of(context).pop();
-              if (msg != null) await shareMessage(msg, subject: 'Your Bolt plan');
+              if (msg != null) await shareMessage(msg, subject: tx('Your Bolt plan'));
             },
           ),
         ],
@@ -149,10 +152,10 @@ class ChallengeCard extends StatelessWidget {
     final left = daysLeft(c, now);
     final won = n >= c.target;
     final status = won
-        ? 'Done. Challenge complete!'
+        ? tx('Done. Challenge complete!')
         : left == 0
-        ? 'Ended ${fmtDay(c.to)} at $n of ${c.target}'
-        : '${c.target - n} to go · ${plural(left, 'day')} left';
+        ? tx('Ended {day} at {n} of {target}', {'day': fmtDay(c.to), 'n': n, 'target': c.target})
+        : tx('{n} to go · {days} left', {'n': c.target - n, 'days': plural(left, 'day')});
     final box = BoltBox(
       color: BoltColors.surface1,
       stroke: Stroke(won ? BoltColors.neon : BoltColors.lineSoft, won ? 1.5 : 1),
@@ -162,7 +165,8 @@ class ChallengeCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Kicker(
-            'CHALLENGE${c.by == null ? '' : ' FROM ${firstName(c.by!).toUpperCase()}'} · ${fmtDay(c.from).toUpperCase()} TO ${fmtDay(c.to).toUpperCase()}',
+            '${c.by == null ? tx('CHALLENGE') : tx('CHALLENGE FROM {name}', {'name': firstName(c.by!).toUpperCase()})}'
+            ' · ${tx('{from} TO {to}', {'from': fmtDay(c.from).toUpperCase(), 'to': fmtDay(c.to).toUpperCase()})}',
             size: 9,
             spacing: .08,
           ),
@@ -190,7 +194,7 @@ class ChallengeCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            progress == null ? 'Progress arrives with their next update.' : status,
+            progress == null ? tx('Progress arrives with their next update.') : status,
             style: BoltText.a(12, weight: 600, color: won ? BoltColors.neon : BoltColors.muted),
           ),
         ],

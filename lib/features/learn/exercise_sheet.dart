@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../../app/router.dart';
 import '../../data/bolt_store.dart';
 import '../../data/lifts.dart';
@@ -25,9 +27,9 @@ class ExerciseSheet extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Kicker(h.muscles.toUpperCase(), size: 10),
+        Kicker(tx(h.muscles).toUpperCase(), size: 10),
         const SizedBox(height: 6),
-        Text(name.toUpperCase(), style: BoltText.a(30, weight: 900, width: 112, color: BoltColors.neon, height: 1)),
+        Text(tx(name).toUpperCase(), style: BoltText.a(30, weight: 900, width: 112, color: BoltColors.neon, height: 1)),
         Consumer(
           builder: (context, ref, _) {
             final d = ref.watch(boltProvider);
@@ -44,7 +46,7 @@ class ExerciseSheet extends StatelessWidget {
                     rootNavigatorKey.currentContext?.push('/lift/${Uri.encodeComponent(name)}');
                   },
                   child: Text(
-                    'Your progress on this lift →',
+                    tx('Your progress on this lift →'),
                     style: BoltText.a(13, weight: 700, color: BoltColors.neon),
                   ),
                 ),
@@ -69,7 +71,7 @@ class ExerciseSheet extends StatelessWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text(h.cues[i], style: BoltText.a(14, height: 1.45)),
+                  child: Text(tx(h.cues[i]), style: BoltText.a(14, height: 1.45)),
                 ),
               ),
             ],
@@ -84,9 +86,9 @@ class ExerciseSheet extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Kicker('COMMON MISTAKE', size: 9, color: BoltColors.warn),
+              Kicker(tx('COMMON MISTAKE'), size: 9, color: BoltColors.warn),
               const SizedBox(height: 4),
-              Text(h.avoid, style: BoltText.a(13, height: 1.45)),
+              Text(tx(h.avoid), style: BoltText.a(13, height: 1.45)),
             ],
           ),
         ),

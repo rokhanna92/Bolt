@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../../data/seed/badges.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -58,7 +60,7 @@ class _UnlockOverlayState extends State<UnlockOverlay> with SingleTickerProvider
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('BADGE UNLOCKED', style: BoltText.m(11, spacing: .16, color: BoltColors.neon)),
+              Text(tx('BADGE UNLOCKED'), style: BoltText.m(11, spacing: .16, color: BoltColors.neon)),
               const SizedBox(height: 18),
               AnimatedBuilder(
                 animation: _spin,
@@ -127,20 +129,20 @@ class _UnlockOverlayState extends State<UnlockOverlay> with SingleTickerProvider
               FadeSlideIn(
                 delay: const Duration(milliseconds: 400),
                 duration: const Duration(milliseconds: 400),
-                child: Text(b.name, style: BoltText.a(28, weight: 900)),
+                child: Text(tx(b.name), style: BoltText.a(28, weight: 900)),
               ),
               const SizedBox(height: 18),
               FadeSlideIn(
                 delay: const Duration(milliseconds: 500),
                 duration: const Duration(milliseconds: 400),
                 child: Text(
-                  b.desc,
+                  tx(b.desc),
                   textAlign: TextAlign.center,
                   style: BoltText.a(14, color: BoltColors.muted),
                 ),
               ),
               const SizedBox(height: 28),
-              Text('Tap to continue', style: BoltText.a(12, color: BoltColors.muted3)),
+              Text(tx('Tap to continue'), style: BoltText.a(12, color: BoltColors.muted3)),
             ],
           ),
         ),

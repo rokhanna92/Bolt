@@ -33,15 +33,19 @@ class SplitSheet extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Weekly split', style: BoltText.a(20, weight: 900)),
+        Text(tx('Weekly split'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 4),
         Text(
-          'How ${own ? 'your' : '${firstName(t.name)}\'s'} week is laid out. Auto-fill and tapping an empty day follow it.',
+          own
+              ? tx('How your week is laid out. Auto-fill and tapping an empty day follow it.')
+              : tx('How {name}\'s week is laid out. Auto-fill and tapping an empty day follow it.', {
+                  'name': firstName(t.name),
+                }),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
         const SizedBox(height: 14),
         OutlineButton(
-          label: '+ Build your own split',
+          label: tx('+ Build your own split'),
           height: 48,
           radius: 14,
           onTap: () {

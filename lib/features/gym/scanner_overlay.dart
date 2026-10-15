@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../../app/actions.dart';
 import '../../data/bolt_store.dart';
 import '../../data/seed/content.dart';
@@ -90,7 +92,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
       final now = DateTime.now();
       if (now.difference(_lastReject).inSeconds >= 3) {
         _lastReject = now;
-        ref.read(boltProvider.notifier).toast('Not the Bolt plaque · try the code by the entrance');
+        ref.read(boltProvider.notifier).toast(tx('Not the Bolt plaque · try the code by the entrance'));
       }
     }
   }
@@ -111,7 +113,10 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(inGym ? 'Scan to check out' : 'Scan to check in', style: BoltText.a(18, weight: 800)),
+                    child: Text(
+                      inGym ? tx('Scan to check out') : tx('Scan to check in'),
+                      style: BoltText.a(18, weight: 800),
+                    ),
                   ),
                   SquareButton(onTap: () => Navigator.of(context).pop(), label: '✕', fontSize: 16),
                 ],
@@ -185,7 +190,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
           SizedBox(
             width: 260,
             child: Text(
-              'Point at the plaque by the entrance.\nTap the frame to simulate a scan.',
+              tx('Point at the plaque by the entrance.\nTap the frame to simulate a scan.'),
               textAlign: TextAlign.center,
               style: BoltText.a(14, color: BoltColors.muted),
             ),

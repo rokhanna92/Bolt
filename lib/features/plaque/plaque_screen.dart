@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../../data/bolt_store.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -37,15 +39,15 @@ class _PlaqueScreenState extends ConsumerState<PlaqueScreen> {
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/bolt-plaque.png');
       await file.writeAsBytes(bytes!.buffer.asUint8List());
-      store.toast('Plaque file ready');
+      store.toast(tx('Plaque file ready'));
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path, mimeType: 'image/png')],
-          subject: 'Bolt entrance plaque',
+          subject: tx('Bolt entrance plaque'),
         ),
       );
     } catch (_) {
-      store.toast('Could not create the print file');
+      store.toast(tx('Could not create the print file'));
     }
   }
 
@@ -62,7 +64,7 @@ class _PlaqueScreenState extends ConsumerState<PlaqueScreen> {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                const Kicker('ENTRANCE PLAQUE'),
+                Kicker(tx('ENTRANCE PLAQUE')),
               ],
             ),
             const SizedBox(height: 22),
@@ -96,7 +98,7 @@ class _PlaqueScreenState extends ConsumerState<PlaqueScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'SCAN IN · SCAN OUT',
+                          tx('SCAN IN · SCAN OUT'),
                           textAlign: TextAlign.center,
                           style: BoltText.m(11, spacing: .14, color: BoltColors.text),
                         ),
@@ -108,12 +110,14 @@ class _PlaqueScreenState extends ConsumerState<PlaqueScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'This code never changes. The app decides check-in or check-out based on whether the member is already in.',
+              tx(
+                'This code never changes. The app decides check-in or check-out based on whether the member is already in.',
+              ),
               textAlign: TextAlign.center,
               style: BoltText.a(13, color: BoltColors.muted, height: 1.5),
             ),
             const SizedBox(height: 18),
-            OutlineButton(label: 'Download print file', onTap: _export),
+            OutlineButton(label: tx('Download print file'), onTap: _export),
           ],
         ),
       ),

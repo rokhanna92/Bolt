@@ -86,7 +86,9 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                Kicker(isTpl ? 'EDIT TEMPLATE' : 'EDIT SESSION · ${fmtDay(day!.key).toUpperCase()}'),
+                Kicker(
+                  isTpl ? tx('EDIT TEMPLATE') : tx('EDIT SESSION · {day}', {'day': fmtDay(day!.key).toUpperCase()}),
+                ),
               ],
             ),
             const SizedBox(height: 14),
@@ -106,16 +108,16 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               )
             else
               Text(
-                session!.title.toUpperCase(),
+                tx(session!.title).toUpperCase(),
                 style: BoltText.a(tsz(session.title, 44), weight: 900, width: 115, color: BoltColors.neon, height: .95),
               ),
             const SizedBox(height: 8),
             Text(
               isTpl
-                  ? 'Changes apply to future auto-fills'
+                  ? tx('Changes apply to future auto-fills')
                   : coach
-                  ? 'For ${x!.name} · ${session!.focus}'
-                  : session!.focus,
+                  ? tx('For {name} · {focus}', {'name': x!.name, 'focus': tx(session!.focus)})
+                  : tx(session!.focus),
               style: BoltText.a(13, color: BoltColors.muted),
             ),
             if (session != null && session.status == SessionStatus.draft) ...[
@@ -127,7 +129,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                   stroke: const Stroke.dashed(BoltColors.muted2),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   child: Text(
-                    'DRAFT · ${firstName(x!.name).toUpperCase()} SEES IT AFTER YOU SEND',
+                    tx('DRAFT · {name} SEES IT AFTER YOU SEND', {'name': firstName(x!.name).toUpperCase()}),
                     style: BoltText.m(10, spacing: .08, color: BoltColors.textSoft),
                   ),
                 ),
@@ -141,7 +143,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                 stroke: const Stroke(Color(0x59FF7A45)),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 child: Text(
-                  x.injuries.map((i) => '${kAreas[i.area]}: ${i.note}').join('  ·  '),
+                  x.injuries.map((i) => '${tx(kAreas[i.area]!)}: ${tx(i.note)}').join('  ·  '),
                   style: BoltText.a(12, color: BoltColors.warn),
                 ),
               ),
@@ -154,7 +156,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                 stroke: const Stroke.dashed(BoltColors.line),
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                  'No exercises yet.',
+                  tx('No exercises yet.'),
                   textAlign: TextAlign.center,
                   style: BoltText.a(13, color: BoltColors.muted),
                 ),
@@ -168,32 +170,32 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                 radius: 14,
                 stroke: const Stroke.dashed(BoltColors.neon, 1.5),
                 alignment: Alignment.center,
-                child: Text('+ Add exercise', style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
+                child: Text(tx('+ Add exercise'), style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
               ),
             ),
             if (session != null) ...[
               const SizedBox(height: 18),
-              Kicker(coach ? 'NOTE FOR ${firstName(x!.name).toUpperCase()}' : 'NOTE', size: 10),
+              Kicker(coach ? tx('NOTE FOR {name}', {'name': firstName(x!.name).toUpperCase()}) : tx('NOTE'), size: 10),
               const SizedBox(height: 8),
               BoltTextArea(
                 controller: _note,
-                hint: coach ? 'Cues, targets, anything they should know' : 'Cues and targets for yourself',
+                hint: coach ? tx('Cues, targets, anything they should know') : tx('Cues and targets for yourself'),
                 onChanged: (v) => _edit(() => session.note = v),
               ),
             ],
             const SizedBox(height: 18),
             NeonButton(
               label: isTpl
-                  ? 'Save template'
+                  ? tx('Save template')
                   : coach
-                  ? 'Save & send to ${firstName(x!.name)}'
-                  : 'Save session',
+                  ? tx('Save & send to {name}', {'name': firstName(x!.name)})
+                  : tx('Save session'),
               onTap: () async {
                 final msg = _store.saveEdit(target);
                 context.pop();
                 if (msg != null) {
-                  final hint = await shareMessage(msg, subject: 'Your Bolt plan');
-                  _store.toast(hint ?? 'Sent to ${firstName(x!.name)} for approval');
+                  final hint = await shareMessage(msg, subject: tx('Your Bolt plan'));
+                  _store.toast(hint ?? tx('Sent to {name} for approval', {'name': firstName(x!.name)}));
                 }
               },
             ),
@@ -217,7 +219,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
             children: [
               Text(pad(i + 1), style: BoltText.m(11, color: BoltColors.muted4)),
               const SizedBox(width: 10),
-              Expanded(child: Text(e.name, style: BoltText.a(15, weight: 800))),
+              Expanded(child: Text(tx(e.name), style: BoltText.a(15, weight: 800))),
               Tap(
                 onTap: () => _edit(() {
                   final list = _store.editExercises(widget.target)..remove(e);
@@ -249,7 +251,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text('${e.sets}', style: BoltText.a(15, weight: 800, height: 1.1)),
-                          Text('SETS', style: BoltText.m(8, color: BoltColors.muted, height: 1.1)),
+                          Text(tx('SETS'), style: BoltText.m(8, color: BoltColors.muted, height: 1.1)),
                         ],
                       ),
                     ),
@@ -258,9 +260,9 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              Expanded(child: _input(_ctl(_reps, e.id, e.reps), 'Reps', (v) => _edit(() => e.reps = v))),
+              Expanded(child: _input(_ctl(_reps, e.id, e.reps), tx('Reps'), (v) => _edit(() => e.reps = v))),
               const SizedBox(width: 8),
-              Expanded(child: _input(_ctl(_loads, e.id, e.load), 'Load', (v) => _edit(() => e.load = v))),
+              Expanded(child: _input(_ctl(_loads, e.id, e.load), tx('Load'), (v) => _edit(() => e.load = v))),
             ],
           ),
           if (f) ...[
@@ -269,7 +271,9 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    '${kAreas[e.area]} flag${e.alt != null ? ' · swap to ${e.alt}' : ''}',
+                    e.alt != null
+                        ? tx('{area} flag · swap to {alt}', {'area': tx(kAreas[e.area]!), 'alt': tx(e.alt!)})
+                        : tx('{area} flag', {'area': tx(kAreas[e.area]!)}),
                     style: BoltText.a(12, color: BoltColors.warn),
                   ),
                 ),
@@ -279,7 +283,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
           ],
           if (e.swapped) ...[
             const SizedBox(height: 6),
-            Text('Swapped from ${e.orig}', style: BoltText.m(10, color: BoltColors.muted)),
+            Text(tx('Swapped from {name}', {'name': tx(e.orig)}), style: BoltText.m(10, color: BoltColors.muted)),
           ],
           const SizedBox(height: 10),
           Row(
@@ -287,14 +291,14 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               if (i + 1 < _store.editExercises(widget.target).length) ...[
                 _chip(
                   e.group != null && _store.editExercises(widget.target)[i + 1].group == e.group
-                      ? 'Superset ${e.group} with next ✓'
-                      : 'Superset with next',
+                      ? tx('Superset {g} with next ✓', {'g': e.group})
+                      : tx('Superset with next'),
                   e.group != null && _store.editExercises(widget.target)[i + 1].group == e.group,
                   () => _edit(() => toggleSuperset(_store.editExercises(widget.target), i)),
                 ),
                 const SizedBox(width: 6),
               ],
-              _chip(e.drop ? 'Drop set ✓' : 'Drop set', e.drop, () => _edit(() => e.drop = !e.drop)),
+              _chip(e.drop ? tx('Drop set ✓') : tx('Drop set'), e.drop, () => _edit(() => e.drop = !e.drop)),
             ],
           ),
         ],
@@ -369,15 +373,17 @@ class _PickerState extends ConsumerState<_Picker> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Add exercise', style: BoltText.a(20, weight: 900)),
+        Text(tx('Add exercise'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 10),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Row(children: [chip(null, 'All'), for (final e in kExerciseGroups.entries) chip(e.key, e.value)]),
+          child: Row(
+            children: [chip(null, tx('All')), for (final e in kExerciseGroups.entries) chip(e.key, tx(e.value))],
+          ),
         ),
         for (final g in groups) ...[
           const SizedBox(height: 14),
-          Kicker(kExerciseGroups[g]!.toUpperCase(), size: 10, spacing: .1),
+          Kicker(tx(kExerciseGroups[g]!).toUpperCase(), size: 10, spacing: .1),
           const SizedBox(height: 4),
           for (final a in kExercises.where((e) => e.muscle == g))
             Tap(
@@ -398,9 +404,9 @@ class _PickerState extends ConsumerState<_Picker> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(a.name, style: BoltText.a(14, weight: 700)),
+                          Text(tx(a.name), style: BoltText.a(14, weight: 700)),
                           const SizedBox(height: 2),
-                          Text(a.works, style: BoltText.a(11, color: BoltColors.muted)),
+                          Text(tx(a.works), style: BoltText.a(11, color: BoltColors.muted)),
                         ],
                       ),
                     ),

@@ -44,7 +44,7 @@ class GymScreen extends ConsumerWidget {
 
     return ScreenScroll(
       children: [
-        const Kicker('GYM TIME'),
+        Kicker(tx('GYM TIME')),
         const SizedBox(height: 16),
         BoltBox(
           color: BoltColors.surface1,
@@ -64,12 +64,12 @@ class GymScreen extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('NOT IN', style: BoltText.a(26, weight: 900, width: 115)),
+                      Text(tx('NOT IN'), style: BoltText.a(26, weight: 900, width: 115)),
                       const SizedBox(height: 6),
                       SizedBox(
                         width: 140,
                         child: Text(
-                          'Scan the plaque at the entrance',
+                          tx('Scan the plaque at the entrance'),
                           textAlign: TextAlign.center,
                           style: BoltText.a(12, color: BoltColors.muted),
                         ),
@@ -79,12 +79,14 @@ class GymScreen extends ConsumerWidget {
                 ),
               const SizedBox(height: 14),
               Text(
-                last == null ? 'No visits yet' : 'Last visit ${fmtDay(last.date)} · ${dur(last.mins)}',
+                last == null
+                    ? tx('No visits yet')
+                    : tx('Last visit {day} · {time}', {'day': fmtDay(last.date), 'time': dur(last.mins)}),
                 style: BoltText.a(12, color: BoltColors.muted),
               ),
               const SizedBox(height: 18),
               NeonButton(
-                label: g == null ? 'Scan to check in' : 'Scan to check out',
+                label: g == null ? tx('Scan to check in') : tx('Scan to check out'),
                 onTap: () => openScanner(context, ref),
                 leading: const BoltIcon('scan_line', size: 20, color: BoltColors.ink),
               ),
@@ -94,11 +96,18 @@ class GymScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         StatRow(
           children: [
-            StatTile(value: dur(cwMin), label: 'THIS WEEK', valueSize: 20, valueWeight: 800, labelFirst: true, gap: 4),
-            StatTile(value: '$cnt', label: 'VISITS', valueSize: 20, valueWeight: 800, labelFirst: true, gap: 4),
+            StatTile(
+              value: dur(cwMin),
+              label: tx('THIS WEEK'),
+              valueSize: 20,
+              valueWeight: 800,
+              labelFirst: true,
+              gap: 4,
+            ),
+            StatTile(value: '$cnt', label: tx('VISITS'), valueSize: 20, valueWeight: 800, labelFirst: true, gap: 4),
             StatTile(
               value: cnt > 0 ? dur(cwMin / cnt) : '—',
-              label: 'AVG VISIT',
+              label: tx('AVG VISIT'),
               valueSize: 20,
               valueWeight: 800,
               labelFirst: true,
@@ -107,7 +116,7 @@ class GymScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 22),
-        const SectionTitle('Last 6 weeks'),
+        SectionTitle(tx('Last 6 weeks')),
         const SizedBox(height: 12),
         SizedBox(
           height: 150,
@@ -122,15 +131,16 @@ class GymScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 22),
-        const SectionTitle('Last 6 months'),
+        SectionTitle(tx('Last 6 months')),
         const SizedBox(height: 4),
-        Text('Every gym day, brighter for longer sessions.', style: BoltText.a(12, color: BoltColors.muted)),
+        Text(tx('Every gym day, brighter for longer sessions.'), style: BoltText.a(12, color: BoltColors.muted)),
         const SizedBox(height: 10),
         GymHeatmap(visits: visits, plan: store.plan(id), now: now),
         const SizedBox(height: 22),
-        const SectionTitle('Visit log'),
+        SectionTitle(tx('Visit log')),
         const SizedBox(height: 8),
-        if (g != null) VisitRow(day: 'TODAY · LIVE', range: '${g.since} → now', dur: dur(live), live: true),
+        if (g != null)
+          VisitRow(day: tx('TODAY · LIVE'), range: tx('{time} → now', {'time': g.since}), dur: dur(live), live: true),
         for (final v in visits.take(6)) VisitRow(day: visitDay(v), range: '${v.inT} → ${v.outT}', dur: dur(v.mins)),
       ],
     );
@@ -162,7 +172,7 @@ class GymScreen extends ConsumerWidget {
   }
 }
 
-String visitDay(Visit v) => fmtDay(v.date).toUpperCase() + (v.auto ? ' · AUTO' : '');
+String visitDay(Visit v) => fmtDay(v.date).toUpperCase() + (v.auto ? ' · ${tx('AUTO')}' : '');
 
 class VisitRow extends StatelessWidget {
   const VisitRow({
@@ -273,7 +283,7 @@ class _LiveRingState extends State<_LiveRing> with TickerProviderStateMixin {
             children: [
               Text(widget.timer, style: BoltText.m(30, weight: 700, color: BoltColors.neon)),
               const SizedBox(height: 4),
-              Kicker('IN SINCE ${widget.since}', spacing: .1),
+              Kicker(tx('IN SINCE {time}', {'time': widget.since}), spacing: .1),
             ],
           ),
         ],
@@ -367,7 +377,13 @@ class GymHeatmap extends StatelessWidget {
             ],
             const SizedBox(height: 8),
             Text(
-              '${plural(visits.where((v) => v.date.compareTo(dk(first)) >= 0).map((v) => v.date).toSet().length, 'gym day')} since ${fmtDay(dk(first))}',
+              tx('{n} since {day}', {
+                'n': plural(
+                  visits.where((v) => v.date.compareTo(dk(first)) >= 0).map((v) => v.date).toSet().length,
+                  'gym day',
+                ),
+                'day': fmtDay(dk(first)),
+              }),
               style: BoltText.m(10, color: BoltColors.muted),
             ),
           ],

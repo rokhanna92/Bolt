@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+
 import '../data/seed/badges.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
@@ -101,11 +103,11 @@ class BadgeMedal extends StatelessWidget {
         // Shrinks only labels too wide for the shape, like "100H".
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text(badge.big, style: BoltText.a(big, weight: 900, width: 115, color: p.ink, height: 1)),
+          child: Text(tx(badge.big), style: BoltText.a(big, weight: 900, width: 115, color: p.ink, height: 1)),
         ),
         const SizedBox(height: 3),
         Text(
-          badge.unit,
+          tx(badge.unit),
           style: BoltText.m(7, color: p.ink2, spacing: unitSpacing),
         ),
       ],

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../../services/updater.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -26,7 +28,7 @@ class UpdateCard extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionTitle('App'),
+        SectionTitle(tx('App')),
         const SizedBox(height: 10),
         Tap(
           onTap: open,
@@ -41,10 +43,10 @@ class UpdateCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(installed?.label ?? 'Bolt', style: BoltText.a(15, weight: 800)),
+                      Text(installed?.label ?? tx('Bolt'), style: BoltText.a(15, weight: 800)),
                       const SizedBox(height: 2),
                       Text(
-                        'Get the newest version without reinstalling',
+                        tx('Get the newest version without reinstalling'),
                         style: BoltText.a(12, color: BoltColors.muted),
                       ),
                     ],
@@ -55,7 +57,7 @@ class UpdateCard extends ConsumerWidget {
                   color: BoltColors.neon,
                   radius: 12,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  child: Text('Update', style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                  child: Text(tx('Update'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
                 ),
               ],
             ),
@@ -157,7 +159,7 @@ class _UpdateSheetState extends ConsumerState<UpdateSheet> with WidgetsBindingOb
       if (opened) {
         _step = _Step.installing;
       } else {
-        _message = 'Android could not open the installer. Try again.';
+        _message = tx('Android could not open the installer. Try again.');
         _step = _Step.failed;
       }
     });
@@ -171,28 +173,33 @@ class _UpdateSheetState extends ConsumerState<UpdateSheet> with WidgetsBindingOb
     final r = _release;
     final children = <Widget>[
       switch (_step) {
-        _Step.checking => _head('Checking for updates', 'Asking for the latest Bolt release…'),
-        _Step.upToDate => _head('You are up to date', '${installed?.label ?? 'Bolt'} is the newest version.'),
-        _Step.failed => _head('Update did not work', _message),
+        _Step.checking => _head(tx('Checking for updates'), tx('Asking for the latest Bolt release…')),
+        _Step.upToDate => _head(
+          tx('You are up to date'),
+          tx('{version} is the newest version.', {'version': installed?.label ?? 'Bolt'}),
+        ),
+        _Step.failed => _head(tx('Update did not work'), _message),
         _Step.found => _head(
           r!.title,
-          'You have ${installed?.label ?? 'an older Bolt'}. Download ${r.apkBytes > 0 ? _mb(r.apkBytes) : 'the update'}; '
-          'your profile, plans and history stay.',
-          kicker: 'NEW VERSION',
+          tx('You have {installed}. Download {size}; your profile, plans and history stay.', {
+            'installed': installed?.label ?? tx('an older Bolt'),
+            'size': r.apkBytes > 0 ? _mb(r.apkBytes) : tx('the update'),
+          }),
+          kicker: tx('NEW VERSION'),
         ),
         _Step.downloading => _head(
-          'Downloading ${r?.title ?? 'update'}',
+          tx('Downloading {what}', {'what': r?.title ?? tx('update')}),
           r != null && r.apkBytes > 0
               ? '${_mb((r.apkBytes * _progress).round())} of ${_mb(r.apkBytes)}'
               : '${(_progress * 100).round()} %',
         ),
         _Step.permission => _head(
-          'Allow Bolt to install updates',
-          'Android asks this once. Turn on "Allow from this source", then come back here and the update continues.',
+          tx('Allow Bolt to install updates'),
+          tx('Android asks this once. Turn on "Allow from this source", then come back here and the update continues.'),
         ),
         _Step.installing => _head(
-          'Confirm in the installer',
-          'Tap Update on the Android screen. Bolt restarts on the new version with all your data.',
+          tx('Confirm in the installer'),
+          tx('Tap Update on the Android screen. Bolt restarts on the new version with all your data.'),
         ),
       },
     ];
@@ -231,11 +238,11 @@ class _UpdateSheetState extends ConsumerState<UpdateSheet> with WidgetsBindingOb
       );
     }
     final (label, action) = switch (_step) {
-      _Step.found => ('Download and install', _download),
-      _Step.failed => ('Try again', _release == null ? _check : _download),
-      _Step.permission => ('Open settings', () => _updater.openInstallSettings()),
-      _Step.installing => ('Open installer again', _install),
-      _Step.upToDate => ('Done', () => Navigator.of(context).pop()),
+      _Step.found => (tx('Download and install'), _download),
+      _Step.failed => (tx('Try again'), _release == null ? _check : _download),
+      _Step.permission => (tx('Open settings'), () => _updater.openInstallSettings()),
+      _Step.installing => (tx('Open installer again'), _install),
+      _Step.upToDate => (tx('Done'), () => Navigator.of(context).pop()),
       _ => ('', null),
     };
     if (action != null) {

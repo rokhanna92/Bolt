@@ -50,11 +50,11 @@ class ProgressScreen extends ConsumerWidget {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                const Kicker('PROGRESS'),
+                Kicker(tx('PROGRESS')),
               ],
             ),
             const SizedBox(height: 14),
-            Text('Your training', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+            Text(tx('Your training'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
             const SizedBox(height: 16),
             if (c != null)
               ChallengeCard(
@@ -65,35 +65,35 @@ class ProgressScreen extends ConsumerWidget {
               )
             else if (solo)
               OutlineButton(
-                label: '+ Set a challenge',
+                label: tx('+ Set a challenge'),
                 height: 48,
                 radius: 14,
                 onTap: () => showBoltSheet<void>(context, (_) => ChallengeSheet(tid: t.id)),
               ),
             const SizedBox(height: 22),
-            const SectionTitle('Last week'),
+            SectionTitle(tx('Last week')),
             const SizedBox(height: 10),
             RecapTiles(r: weekRecap(plan, visits, t.body, addDays(ws, -7)), metric: metric),
             const SizedBox(height: 24),
-            const SectionTitle('Muscle volume this week'),
+            SectionTitle(tx('Muscle volume this week')),
             const SizedBox(height: 4),
             Text(
-              'Hard sets per muscle in finished workouts, against the weekly range from Learn.',
+              tx('Hard sets per muscle in finished workouts, against the weekly range from Learn.'),
               style: BoltText.a(12, color: BoltColors.muted),
             ),
             const SizedBox(height: 10),
             _Volume(sets: muscleSets(plan, dk(ws), dk(addDays(ws, 7)))),
             const SizedBox(height: 24),
-            const SectionTitle('Records'),
+            SectionTitle(tx('Records')),
             const SizedBox(height: 10),
             _Records(d: d, plan: plan, visits: visits, metric: metric, bestStreak: t.stats.bestStreak),
             const SizedBox(height: 24),
-            const SectionTitle('Lifts'),
+            SectionTitle(tx('Lifts')),
             const SizedBox(height: 4),
             Text(
               lifts.isEmpty
-                  ? 'Tick sets with their weight and reps in a workout and every lift shows up here.'
-                  : 'Tap a lift for its history and estimated max.',
+                  ? tx('Tick sets with their weight and reps in a workout and every lift shows up here.')
+                  : tx('Tap a lift for its history and estimated max.'),
               style: BoltText.a(12, color: BoltColors.muted),
             ),
             const SizedBox(height: 8),
@@ -121,20 +121,20 @@ class RecapTiles extends StatelessWidget {
       children: [
         StatRow(
           children: [
-            tile('${r.done}/${r.planned}', 'WORKOUTS'),
-            tile(r.gymMins == 0 ? '-' : totalTime(r.gymMins), 'GYM TIME'),
-            tile('${r.sets}', 'SETS'),
+            tile('${r.done}/${r.planned}', tx('WORKOUTS')),
+            tile(r.gymMins == 0 ? '-' : totalTime(r.gymMins), tx('GYM TIME')),
+            tile('${r.sets}', tx('SETS')),
           ],
         ),
         const SizedBox(height: 8),
         StatRow(
           children: [
-            tile('${r.visits}', 'VISITS'),
+            tile('${r.visits}', tx('VISITS')),
             tile(
               w == null ? '-' : '${w < 0 ? '-' : '+'}${weightValue(w.abs(), metric: metric)} ${weightUnit(metric)}',
-              'WEIGHT',
+              tx('WEIGHT'),
             ),
-            tile(r.planned == 0 ? '-' : '${(100 * r.done / r.planned).round()}%', 'DONE'),
+            tile(r.planned == 0 ? '-' : '${(100 * r.done / r.planned).round()}%', tx('DONE')),
           ],
         ),
       ],
@@ -165,7 +165,7 @@ class _Volume extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 5),
               child: Row(
                 children: [
-                  SizedBox(width: 92, child: Text(name, style: BoltText.a(12, weight: 700))),
+                  SizedBox(width: 92, child: Text(tx(name), style: BoltText.a(12, weight: 700))),
                   Expanded(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(99),
@@ -236,16 +236,16 @@ class _Records extends StatelessWidget {
     String kg(double v) => '${weightValue(v, metric: metric)} ${weightUnit(metric)}';
     final items = <(String, String, String)>[
       if (heaviest case final h?)
-        ('HEAVIEST SET', kg(h.$2), '${h.$1}${h.$3 == null ? '' : ' × ${h.$3}'} · ${fmtDay(h.$4)}'),
-      if (longest != null) ('LONGEST SESSION', dur(longest.mins), fmtDay(longest.date)),
-      if (mostSets case final m?) ('MOST SETS', '${m.$1}', '${m.$2} · ${fmtDay(m.$3)}'),
+        (tx('HEAVIEST SET'), kg(h.$2), '${tx(h.$1)}${h.$3 == null ? '' : ' × ${h.$3}'} · ${fmtDay(h.$4)}'),
+      if (longest != null) (tx('LONGEST SESSION'), dur(longest.mins), fmtDay(longest.date)),
+      if (mostSets case final m?) (tx('MOST SETS'), '${m.$1}', '${tx(m.$2)} · ${fmtDay(m.$3)}'),
       if (volume > 0)
         (
-          'TOTAL LIFTED',
+          tx('TOTAL LIFTED'),
           metric ? '${(volume / 1000).toStringAsFixed(1)} t' : '${(volume * 2.20462).round()} lb',
-          'Weight × reps, every logged set',
+          tx('Weight × reps, every logged set'),
         ),
-      ('BEST STREAK', '${bestStreak}W', 'Perfect weeks in a row'),
+      (tx('BEST STREAK'), tx('{n} wk', {'n': bestStreak}), tx('Perfect weeks in a row')),
     ];
     return Column(
       children: [
@@ -308,10 +308,10 @@ class _LiftRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: BoltText.a(14, weight: 800)),
+                  Text(tx(name), style: BoltText.a(14, weight: 800)),
                   const SizedBox(height: 2),
                   Text(
-                    '${plural(days.length, 'workout')} · last ${fmtDay(days.last.date)}',
+                    tx('{n} · last {day}', {'n': plural(days.length, 'workout'), 'day': fmtDay(days.last.date)}),
                     style: BoltText.a(11, color: BoltColors.muted),
                   ),
                 ],
@@ -320,7 +320,7 @@ class _LiftRow extends StatelessWidget {
             Text(
               best != null
                   ? 'e1RM ${weightValue(best, metric: metric)} ${weightUnit(metric)}'
-                  : (reps == null ? '' : 'best $reps reps'),
+                  : (reps == null ? '' : tx('best {n} reps', {'n': reps})),
               style: BoltText.m(11, weight: 700, color: BoltColors.neon),
             ),
             const SizedBox(width: 8),

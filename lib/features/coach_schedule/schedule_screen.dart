@@ -14,11 +14,11 @@ import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
 
 String _scheduleLabel(SessionStatus s) => switch (s) {
-  SessionStatus.done => 'Done',
-  SessionStatus.approved => 'Confirmed',
-  SessionStatus.pending => 'Waiting',
-  SessionStatus.moved => 'Moved',
-  SessionStatus.draft => 'Draft',
+  SessionStatus.done => tx('Done'),
+  SessionStatus.approved => tx('Confirmed'),
+  SessionStatus.pending => tx('Waiting'),
+  SessionStatus.moved => tx('Moved'),
+  SessionStatus.draft => tx('Draft'),
 };
 
 class ScheduleScreen extends ConsumerWidget {
@@ -35,10 +35,10 @@ class ScheduleScreen extends ConsumerWidget {
     final wM = addDays(weekStart(store.now, mondayFirst: d.settings.mondayFirst), 7 * wk);
     final wE = addDays(wM, 6);
     final label = switch (wk) {
-      0 => 'This week',
-      1 => 'Next week',
-      -1 => 'Last week',
-      _ => wk > 0 ? 'In $wk weeks' : '${-wk} weeks ago',
+      0 => tx('This week'),
+      1 => tx('Next week'),
+      -1 => tx('Last week'),
+      _ => wk > 0 ? tx('In {n}', {'n': plural(wk, 'week')}) : tx('{n} ago', {'n': plural(-wk, 'week')}),
     };
     var total = 0, ok = 0, wait = 0;
     final days = <Widget>[];
@@ -77,7 +77,7 @@ class ScheduleScreen extends ConsumerWidget {
                       color: BoltColors.neon,
                       radius: 6,
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      child: Text('TODAY', style: BoltText.m(9, weight: 700, color: BoltColors.ink)),
+                      child: Text(tx('TODAY'), style: BoltText.m(9, weight: 700, color: BoltColors.ink)),
                     ),
                   ],
                   const SizedBox(width: 8),
@@ -88,7 +88,7 @@ class ScheduleScreen extends ConsumerWidget {
               if (items.isEmpty)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(2, 10, 2, 2),
-                  child: Text('No sessions', style: BoltText.a(12, color: BoltColors.muted3)),
+                  child: Text(tx('No sessions'), style: BoltText.a(12, color: BoltColors.muted3)),
                 ),
             ],
           ),
@@ -99,7 +99,8 @@ class ScheduleScreen extends ConsumerWidget {
     return ScreenScroll(
       children: [
         Kicker(
-          'SCHEDULE · ${wM.day} ${monthsShort[wM.month - 1]} – ${wE.day} ${monthsShort[wE.month - 1]}'.toUpperCase(),
+          '${tx('SCHEDULE')} · ${wM.day} ${monthsShort[wM.month - 1]} - ${wE.day} ${monthsShort[wE.month - 1]}'
+              .toUpperCase(),
         ),
         const SizedBox(height: 4),
         Row(
@@ -113,9 +114,9 @@ class ScheduleScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         StatRow(
           children: [
-            StatTile(value: '$total', label: 'SESSIONS', valueSize: 26, gap: 0),
-            StatTile(value: '$ok', label: 'CONFIRMED', valueSize: 26, valueColor: BoltColors.neon, gap: 0),
-            StatTile(value: '$wait', label: 'OPEN', valueSize: 26, gap: 0),
+            StatTile(value: '$total', label: tx('SESSIONS'), valueSize: 26, gap: 0),
+            StatTile(value: '$ok', label: tx('CONFIRMED'), valueSize: 26, valueColor: BoltColors.neon, gap: 0),
+            StatTile(value: '$wait', label: tx('OPEN'), valueSize: 26, gap: 0),
           ],
         ),
         const SizedBox(height: 18),

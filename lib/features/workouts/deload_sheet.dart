@@ -26,13 +26,14 @@ class DeloadSheet extends ConsumerWidget {
           if (p[dk(addDays(mon, i))] case final Session s when s.status != SessionStatus.done) s,
       ];
       final on = sessions.any((s) => s.deload);
-      final text = '$label · ${fmtDay(dk(mon))} to ${fmtDay(dk(addDays(mon, 6)))}';
+      final text =
+          '${tx(label)} · ${tx('{from} to {to}', {'from': fmtDay(dk(mon)), 'to': fmtDay(dk(addDays(mon, 6)))})}';
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: on
-            ? OutlineButton(label: 'Undo deload · $label', onTap: () => store.toggleDeload(tid, mon))
+            ? OutlineButton(label: '${tx('Undo deload')} · ${tx(label)}', onTap: () => store.toggleDeload(tid, mon))
             : NeonButton(
-                label: sessions.isEmpty ? '$text · nothing planned' : 'Deload $text',
+                label: sessions.isEmpty ? '$text · ${tx('nothing planned')}' : '${tx('Deload')} $text',
                 height: 50,
                 fontSize: 13,
                 scale: 1,
@@ -46,17 +47,19 @@ class DeloadSheet extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Deload week', style: BoltText.a(20, weight: 900)),
+        Text(tx('Deload week'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 4),
         Text(
-          'Every 4-8 weeks, an easier week lets joints and muscles catch up so you come back stronger. '
-          'Every session that week keeps its exercises with half the sets, and a note to go about 10% lighter.'
-          '${coach ? ' The changed days become drafts to send again.' : ''}',
+          tx(
+                'Every 4-8 weeks, an easier week lets joints and muscles catch up so you come back stronger. '
+                'Every session that week keeps its exercises with half the sets, and a note to go about 10% lighter.',
+              ) +
+              (coach ? tx(' The changed days become drafts to send again.') : ''),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
         const SizedBox(height: 16),
-        week('This week', store.mon0),
-        week('Next week', addDays(store.mon0, 7)),
+        week(tx('This week'), store.mon0),
+        week(tx('Next week'), addDays(store.mon0, 7)),
       ],
     );
   }

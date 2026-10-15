@@ -51,9 +51,9 @@ class MeasurementsScreen extends ConsumerWidget {
   Future<void> _delete(BuildContext context, BoltStore store, String date) async {
     final ok = await confirmSheet(
       context,
-      title: 'Remove ${fmtDay(date)}?',
-      body: 'This day\'s weight and measurements are deleted.',
-      confirm: 'Remove',
+      title: tx('Remove {day}?', {'day': fmtDay(date)}),
+      body: tx('This day\'s weight and measurements are deleted.'),
+      confirm: tx('Remove'),
     );
     if (ok) store.deleteBodyEntry(tid, date);
   }
@@ -79,20 +79,26 @@ class MeasurementsScreen extends ConsumerWidget {
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Kicker(who == null ? 'MEASUREMENTS' : 'MEASUREMENTS · ${firstName(who).toUpperCase()}'),
+                  child: Kicker(
+                    who == null ? tx('MEASUREMENTS') : '${tx('MEASUREMENTS')} · ${firstName(who).toUpperCase()}',
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 14),
-            Text('Body progress', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+            Text(tx('Body progress'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
             const SizedBox(height: 6),
             Text(
-              'Weigh in at the same time of day, before eating, for the cleanest trend. Tape measurements every 2-4 weeks are enough.',
+              tx(
+                tx(
+                  'Weigh in at the same time of day, before eating, for the cleanest trend. Tape measurements every 2-4 weeks are enough.',
+                ),
+              ),
               style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
             ),
             const SizedBox(height: 14),
             NeonButton(
-              label: '+ Log today',
+              label: tx('+ Log today'),
               height: 50,
               scale: 1,
               onTap: () => showBoltSheet<void>(context, (_) => LogBodySheet(tid: tid)),
@@ -117,14 +123,18 @@ class MeasurementsScreen extends ConsumerWidget {
                 stroke: const Stroke.dashed(BoltColors.line),
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                  'Nothing logged yet. Log your weight today and every few days after, and your trend shows up here.',
+                  tx(
+                    tx(
+                      'Nothing logged yet. Log your weight today and every few days after, and your trend shows up here.',
+                    ),
+                  ),
                   style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
                 ),
               ),
             ],
             if (b != null && b.history.isNotEmpty) ...[
               const SizedBox(height: 24),
-              const SectionTitle('History'),
+              SectionTitle(tx('History')),
               const SizedBox(height: 8),
               for (final e in b.history.reversed)
                 Container(
@@ -144,7 +154,7 @@ class MeasurementsScreen extends ConsumerWidget {
                               [
                                 for (final t in Body.tracked.entries)
                                   if (e.value(t.key) case final double v)
-                                    '${t.value} ${bodyValue(t.key, v, metric: metric)}',
+                                    '${tx(t.value)} ${bodyValue(t.key, v, metric: metric)}',
                               ].join(' · '),
                               style: BoltText.a(13, weight: 600, height: 1.4),
                             ),
@@ -195,12 +205,12 @@ class _MetricCard extends StatelessWidget {
   String _goalText(({double delta, String since})? ch) {
     final g = goal!;
     final left = g - series.last.$2;
-    if (left.abs() < .05) return 'Goal reached!';
-    final head = '${bodyValue(keyName, left.abs(), metric: metric)} to go';
+    if (left.abs() < .05) return tx('Goal reached!');
+    final head = tx('{amount} to go', {'amount': bodyValue(keyName, left.abs(), metric: metric)});
     if (ch == null || ch.delta == 0 || ch.delta.sign != left.sign) return head;
     final perDay = ch.delta / pk(series.last.$1).difference(pk(ch.since)).inDays;
     final weeks = (left / perDay / 7).ceil();
-    return '$head · about ${plural(weeks, 'week')} at this pace';
+    return tx('{head} · about {n} at this pace', {'head': head, 'n': plural(weeks, 'week')});
   }
 
   @override
@@ -223,7 +233,7 @@ class _MetricCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Kicker(label.toUpperCase(), size: 9, spacing: .1),
+                    Kicker(tx(label).toUpperCase(), size: 9, spacing: .1),
                     const SizedBox(height: 3),
                     Text(bodyValue(keyName, series.last.$2, metric: metric), style: BoltText.a(22, weight: 900)),
                   ],
@@ -237,7 +247,7 @@ class _MetricCard extends StatelessWidget {
                       bodyDelta(keyName, ch.delta, metric: metric),
                       style: BoltText.a(14, weight: 800, color: BoltColors.neon),
                     ),
-                    Text('since ${fmtDay(ch.since)}', style: BoltText.m(9, color: BoltColors.muted)),
+                    Text(tx('since {day}', {'day': fmtDay(ch.since)}), style: BoltText.m(9, color: BoltColors.muted)),
                   ],
                 ),
             ],
@@ -251,14 +261,19 @@ class _MetricCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  goal == null ? 'No goal set' : 'Goal ${bodyValue(keyName, goal!, metric: metric)} · ${_goalText(ch)}',
+                  goal == null
+                      ? tx('No goal set')
+                      : tx('Goal {value} · {rest}', {
+                          'value': bodyValue(keyName, goal!, metric: metric),
+                          'rest': _goalText(ch),
+                        }),
                   style: BoltText.a(12, weight: 700, color: goal == null ? BoltColors.muted3 : BoltColors.text),
                 ),
               ),
               Tap(
                 onTap: onGoal,
                 child: Text(
-                  goal == null ? 'Set goal' : 'Edit',
+                  goal == null ? tx('Set goal') : tx('Edit'),
                   style: BoltText.a(12, weight: 800, color: BoltColors.neon),
                 ),
               ),
@@ -267,9 +282,12 @@ class _MetricCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             series.length < 2
-                ? 'Log it again on another day to see a trend.'
-                : '${series.length} entries since ${fmtDay(first.$1)}'
-                      ' · ${bodyDelta(keyName, total, metric: metric)} in total',
+                ? tx('Log it again on another day to see a trend.')
+                : tx('{n} entries since {day} · {delta} in total', {
+                    'n': series.length,
+                    'day': fmtDay(first.$1),
+                    'delta': bodyDelta(keyName, total, metric: metric),
+                  }),
             style: BoltText.a(12, color: BoltColors.muted),
           ),
         ],
@@ -316,7 +334,9 @@ class _LogBodySheetState extends ConsumerState<LogBodySheet> {
     final b = ref.read(boltProvider.notifier).bodyFor(widget.tid);
     String hint(String k, String label) {
       final last = k == 'weight' ? b?.weightKg : b?.cm[k];
-      return last == null ? label : '$label (last ${bodyValue(k, last, metric: metric)})';
+      return last == null
+          ? tx(label)
+          : tx('{label} (last {value})', {'label': tx(label), 'value': bodyValue(k, last, metric: metric)});
     }
 
     Widget field(String k) => BoltField(
@@ -329,10 +349,10 @@ class _LogBodySheetState extends ConsumerState<LogBodySheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Log today', style: BoltText.a(20, weight: 900)),
+        Text(tx('Log today'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 4),
         Text(
-          'Fill in what you measured. Empty fields are skipped.',
+          tx('Fill in what you measured. Empty fields are skipped.'),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
         const SizedBox(height: 14),
@@ -349,7 +369,7 @@ class _LogBodySheetState extends ConsumerState<LogBodySheet> {
           ),
         ],
         const SizedBox(height: 16),
-        NeonButton(label: 'Save', height: 52, scale: 1, onTap: () => _save(metric)),
+        NeonButton(label: tx('Save'), height: 52, scale: 1, onTap: () => _save(metric)),
       ],
     );
   }
@@ -388,22 +408,22 @@ class _GoalSheetState extends ConsumerState<_GoalSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('${Body.tracked[widget.keyName]} goal', style: BoltText.a(20, weight: 900)),
+        Text(tx('{what} goal', {'what': tx(Body.tracked[widget.keyName]!)}), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 4),
         Text(
-          'Shows as a dashed line on the trend, with how far there is to go.',
+          tx('Shows as a dashed line on the trend, with how far there is to go.'),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
         const SizedBox(height: 14),
         BoltField(
           controller: _c,
-          hint: 'Target',
+          hint: tx('Target'),
           number: true,
           suffix: weight ? weightUnit(_metric) : lengthUnit(_metric),
         ),
         const SizedBox(height: 16),
         NeonButton(
-          label: 'Save goal',
+          label: tx('Save goal'),
           height: 52,
           scale: 1,
           onTap: () {
@@ -415,7 +435,7 @@ class _GoalSheetState extends ConsumerState<_GoalSheet> {
         if (_old != null) ...[
           const SizedBox(height: 8),
           OutlineButton(
-            label: 'Remove goal',
+            label: tx('Remove goal'),
             color: BoltColors.text,
             borderColor: BoltColors.line,
             weight: 700,

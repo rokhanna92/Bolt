@@ -1,9 +1,37 @@
 // Date and text helpers ported from the prototype's script so every label
-// reads exactly the same.
+// reads exactly the same. Day and month names follow the app language.
 
-const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const monthsLong = [
+import '../l10n/l10n.dart';
+
+export '../l10n/l10n.dart' show AppLang, appLang, isSerbian, plural, tx;
+
+const _weekdaysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const _weekdaysSr = ['Ned', 'Pon', 'Uto', 'Sre', 'Čet', 'Pet', 'Sub'];
+const _monthsShortEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const _monthsShortSr = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'avg', 'sep', 'okt', 'nov', 'dec'];
+const _monthsLongSr = [
+  'Januar',
+  'Februar',
+  'Mart',
+  'April',
+  'Maj',
+  'Jun',
+  'Jul',
+  'Avgust',
+  'Septembar',
+  'Oktobar',
+  'Novembar',
+  'Decembar',
+];
+
+List<String> _inLang(List<String> en, List<String> sr) => isSerbian ? sr : en;
+
+/// Short day names, index 0 = Sunday (JS `getDay()`).
+List<String> get weekdays => _inLang(_weekdaysEn, _weekdaysSr);
+List<String> get monthsShort => _inLang(_monthsShortEn, _monthsShortSr);
+List<String> get monthsLong => _inLang(_monthsLongEn, _monthsLongSr);
+
+const _monthsLongEn = [
   'January',
   'February',
   'March',
@@ -38,10 +66,12 @@ DateTime monday(DateTime d) => addDays(DateTime(d.year, d.month, d.day), -((jsDa
 DateTime weekStart(DateTime d, {required bool mondayFirst}) =>
     mondayFirst ? monday(d) : addDays(DateTime(d.year, d.month, d.day), -jsDay(d));
 
-/// `Wed 14 Oct`
+/// `Wed 14 Oct`, in Serbian `Sre 14. okt`.
 String fmtDay(String k) {
   final d = pk(k);
-  return '${weekdays[jsDay(d)]} ${d.day} ${monthsShort[d.month - 1]}';
+  return isSerbian
+      ? '${weekdays[jsDay(d)]} ${d.day}. ${monthsShort[d.month - 1]}'
+      : '${weekdays[jsDay(d)]} ${d.day} ${monthsShort[d.month - 1]}';
 }
 
 String hm(DateTime d) => '${pad(d.hour)}:${pad(d.minute)}';
@@ -68,8 +98,6 @@ String initials(String n) {
   final s = n.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).map((w) => w[0]).join();
   return (s.length > 2 ? s.substring(0, 2) : s).toUpperCase();
 }
-
-String plural(int n, String w) => '$n $w${n == 1 ? '' : 's'}';
 
 /// Workout title auto-size: <=6 chars base, <=9 74 %, longer 56 %.
 double tsz(String? name, double big) {

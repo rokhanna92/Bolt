@@ -79,7 +79,7 @@ List<BadgeDef> lockedByCloseness(TraineeStats s) {
 /// "3 sessions to go".
 String badgeLeftText(BadgeDef b, TraineeStats s) {
   final r = b.goal - s.value(b.key);
-  return '${plural(r, kBadgeUnits[b.key]!)} to go';
+  return tx('{n} to go', {'n': plural(r, kBadgeUnits[b.key]!)});
 }
 
 /// Muscle groups a session trains, from its exercises' main muscles.
@@ -126,3 +126,21 @@ int restDays(Map<String, Session> plan, List<Visit> visits, DateTime now) {
 
 /// Total gym time, short: `42m`, `3h 05m`, then whole hours from 10 h.
 String totalTime(int mins) => mins < 600 ? dur(mins) : '${mins ~/ 60}h';
+
+/// A stored workout log ("6/6 sets · 1h 12m in the gym") in the app language.
+String logText(String? log) {
+  if (log == null) return '';
+  return log
+      .replaceAll(' in the gym', ' ${tx('in the gym')}')
+      .replaceAllMapped(RegExp(r'(\d+)/(\d+) sets'), (m) => tx('{done}/{total} sets', {'done': m[1], 'total': m[2]}));
+}
+
+/// A stored injury byline ("Reported by Ana · 9 Oct") in the app language.
+String byLine(String by) {
+  final m = RegExp(r'^(Reported|Added) by (.+?) · (\d+) (\w+)$').firstMatch(by);
+  if (m == null) return by;
+  const en = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  final i = en.indexOf(m[4]!);
+  final day = i < 0 ? '${m[3]} ${m[4]}' : (isSerbian ? '${m[3]}. ${monthsShort[i]}' : '${m[3]} ${monthsShort[i]}');
+  return tx(m[1] == 'Reported' ? 'Reported by {name} · {day}' : 'Added by {name} · {day}', {'name': m[2], 'day': day});
+}

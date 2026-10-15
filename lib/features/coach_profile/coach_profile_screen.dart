@@ -14,6 +14,7 @@ import '../plaque/plaque_qr.dart';
 import '../profile/body_card.dart';
 import '../profile/role_switch.dart';
 import '../updates/update_sheet.dart';
+import '../profile/language_picker.dart';
 import '../profile/me_screen.dart' show ProfileHeader;
 
 class CoachProfileScreen extends ConsumerWidget {
@@ -53,7 +54,10 @@ class CoachProfileScreen extends ConsumerWidget {
                 children: [
                   Text(c.name, style: BoltText.a(24, weight: 900)),
                   const SizedBox(height: 4),
-                  Text(gym.isEmpty ? c.role : '${c.role} · $gym', style: BoltText.a(13, color: BoltColors.muted)),
+                  Text(
+                    gym.isEmpty ? tx(c.role) : '${tx(c.role)} · $gym',
+                    style: BoltText.a(13, color: BoltColors.muted),
+                  ),
                 ],
               ),
             ),
@@ -62,9 +66,9 @@ class CoachProfileScreen extends ConsumerWidget {
         const SizedBox(height: 18),
         StatRow(
           children: [
-            StatTile(value: '${my.length}', label: 'TRAINEES', valueColor: BoltColors.neon, gap: 0),
-            StatTile(value: '$planned', label: 'THIS WEEK', gap: 0),
-            StatTile(value: '$waiting', label: 'WAITING', gap: 0),
+            StatTile(value: '${my.length}', label: tx('TRAINEES'), valueColor: BoltColors.neon, gap: 0),
+            StatTile(value: '$planned', label: tx('THIS WEEK'), gap: 0),
+            StatTile(value: '$waiting', label: tx('WAITING'), gap: 0),
           ],
         ),
         const SizedBox(height: 24),
@@ -96,10 +100,10 @@ class CoachProfileScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Check-in plaque', style: BoltText.a(15, weight: 800)),
+                      Text(tx('Check-in plaque'), style: BoltText.a(15, weight: 800)),
                       const SizedBox(height: 2),
                       Text(
-                        'Print it for the entrance · scan in and out',
+                        tx('Print it for the entrance · scan in and out'),
                         style: BoltText.a(12, color: BoltColors.muted),
                       ),
                     ],
@@ -113,6 +117,8 @@ class CoachProfileScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
         const RoleSwitch(),
+        const LanguagePicker(),
+        const SizedBox(height: 18),
         const UpdateCard(),
       ],
     );

@@ -48,13 +48,13 @@ class TodayScreen extends ConsumerWidget {
     final tp = vis(today);
     final g = d.gymIn[t.id];
     final nextK = (plan.keys.where((k) => k.compareTo(today) > 0 && vis(k) != null).toList()..sort()).firstOrNull;
-    final nextText = nextK == null ? 'Nothing planned yet' : '${fmtDay(nextK)} · ${plan[nextK]!.title}';
+    final nextText = nextK == null ? tx('Nothing planned yet') : '${fmtDay(nextK)} · ${tx(plan[nextK]!.title)}';
     final pend = plan.keys.where((k) => plan[k]!.status == SessionStatus.pending && k.compareTo(today) >= 0).toList()
       ..sort();
     final ws = weekStart(now, mondayFirst: d.settings.mondayFirst);
     final nothingAhead = vis(today) == null && nextK == null;
     final withCoach = d.account?.role == Role.trainee;
-    final noteBy = tp != null && tp.byCoach ? (coachName ?? 'Coach') : t.name;
+    final noteBy = tp != null && tp.byCoach ? (coachName ?? tx('Coach')) : t.name;
 
     return ScreenScroll(
       children: [
@@ -68,7 +68,10 @@ class TodayScreen extends ConsumerWidget {
                     '${weekdays[jsDay(now)]} · ${now.day} ${monthsShort[now.month - 1]} ${now.year}'.toUpperCase(),
                   ),
                   const SizedBox(height: 4),
-                  Text('Hey ${firstName(t.name)}', style: BoltText.a(26, weight: 800, spacing: -.02)),
+                  Text(
+                    tx('Hey {name}', {'name': firstName(t.name)}),
+                    style: BoltText.a(26, weight: 800, spacing: -.02),
+                  ),
                 ],
               ),
             ),
@@ -92,9 +95,9 @@ class TodayScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('In the gym since ${g.since}', style: BoltText.a(13, weight: 700)),
+                        Text(tx('In the gym since {time}', {'time': g.since}), style: BoltText.a(13, weight: 700)),
                         const SizedBox(height: 2),
-                        Text('Tap to scan out', style: BoltText.a(12, color: BoltColors.muted)),
+                        Text(tx('Tap to scan out'), style: BoltText.a(12, color: BoltColors.muted)),
                       ],
                     ),
                   ),
@@ -119,11 +122,11 @@ class TodayScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Kicker('TODAY · DONE · ${(tp.log ?? '').toUpperCase()}', color: BoltColors.neon),
+                Kicker('${tx('TODAY · DONE')} · ${logText(tp.log).toUpperCase()}', color: BoltColors.neon),
                 const SizedBox(height: 8),
-                Text(tp.title.toUpperCase(), style: BoltText.a(34, weight: 900, width: 115, spacing: -.02)),
+                Text(tx(tp.title).toUpperCase(), style: BoltText.a(34, weight: 900, width: 115, spacing: -.02)),
                 const SizedBox(height: 6),
-                Text('Next: $nextText', style: BoltText.a(14, color: BoltColors.muted)),
+                Text(tx('Next: {what}', {'what': nextText}), style: BoltText.a(14, color: BoltColors.muted)),
               ],
             ),
           ),
@@ -138,11 +141,11 @@ class TodayScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Kicker('TODAY'),
+                Kicker(tx('TODAY')),
                 const SizedBox(height: 8),
-                Text('REST DAY', style: BoltText.a(34, weight: 900, width: 115)),
+                Text(tx('REST DAY'), style: BoltText.a(34, weight: 900, width: 115)),
                 const SizedBox(height: 6),
-                Text('Next: $nextText', style: BoltText.a(14, color: BoltColors.muted)),
+                Text(tx('Next: {what}', {'what': nextText}), style: BoltText.a(14, color: BoltColors.muted)),
               ],
             ),
           ),
@@ -171,7 +174,7 @@ class TodayScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      const Expanded(child: Kicker('LAST WEEK', color: BoltColors.neon)),
+                      Expanded(child: Kicker(tx('LAST WEEK'), color: BoltColors.neon)),
                       Tap(
                         onTap: () => store.dismissRecap(dk(addDays(ws, -7))),
                         child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),
@@ -181,8 +184,8 @@ class TodayScreen extends ConsumerWidget {
                   const SizedBox(height: 6),
                   Text(
                     r.planned > 0 && r.done >= r.planned
-                        ? 'Every planned session done. New week, same energy.'
-                        : '${plural(r.done, 'workout')} done. Let\'s make this week count.',
+                        ? tx('Every planned session done. New week, same energy.')
+                        : tx('{n} done. Let\'s make this week count.', {'n': plural(r.done, 'workout')}),
                     style: BoltText.a(16, weight: 800),
                   ),
                   const SizedBox(height: 12),
@@ -215,9 +218,14 @@ class TodayScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Kicker(tp.byCoach ? 'NOTE FROM ${firstName(noteBy).toUpperCase()}' : 'YOUR NOTE', size: 10),
+                      Kicker(
+                        tp.byCoach
+                            ? tx('NOTE FROM {name}', {'name': firstName(noteBy).toUpperCase()})
+                            : tx('YOUR NOTE'),
+                        size: 10,
+                      ),
                       const SizedBox(height: 4),
-                      Text(tp.note, style: BoltText.a(14, height: 1.45)),
+                      Text(tx(tp.note), style: BoltText.a(14, height: 1.45)),
                     ],
                   ),
                 ),
@@ -230,10 +238,10 @@ class TodayScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            const Expanded(child: SectionTitle('This week')),
+            Expanded(child: SectionTitle(tx('This week'))),
             Tap(
               onTap: () => openPlanDay(context, ref, null),
-              child: Text('Calendar →', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+              child: Text(tx('Calendar →'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
             ),
           ],
         ),
@@ -251,10 +259,10 @@ class TodayScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            const Expanded(child: SectionTitle('Your numbers')),
+            Expanded(child: SectionTitle(tx('Your numbers'))),
             Tap(
               onTap: () => context.push('/progress'),
-              child: Text('Progress →', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+              child: Text(tx('Progress →'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
             ),
           ],
         ),
@@ -280,11 +288,14 @@ class TodayScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${coachName == null ? 'Your coach' : firstName(coachName)} planned ${plural(pend.length, 'session')}',
+                            tx('{coach} planned {n}', {
+                              'coach': coachName == null ? tx('Your coach') : firstName(coachName),
+                              'n': plural(pend.length, 'session'),
+                            }),
                             style: BoltText.a(16, weight: 800),
                           ),
                           const SizedBox(height: 3),
-                          Text('Waiting for your OK', style: BoltText.a(13, color: BoltColors.muted)),
+                          Text(tx('Waiting for your OK'), style: BoltText.a(13, color: BoltColors.muted)),
                         ],
                       ),
                     ),
@@ -296,7 +307,7 @@ class TodayScreen extends ConsumerWidget {
                         color: BoltColors.neon,
                         radius: 12,
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        child: Text('Accept all', style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                        child: Text(tx('Accept all'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
                       ),
                     ),
                   ],
@@ -316,7 +327,7 @@ class TodayScreen extends ConsumerWidget {
                           Text.rich(
                             TextSpan(
                               children: [
-                                TextSpan(text: '${plan[k]!.title} ', style: BoltText.a(14, weight: 700)),
+                                TextSpan(text: '${tx(plan[k]!.title)} ', style: BoltText.a(14, weight: 700)),
                                 TextSpan(
                                   text: '›',
                                   style: BoltText.a(14, weight: 700, color: BoltColors.neon),
@@ -419,17 +430,17 @@ class _Numbers extends StatelessWidget {
       children: [
         StatRow(
           children: [
-            tile('${stats.workouts}', 'WORKOUTS', neon: true),
-            tile(totalTime(stats.mins), 'GYM TIME'),
-            tile('${restDays(plan, visits, now)}', 'REST DAYS'),
+            tile('${stats.workouts}', tx('WORKOUTS'), neon: true),
+            tile(totalTime(stats.mins), tx('GYM TIME')),
+            tile('${restDays(plan, visits, now)}', tx('REST DAYS')),
           ],
         ),
         const SizedBox(height: 8),
         StatRow(
           children: [
-            tile('$done/${week.length}', 'THIS WEEK'),
-            tile('${stats.sessions}', 'GYM VISITS'),
-            tile(stats.sessions == 0 ? '-' : dur(stats.mins / stats.sessions), 'AVG VISIT'),
+            tile('$done/${week.length}', tx('THIS WEEK')),
+            tile('${stats.sessions}', tx('GYM VISITS')),
+            tile(stats.sessions == 0 ? '-' : dur(stats.mins / stats.sessions), tx('AVG VISIT')),
           ],
         ),
       ],
@@ -460,9 +471,9 @@ class _WeightTile extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text('Log your weight to see your trend', style: BoltText.a(13, color: BoltColors.muted)),
+                child: Text(tx('Log your weight to see your trend'), style: BoltText.a(13, color: BoltColors.muted)),
               ),
-              Text('+ Log', style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
+              Text(tx('+ Log'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
             ],
           ),
         ),
@@ -480,14 +491,17 @@ class _WeightTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Kicker('WEIGHT', size: 9, spacing: .1),
+                Kicker(tx('WEIGHT'), size: 9, spacing: .1),
                 const SizedBox(height: 4),
                 Text(bodyValue('weight', s.last.$2, metric: metric), style: BoltText.a(20, weight: 800)),
                 const SizedBox(height: 2),
                 Text(
                   ch == null
-                      ? 'Logged ${fmtDay(s.last.$1)}'
-                      : '${bodyDelta('weight', ch.delta, metric: metric)} since ${fmtDay(ch.since)}',
+                      ? tx('Logged {day}', {'day': fmtDay(s.last.$1)})
+                      : tx('{delta} since {day}', {
+                          'delta': bodyDelta('weight', ch.delta, metric: metric),
+                          'day': fmtDay(ch.since),
+                        }),
                   style: BoltText.a(11, color: BoltColors.muted),
                 ),
               ],
@@ -497,7 +511,7 @@ class _WeightTile extends StatelessWidget {
               child: s.length >= 2
                   ? Sparkline(values: [for (final x in s) x.$2], height: 44, goal: body.goals['weight'])
                   : Text(
-                      'Log again on another day for a trend',
+                      tx('Log again on another day for a trend'),
                       textAlign: TextAlign.right,
                       style: BoltText.a(12, color: BoltColors.muted),
                     ),
@@ -577,7 +591,7 @@ class _HeroCard extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Text('TODAY', style: BoltText.m(11, weight: 700, spacing: .12, color: ink)),
+                    Text(tx('TODAY'), style: BoltText.m(11, weight: 700, spacing: .12, color: ink)),
                     const SizedBox(width: 8),
                     BoltBox(
                       color: ink,
@@ -592,11 +606,18 @@ class _HeroCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  s.title.toUpperCase(),
-                  style: BoltText.a(tsz(s.title, 54), weight: 900, width: 115, spacing: -.03, height: .95, color: ink),
+                  tx(s.title).toUpperCase(),
+                  style: BoltText.a(
+                    tsz(tx(s.title), 54),
+                    weight: 900,
+                    width: 115,
+                    spacing: -.03,
+                    height: .95,
+                    color: ink,
+                  ),
                 ),
                 const SizedBox(height: 6),
-                Text(s.focus, style: BoltText.a(14, weight: 600, color: ink.withValues(alpha: .8))),
+                Text(tx(s.focus), style: BoltText.a(14, weight: 600, color: ink.withValues(alpha: .8))),
                 const SizedBox(height: 14),
                 Wrap(
                   spacing: 6,
@@ -618,7 +639,7 @@ class _HeroCard extends ConsumerWidget {
                     radius: 10,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     child: Text(
-                      '⚠\uFE0E ${plural(flagged.length, 'exercise')} flagged for your ${kAreas[flagged.first.area]!.toLowerCase()} · swap available',
+                      '⚠\uFE0E ${tx('{n} flagged for your {area} · swap available', {'n': plural(flagged.length, 'exercise'), 'area': tx(kAreas[flagged.first.area]!).toLowerCase()})}',
                       style: BoltText.a(12, weight: 700, color: ink),
                     ),
                   ),
@@ -628,7 +649,7 @@ class _HeroCard extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: NeonButton(
-                        label: 'Start workout',
+                        label: tx('Start workout'),
                         height: 50,
                         radius: 14,
                         color: ink,
@@ -647,7 +668,7 @@ class _HeroCard extends ConsumerWidget {
                         stroke: const Stroke(ink, 1.5),
                         padding: const EdgeInsets.symmetric(horizontal: 18),
                         alignment: Alignment.center,
-                        child: Text('Details', style: BoltText.a(14, weight: 700, color: ink)),
+                        child: Text(tx('Details'), style: BoltText.a(14, weight: 700, color: ink)),
                       ),
                     ),
                   ],
@@ -670,7 +691,7 @@ class _StartCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final coach = coachName == null ? 'your coach' : firstName(coachName!);
+    final coach = coachName == null ? tx('your coach') : firstName(coachName!);
     Widget small(String label, VoidCallback onTap, {bool filled = true}) => Tap(
       onTap: onTap,
       scale: .96,
@@ -689,12 +710,12 @@ class _StartCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Nothing planned yet', style: BoltText.a(16, weight: 800)),
+          Text(tx('Nothing planned yet'), style: BoltText.a(16, weight: 800)),
           const SizedBox(height: 3),
           Text(
             withCoach
-                ? 'Import the plan $coach sent you, or plan the days yourself.'
-                : 'Pick days on the calendar, or auto-fill 3 weeks from your split.',
+                ? tx('Import the plan {coach} sent you, or plan the days yourself.', {'coach': coach})
+                : tx('Pick days on the calendar, or auto-fill 3 weeks from your split.'),
             style: BoltText.a(13, color: BoltColors.muted, height: 1.4),
           ),
           const SizedBox(height: 12),
@@ -702,9 +723,9 @@ class _StartCard extends ConsumerWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              if (withCoach) small('Import plan', () => showBoltSheet<void>(context, (_) => const ImportSheet())),
+              if (withCoach) small(tx('Import plan'), () => showBoltSheet<void>(context, (_) => const ImportSheet())),
               small(
-                withCoach ? 'Plan it myself' : 'Plan my weeks',
+                withCoach ? tx('Plan it myself') : tx('Plan my weeks'),
                 () => openPlanDay(context, ref, null),
                 filled: !withCoach,
               ),

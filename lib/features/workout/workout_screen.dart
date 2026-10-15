@@ -96,9 +96,11 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   String _nextAfter(List<Exercise> ex, int i, int j, ActiveWorkout w) {
     final e = ex[i];
     for (var k = 0; k < e.sets; k++) {
-      if (k != j && !w.isDone(e.id, k)) return '${e.name} · set ${k + 1}';
+      if (k != j && !w.isDone(e.id, k)) return tx('{name} · set {n}', {'name': tx(e.name), 'n': k + 1});
     }
-    return i + 1 < ex.length ? 'Next: ${ex[i + 1].name}' : 'Last set done. Finish the workout.';
+    return i + 1 < ex.length
+        ? tx('Next: {what}', {'what': tx(ex[i + 1].name)})
+        : tx('Last set done. Finish the workout.');
   }
 
   /// Ticks set [j] with the weight and reps last used in this workout, or
@@ -167,14 +169,14 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                   children: [
                     BackBox(onTap: () => context.pop()),
                     const SizedBox(width: 12),
-                    Kicker('SESSION · ${fmtDay(widget.dayKey).toUpperCase()}'),
+                    Kicker(tx('SESSION · {day}', {'day': fmtDay(widget.dayKey).toUpperCase()})),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  s.title.toUpperCase(),
+                  tx(s.title).toUpperCase(),
                   style: BoltText.a(
-                    tsz(s.title, 52),
+                    tsz(tx(s.title), 52),
                     weight: 900,
                     width: 115,
                     spacing: -.03,
@@ -183,7 +185,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(s.focus, style: BoltText.a(14, color: BoltColors.muted)),
+                Text(tx(s.focus), style: BoltText.a(14, color: BoltColors.muted)),
                 const SizedBox(height: 14),
                 Row(
                   children: [
@@ -205,12 +207,12 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Text('$done / $tot SETS', style: BoltText.m(11, weight: 700)),
+                    Text('$done / $tot ${tx('SETS')}', style: BoltText.m(11, weight: 700)),
                   ],
                 ),
                 if (s.note.isNotEmpty) ...[
                   const SizedBox(height: 14),
-                  CoachNote(ini: initials(s.byCoach ? (coachName ?? 'Coach') : t.name), note: s.note),
+                  CoachNote(ini: initials(s.byCoach ? (coachName ?? tx('Coach')) : t.name), note: tx(s.note)),
                 ],
                 const SizedBox(height: 16),
                 for (var i = 0; i < s.ex.length; i++) ...[
@@ -238,7 +240,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                 ],
                 const SizedBox(height: 18),
                 NeonButton(
-                  label: done == tot && tot > 0 ? 'Finish workout' : 'Finish workout · $done/$tot',
+                  label: done == tot && tot > 0 ? tx('Finish workout') : '${tx('Finish workout')} · $done/$tot',
                   onTap: _finish,
                 ),
               ],
@@ -301,8 +303,9 @@ class _ExerciseCard extends ConsumerWidget {
     final f = isFlagged(trainee, e);
     final h = hint;
     final tags = [
-      if (e.group != null) partner ? 'SUPERSET ${e.group} · NO REST BEFORE' : 'SUPERSET ${e.group}',
-      if (e.drop) 'DROP SET ON THE LAST SET',
+      if (e.group != null)
+        partner ? tx('SUPERSET {g} · NO REST BEFORE', {'g': e.group}) : tx('SUPERSET {g}', {'g': e.group}),
+      if (e.drop) tx('DROP SET ON THE LAST SET'),
     ];
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -329,7 +332,7 @@ class _ExerciseCard extends ConsumerWidget {
               Expanded(
                 child: Tap(
                   onTap: h == null ? null : () => context.push('/lift/${Uri.encodeComponent(e.name)}'),
-                  child: Text(e.name, style: BoltText.a(16, weight: 800)),
+                  child: Text(tx(e.name), style: BoltText.a(16, weight: 800)),
                 ),
               ),
               if (kHow.containsKey(e.name)) ...[
@@ -342,7 +345,7 @@ class _ExerciseCard extends ConsumerWidget {
                     circle: true,
                     stroke: const Stroke(BoltColors.line),
                     alignment: Alignment.center,
-                    child: Text('i', style: BoltText.a(13, weight: 800, color: BoltColors.neon, height: 1)),
+                    child: Text(tx('i'), style: BoltText.a(13, weight: 800, color: BoltColors.neon, height: 1)),
                   ),
                 ),
               ],
@@ -354,9 +357,15 @@ class _ExerciseCard extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(
               h.last.topKg == null
-                  ? 'Last ${fmtDay(h.last.date)}: ${repsText(h.last)} reps · beat it'
-                  : 'Last ${fmtDay(h.last.date)}: ${_kg(h.last.topKg!)} ${weightUnit(metric)} × ${repsText(h.last)}'
-                        '${h.up ? ' · every rep hit, try ${_kg(h.nextKg!)} ${weightUnit(metric)}' : ' · same weight, beat the reps'}',
+                  ? tx('Last {day}: {reps} reps · beat it', {'day': fmtDay(h.last.date), 'reps': repsText(h.last)})
+                  : tx('Last {day}: {kg} × {reps}', {
+                          'day': fmtDay(h.last.date),
+                          'kg': '${_kg(h.last.topKg!)} ${weightUnit(metric)}',
+                          'reps': repsText(h.last),
+                        }) +
+                        (h.up
+                            ? tx(' · every rep hit, try {kg}', {'kg': '${_kg(h.nextKg!)} ${weightUnit(metric)}'})
+                            : tx(' · same weight, beat the reps')),
               style: BoltText.a(12, weight: 600, color: h.up ? BoltColors.neon : BoltColors.muted),
             ),
           ],
@@ -366,7 +375,10 @@ class _ExerciseCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '${kAreas[e.area]} flag · ${trainee.coachName == null ? 'try' : 'coach suggests'} ${e.alt ?? 'a lighter variation'}',
+                    tx(trainee.coachName == null ? '{area} flag · try {alt}' : '{area} flag · coach suggests {alt}', {
+                      'area': tx(kAreas[e.area]!),
+                      'alt': e.alt == null ? tx('a lighter variation') : tx(e.alt!),
+                    }),
                     style: BoltText.a(12, color: BoltColors.warn),
                   ),
                 ),
@@ -382,12 +394,12 @@ class _ExerciseCard extends ConsumerWidget {
           ],
           if (e.swapped) ...[
             const SizedBox(height: 6),
-            Text('Swapped from ${e.orig}', style: BoltText.m(10, color: BoltColors.muted)),
+            Text(tx('Swapped from {name}', {'name': tx(e.orig)}), style: BoltText.m(10, color: BoltColors.muted)),
           ],
           if (warmups.isNotEmpty) ...[
             const SizedBox(height: 10),
             Text(
-              'WARM-UP  ${warmups.map((x) => '${_kg(x.kg!)}×${x.reps}').join('  ·  ')} ${weightUnit(metric)}',
+              '${tx('WARM-UP')}  ${warmups.map((x) => '${_kg(x.kg!)}×${x.reps}').join('  ·  ')} ${weightUnit(metric)}',
               style: BoltText.m(10, color: BoltColors.muted, spacing: .04),
             ),
           ],
@@ -409,7 +421,7 @@ class _ExerciseCard extends ConsumerWidget {
           ),
           if (workout.done[e.id]?.contains(true) ?? false) ...[
             const SizedBox(height: 6),
-            Text('Tap a ticked set to change its weight or reps.', style: BoltText.a(11, color: BoltColors.muted3)),
+            Text(tx('Tap a ticked set to change its weight or reps.'), style: BoltText.a(11, color: BoltColors.muted3)),
           ],
         ],
       ),
@@ -458,7 +470,7 @@ class _SetButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('SET $n', style: BoltText.m(8, spacing: .1, color: fg.withValues(alpha: .75))),
+            Text(tx('SET {n}', {'n': n}), style: BoltText.m(8, spacing: .1, color: fg.withValues(alpha: .75))),
             Text(value.isEmpty ? '✓' : value, style: BoltText.a(14, weight: 800, color: fg)),
           ],
         ),
@@ -497,29 +509,29 @@ class _SetSheetState extends ConsumerState<_SetSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Kicker('SET ${widget.set + 1}', size: 10),
+        Kicker(tx('SET {n}', {'n': widget.set + 1}), size: 10),
         const SizedBox(height: 4),
-        Text(widget.e.name, style: BoltText.a(20, weight: 900)),
+        Text(tx(widget.e.name), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 14),
         Row(
           children: [
             Expanded(
               child: BoltField(
                 controller: _kg,
-                hint: 'Weight (empty = bodyweight)',
+                hint: tx('Weight (empty = bodyweight)'),
                 number: true,
                 suffix: weightUnit(_metric),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: BoltField(controller: _reps, hint: 'Reps', number: true),
+              child: BoltField(controller: _reps, hint: tx('Reps'), number: true),
             ),
           ],
         ),
         const SizedBox(height: 16),
         NeonButton(
-          label: 'Save set',
+          label: tx('Save set'),
           height: 52,
           scale: 1,
           onTap: () {
@@ -536,7 +548,7 @@ class _SetSheetState extends ConsumerState<_SetSheet> {
         ),
         const SizedBox(height: 8),
         OutlineButton(
-          label: 'Untick set',
+          label: tx('Untick set'),
           color: BoltColors.text,
           borderColor: BoltColors.line,
           weight: 700,
@@ -596,7 +608,7 @@ class _RestBar extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'REST',
+                        tx('REST'),
                         style: BoltText.m(10, weight: 700, spacing: .12, color: BoltColors.ink.withValues(alpha: .6)),
                       ),
                       Text(time, style: BoltText.m(28, weight: 700, color: BoltColors.ink, height: 1)),
@@ -615,7 +627,7 @@ class _RestBar extends StatelessWidget {
                     color: BoltColors.ink,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     alignment: Alignment.center,
-                    child: Text('Skip', style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
+                    child: Text(tx('Skip'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
                   ),
                 ),
               ],

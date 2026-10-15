@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../../app/share.dart';
 import '../../data/bolt_store.dart';
 import '../../services/backup.dart';
@@ -29,9 +31,11 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _reset(BuildContext context, WidgetRef ref) async {
     final ok = await confirmSheet(
       context,
-      title: 'Reset Bolt?',
-      body: 'This erases your profile, plans, workouts, gym visits and badges from this phone. It cannot be undone.',
-      confirm: 'Erase everything',
+      title: tx('Reset Bolt?'),
+      body: tx(
+        tx('This erases your profile, plans, workouts, gym visits and badges from this phone. It cannot be undone.'),
+      ),
+      confirm: tx('Erase everything'),
     );
     if (ok && context.mounted) {
       ref.read(boltProvider.notifier).resetAll();
@@ -44,9 +48,9 @@ class SettingsScreen extends ConsumerWidget {
     final store = ref.read(boltProvider.notifier);
     try {
       final ok = await BackupFiles.save('bolt-backup-${store.today}.json', store.backupText());
-      if (ok == true) store.toast('Backup saved');
+      if (ok == true) store.toast(tx('Backup saved'));
     } catch (_) {
-      store.toast('Could not save the backup');
+      store.toast(tx('Could not save the backup'));
     }
   }
 
@@ -54,9 +58,11 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _restore(BuildContext context, WidgetRef ref) async {
     final ok = await confirmSheet(
       context,
-      title: 'Restore a backup?',
-      body: 'Everything on this phone is replaced by the backup you pick: profile, plans, workouts, visits and badges.',
-      confirm: 'Pick backup file',
+      title: tx('Restore a backup?'),
+      body: tx(
+        tx('Everything on this phone is replaced by the backup you pick: profile, plans, workouts, visits and badges.'),
+      ),
+      confirm: tx('Pick backup file'),
     );
     if (!ok) return;
     final store = ref.read(boltProvider.notifier);
@@ -66,7 +72,7 @@ class SettingsScreen extends ConsumerWidget {
       final error = store.restore(text);
       if (error != null) store.toast(error);
     } catch (_) {
-      store.toast('Could not read that file');
+      store.toast(tx('Could not read that file'));
     }
   }
 
@@ -76,12 +82,14 @@ class SettingsScreen extends ConsumerWidget {
       (context) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Privacy', style: BoltText.a(20, weight: 900)),
+          Text(tx('Privacy'), style: BoltText.a(20, weight: 900)),
           const SizedBox(height: 8),
           Text(
-            'Bolt keeps everything on this phone: your profile, body measurements, plans, workouts and gym visits. '
-            'There is no account and nothing is uploaded.\n\n'
-            'A plan or update only leaves the phone when you share it yourself, as a message to your coach or trainee.',
+            tx(
+              'Bolt keeps everything on this phone: your profile, body measurements, plans, workouts and gym visits. '
+              'There is no account and nothing is uploaded.\n\n'
+              'A plan or update only leaves the phone when you share it yourself, as a message to your coach or trainee.',
+            ),
             style: BoltText.a(14, height: 1.5),
           ),
         ],
@@ -98,65 +106,65 @@ class SettingsScreen extends ConsumerWidget {
     final insets = MediaQuery.paddingOf(context);
     final groups = <(String, List<_Row>)>[
       (
-        'NOTIFICATIONS',
+        tx('NOTIFICATIONS'),
         [
           if (isT)
             _Row(
-              'Session reminders',
-              sub: '2 hours before a planned session',
+              tx('Session reminders'),
+              sub: tx('2 hours before a planned session'),
               toggle: s.remind,
               onTap: () => store.toggleSetting('remind'),
             ),
           _Row(
-            'Check-out reminder',
-            sub: 'If you are still checked in after 3 hours',
+            tx('Check-out reminder'),
+            sub: tx('If you are still checked in after 3 hours'),
             toggle: s.checkout,
             onTap: () => store.toggleSetting('checkout'),
           ),
         ],
       ),
       (
-        'TRAINING',
+        tx('TRAINING'),
         [
-          _Row('Units', value: s.kg ? 'kg · cm' : 'lb · in', onTap: store.toggleUnits),
-          _Row('Week starts on', value: s.mondayFirst ? 'Monday' : 'Sunday', onTap: store.toggleWeekStart),
-          _Row('Default rest timer', value: '${s.restSecs} s', onTap: store.cycleRest),
+          _Row(tx('Units'), value: s.kg ? 'kg · cm' : 'lb · in', onTap: store.toggleUnits),
+          _Row(tx('Week starts on'), value: s.mondayFirst ? tx('Monday') : tx('Sunday'), onTap: store.toggleWeekStart),
+          _Row(tx('Default rest timer'), value: '${s.restSecs} s', onTap: store.cycleRest),
         ],
       ),
       (
         'GYM',
         [
           _Row(
-            'Home gym',
-            value: s.gymName.isEmpty ? 'Not set' : s.gymName,
+            tx('Home gym'),
+            value: s.gymName.isEmpty ? tx('Not set') : s.gymName,
             onTap: () => context.push('/edit-profile'),
           ),
-          _Row('Check-in plaque', value: 'Print', onTap: () => context.push('/plaque')),
+          _Row(tx('Check-in plaque'), value: tx('Print'), onTap: () => context.push('/plaque')),
         ],
       ),
       (
-        'DATA',
+        tx('DATA'),
         [
           _Row(
-            'Back up to a file',
-            sub: 'Save everything to Drive, Downloads or any folder',
+            tx('Back up to a file'),
+            sub: tx('Save everything to Drive, Downloads or any folder'),
             value: '',
             onTap: () => _backup(ref),
           ),
           _Row(
-            'Restore from a backup',
-            sub: 'Replaces everything on this phone',
+            tx('Restore from a backup'),
+            sub: tx('Replaces everything on this phone'),
             value: '',
             onTap: () => _restore(context, ref),
           ),
         ],
       ),
       (
-        'ACCOUNT',
+        tx('ACCOUNT'),
         [
-          _Row('Edit profile', value: '', onTap: () => context.push('/edit-profile')),
-          _Row('Privacy', value: '', onTap: () => _privacy(context)),
-          _Row('Reset app', danger: true, onTap: () => _reset(context, ref)),
+          _Row(tx('Edit profile'), value: '', onTap: () => context.push('/edit-profile')),
+          _Row(tx('Privacy'), value: '', onTap: () => _privacy(context)),
+          _Row(tx('Reset app'), danger: true, onTap: () => _reset(context, ref)),
         ],
       ),
     ];
@@ -171,12 +179,12 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                Text('Settings', style: BoltText.a(24, weight: 900)),
+                Text(tx('Settings'), style: BoltText.a(24, weight: 900)),
               ],
             ),
             for (final (title, rows) in groups) ...[
               const SizedBox(height: 22),
-              Kicker(title, size: 10),
+              Kicker(tx(title), size: 10),
               const SizedBox(height: 8),
               BoltBox(
                 color: BoltColors.surface1,

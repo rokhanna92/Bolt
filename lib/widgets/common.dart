@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../l10n/l10n.dart';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -281,10 +284,10 @@ ChipStyle chipFor(SessionStatus s) => switch (s) {
 
 /// Trainee wording for a status.
 String traineeLabel(SessionStatus s) => switch (s) {
-  SessionStatus.done => 'Done',
-  SessionStatus.approved => 'Confirmed',
-  SessionStatus.pending => 'Needs your OK',
-  SessionStatus.moved => 'Moved by you',
+  SessionStatus.done => tx('Done'),
+  SessionStatus.approved => tx('Confirmed'),
+  SessionStatus.pending => tx('Needs your OK'),
+  SessionStatus.moved => tx('Moved by you'),
   SessionStatus.draft => '',
 };
 

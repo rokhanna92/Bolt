@@ -49,22 +49,25 @@ class LiftScreen extends ConsumerWidget {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                const Expanded(child: Kicker('LIFT')),
+                Expanded(child: Kicker(tx('LIFT'))),
                 if (kHow.containsKey(name))
                   Tap(
                     onTap: () => showExerciseSheet(name),
-                    child: Text('How to do it', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+                    child: Text(tx('How to do it'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
                   ),
               ],
             ),
             const SizedBox(height: 14),
-            Text(name.toUpperCase(), style: BoltText.a(tsz(name, 40), weight: 900, width: 112, color: BoltColors.neon)),
+            Text(
+              tx(name).toUpperCase(),
+              style: BoltText.a(tsz(tx(name), 40), weight: 900, width: 112, color: BoltColors.neon),
+            ),
             const SizedBox(height: 16),
             StatRow(
               children: [
                 StatTile(
                   value: best == null ? '-' : kg(best),
-                  label: 'EST. 1RM',
+                  label: tx('EST. 1RM'),
                   valueSize: 18,
                   valueWeight: 800,
                   valueColor: BoltColors.neon,
@@ -73,7 +76,7 @@ class LiftScreen extends ConsumerWidget {
                 ),
                 StatTile(
                   value: top == null ? '-' : kg(top),
-                  label: 'HEAVIEST',
+                  label: tx('HEAVIEST'),
                   valueSize: 18,
                   valueWeight: 800,
                   labelFirst: true,
@@ -81,7 +84,7 @@ class LiftScreen extends ConsumerWidget {
                 ),
                 StatTile(
                   value: '${days.length}',
-                  label: 'WORKOUTS',
+                  label: tx('WORKOUTS'),
                   valueSize: 18,
                   valueWeight: 800,
                   labelFirst: true,
@@ -91,14 +94,14 @@ class LiftScreen extends ConsumerWidget {
             ),
             if (trend.length >= 2) ...[
               const SizedBox(height: 18),
-              Kicker(weighted ? 'ESTIMATED 1RM PER WORKOUT' : 'BEST REPS PER WORKOUT', size: 9),
+              Kicker(weighted ? tx('ESTIMATED 1RM PER WORKOUT') : tx('BEST REPS PER WORKOUT'), size: 9),
               const SizedBox(height: 8),
               Sparkline(values: trend, height: 70),
             ],
             const SizedBox(height: 22),
-            const SectionTitle('History'),
+            SectionTitle(tx('History')),
             const SizedBox(height: 8),
-            if (days.isEmpty) Text('No logged sets yet.', style: BoltText.a(13, color: BoltColors.muted)),
+            if (days.isEmpty) Text(tx('No logged sets yet.'), style: BoltText.a(13, color: BoltColors.muted)),
             for (final x in days.reversed)
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),

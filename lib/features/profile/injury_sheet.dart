@@ -39,12 +39,12 @@ class _InjurySheetState extends ConsumerState<InjurySheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(isT ? 'Report pain or injury' : 'Add injury flag', style: BoltText.a(20, weight: 900)),
+        Text(isT ? tx('Report pain or injury') : tx('Add injury flag'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 6),
         Text(
           isT
-              ? 'Your coach gets notified. Exercises that load this area get a safer swap.'
-              : 'Exercises that load this area will show swap suggestions for $name.',
+              ? tx('Your coach gets notified. Exercises that load this area get a safer swap.')
+              : tx('Exercises that load this area will show swap suggestions for {name}.', {'name': name}),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
         const SizedBox(height: 14),
@@ -61,7 +61,7 @@ class _InjurySheetState extends ConsumerState<InjurySheet> {
                   stroke: Stroke(_area == a.key ? BoltColors.warn : BoltColors.line),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   child: Text(
-                    a.value,
+                    tx(a.value),
                     style: BoltText.a(13, weight: 700, color: _area == a.key ? BoltColors.ink : BoltColors.text),
                   ),
                 ),
@@ -69,10 +69,10 @@ class _InjurySheetState extends ConsumerState<InjurySheet> {
           ],
         ),
         const SizedBox(height: 12),
-        BoltTextArea(controller: _note, hint: 'What happened, what hurts', minHeight: 76),
+        BoltTextArea(controller: _note, hint: tx('What happened, what hurts'), minHeight: 76),
         const SizedBox(height: 12),
         NeonButton(
-          label: isT ? 'Send to coach' : 'Add flag',
+          label: isT ? tx('Send to coach') : tx('Add flag'),
           height: 52,
           color: BoltColors.warn,
           scale: 1,

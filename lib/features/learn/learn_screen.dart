@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../../app/actions.dart';
 import '../../app/ui_state.dart';
 import '../../data/bolt_store.dart';
@@ -60,11 +62,11 @@ class LearnScreen extends ConsumerWidget {
             Row(
               children: [
                 if (pushed) ...[BackBox(onTap: () => context.pop()), const SizedBox(width: 12)],
-                const Kicker('LEARN'),
+                Kicker(tx('LEARN')),
               ],
             ),
             const SizedBox(height: 4),
-            Text('Train smarter', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+            Text(tx('Train smarter'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
             const SizedBox(height: 16),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -86,7 +88,7 @@ class LearnScreen extends ConsumerWidget {
                           border: Border.all(color: tab == k ? BoltColors.neon : BoltColors.line),
                         ),
                         child: Text(
-                          l,
+                          tx(l),
                           style: BoltText.a(13, weight: 800, color: tab == k ? BoltColors.ink : BoltColors.text),
                         ),
                       ),
@@ -99,21 +101,25 @@ class LearnScreen extends ConsumerWidget {
             ...switch (tab) {
               'st' => [
                 intro(
-                  'How the greats trained and the splits that copy them. Tap "Use this split" to plan your weeks with it.',
+                  tx(
+                    tx(
+                      'How the greats trained and the splits that copy them. Tap "Use this split" to plan your weeks with it.',
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 for (final st in kStyles) ...[_StyleCard(style: st, data: d), const SizedBox(height: 10)],
                 const SizedBox(height: 14),
-                const SectionTitle('Intensity techniques'),
+                SectionTitle(tx('Intensity techniques')),
                 const SizedBox(height: 4),
-                intro('Old school tricks to push a set further. Use them on the last set, not every set.'),
+                intro(tx('Old school tricks to push a set further. Use them on the last set, not every set.')),
                 const SizedBox(height: 12),
                 for (final t in kTechniques) ...[
                   _Card(
                     children: [
-                      Text(t.name, style: BoltText.a(16, weight: 900)),
+                      Text(tx(t.name), style: BoltText.a(16, weight: 900)),
                       const SizedBox(height: 6),
-                      Text(t.how, style: BoltText.a(13, height: 1.45)),
+                      Text(tx(t.how), style: BoltText.a(13, height: 1.45)),
                       const SizedBox(height: 6),
                       Text(t.when, style: BoltText.a(12, color: BoltColors.muted, height: 1.4)),
                     ],
@@ -123,16 +129,16 @@ class LearnScreen extends ConsumerWidget {
               ],
               'm' => [
                 intro(
-                  'What each muscle does, how to train it and the exercises that hit it. Tap an exercise for form.',
+                  tx('What each muscle does, how to train it and the exercises that hit it. Tap an exercise for form.'),
                 ),
                 const SizedBox(height: 12),
                 for (final e in kMuscles.entries) ...[_MuscleCard(id: e.key, m: e.value), const SizedBox(height: 10)],
               ],
               'e' => [
-                intro('Correct form, step by step. You can also tap ⓘ next to any exercise in a workout.'),
+                intro(tx('Correct form, step by step. You can also tap ⓘ next to any exercise in a workout.')),
                 for (final g in kExerciseGroups.entries) ...[
                   const SizedBox(height: 16),
-                  Kicker(g.value.toUpperCase(), size: 10, spacing: .1),
+                  Kicker(tx(g.value).toUpperCase(), size: 10, spacing: .1),
                   const SizedBox(height: 8),
                   for (final e in kExercises.where((x) => x.muscle == g.key)) ...[
                     _ExerciseRow(e: e),
@@ -142,18 +148,22 @@ class LearnScreen extends ConsumerWidget {
               ],
               's' => [
                 intro(
-                  'What works, what might, and what is marketing. Food, sleep and training come first. Check with a doctor if you have a medical condition or take medication.',
+                  tx(
+                    tx(
+                      'What works, what might, and what is marketing. Food, sleep and training come first. Check with a doctor if you have a medical condition or take medication.',
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 const _SuppList(),
               ],
               'b' => [
-                intro('The fundamentals behind every split. Get these right and any style works.'),
+                intro(tx('The fundamentals behind every split. Get these right and any style works.')),
                 const SizedBox(height: 12),
                 for (final (title, points) in kBasics) ...[
                   _Card(
                     children: [
-                      Text(title, style: BoltText.a(17, weight: 900)),
+                      Text(tx(title), style: BoltText.a(17, weight: 900)),
                       const SizedBox(height: 10),
                       _Bullets(points),
                     ],
@@ -162,7 +172,7 @@ class LearnScreen extends ConsumerWidget {
                 ],
               ],
               _ => [
-                intro('Why each workout day exists and what it trains.'),
+                intro(tx('Why each workout day exists and what it trains.')),
                 const SizedBox(height: 12),
                 for (final k in kWhy.keys)
                   if (d.tpls[k] != null) ...[
@@ -177,11 +187,11 @@ class LearnScreen extends ConsumerWidget {
                               style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.neon),
                             ),
                             const SizedBox(width: 10),
-                            Expanded(child: Text(d.tpls[k]!.name, style: BoltText.a(19, weight: 900))),
+                            Expanded(child: Text(tx(d.tpls[k]!.name), style: BoltText.a(19, weight: 900))),
                           ],
                         ),
                         const SizedBox(height: 2),
-                        Text(d.tpls[k]!.focus, style: BoltText.a(12, color: BoltColors.muted)),
+                        Text(tx(d.tpls[k]!.focus), style: BoltText.a(12, color: BoltColors.muted)),
                         const SizedBox(height: 10),
                         _Bullets(kWhy[k]!),
                       ],
@@ -233,7 +243,7 @@ class _Bullets extends StatelessWidget {
               decoration: const BoxDecoration(color: BoltColors.neon, shape: BoxShape.circle),
             ),
             const SizedBox(width: 10),
-            Expanded(child: Text(p, style: BoltText.a(13, height: 1.45))),
+            Expanded(child: Text(tx(p), style: BoltText.a(13, height: 1.45))),
           ],
         ),
       ],
@@ -254,11 +264,11 @@ class _StyleCard extends ConsumerWidget {
     final split = style.split;
     return _Card(
       children: [
-        Text(style.name, style: BoltText.a(19, weight: 900)),
+        Text(tx(style.name), style: BoltText.a(19, weight: 900)),
         const SizedBox(height: 4),
-        Text(style.who, style: BoltText.a(12, weight: 600, color: BoltColors.neon, height: 1.4)),
+        Text(tx(style.who), style: BoltText.a(12, weight: 600, color: BoltColors.neon, height: 1.4)),
         const SizedBox(height: 10),
-        Text(style.how, style: BoltText.a(13, height: 1.5)),
+        Text(tx(style.how), style: BoltText.a(13, height: 1.5)),
         const SizedBox(height: 10),
         _Bullets(style.why),
         const SizedBox(height: 10),
@@ -270,9 +280,9 @@ class _StyleCard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Kicker('WATCH OUT', size: 9, color: BoltColors.warn),
+              Kicker(tx('WATCH OUT'), size: 9, color: BoltColors.warn),
               const SizedBox(height: 4),
-              Text(style.watch, style: BoltText.a(13, height: 1.45)),
+              Text(tx(style.watch), style: BoltText.a(13, height: 1.45)),
             ],
           ),
         ),
@@ -282,9 +292,9 @@ class _StyleCard extends ConsumerWidget {
           if (me != null) ...[
             const SizedBox(height: 10),
             me.split == split
-                ? Text('Your current split', style: BoltText.a(13, weight: 800, color: BoltColors.neon))
+                ? Text(tx('Your current split'), style: BoltText.a(13, weight: 800, color: BoltColors.neon))
                 : OutlineButton(
-                    label: 'Use this split',
+                    label: tx('Use this split'),
                     height: 44,
                     radius: 12,
                     fontSize: 13,
@@ -310,24 +320,24 @@ class _MuscleCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text(m.name, style: BoltText.a(19, weight: 900))),
+            Expanded(child: Text(tx(m.name), style: BoltText.a(19, weight: 900))),
             BoltBox(
               radius: 6,
               stroke: const Stroke(BoltColors.neon),
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-              child: Text(m.volume.toUpperCase(), style: BoltText.m(8, weight: 700, color: BoltColors.neon)),
+              child: Text(tx(m.volume).toUpperCase(), style: BoltText.m(8, weight: 700, color: BoltColors.neon)),
             ),
           ],
         ),
         const SizedBox(height: 4),
-        Text(m.parts, style: BoltText.a(12, color: BoltColors.muted, height: 1.4)),
+        Text(tx(m.parts), style: BoltText.a(12, color: BoltColors.muted, height: 1.4)),
         const SizedBox(height: 10),
-        Text(m.does, style: BoltText.a(13, height: 1.5)),
+        Text(tx(m.does), style: BoltText.a(13, height: 1.5)),
         const SizedBox(height: 10),
         _Bullets(m.tips),
         if (ex.isNotEmpty) ...[
           const SizedBox(height: 12),
-          Kicker('EXERCISES', size: 9),
+          Kicker(tx('EXERCISES'), size: 9),
           const SizedBox(height: 8),
           Wrap(
             spacing: 6,
@@ -341,7 +351,7 @@ class _MuscleCard extends StatelessWidget {
                     color: BoltColors.surface2,
                     stroke: const Stroke(BoltColors.line),
                     padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-                    child: Text(e.name, style: BoltText.a(12, weight: 600)),
+                    child: Text(tx(e.name), style: BoltText.a(12, weight: 600)),
                   ),
                 ),
             ],
@@ -371,9 +381,9 @@ class _ExerciseRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(e.name, style: BoltText.a(14, weight: 800)),
+                Text(tx(e.name), style: BoltText.a(14, weight: 800)),
                 const SizedBox(height: 2),
-                Text(e.works, style: BoltText.a(12, color: BoltColors.muted)),
+                Text(tx(e.works), style: BoltText.a(12, color: BoltColors.muted)),
               ],
             ),
           ),
@@ -412,7 +422,7 @@ class _SuppList extends ConsumerWidget {
                       stroke: Stroke(f == i ? BoltColors.neon : BoltColors.line),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                       child: Text(
-                        label,
+                        tx(label),
                         style: BoltText.a(12, weight: 700, color: f == i ? BoltColors.ink : BoltColors.text),
                       ),
                     ),
@@ -427,14 +437,14 @@ class _SuppList extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Expanded(child: Text(u.name, style: BoltText.a(17, weight: 900))),
+                  Expanded(child: Text(tx(u.name), style: BoltText.a(17, weight: 900))),
                   const SizedBox(width: 8),
                   BoltBox(
                     radius: 6,
                     stroke: Stroke(u.tag == 'NO EVIDENCE' || u.tag == 'WEAK' ? BoltColors.muted2 : BoltColors.neon),
                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                     child: Text(
-                      u.tag,
+                      tx(u.tag),
                       style: BoltText.m(
                         9,
                         weight: 700,
@@ -446,7 +456,7 @@ class _SuppList extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Text(u.why, style: BoltText.a(13, height: 1.5)),
+              Text(tx(u.why), style: BoltText.a(13, height: 1.5)),
               const SizedBox(height: 8),
               BoltBox(
                 color: BoltColors.ink,
@@ -456,14 +466,14 @@ class _SuppList extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Kicker('HOW TO TAKE', size: 9, color: BoltColors.neon),
+                    Kicker(tx('HOW TO TAKE'), size: 9, color: BoltColors.neon),
                     const SizedBox(height: 4),
-                    Text(u.how, style: BoltText.a(13, height: 1.45)),
+                    Text(tx(u.how), style: BoltText.a(13, height: 1.45)),
                   ],
                 ),
               ),
               const SizedBox(height: 8),
-              Text(u.note, style: BoltText.a(12, color: BoltColors.muted, height: 1.4)),
+              Text(tx(u.note), style: BoltText.a(12, color: BoltColors.muted, height: 1.4)),
             ],
           ),
           const SizedBox(height: 10),

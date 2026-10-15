@@ -55,7 +55,7 @@ class RosterScreen extends ConsumerWidget {
         if (s.status == SessionStatus.moved) {
           att.add(
             _Attention(
-              '$fn moved ${s.title}',
+              tx('{name} moved {workout}', {'name': fn, 'workout': tx(s.title)}),
               '${fmtDay(s.from ?? k)} → ${fmtDay(k)}',
               'OK',
               BoltColors.text,
@@ -66,23 +66,29 @@ class RosterScreen extends ConsumerWidget {
       }
       for (final i in x.injuries.where((i) => i.fresh)) {
         att.add(
-          _Attention('$fn reported ${kAreas[i.area]!.toLowerCase()} pain', i.note, 'Review', BoltColors.warn, () {
-            store.markInjuriesSeen(x.id);
-            open(x.id);
-          }),
+          _Attention(
+            tx('{name} reported {area} pain', {'name': fn, 'area': tx(kAreas[i.area]!).toLowerCase()}),
+            i.note,
+            tx('Review'),
+            BoltColors.warn,
+            () {
+              store.markInjuriesSeen(x.id);
+              open(x.id);
+            },
+          ),
         );
       }
       final pn = ks.where((k) => p[k]!.status == SessionStatus.pending).length;
       if (pn > 0) {
         att.add(
           _Attention(
-            '$fn hasn’t confirmed ${plural(pn, 'session')}',
-            'Sent for approval',
-            'Nudge',
+            tx('{name} hasn’t confirmed {n}', {'name': fn, 'n': plural(pn, 'session')}),
+            tx('Sent for approval'),
+            tx('Nudge'),
             BoltColors.neon,
             () async {
-              final hint = await shareMessage(store.planMessage(x.id), subject: 'Your Bolt plan');
-              store.toast(hint ?? 'Plan sent again to $fn');
+              final hint = await shareMessage(store.planMessage(x.id), subject: tx('Your Bolt plan'));
+              store.toast(hint ?? tx('Plan sent again to {name}', {'name': fn}));
             },
           ),
         );
@@ -90,9 +96,9 @@ class RosterScreen extends ConsumerWidget {
       if (!ks.any((k) => k.compareTo(today) >= 0 && p[k]!.status != SessionStatus.draft)) {
         att.add(
           _Attention(
-            '$fn has nothing planned',
-            'Auto-fill from ${splitOf(d, x.split).name}',
-            'Plan',
+            tx('{name} has nothing planned', {'name': fn}),
+            tx('Auto-fill from {split}', {'split': tx(splitOf(d, x.split).name)}),
+            tx('Plan'),
             BoltColors.muted2,
             () => open(x.id),
           ),
@@ -110,7 +116,10 @@ class RosterScreen extends ConsumerWidget {
                 children: [
                   Kicker(c.role.toUpperCase()),
                   const SizedBox(height: 4),
-                  Text('Coach ${firstName(c.name)}', style: BoltText.a(26, weight: 800, spacing: -.02)),
+                  Text(
+                    tx('Coach {name}', {'name': firstName(c.name)}),
+                    style: BoltText.a(26, weight: 800, spacing: -.02),
+                  ),
                 ],
               ),
             ),
@@ -120,18 +129,18 @@ class RosterScreen extends ConsumerWidget {
         _LiveCard(trainees: my, coachId: c.id),
         if (att.isNotEmpty) ...[
           const SizedBox(height: 22),
-          const SectionTitle('Needs you'),
+          SectionTitle(tx('Needs you')),
           const SizedBox(height: 10),
           for (final a in att) ...[_AttentionRow(a: a), const SizedBox(height: 8)],
         ],
         const SizedBox(height: 24),
         Row(
           children: [
-            Expanded(child: Kicker('TRAINEES · ${my.length}')),
+            Expanded(child: Kicker('${tx('TRAINEES')} · ${my.length}')),
             if (my.isNotEmpty)
               Tap(
                 onTap: () => showBoltSheet<void>(context, (_) => const ImportSheet()),
-                child: Text('Import update', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+                child: Text(tx('Import update'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
               ),
           ],
         ),
@@ -143,7 +152,7 @@ class RosterScreen extends ConsumerWidget {
             stroke: const Stroke.dashed(BoltColors.line),
             padding: const EdgeInsets.all(14),
             child: Text(
-              'No trainees yet. Add the people you coach, plan their weeks and send each of them their plan.',
+              tx('No trainees yet. Add the people you coach, plan their weeks and send each of them their plan.'),
               style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
             ),
           ),
@@ -159,7 +168,7 @@ class RosterScreen extends ConsumerWidget {
             radius: 14,
             stroke: const Stroke.dashed(BoltColors.neon, 1.5),
             alignment: Alignment.center,
-            child: Text('+ Add trainee', style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
+            child: Text(tx('+ Add trainee'), style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
           ),
         ),
       ],
@@ -179,7 +188,7 @@ class _LiveCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final d = ref.watch(boltProvider);
     final live = <(String, String, String)>[
-      if (d.gymIn[coachId] != null) (initials(ref.read(boltProvider.notifier).co(coachId).name), 'You', coachId),
+      if (d.gymIn[coachId] != null) (initials(ref.read(boltProvider.notifier).co(coachId).name), tx('You'), coachId),
       for (final x in trainees)
         if (d.gymIn[x.id] != null) (initials(x.name), firstName(x.name), x.id),
     ];
@@ -199,7 +208,7 @@ class _LiveCard extends ConsumerWidget {
               children: [
                 const PulseDot(size: 8),
                 const SizedBox(width: 8),
-                Kicker('IN THE GYM NOW · ${live.length}', size: 10),
+                Kicker('${tx('IN THE GYM NOW')} · ${live.length}', size: 10),
               ],
             ),
             const SizedBox(height: 12),
@@ -343,21 +352,24 @@ class _TraineeCard extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 5),
-                  Text('${x.goal} · ${splitOf(d, x.split).short}', style: BoltText.a(12, color: BoltColors.muted)),
+                  Text(
+                    '${tx(x.goal)} · ${tx(splitOf(d, x.split).short)}',
+                    style: BoltText.a(12, color: BoltColors.muted),
+                  ),
                   const SizedBox(height: 5),
                   Row(
                     children: [
                       for (final s in w7) ...[SessionDot(s?.status), const SizedBox(width: 4)],
                       const SizedBox(width: 6),
                       Text(
-                        '${planned.where((s) => s.status == SessionStatus.done).length}/${planned.length} THIS WEEK',
+                        '${planned.where((s) => s.status == SessionStatus.done).length}/${planned.length} ${tx('THIS WEEK')}',
                         style: BoltText.m(9, color: BoltColors.muted),
                       ),
                     ],
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    '${plural(stats.sessions, 'session').toUpperCase()} · ${stats.streak}W STREAK · $badges/${kBadges.length} BADGES',
+                    '${plural(stats.sessions, 'session').toUpperCase()} · ${tx('{n}W STREAK', {'n': stats.streak})} · $badges/${kBadges.length} ${tx('BADGES')}',
                     style: BoltText.m(9, color: BoltColors.muted),
                   ),
                 ],
@@ -398,17 +410,17 @@ class _AddTraineeSheetState extends ConsumerState<AddTraineeSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Add trainee', style: BoltText.a(20, weight: 900)),
+        Text(tx('Add trainee'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 6),
         Text(
-          'Weight and measurements can be added on their page, or arrive with their updates.',
+          tx('Weight and measurements can be added on their page, or arrive with their updates.'),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
-        const FieldLabel('NAME', top: 14),
-        BoltField(controller: _name, hint: 'Full name', words: true, onChanged: (_) => setState(() {})),
-        const FieldLabel('GOAL'),
+        FieldLabel(tx('NAME'), top: 14),
+        BoltField(controller: _name, hint: tx('Full name'), words: true, onChanged: (_) => setState(() {})),
+        FieldLabel(tx('GOAL')),
         ChoiceChips(options: kGoals, selected: _goal, onSelect: (g) => setState(() => _goal = g)),
-        const FieldLabel('WEEKLY SPLIT'),
+        FieldLabel(tx('WEEKLY SPLIT')),
         ChoiceChips(
           options: splitIds(d),
           selected: _split,
@@ -417,7 +429,7 @@ class _AddTraineeSheetState extends ConsumerState<AddTraineeSheet> {
         ),
         const SizedBox(height: 16),
         NeonButton(
-          label: 'Add trainee',
+          label: tx('Add trainee'),
           height: 52,
           scale: 1,
           color: ok ? BoltColors.neon : BoltColors.line,

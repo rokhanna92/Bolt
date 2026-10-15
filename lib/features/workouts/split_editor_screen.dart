@@ -37,9 +37,9 @@ class _SplitEditorScreenState extends ConsumerState<SplitEditorScreen> {
   Future<void> _delete(String name) async {
     final ok = await confirmSheet(
       context,
-      title: 'Delete $name?',
-      body: 'Planned days stay. Anyone on this split goes back to Push / Pull / Legs.',
-      confirm: 'Delete',
+      title: tx('Delete {name}?', {'name': name}),
+      body: tx('Planned days stay. Anyone on this split goes back to Push / Pull / Legs.'),
+      confirm: tx('Delete'),
     );
     if (ok && mounted) {
       context.pop();
@@ -66,7 +66,7 @@ class _SplitEditorScreenState extends ConsumerState<SplitEditorScreen> {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                const Kicker('YOUR SPLIT'),
+                Kicker(tx('YOUR SPLIT')),
               ],
             ),
             const SizedBox(height: 14),
@@ -85,8 +85,8 @@ class _SplitEditorScreenState extends ConsumerState<SplitEditorScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '${plural(training, 'training day')} · ${plural(7 - training, 'rest day')}. Tap a day to set its workout. '
-              'Want a workout that is not listed? Build one from muscles and save it to the Library.',
+              '${plural(training, 'training day')} · ${plural(7 - training, 'rest day')}. '
+              '${tx('Tap a day to set its workout. Want a workout that is not listed? Build one from muscles and save it to the Library.')}',
               style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
             ),
             const SizedBox(height: 16),
@@ -95,7 +95,7 @@ class _SplitEditorScreenState extends ConsumerState<SplitEditorScreen> {
               const SizedBox(height: 6),
             ],
             const SizedBox(height: 16),
-            NeonButton(label: 'Done', height: 52, scale: 1, onTap: () => context.pop()),
+            NeonButton(label: tx('Done'), height: 52, scale: 1, onTap: () => context.pop()),
             const SizedBox(height: 14),
             Align(
               alignment: Alignment.centerLeft,
@@ -103,7 +103,7 @@ class _SplitEditorScreenState extends ConsumerState<SplitEditorScreen> {
                 onTap: () => _delete(x.name),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Text('Delete split', style: BoltText.a(13, weight: 700, color: BoltColors.warn)),
+                  child: Text(tx('Delete split'), style: BoltText.a(13, weight: 700, color: BoltColors.warn)),
                 ),
               ),
             ),
@@ -132,12 +132,12 @@ class _SplitEditorScreenState extends ConsumerState<SplitEditorScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    rest ? 'Rest' : name,
+                    rest ? tx('Rest') : tx(name),
                     style: BoltText.a(15, weight: 800, color: rest ? BoltColors.muted : BoltColors.text),
                   ),
                   if (focus != null) ...[
                     const SizedBox(height: 2),
-                    Text(focus, style: BoltText.a(12, color: BoltColors.muted)),
+                    Text(tx(focus), style: BoltText.a(12, color: BoltColors.muted)),
                   ],
                 ],
               ),

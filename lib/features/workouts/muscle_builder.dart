@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../../data/rules.dart';
 import '../../data/seed/muscles.dart';
 import '../../data/seed/templates.dart';
@@ -57,11 +59,14 @@ class _MuscleBuilderSheetState extends State<MuscleBuilderSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Build from muscles', style: BoltText.a(20, weight: 900)),
+        Text(tx('Build from muscles'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 4),
         Text(
-          'Tap the muscles${widget.forName == null ? '' : ' ${widget.forName} should'} train, in the order you want them. '
-          'Bolt puts the big lifts first.',
+          widget.forName == null
+              ? tx('Tap the muscles to train, in the order you want them. Bolt puts the big lifts first.')
+              : tx('Tap the muscles {name} should train, in the order you want them. Bolt puts the big lifts first.', {
+                  'name': widget.forName,
+                }),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
         const SizedBox(height: 14),
@@ -78,7 +83,7 @@ class _MuscleBuilderSheetState extends State<MuscleBuilderSheet> {
                   stroke: Stroke(_muscles.contains(e.key) ? BoltColors.neon : BoltColors.line),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   child: Text(
-                    _muscles.contains(e.key) ? '${_muscles.indexOf(e.key) + 1}  ${e.value.name}' : e.value.name,
+                    _muscles.contains(e.key) ? '${_muscles.indexOf(e.key) + 1}  ${tx(e.value.name)}' : tx(e.value.name),
                     style: BoltText.a(
                       13,
                       weight: 700,
@@ -102,7 +107,11 @@ class _MuscleBuilderSheetState extends State<MuscleBuilderSheet> {
                       style: BoltText.a(18, weight: 900, color: BoltColors.neon),
                     ),
                     const SizedBox(height: 2),
-                    Kicker('${_ex.length} EXERCISES · $sets SETS · ~${(sets * 3).clamp(20, 120)} MIN', size: 9),
+                    Kicker(
+                      '${plural(_ex.length, 'exercise')} · ${plural(sets, 'set')} · ~${(sets * 3).clamp(20, 120)} MIN'
+                          .toUpperCase(),
+                      size: 9,
+                    ),
                   ],
                 ),
               ),
@@ -113,7 +122,7 @@ class _MuscleBuilderSheetState extends State<MuscleBuilderSheet> {
                   radius: 10,
                   stroke: const Stroke(BoltColors.line),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Text('Shuffle', style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
+                  child: Text(tx('Shuffle'), style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
                 ),
               ),
             ],
@@ -167,7 +176,7 @@ class _MuscleBuilderSheetState extends State<MuscleBuilderSheet> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Also save it to the Library to reuse and put in splits',
+                      tx('Also save it to the Library to reuse and put in splits'),
                       style: BoltText.a(13, weight: 600),
                     ),
                   ),
@@ -178,7 +187,7 @@ class _MuscleBuilderSheetState extends State<MuscleBuilderSheet> {
         ],
         const SizedBox(height: 16),
         NeonButton(
-          label: widget.libraryOnly ? 'Save to Library' : 'Use this workout',
+          label: widget.libraryOnly ? tx('Save to Library') : tx('Use this workout'),
           height: 52,
           scale: 1,
           color: ok ? BoltColors.neon : BoltColors.line,

@@ -64,7 +64,7 @@ class PlanScreen extends ConsumerWidget {
 
     return ScreenScroll(
       children: [
-        const Kicker('PLAN'),
+        Kicker(tx('PLAN')),
         const SizedBox(height: 4),
         Row(
           children: [
@@ -95,12 +95,12 @@ class PlanScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Moving ${moving.title} · ${fmtDay(moveFrom!)}',
+                          tx('Moving {workout} · {day}', {'workout': tx(moving.title), 'day': fmtDay(moveFrom!)}),
                           style: BoltText.a(13, weight: 800, color: BoltColors.ink),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Tap a free day to move it',
+                          tx('Tap a free day to move it'),
                           style: BoltText.a(12, weight: 600, color: BoltColors.ink.withValues(alpha: .75)),
                         ),
                       ],
@@ -113,7 +113,7 @@ class PlanScreen extends ConsumerWidget {
                       radius: 10,
                       stroke: const Stroke(BoltColors.ink, 1.5),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: Text('Cancel', style: BoltText.a(12, weight: 800, color: BoltColors.ink)),
+                      child: Text(tx('Cancel'), style: BoltText.a(12, weight: 800, color: BoltColors.ink)),
                     ),
                   ),
                 ],
@@ -137,9 +137,9 @@ class PlanScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Kicker('YOUR SPLIT · TAP TO CHANGE', size: 9, spacing: .1),
+                          Kicker(tx('YOUR SPLIT · TAP TO CHANGE'), size: 9, spacing: .1),
                           const SizedBox(height: 2),
-                          Text(splitOf(d, t.split).name, style: BoltText.a(13, weight: 800)),
+                          Text(tx(splitOf(d, t.split).name), style: BoltText.a(13, weight: 800)),
                         ],
                       ),
                     ),
@@ -154,7 +154,7 @@ class PlanScreen extends ConsumerWidget {
                     color: BoltColors.neon,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     alignment: Alignment.center,
-                    child: Text('Auto-fill 3 wks', style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                    child: Text(tx('Auto-fill 3 wks'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
                   ),
                 ),
               ],
@@ -165,14 +165,14 @@ class PlanScreen extends ConsumerWidget {
             alignment: Alignment.centerLeft,
             child: Tap(
               onTap: () => showBoltSheet<void>(context, (_) => DeloadSheet(tid: t.id)),
-              child: Text('Deload week…', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+              child: Text(tx('Deload week…'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
             ),
           ),
           const SizedBox(height: 6),
           Text(
             d.account?.isSolo ?? false
-                ? 'Tap an empty day to add the next session from your split. Past days too, to log your diary.'
-                : 'Tap an empty day to add the next session from your split.',
+                ? tx('Tap an empty day to add the next session from your split. Past days too, to log your diary.')
+                : tx('Tap an empty day to add the next session from your split.'),
             style: BoltText.a(12, color: BoltColors.muted),
           ),
         ],
@@ -181,16 +181,16 @@ class PlanScreen extends ConsumerWidget {
         const SizedBox(height: 6),
         CalendarGrid(cells: cells, onTap: onTap),
         const SizedBox(height: 14),
-        const Legend(items: traineeLegend),
+        Legend(items: traineeLegend),
         const SizedBox(height: 26),
-        const SectionTitle('Coming up'),
+        SectionTitle(tx('Coming up')),
         const SizedBox(height: 10),
         for (final k in up.take(5)) ...[_UpRow(dayKey: k, session: plan[k]!), const SizedBox(height: 8)],
         if (up.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 14),
             child: Text(
-              'Nothing planned yet. Tap a day above or auto-fill from your split.',
+              tx('Nothing planned yet. Tap a day above or auto-fill from your split.'),
               style: BoltText.a(14, color: BoltColors.muted),
             ),
           ),
@@ -223,9 +223,9 @@ class _UpRow extends StatelessWidget {
                 children: [
                   Kicker(fmtDay(dayKey).toUpperCase(), size: 10, spacing: .1),
                   const SizedBox(height: 3),
-                  Text(session.title, style: BoltText.a(17, weight: 800)),
+                  Text(tx(session.title), style: BoltText.a(17, weight: 800)),
                   const SizedBox(height: 3),
-                  Text(session.focus, style: BoltText.a(12, color: BoltColors.muted)),
+                  Text(tx(session.focus), style: BoltText.a(12, color: BoltColors.muted)),
                 ],
               ),
             ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../../data/bolt_store.dart';
 import '../../data/models/people.dart';
 import '../../data/rules.dart';
@@ -38,7 +40,7 @@ class BadgesScreen extends ConsumerWidget {
             children: [
               BackBox(onTap: () => context.pop()),
               const SizedBox(width: 12),
-              const Kicker('ACHIEVEMENTS'),
+              Kicker(tx('ACHIEVEMENTS')),
             ],
           ),
           const SizedBox(height: 4),
@@ -46,7 +48,7 @@ class BadgesScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Expanded(child: Text('Trophy rack', style: BoltText.a(30, weight: 900, width: 112, spacing: -.02))),
+              Expanded(child: Text(tx('Trophy rack'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02))),
               Text('$count / ${kBadges.length}', style: BoltText.m(14, weight: 700, color: BoltColors.neon)),
             ],
           ),
@@ -60,11 +62,11 @@ class BadgesScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Kicker('CLOSEST · ${badgeLeftText(next, stats).toUpperCase()}', size: 10),
+                  Kicker('${tx('CLOSEST')} · ${badgeLeftText(next, stats).toUpperCase()}', size: 10),
                   const SizedBox(height: 8),
-                  Text(next.name, style: BoltText.a(18, weight: 800)),
+                  Text(tx(next.name), style: BoltText.a(18, weight: 800)),
                   const SizedBox(height: 8),
-                  Text(next.desc, style: BoltText.a(13, color: BoltColors.muted)),
+                  Text(tx(next.desc), style: BoltText.a(13, color: BoltColors.muted)),
                   const SizedBox(height: 12),
                   _Progress(value: pct(next), height: 8, fill: BoltColors.neon),
                 ],
@@ -91,7 +93,7 @@ class BadgesScreen extends ConsumerWidget {
     const SizedBox(height: 26),
     Row(
       children: [
-        Expanded(child: Kicker(title.toUpperCase(), size: 10, spacing: .1)),
+        Expanded(child: Kicker(tx(title).toUpperCase(), size: 10, spacing: .1)),
         Text('${list.where(on).length} / ${list.length}', style: BoltText.m(10, color: BoltColors.muted)),
       ],
     ),
@@ -121,7 +123,7 @@ class BadgesScreen extends ConsumerWidget {
           BadgeMedal(badge: b, on: on),
           const SizedBox(height: 8),
           Text(
-            b.name,
+            tx(b.name),
             textAlign: TextAlign.center,
             style: BoltText.a(12, weight: 800, color: on ? BoltColors.text : BoltColors.muted),
           ),
@@ -172,7 +174,7 @@ class BadgesCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(child: Kicker('ACHIEVEMENTS', size: 10)),
+              Expanded(child: Kicker(tx('ACHIEVEMENTS'), size: 10)),
               Text('${earned.length} / ${kBadges.length}', style: BoltText.m(13, weight: 700, color: BoltColors.neon)),
               if (onTap != null) ...[const SizedBox(width: 6), const Chevron(size: 18)],
             ],
@@ -195,7 +197,7 @@ class BadgesCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           if (next == null)
-            Text('Every badge earned.', style: BoltText.a(13, weight: 700, color: BoltColors.neon))
+            Text(tx('Every badge earned.'), style: BoltText.a(13, weight: 700, color: BoltColors.neon))
           else ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -203,7 +205,7 @@ class BadgesCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Next: ${next.name}',
+                    tx('Next: {what}', {'what': tx(next.name)}),
                     overflow: TextOverflow.ellipsis,
                     style: BoltText.a(13, weight: 700),
                   ),

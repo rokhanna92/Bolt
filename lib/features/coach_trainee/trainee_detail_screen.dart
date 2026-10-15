@@ -45,11 +45,11 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
   String? _sel;
 
   String _coachLabel(SessionStatus s, String fn) => switch (s) {
-    SessionStatus.done => 'Done',
-    SessionStatus.approved => 'Confirmed by $fn',
-    SessionStatus.pending => 'Waiting for $fn',
-    SessionStatus.moved => 'Moved by $fn',
-    SessionStatus.draft => 'Draft · not sent',
+    SessionStatus.done => tx('Done'),
+    SessionStatus.approved => tx('Confirmed by {name}', {'name': fn}),
+    SessionStatus.pending => tx('Waiting for {name}', {'name': fn}),
+    SessionStatus.moved => tx('Moved by {name}', {'name': fn}),
+    SessionStatus.draft => tx('Draft · not sent'),
   };
 
   /// Sends drafts: the plan goes out as a message the trainee pastes into Bolt.
@@ -58,16 +58,16 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
     final n = store.plan(tid).values.where((s) => s.status == SessionStatus.draft).length;
     final msg = store.sendDrafts(tid);
     if (msg == null) return;
-    final hint = await shareMessage(msg, subject: 'Your Bolt plan');
-    store.toast(hint ?? 'Sent ${plural(n, 'session')} · waiting for $fn');
+    final hint = await shareMessage(msg, subject: tx('Your Bolt plan'));
+    store.toast(hint ?? tx('Sent {n} · waiting for {name}', {'n': plural(n, 'session'), 'name': fn}));
   }
 
   Future<void> _remove(String tid, String name) async {
     final ok = await confirmSheet(
       context,
-      title: 'Remove ${firstName(name)}?',
-      body: 'Their plan, visits and measurements are deleted from this phone.',
-      confirm: 'Remove',
+      title: tx('Remove {name}?', {'name': firstName(name)}),
+      body: tx('Their plan, visits and measurements are deleted from this phone.'),
+      confirm: tx('Remove'),
     );
     if (ok && mounted) {
       context.pop();
@@ -126,7 +126,10 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                         children: [
                           Text(x.name, style: BoltText.a(20, weight: 900, spacing: -.01)),
                           const SizedBox(height: 2),
-                          Text('${x.goal} · since ${x.since}', style: BoltText.a(12, color: BoltColors.muted)),
+                          Text(
+                            tx('{goal} · since {when}', {'goal': tx(x.goal), 'when': x.since}),
+                            style: BoltText.a(12, color: BoltColors.muted),
+                          ),
                         ],
                       ),
                     ),
@@ -147,9 +150,9 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Kicker('DEFAULT SPLIT · TAP TO CHANGE', size: 9, spacing: .1),
+                                Kicker(tx('DEFAULT SPLIT · TAP TO CHANGE'), size: 9, spacing: .1),
                                 const SizedBox(height: 2),
-                                Text(splitOf(d, x.split).name, style: BoltText.a(13, weight: 800)),
+                                Text(tx(splitOf(d, x.split).name), style: BoltText.a(13, weight: 800)),
                               ],
                             ),
                           ),
@@ -164,7 +167,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                           color: BoltColors.neon,
                           padding: const EdgeInsets.symmetric(horizontal: 14),
                           alignment: Alignment.center,
-                          child: Text('Auto-fill 3 wks', style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                          child: Text(tx('Auto-fill 3 wks'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
                         ),
                       ),
                     ],
@@ -184,13 +187,13 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                kAreas[x.injuries[i].area]!,
+                                tx(kAreas[x.injuries[i].area]!),
                                 style: BoltText.a(13, weight: 800, color: BoltColors.warn),
                               ),
                               const SizedBox(height: 2),
-                              Text(x.injuries[i].note, style: BoltText.a(12)),
+                              Text(tx(x.injuries[i].note), style: BoltText.a(12)),
                               const SizedBox(height: 2),
-                              Kicker(x.injuries[i].by, size: 9, spacing: 0),
+                              Kicker(byLine(x.injuries[i].by), size: 9, spacing: 0),
                             ],
                           ),
                         ),
@@ -199,7 +202,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                           onTap: () => store.resolveInjury(x.id, i),
                           child: Padding(
                             padding: const EdgeInsets.all(6),
-                            child: Text('Resolve', style: BoltText.a(12, weight: 700, color: BoltColors.muted)),
+                            child: Text(tx('Resolve'), style: BoltText.a(12, weight: 700, color: BoltColors.muted)),
                           ),
                         ),
                       ],
@@ -213,7 +216,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                     onTap: () => showInjurySheet(x.id),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
-                      child: Text('+ Add injury flag', style: BoltText.a(12, weight: 700, color: BoltColors.warn)),
+                      child: Text(tx('+ Add injury flag'), style: BoltText.a(12, weight: 700, color: BoltColors.warn)),
                     ),
                   ),
                 ),
@@ -232,28 +235,31 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                     if (x.challenge == null)
                       Tap(
                         onTap: () => showBoltSheet<void>(context, (_) => ChallengeSheet(tid: x.id)),
-                        child: Text('+ Set a challenge', style: BoltText.a(12, weight: 700, color: BoltColors.neon)),
+                        child: Text(
+                          tx('+ Set a challenge'),
+                          style: BoltText.a(12, weight: 700, color: BoltColors.neon),
+                        ),
                       ),
                     const Spacer(),
                     Tap(
                       onTap: () => showBoltSheet<void>(context, (_) => DeloadSheet(tid: x.id)),
-                      child: Text('Deload week…', style: BoltText.a(12, weight: 700, color: BoltColors.neon)),
+                      child: Text(tx('Deload week…'), style: BoltText.a(12, weight: 700, color: BoltColors.neon)),
                     ),
                   ],
                 ),
                 const SizedBox(height: 14),
-                const SectionTitle('Progress', size: 16),
+                SectionTitle(tx('Progress'), size: 16),
                 const SizedBox(height: 4),
                 Text(
-                  'From $fn\'s updates: gym sessions, workouts and badges.',
+                  tx('From {name}\'s updates: gym sessions, workouts and badges.', {'name': fn}),
                   style: BoltText.a(12, color: BoltColors.muted),
                 ),
                 const SizedBox(height: 10),
                 StatRow(
                   children: [
-                    StatTile(value: '${x.stats.sessions}', label: 'SESSIONS', valueColor: BoltColors.neon),
-                    StatTile(value: '${x.stats.mins ~/ 60}', label: 'HOURS'),
-                    StatTile(value: '${currentStreak(x.stats, store.now)}', label: 'WEEK STREAK'),
+                    StatTile(value: '${x.stats.sessions}', label: tx('SESSIONS'), valueColor: BoltColors.neon),
+                    StatTile(value: '${x.stats.mins ~/ 60}', label: tx('HOURS')),
+                    StatTile(value: '${currentStreak(x.stats, store.now)}', label: tx('WEEK STREAK')),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -262,7 +268,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 BodyCard(
                   body: x.body,
                   titleSize: 16,
-                  empty: 'No measurements yet. Add them here, or they arrive with $fn\'s updates.',
+                  empty: tx('No measurements yet. Add them here, or they arrive with {name}\'s updates.', {'name': fn}),
                   onEdit: () => context.push('/edit-profile/${x.id}'),
                   onProgress: () => context.push('/measurements/${x.id}'),
                 ),
@@ -295,7 +301,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Tap an empty day to add the next session from the split.',
+                  tx('Tap an empty day to add the next session from the split.'),
                   style: BoltText.a(12, color: BoltColors.muted),
                 ),
                 const SizedBox(height: 10),
@@ -303,7 +309,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 const SizedBox(height: 6),
                 CalendarGrid(cells: cells, onTap: onCell, cellHeight: 48, numSize: 13, labSpacing: 0),
                 const SizedBox(height: 12),
-                const Legend(items: coachLegend, gap: 10),
+                Legend(items: coachLegend, gap: 10),
                 if (sp != null) ...[
                   const SizedBox(height: 16),
                   FadeSlideIn(
@@ -321,7 +327,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                   ),
                 ],
                 const SizedBox(height: 22),
-                const SectionTitle('Recent visits', size: 16),
+                SectionTitle(tx('Recent visits'), size: 16),
                 const SizedBox(height: 6),
                 _Visits(tid: x.id),
                 const SizedBox(height: 22),
@@ -331,7 +337,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                     onTap: () => _remove(x.id, x.name),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Text('Remove trainee', style: BoltText.a(13, weight: 700, color: BoltColors.warn)),
+                      child: Text(tx('Remove trainee'), style: BoltText.a(13, weight: 700, color: BoltColors.warn)),
                     ),
                   ),
                 ),
@@ -351,7 +357,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                     boxShadow: const [BoxShadow(color: Color(0x99000000), blurRadius: 30, offset: Offset(0, 10))],
                   ),
                   child: NeonButton(
-                    label: 'Send ${plural(drafts, 'session')} to $fn',
+                    label: tx('Send {n} to {name}', {'n': plural(drafts, 'session'), 'name': fn}),
                     height: 56,
                     radius: 18,
                     onTap: () => _send(x.id, fn),
@@ -403,14 +409,14 @@ class _SelectedDay extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text(s.title.toUpperCase(), style: BoltText.a(26, weight: 900, width: 112)),
+          Text(tx(s.title).toUpperCase(), style: BoltText.a(26, weight: 900, width: 112)),
           if (s.from != null) ...[
             const SizedBox(height: 2),
-            Kicker('ORIGINALLY ${fmtDay(s.from!).toUpperCase()}', size: 10, spacing: 0),
+            Kicker(tx('ORIGINALLY {day}', {'day': fmtDay(s.from!).toUpperCase()}), size: 10, spacing: 0),
           ],
           if (!editable) ...[
             const SizedBox(height: 4),
-            Text('Logged · ${s.log ?? ''}', style: BoltText.a(13, color: BoltColors.neon)),
+            Text(tx('Logged · {log}', {'log': logText(s.log)}), style: BoltText.a(13, color: BoltColors.neon)),
           ],
           if (editable) ...[
             const SizedBox(height: 10),
@@ -424,7 +430,7 @@ class _SelectedDay extends ConsumerWidget {
               children: [
                 Expanded(
                   child: OutlineButton(
-                    label: 'Edit exercises',
+                    label: tx('Edit exercises'),
                     height: 44,
                     radius: 12,
                     fontSize: 13,
@@ -440,7 +446,7 @@ class _SelectedDay extends ConsumerWidget {
                     stroke: const Stroke(BoltColors.line),
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     alignment: Alignment.center,
-                    child: Text('Remove', style: BoltText.a(13, weight: 700, color: BoltColors.muted)),
+                    child: Text(tx('Remove'), style: BoltText.a(13, weight: 700, color: BoltColors.muted)),
                   ),
                 ),
               ],
@@ -466,15 +472,15 @@ class _Visits extends ConsumerWidget {
     if (g == null && v.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Text('No visits yet.', style: BoltText.a(13, color: BoltColors.muted)),
+        child: Text(tx('No visits yet.'), style: BoltText.a(13, color: BoltColors.muted)),
       );
     }
     return Column(
       children: [
         if (g != null)
           VisitRow(
-            day: 'TODAY · LIVE',
-            range: '${g.since} → now',
+            day: tx('TODAY · LIVE'),
+            range: tx('{time} → now', {'time': g.since}),
             dur: dur(g.elapsedMinutes(now)),
             live: true,
             compact: true,

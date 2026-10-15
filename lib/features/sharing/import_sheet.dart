@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../../app/share.dart';
 import '../../data/bolt_store.dart';
 import '../../theme/text_styles.dart';
@@ -39,7 +41,7 @@ class _ImportSheetState extends ConsumerState<ImportSheet> {
     final t = (await Clipboard.getData(Clipboard.kTextPlain))?.text ?? '';
     setState(() {
       _text.text = t;
-      _error = t.isEmpty ? 'The clipboard is empty. Copy the message first.' : null;
+      _error = t.isEmpty ? tx('The clipboard is empty. Copy the message first.') : null;
     });
   }
 
@@ -58,16 +60,16 @@ class _ImportSheetState extends ConsumerState<ImportSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(coach ? 'Import update' : 'Import plan', style: BoltText.a(20, weight: 900)),
+        Text(coach ? tx('Import update') : tx('Import plan'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 6),
         Text(
           coach
-              ? 'Copy the update message your trainee sent you, then paste it here.'
-              : 'Copy the plan message your coach sent you, then paste it here.',
+              ? tx('Copy the update message your trainee sent you, then paste it here.')
+              : tx('Copy the plan message your coach sent you, then paste it here.'),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
         const SizedBox(height: 14),
-        BoltTextArea(controller: _text, hint: 'Paste the message here', minHeight: 96),
+        BoltTextArea(controller: _text, hint: tx('Paste the message here'), minHeight: 96),
         if (_error != null) ...[
           const SizedBox(height: 8),
           Text(_error!, style: BoltText.a(12, color: BoltColors.warn, height: 1.4)),
@@ -77,7 +79,7 @@ class _ImportSheetState extends ConsumerState<ImportSheet> {
           children: [
             Expanded(
               child: OutlineButton(
-                label: 'Paste',
+                label: tx('Paste'),
                 height: 52,
                 color: BoltColors.text,
                 borderColor: BoltColors.line,
@@ -87,7 +89,7 @@ class _ImportSheetState extends ConsumerState<ImportSheet> {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: NeonButton(label: 'Import', height: 52, scale: 1, onTap: _import),
+              child: NeonButton(label: tx('Import'), height: 52, scale: 1, onTap: _import),
             ),
           ],
         ),

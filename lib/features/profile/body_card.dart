@@ -37,10 +37,10 @@ class BodyCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final metric = ref.watch(boltProvider.select((d) => d.settings.kg));
     final items = <(String, String)>[
-      if (body.weightKg != null) ('WEIGHT', fmtWeight(body.weightKg!, metric: metric)),
-      if (body.heightCm != null) ('HEIGHT', fmtLength(body.heightCm!, metric: metric)),
+      if (body.weightKg != null) (tx('WEIGHT'), fmtWeight(body.weightKg!, metric: metric)),
+      if (body.heightCm != null) (tx('HEIGHT'), fmtLength(body.heightCm!, metric: metric)),
       for (final e in Body.parts.entries)
-        if (body.cm[e.key] != null) (e.value.toUpperCase(), fmtLength(body.cm[e.key]!, metric: metric)),
+        if (body.cm[e.key] != null) (tx(e.value).toUpperCase(), fmtLength(body.cm[e.key]!, metric: metric)),
     ];
     final updated = body.updated;
     return Column(
@@ -48,17 +48,20 @@ class BodyCard extends ConsumerWidget {
       children: [
         Row(
           children: [
-            Expanded(child: SectionTitle('Body', size: titleSize)),
+            Expanded(child: SectionTitle(tx('Body'), size: titleSize)),
             if (body.history.isNotEmpty) ...[
               Tap(
                 onTap: onProgress,
-                child: Text('Progress', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+                child: Text(tx('Progress'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
               ),
               const SizedBox(width: 16),
             ],
             Tap(
               onTap: onEdit,
-              child: Text(items.isEmpty ? '+ Add' : 'Edit', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+              child: Text(
+                items.isEmpty ? tx('+ Add') : tx('Edit'),
+                style: BoltText.a(13, weight: 700, color: BoltColors.neon),
+              ),
             ),
           ],
         ),
@@ -71,7 +74,7 @@ class BodyCard extends ConsumerWidget {
               stroke: const Stroke.dashed(BoltColors.line),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               child: Text(
-                empty ?? 'Add your weight and measurements to track progress.',
+                empty ?? tx('Add your weight and measurements to track progress.'),
                 style: BoltText.a(13, color: BoltColors.muted),
               ),
             ),
@@ -113,9 +116,13 @@ class BodyCard extends ConsumerWidget {
                     child: Row(
                       children: [
                         Expanded(
-                          child: Kicker('UPDATED ${fmtDay(updated).toUpperCase()}', size: 9, color: BoltColors.muted3),
+                          child: Kicker(
+                            tx('UPDATED {day}', {'day': fmtDay(updated).toUpperCase()}),
+                            size: 9,
+                            color: BoltColors.muted3,
+                          ),
                         ),
-                        Text('+ Log · history ›', style: BoltText.a(12, weight: 700, color: BoltColors.neon)),
+                        Text(tx('+ Log · history ›'), style: BoltText.a(12, weight: 700, color: BoltColors.neon)),
                       ],
                     ),
                   ),

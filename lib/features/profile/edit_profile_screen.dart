@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../../data/bolt_store.dart';
 import '../../data/models/bolt_data.dart';
 import '../../data/models/people.dart';
@@ -83,30 +85,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                Text(owner ? 'Edit profile' : 'Edit trainee', style: BoltText.a(24, weight: 900)),
+                Text(owner ? tx('Edit profile') : tx('Edit trainee'), style: BoltText.a(24, weight: 900)),
               ],
             ),
-            const FieldLabel('NAME', top: 22),
-            BoltField(controller: _name, hint: 'Name', words: true, onChanged: (_) => setState(() {})),
+            FieldLabel(tx('NAME'), top: 22),
+            BoltField(controller: _name, hint: tx('Name'), words: true, onChanged: (_) => setState(() {})),
             if (_coach != null) ...[
-              const FieldLabel('SPECIALTY'),
-              BoltField(controller: _specialty, hint: 'e.g. Strength & Hypertrophy'),
+              FieldLabel(tx('SPECIALTY')),
+              BoltField(controller: _specialty, hint: tx('e.g. Strength & Hypertrophy')),
             ],
             if (_trainee != null) ...[
-              const FieldLabel('GOAL'),
+              FieldLabel(tx('GOAL')),
               ChoiceChips(options: kGoals, selected: _goal, onSelect: (g) => setState(() => _goal = g)),
-              const FieldLabel('WEEKLY SPLIT'),
+              FieldLabel(tx('WEEKLY SPLIT')),
               SplitPicker(selected: _split, data: d, onSelect: (s) => setState(() => _split = s)),
             ],
             if (owner && d.account?.role == Role.trainee) ...[
-              const FieldLabel('YOUR COACH'),
-              BoltField(controller: _coachName, hint: 'Coach\'s name', words: true),
+              FieldLabel(tx('YOUR COACH')),
+              BoltField(controller: _coachName, hint: tx('Coach\'s name'), words: true),
             ],
-            if (owner) ...[const FieldLabel('GYM'), BoltField(controller: _gym, hint: 'Where you train', words: true)],
-            const FieldLabel('BODY'),
+            if (owner) ...[
+              FieldLabel(tx('GYM')),
+              BoltField(controller: _gym, hint: tx('Where you train'), words: true),
+            ],
+            FieldLabel(tx('BODY')),
             BodyFields(form: _body),
             const SizedBox(height: 22),
-            NeonButton(label: 'Save', onTap: ok ? _save : null),
+            NeonButton(label: tx('Save'), onTap: ok ? _save : null),
           ],
         ),
       ),

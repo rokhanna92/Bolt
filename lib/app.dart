@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'l10n/l10n.dart';
+
 import 'app/actions.dart';
 import 'app/router.dart';
 import 'data/bolt_store.dart';
@@ -53,14 +55,20 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Bolt',
+      title: tx('Bolt'),
       debugShowCheckedModeBanner: false,
       theme: buildBoltTheme(),
       routerConfig: ref.watch(routerProvider),
       // The layout is pixel-tuned to the prototype; allow larger system text
       // but cap it so fixed-size controls keep their shape.
-      builder: (context, child) =>
-          MediaQuery.withClampedTextScaling(maxScaleFactor: 1.15, child: Stack(children: [child!, const ToastLayer()])),
+      // A language change rebuilds every screen, constant widgets included.
+      builder: (context, child) => KeyedSubtree(
+        key: ValueKey(ref.watch(boltProvider.select((d) => d.settings.lang))),
+        child: MediaQuery.withClampedTextScaling(
+          maxScaleFactor: 1.15,
+          child: Stack(children: [child!, const ToastLayer()]),
+        ),
+      ),
     );
   }
 }

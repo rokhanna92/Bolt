@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../l10n/l10n.dart';
+
 import '../data/share_codes.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
@@ -16,7 +18,7 @@ Future<String?> shareMessage(String text, {required String subject}) async {
     return null;
   } catch (_) {
     await Clipboard.setData(ClipboardData(text: text));
-    return 'Copied · paste it into a message';
+    return tx('Copied · paste it into a message');
   }
 }
 
@@ -55,7 +57,7 @@ Future<bool> confirmSheet(
         ),
         const SizedBox(height: 8),
         OutlineButton(
-          label: 'Cancel',
+          label: tx('Cancel'),
           color: BoltColors.text,
           borderColor: BoltColors.line,
           weight: 700,

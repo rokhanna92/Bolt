@@ -51,16 +51,16 @@ class WorkoutPickerSheet extends ConsumerWidget {
               if (tpls[id] != null) id,
           ],
         ),
-      if (custom.isNotEmpty) ('Your workouts', custom),
+      if (custom.isNotEmpty) (tx('Your workouts'), custom),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Pick a workout', style: BoltText.a(20, weight: 900)),
+        Text(tx('Pick a workout'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 4),
         Text(
-          'Train your way: classic splits, old school bodybuilding days, or build one from the muscles you want.',
+          tx('Train your way: classic splits, old school bodybuilding days, or build one from the muscles you want.'),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
         const SizedBox(height: 14),
@@ -77,10 +77,10 @@ class WorkoutPickerSheet extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Build from muscles', style: BoltText.a(16, weight: 900, color: BoltColors.ink)),
+                        Text(tx('Build from muscles'), style: BoltText.a(16, weight: 900, color: BoltColors.ink)),
                         const SizedBox(height: 2),
                         Text(
-                          'Pick chest + triceps, biceps + shoulders, anything',
+                          tx('Pick chest + triceps, biceps + shoulders, anything'),
                           style: BoltText.a(12, weight: 600, color: BoltColors.ink.withValues(alpha: .75)),
                         ),
                       ],
@@ -95,9 +95,9 @@ class WorkoutPickerSheet extends ConsumerWidget {
         ],
         if (rest) ...[
           _Row(
-            code: 'REST',
-            name: 'Rest day',
-            focus: 'Recover, eat, sleep. Muscles grow between sessions.',
+            code: tx('REST'),
+            name: tx('Rest day'),
+            focus: tx('Recover, eat, sleep. Muscles grow between sessions.'),
             meta: '',
             on: selected == null,
             onTap: () => pick(PickResult.rest),
@@ -107,7 +107,7 @@ class WorkoutPickerSheet extends ConsumerWidget {
         for (final (title, ids) in groups)
           if (ids.isNotEmpty) ...[
             const SizedBox(height: 10),
-            Kicker(title.toUpperCase(), size: 10, spacing: .1),
+            Kicker(tx(title).toUpperCase(), size: 10, spacing: .1),
             const SizedBox(height: 8),
             for (final id in ids) ...[_tplRow(tpls[id]!, selected == id, () => pick(id)), const SizedBox(height: 6)],
           ],
@@ -117,8 +117,8 @@ class WorkoutPickerSheet extends ConsumerWidget {
 
   Widget _tplRow(WorkoutTemplate t, bool on, VoidCallback onTap) => _Row(
     code: t.code,
-    name: t.name,
-    focus: t.focus,
+    name: tx(t.name),
+    focus: tx(t.focus),
     meta: '${plural(t.ex.length, 'exercise')} · ${t.mins} min'.toUpperCase(),
     on: on,
     onTap: onTap,
@@ -202,10 +202,10 @@ class ChangeWorkoutButton extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Change workout', style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
+                  Text(tx('Change workout'), style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
                   const SizedBox(height: 2),
                   Text(
-                    'Any style, or build it from the muscles you want',
+                    tx('Any style, or build it from the muscles you want'),
                     style: BoltText.a(12, color: BoltColors.muted),
                   ),
                 ],

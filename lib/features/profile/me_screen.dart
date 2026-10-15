@@ -19,6 +19,7 @@ import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
 import '../sharing/import_sheet.dart';
 import '../updates/update_sheet.dart';
+import 'language_picker.dart';
 import 'body_card.dart';
 import 'role_switch.dart';
 
@@ -33,7 +34,9 @@ class MeScreen extends ConsumerWidget {
     if (t == null) return const SizedBox.shrink();
     final coachName = store.coachNameOf(t);
     final withCoach = d.account?.role == Role.trainee;
-    final line = withCoach ? (coachName == null ? 'Trainee' : 'Trainee · Coach $coachName') : 'Training solo';
+    final line = withCoach
+        ? (coachName == null ? tx('Trainee') : tx('Trainee · Coach {name}', {'name': coachName}))
+        : tx('Training solo');
     return ScreenScroll(
       children: [
         ProfileHeader(onSettings: () => context.push('/settings')),
@@ -59,7 +62,11 @@ class MeScreen extends ConsumerWidget {
           spacing: 6,
           runSpacing: 6,
           children: [
-            for (final c in [t.goal, splitOf(d, t.split).name, 'Since ${t.since}'])
+            for (final c in [
+              tx(t.goal),
+              tx(splitOf(d, t.split).name),
+              tx('Since {when}', {'when': t.since}),
+            ])
               BoltBox(
                 radius: 99,
                 stroke: const Stroke(BoltColors.line),
@@ -71,9 +78,9 @@ class MeScreen extends ConsumerWidget {
         const SizedBox(height: 18),
         StatRow(
           children: [
-            StatTile(value: '${t.stats.sessions}', label: 'SESSIONS', valueColor: BoltColors.neon),
-            StatTile(value: '${t.stats.mins ~/ 60}', label: 'HOURS'),
-            StatTile(value: '${currentStreak(t.stats, store.now)}', label: 'WEEK STREAK'),
+            StatTile(value: '${t.stats.sessions}', label: tx('SESSIONS'), valueColor: BoltColors.neon),
+            StatTile(value: '${t.stats.mins ~/ 60}', label: tx('HOURS')),
+            StatTile(value: '${currentStreak(t.stats, store.now)}', label: tx('WEEK STREAK')),
           ],
         ),
         const SizedBox(height: 24),
@@ -85,10 +92,10 @@ class MeScreen extends ConsumerWidget {
         const SizedBox(height: 24),
         Row(
           children: [
-            const Expanded(child: SectionTitle('Injuries & limits')),
+            Expanded(child: SectionTitle(tx('Injuries & limits'))),
             Tap(
               onTap: () => showInjurySheet(t.id),
-              child: Text('+ Report', style: BoltText.a(13, weight: 700, color: BoltColors.warn)),
+              child: Text(tx('+ Report'), style: BoltText.a(13, weight: 700, color: BoltColors.warn)),
             ),
           ],
         ),
@@ -101,33 +108,37 @@ class MeScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Text(
               withCoach
-                  ? 'No active injuries. If something hurts, report it and your coach gets safer swaps for you.'
-                  : 'No active injuries. If something hurts, report it and exercises that load it show safer swaps.',
+                  ? tx('No active injuries. If something hurts, report it and your coach gets safer swaps for you.')
+                  : tx(
+                      'No active injuries. If something hurts, report it and exercises that load it show safer swaps.',
+                    ),
               style: BoltText.a(13, color: BoltColors.muted),
             ),
           ),
         if (withCoach) ...[
           const SizedBox(height: 24),
-          const SectionTitle('Your coach'),
+          SectionTitle(tx('Your coach')),
           const SizedBox(height: 10),
           _CoachCard(name: coachName),
         ],
         const SizedBox(height: 24),
         _LinkCard(
           icon: 'plate',
-          title: 'Workouts',
-          sub: 'Templates and splits used when you plan or auto-fill',
+          title: tx('Workouts'),
+          sub: tx('Templates and splits used when you plan or auto-fill'),
           onTap: () => context.push('/workouts'),
         ),
         const SizedBox(height: 8),
         _LinkCard(
           icon: 'barbell',
-          title: 'Progress',
-          sub: 'Lifts, records, muscle volume, last week and challenges',
+          title: tx('Progress'),
+          sub: tx('Lifts, records, muscle volume, last week and challenges'),
           onTap: () => context.push('/progress'),
         ),
         const SizedBox(height: 24),
         const RoleSwitch(),
+        const LanguagePicker(),
+        const SizedBox(height: 18),
         const UpdateCard(),
       ],
     );
@@ -144,7 +155,7 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(child: Kicker('PROFILE')),
+        Expanded(child: Kicker(tx('PROFILE'))),
         SquareButton(onTap: onSettings, size: 42, child: const BoltIcon('sliders', size: 20)),
       ],
     );
@@ -166,11 +177,11 @@ class InjuryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(kAreas[injury.area] ?? injury.area, style: BoltText.a(14, weight: 800, color: BoltColors.warn)),
+          Text(tx(kAreas[injury.area] ?? injury.area), style: BoltText.a(14, weight: 800, color: BoltColors.warn)),
           const SizedBox(height: 4),
-          Text(injury.note, style: BoltText.a(13, height: 1.4)),
+          Text(tx(injury.note), style: BoltText.a(13, height: 1.4)),
           const SizedBox(height: 4),
-          Kicker(injury.by, size: 10, spacing: 0),
+          Kicker(byLine(injury.by), size: 10, spacing: 0),
         ],
       ),
     );
@@ -202,10 +213,10 @@ class _CoachCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name ?? 'Your coach', style: BoltText.a(15, weight: 800)),
+                    Text(name ?? tx('Your coach'), style: BoltText.a(15, weight: 800)),
                     const SizedBox(height: 2),
                     Text(
-                      'Plans come as a message. Import them here, send your progress back.',
+                      tx('Plans come as a message. Import them here, send your progress back.'),
                       style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
                     ),
                   ],
@@ -218,7 +229,7 @@ class _CoachCard extends ConsumerWidget {
             children: [
               Expanded(
                 child: NeonButton(
-                  label: 'Import plan',
+                  label: tx('Import plan'),
                   height: 44,
                   radius: 12,
                   fontSize: 13,
@@ -228,12 +239,12 @@ class _CoachCard extends ConsumerWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: OutlineButton(
-                  label: 'Send update',
+                  label: tx('Send update'),
                   height: 44,
                   radius: 12,
                   fontSize: 13,
                   onTap: () async {
-                    final hint = await shareMessage(store.updateMessage(), subject: 'Bolt update');
+                    final hint = await shareMessage(store.updateMessage(), subject: tx('Bolt update'));
                     if (hint != null) store.toast(hint);
                   },
                 ),

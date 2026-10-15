@@ -134,7 +134,7 @@ class _ScanSlot extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final id = ref.watch(boltProvider.select((d) => d.account?.id));
     final g = ref.watch(boltProvider).gymIn[id];
-    final label = fixedLabel ?? (g == null ? 'Check in' : dur(g.elapsedMinutes(watchNow(ref))));
+    final label = fixedLabel ?? (g == null ? tx('Check in') : dur(g.elapsedMinutes(watchNow(ref))));
     return Tap(
       onTap: onTap,
       scale: .92,

@@ -27,16 +27,16 @@ class BoltShell extends ConsumerWidget {
         : ref.read(boltProvider.notifier).co(id).name;
     final items = trainee
         ? [
-            const NavItem(label: 'Today', icon: 'barbell'),
-            const NavItem(label: 'Plan', icon: 'calendar'),
-            const NavItem(label: 'Learn', icon: 'book'),
-            NavItem(label: 'Me', initials: initials(name)),
+            NavItem(label: tx('Today'), icon: 'barbell'),
+            NavItem(label: tx('Plan'), icon: 'calendar'),
+            NavItem(label: tx('Learn'), icon: 'book'),
+            NavItem(label: tx('Me'), initials: initials(name)),
           ]
         : [
-            const NavItem(label: 'Trainees', icon: 'group', pillWidth: 56),
-            const NavItem(label: 'Schedule', icon: 'schedule'),
-            const NavItem(label: 'Library', icon: 'plate', pillWidth: 56),
-            NavItem(label: 'Profile', initials: initials(name), pillWidth: 56),
+            NavItem(label: tx('Trainees'), icon: 'group', pillWidth: 56),
+            NavItem(label: tx('Schedule'), icon: 'schedule'),
+            NavItem(label: tx('Library'), icon: 'plate', pillWidth: 56),
+            NavItem(label: tx('Profile'), initials: initials(name), pillWidth: 56),
           ];
     // Trainee branches: today, plan, gym, learn, me. Coach branches: roster,
     // schedule, library, profile, calendar. The gym and the calendar have no
@@ -59,7 +59,7 @@ class BoltShell extends ConsumerWidget {
               active: active,
               scanActive: shell.currentIndex == centre,
               centerIcon: trainee ? 'scan' : 'calendar',
-              centerLabel: trainee ? null : 'Calendar',
+              centerLabel: trainee ? null : tx('Calendar'),
               onTap: (i) => shell.goBranch(branchOf[i], initialLocation: branchOf[i] == shell.currentIndex),
               onScan: trainee ? () => openScanner(context, ref) : () => shell.goBranch(centre),
             ),

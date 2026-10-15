@@ -118,7 +118,18 @@ class ProfileInput {
 /// then saved to the phone in the background.
 class BoltStore extends Notifier<BoltData> {
   @override
-  BoltData build() => ref.read(initialDataProvider);
+  BoltData build() {
+    final d = ref.read(initialDataProvider);
+    appLang = AppLang.byName(d.settings.lang);
+    return d;
+  }
+
+  /// Switches the app language; every screen is rebuilt in it.
+  void setLanguage(AppLang l) {
+    state.settings.lang = l.name;
+    appLang = l;
+    _commit();
+  }
 
   DateTime get now => ref.read(clockProvider)();
   String get today => dk(now);
@@ -162,7 +173,10 @@ class BoltStore extends Notifier<BoltData> {
 
   Map<String, Session> plan(String tid) => state.plans.putIfAbsent(tid, () => {});
   String unit(String load) => unitLoad(load, kg: state.settings.kg);
-  String _dayLabel(DateTime d) => '${d.day} ${monthsShort[d.month - 1]}';
+
+  /// Stored in English (injury flags), translated where shown.
+  String _dayLabel(DateTime d) =>
+      '${d.day} ${const ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.month - 1]}';
   String get _sinceLabel => '${monthsShort[now.month - 1]} ${now.year}';
 
   // Profile
@@ -256,7 +270,7 @@ class BoltStore extends Notifier<BoltData> {
     }
     if (p.gym != null && id == Account.ownerId) state.settings.gymName = p.gym!.trim();
     _commit();
-    _toast('Profile saved');
+    _toast(tx('Profile saved'));
   }
 
   /// [fresh] values from a form, keeping [old]'s history and logging today.
@@ -291,7 +305,7 @@ class BoltStore extends Notifier<BoltData> {
     cm.forEach((k, v) => b.cm[k] = e!.cm[k] = v);
     b.updated = today;
     _commit();
-    _toast('Logged for today');
+    _toast(tx('Logged for today'));
   }
 
   void deleteBodyEntry(String? tid, String date) {
@@ -300,7 +314,7 @@ class BoltStore extends Notifier<BoltData> {
     b.history.removeWhere((e) => e.date == date);
     b.recomputeLatest();
     _commit();
-    _toast('${fmtDay(date)} removed');
+    _toast(tx('{day} removed', {'day': fmtDay(date)}));
   }
 
   /// Erases everything on this phone and returns to onboarding.
@@ -308,7 +322,8 @@ class BoltStore extends Notifier<BoltData> {
     _notify.cancelCheckout();
     _notify.clearInGym();
     _notify.replaceSessionReminders(const []);
-    state = freshData();
+    final lang = state.settings.lang;
+    state = freshData()..settings.lang = lang;
     ref.read(repositoryProvider).scheduleSave(state);
   }
 
@@ -337,7 +352,7 @@ class BoltStore extends Notifier<BoltData> {
     );
     state.plans[id] = {};
     _commit();
-    _toast('${firstName(p.name)} added');
+    _toast(tx('{name} added', {'name': firstName(p.name)}));
     return id;
   }
 
@@ -348,7 +363,7 @@ class BoltStore extends Notifier<BoltData> {
     state.visits.remove(tid);
     state.gymIn.remove(tid);
     _commit();
-    _toast('${firstName(name)} removed');
+    _toast(tx('{name} removed', {'name': firstName(name)}));
   }
 
   // Gym
@@ -366,8 +381,8 @@ class BoltStore extends Notifier<BoltData> {
         _notify.scheduleCheckout(
           Reminder(
             at: n.add(const Duration(hours: 3)),
-            title: 'Still at the gym?',
-            body: 'Checked in at $since. Scan the plaque on your way out.',
+            title: tx('Still at the gym?'),
+            body: tx('Checked in at {time}. Scan the plaque on your way out.', {'time': since}),
           ),
         );
       }
@@ -375,9 +390,11 @@ class BoltStore extends Notifier<BoltData> {
       final s = plan(id)[dk(n)];
       final planned = s != null && s.status != SessionStatus.draft && s.status != SessionStatus.done;
       return ScanOutcome(
-        head: 'Checked in',
+        head: tx('Checked in'),
         checkIn: true,
-        sub: planned ? '$since · today: ${s.title}' : '$since · have a good session',
+        sub: planned
+            ? tx('{time} · today: {workout}', {'time': since, 'workout': tx(s.title)})
+            : tx('{time} · have a good session', {'time': since}),
         hype: _pick(_inHype),
       );
     }
@@ -389,10 +406,12 @@ class BoltStore extends Notifier<BoltData> {
     _commit();
     if (day != null) syncSessionReminders();
     return ScanOutcome(
-      head: day == null ? 'Checked out' : 'Day done',
-      sub: '${dur(mins)} in the gym · ${g.since} → ${res.$1.outT}',
+      head: day == null ? tx('Checked out') : tx('Day done'),
+      sub: tx('{time} in the gym · {from} → {to}', {'time': dur(mins), 'from': g.since, 'to': res.$1.outT}),
       hype: day == null ? null : _pick(_outHype),
-      detail: day ?? (mins < minGymMins ? 'Under $minGymMins minutes, so it only counts as gym time.' : null),
+      detail:
+          day ??
+          (mins < minGymMins ? tx('Under {n} minutes, so it only counts as gym time.', {'n': minGymMins}) : null),
       unlocked: before == null ? res.$2 : newlyUnlocked(before, t!.stats),
     );
   }
@@ -420,7 +439,7 @@ class BoltStore extends Notifier<BoltData> {
     'Iron sharpened.',
   ];
 
-  String _pick(List<String> lines) => lines[math.Random().nextInt(lines.length)];
+  String _pick(List<String> lines) => tx(lines[math.Random().nextInt(lines.length)]);
 
   /// Scanning out finishes day [k]: a workout in progress is finished with
   /// the sets checked, a planned one counts as done with every set, and a
@@ -436,7 +455,7 @@ class BoltStore extends Notifier<BoltData> {
       final g = Session(
         tpl: mixTpl,
         title: gymSessionTitle,
-        focus: 'Add what you trained',
+        focus: tx('Add what you trained'),
         mins: mins,
         ex: [],
         status: SessionStatus.done,
@@ -447,7 +466,7 @@ class BoltStore extends Notifier<BoltData> {
       t.stats.workouts += 1;
       _countWorkout(t, k, g);
       _checkPerfectWeek(t);
-      return 'Saved as a gym session. Add what you trained from Plan.';
+      return tx('Saved as a gym session. Add what you trained from Plan.');
     }
     if (w != null && w.key == k && s.status != SessionStatus.done) {
       state.workout = null;
@@ -459,7 +478,9 @@ class BoltStore extends Notifier<BoltData> {
     if (s.status != SessionStatus.done) return null;
     if (!(s.log ?? '').contains('in the gym')) s.log = '${s.log} · ${dur(mins)} in the gym';
     final coach = s.byCoach ? coachNameOf(t) : null;
-    return '${s.title} done${coach == null ? '' : '. Send ${firstName(coach)} an update from Me'}.';
+    return coach == null
+        ? tx('{workout} done.', {'workout': tx(s.title)})
+        : tx('{workout} done. Send {name} an update from Me.', {'workout': tx(s.title), 'name': firstName(coach)});
   }
 
   (Visit, List<String>) _closeVisit(String id, GymIn g, int mins, {required bool auto}) {
@@ -513,7 +534,7 @@ class BoltStore extends Notifier<BoltData> {
     final p = plan(state.account!.id)[k];
     if (p != null) p.status = SessionStatus.approved;
     _commit();
-    _toast('${fmtDay(k)} confirmed');
+    _toast(tx('{day} confirmed', {'day': fmtDay(k)}));
     syncSessionReminders();
   }
 
@@ -526,7 +547,7 @@ class BoltStore extends Notifier<BoltData> {
       }
     }
     _commit();
-    _toast('${plural(n, 'session')} confirmed');
+    _toast(tx('{n} confirmed', {'n': plural(n, 'session')}));
     syncSessionReminders();
   }
 
@@ -542,7 +563,7 @@ class BoltStore extends Notifier<BoltData> {
       ..status = o.byCoach ? SessionStatus.moved : o.status
       ..from = o.byCoach ? (o.from ?? from) : null;
     _commit();
-    _toast('Moved to ${fmtDay(to)}');
+    _toast(tx('Moved to {day}', {'day': fmtDay(to)}));
     syncSessionReminders();
     return true;
   }
@@ -584,7 +605,7 @@ class BoltStore extends Notifier<BoltData> {
   void swap(Exercise e) {
     swapExercise(e);
     _commit();
-    _toast('Swapped to ${e.name}');
+    _toast(tx('Swapped to {name}', {'name': tx(e.name)}));
   }
 
   /// Logs the workout and returns badges it unlocked.
@@ -604,7 +625,10 @@ class BoltStore extends Notifier<BoltData> {
     final unlocked = newlyUnlocked(before, t.stats);
     _commit();
     _toast(
-      'Workout logged · ${p.log}${prs.isEmpty ? '' : ' · ${prs.length == 1 ? 'PR on ${prs.first}' : '${prs.length} PRs'}'}',
+      tx('Workout logged · {log}', {'log': logText(p.log)}) +
+          (prs.isEmpty
+              ? ''
+              : ' · ${prs.length == 1 ? tx('PR on {name}', {'name': tx(prs.first)}) : tx('{n} PRs', {'n': prs.length})}'),
     );
     syncSessionReminders();
     return unlocked;
@@ -679,7 +703,7 @@ class BoltStore extends Notifier<BoltData> {
     _checkPerfectWeek(t);
     final unlocked = newlyUnlocked(before, t.stats);
     _commit();
-    _toast('${fmtDay(k)} logged · ${p.log}');
+    _toast(tx('{day} logged · {log}', {'day': fmtDay(k), 'log': logText(p.log)}));
     return unlocked;
   }
 
@@ -733,7 +757,7 @@ class BoltStore extends Notifier<BoltData> {
         if (p[dk(addDays(mon, i))] case final Session s when s.status != SessionStatus.done) s,
     ];
     if (week.isEmpty) {
-      _toast('Nothing planned that week');
+      _toast(tx('Nothing planned that week'));
       return;
     }
     final undo = week.any((s) => s.deload);
@@ -754,7 +778,11 @@ class BoltStore extends Notifier<BoltData> {
       if (_isCoach && s.status != SessionStatus.draft) s.status = SessionStatus.draft;
     }
     _commit();
-    _toast(undo ? 'Deload undone · full sets back' : 'Deload week · ${plural(week.length, 'session')} halved');
+    _toast(
+      undo
+          ? tx('Deload undone · full sets back')
+          : tx('Deload week · {n} halved', {'n': plural(week.length, 'session')}),
+    );
     if (!_isCoach) syncSessionReminders();
   }
 
@@ -763,7 +791,7 @@ class BoltStore extends Notifier<BoltData> {
   String? setChallenge(String tid, Challenge? c) {
     tr(tid).challenge = c;
     _commit();
-    _toast(c == null ? 'Challenge removed' : 'Challenge set · ${c.title}');
+    _toast(c == null ? tx('Challenge removed') : tx('Challenge set · {title}', {'title': c.title}));
     return _isCoach ? planMessage(tid) : null;
   }
 
@@ -796,22 +824,23 @@ class BoltStore extends Notifier<BoltData> {
     try {
       j = jsonDecode(text) as Map<String, dynamic>;
     } catch (_) {
-      return 'That file is not a Bolt backup.';
+      return tx('That file is not a Bolt backup.');
     }
-    if (j['bolt'] != 'backup') return 'That file is not a Bolt backup.';
-    if (j['version'] != BoltData.version) return 'This backup is from a different Bolt version.';
+    if (j['bolt'] != 'backup') return tx('That file is not a Bolt backup.');
+    if (j['version'] != BoltData.version) return tx('This backup is from a different Bolt version.');
     try {
       final d = BoltData.fromJson(j);
       addMissingTemplates(d);
       _notify.cancelCheckout();
       state = d;
+      appLang = AppLang.byName(d.settings.lang);
       ref.read(repositoryProvider).scheduleSave(state);
       syncSessionReminders();
       syncGymTimer();
-      _toast('Backup restored');
+      _toast(tx('Backup restored'));
       return null;
     } catch (_) {
-      return 'That backup could not be read.';
+      return tx('That backup could not be read.');
     }
   }
 
@@ -875,7 +904,7 @@ class BoltStore extends Notifier<BoltData> {
   /// template when [save] is set.
   List<String> useMuscles(String tid, String k, List<String> muscles, List<ExSeed> ex, {bool save = false}) {
     if (save) {
-      _toast('${musclesTitle(muscles)} saved to your Library');
+      _toast(tx('{name} saved to your Library', {'name': musclesTitle(muscles)}));
       return setTemplate(tid, k, templateFromMuscles(muscles, ex));
     }
     final p = plan(tid);
@@ -884,7 +913,7 @@ class BoltStore extends Notifier<BoltData> {
     final n = p[k] = Session(
       tpl: mixTpl,
       title: musclesTitle(muscles),
-      focus: [for (final m in muscles) kMuscles[m]?.name ?? m].join(' · '),
+      focus: [for (final m in muscles) tx(kMuscles[m]?.name ?? m)].join(' · '),
       mins: _minsFor(ex),
       ex: [for (final e in ex) exerciseFromSeed(e, state.uid())],
       status: _isCoach ? SessionStatus.draft : (o?.status ?? SessionStatus.approved),
@@ -906,7 +935,7 @@ class BoltStore extends Notifier<BoltData> {
       id: id,
       name: musclesTitle(muscles),
       code: musclesCode(muscles),
-      focus: [for (final m in muscles) kMuscles[m]?.name ?? m].join(' · '),
+      focus: [for (final m in muscles) tx(kMuscles[m]?.name ?? m)].join(' · '),
       mins: _minsFor(ex),
       ex: [for (final e in ex) exerciseFromSeed(e, state.uid())],
       custom: true,
@@ -921,7 +950,7 @@ class BoltStore extends Notifier<BoltData> {
   void removeDay(String tid, String k) {
     final was = plan(tid).remove(k)?.status;
     _commit();
-    _toast(was == SessionStatus.draft ? 'Draft removed' : 'Removed');
+    _toast(was == SessionStatus.draft ? tx('Draft removed') : tx('Removed'));
     if (!_isCoach) syncSessionReminders();
   }
 
@@ -933,8 +962,11 @@ class BoltStore extends Notifier<BoltData> {
     _commit();
     _toast(
       n == 0
-          ? 'The next 3 weeks are already planned'
-          : '${plural(n, 'session')} ${_isCoach ? 'drafted' : 'planned'} from ${split.name}',
+          ? tx('The next 3 weeks are already planned')
+          : tx(_isCoach ? '{n} drafted from {split}' : '{n} planned from {split}', {
+              'n': plural(n, 'session'),
+              'split': tx(split.name),
+            }),
     );
     if (!_isCoach) syncSessionReminders();
   }
@@ -957,7 +989,7 @@ class BoltStore extends Notifier<BoltData> {
   void setSplit(String tid, String id) {
     tr(tid).split = id;
     _commit();
-    _toast('Split set to ${splitOf(state, id).name}');
+    _toast(tx('Split set to {name}', {'name': tx(splitOf(state, id).name)}));
   }
 
   // Custom splits
@@ -969,7 +1001,7 @@ class BoltStore extends Notifier<BoltData> {
       n++;
     }
     final id = 'sp$n';
-    state.splits[id] = CustomSplit(id: id, name: 'My split $n');
+    state.splits[id] = CustomSplit(id: id, name: tx('My split {n}', {'n': n}));
     _commit();
     return id;
   }
@@ -1000,7 +1032,7 @@ class BoltStore extends Notifier<BoltData> {
       if (t.split == id) t.split = 'ppl';
     }
     _commit();
-    if (name != null) _toast('$name deleted');
+    if (name != null) _toast(tx('{name} deleted', {'name': name}));
   }
 
   /// Coach OKs a moved session.
@@ -1011,7 +1043,7 @@ class BoltStore extends Notifier<BoltData> {
       ..status = SessionStatus.approved
       ..from = null;
     _commit();
-    _toast('Change accepted');
+    _toast(tx('Change accepted'));
   }
 
   void markInjuriesSeen(String tid) {
@@ -1024,7 +1056,7 @@ class BoltStore extends Notifier<BoltData> {
   void resolveInjury(String tid, int index) {
     tr(tid).injuries.removeAt(index);
     _commit();
-    _toast('Flag resolved');
+    _toast(tx('Flag resolved'));
   }
 
   void reportInjury(String tid, String area, String note) {
@@ -1036,7 +1068,7 @@ class BoltStore extends Notifier<BoltData> {
     t.injuries.add(
       Injury(
         area: area,
-        note: note.trim().isEmpty ? '${kAreas[area]} pain reported' : note.trim(),
+        note: note.trim().isEmpty ? tx('{area} pain reported', {'area': tx(kAreas[area]!)}) : note.trim(),
         by: '$by · ${_dayLabel(now)}',
         fresh: role == Role.trainee,
       ),
@@ -1045,8 +1077,8 @@ class BoltStore extends Notifier<BoltData> {
     final coach = coachNameOf(t);
     _toast(
       role == Role.trainee && coach != null
-          ? 'Saved · send ${firstName(coach)} an update so they see it'
-          : 'Flag added · matching exercises show swaps',
+          ? tx('Saved · send {name} an update so they see it', {'name': firstName(coach)})
+          : tx('Flag added · matching exercises show swaps'),
     );
   }
 
@@ -1086,7 +1118,7 @@ class BoltStore extends Notifier<BoltData> {
 
   void addExercise(EditTarget target, ExSeed a) {
     edit(target, () => editExercises(target).add(exerciseFromSeed(a, state.uid())));
-    _toast('${a.name} added');
+    _toast(tx('{name} added', {'name': tx(a.name)}));
   }
 
   /// Saves the editor. For a coach editing a trainee's day this also sends it:
@@ -1100,11 +1132,11 @@ class BoltStore extends Notifier<BoltData> {
           return planMessage(tid);
         }
         _commit();
-        _toast('Session saved');
+        _toast(tx('Session saved'));
         return null;
       case TemplateTarget():
         _commit();
-        _toast('Template saved · used by future auto-fills');
+        _toast(tx('Template saved · used by future auto-fills'));
         return null;
     }
   }
@@ -1122,9 +1154,9 @@ class BoltStore extends Notifier<BoltData> {
     final n = id.substring(2);
     state.tpls[id] = WorkoutTemplate(
       id: id,
-      name: 'Custom $n',
+      name: tx('Custom {n}', {'n': n}),
       code: 'CUST',
-      focus: 'Custom session',
+      focus: tx('Custom session'),
       mins: 45,
       ex: [],
       custom: true,
@@ -1169,10 +1201,10 @@ class BoltStore extends Notifier<BoltData> {
           k: plan(tid)[k]!.toJson()..['code'] = plan(tid)[k]!.code ?? state.tpls[plan(tid)[k]!.tpl]?.code,
       },
     });
-    final range = keys.isEmpty ? '' : ', ${fmtDay(keys.first)} to ${fmtDay(keys.last)}';
-    return '${firstName(t.name)}, here is your Bolt plan from ${firstName(coach.name)}: '
+    final range = keys.isEmpty ? '' : tx(', {from} to {to}', {'from': fmtDay(keys.first), 'to': fmtDay(keys.last)});
+    return '${tx('{name}, here is your Bolt plan from {coach}:', {'name': firstName(t.name), 'coach': firstName(coach.name)})} '
         '${plural(keys.length, 'session')}$range.\n'
-        'In Bolt open Me, then Import plan. It reads this message from your clipboard.\n\n$code';
+        '${tx('In Bolt open Me, then Import plan. It reads this message from your clipboard.')}\n\n$code';
   }
 
   /// The trainee's progress as a message for their coach.
@@ -1208,9 +1240,11 @@ class BoltStore extends Notifier<BoltData> {
     });
     final done = keys.where((k) => p[k]!.status == SessionStatus.done).length;
     final coach = coachNameOf(t);
-    return 'Bolt update from ${firstName(t.name)}${coach == null ? '' : ' for ${firstName(coach)}'}: '
-        '${plural(done, 'workout')} done, ${plural(keys.length - done, 'session')} confirmed or moved.\n'
-        'In Bolt open Trainees, then Import update. It reads this message from your clipboard.\n\n$code';
+    final head = coach == null
+        ? tx('Bolt update from {name}:', {'name': firstName(t.name)})
+        : tx('Bolt update from {name} for {coach}:', {'name': firstName(t.name), 'coach': firstName(coach)});
+    return '$head ${tx('{done} done, {open} confirmed or moved.', {'done': plural(done, 'workout'), 'open': plural(keys.length - done, 'session')})}\n'
+        '${tx('In Bolt open Trainees, then Import update. It reads this message from your clipboard.')}\n\n$code';
   }
 
   /// Imports a plan (trainee) or an update (coach) from pasted text. Returns
@@ -1219,20 +1253,20 @@ class BoltStore extends Notifier<BoltData> {
     final packet = ShareCode.decode(text);
     if (packet == null) {
       return ShareCode.contains(text)
-          ? 'That code looks damaged. Copy the whole message again.'
-          : 'No Bolt code found in the copied text.';
+          ? tx('That code looks damaged. Copy the whole message again.')
+          : tx('No Bolt code found in the copied text.');
     }
     final type = packet['type'];
     if (type == 'plan') {
-      if (_isCoach) return 'This is a plan for a trainee. Open it on their phone.';
+      if (_isCoach) return tx('This is a plan for a trainee. Open it on their phone.');
       _importPlan(packet);
       return null;
     }
     if (type == 'update') {
-      if (!_isCoach) return 'This is an update for a coach. Open it on their phone.';
+      if (!_isCoach) return tx('This is an update for a coach. Open it on their phone.');
       return _importUpdate(packet);
     }
-    return 'This code is from a newer Bolt. Update the app and try again.';
+    return tx('This code is from a newer Bolt. Update the app and try again.');
   }
 
   void _importPlan(Map<String, dynamic> packet) {
@@ -1291,8 +1325,11 @@ class BoltStore extends Notifier<BoltData> {
     syncSessionReminders();
     final pending = sessions.values.where((s) => s.status == SessionStatus.pending).length;
     _toast(
-      '${plural(n, 'session')} from ${firstName(coachName ?? 'your coach')}'
-      '${pending > 0 ? ' · $pending waiting for your OK' : ''}',
+      tx('{n} from {coach}', {
+            'n': plural(n, 'session'),
+            'coach': coachName == null ? tx('your coach') : firstName(coachName),
+          }) +
+          (pending > 0 ? tx(' · {n} waiting for your OK', {'n': pending}) : ''),
     );
   }
 
@@ -1300,7 +1337,7 @@ class BoltStore extends Notifier<BoltData> {
     final tid = packet['tid'] as String?;
     final t = tid == null ? null : trOrNull(tid);
     if (t == null) {
-      return 'This update is from someone who is not in your trainees. Send them a plan first.';
+      return tx('This update is from someone who is not in your trainees. Send them a plan first.');
     }
     final p = plan(t.id);
     var moved = 0, done = 0, ok = 0;
@@ -1351,7 +1388,14 @@ class BoltStore extends Notifier<BoltData> {
     // The trainee's history wins; days only the coach logged are kept.
     if (!body.isEmpty) t.body = body..mergeHistory(t.body.history);
     _commit();
-    _toast('Update from ${firstName(t.name)} · $ok confirmed, $moved moved, $done done');
+    _toast(
+      tx('Update from {name} · {ok} confirmed, {moved} moved, {done} done', {
+        'name': firstName(t.name),
+        'ok': ok,
+        'moved': moved,
+        'done': done,
+      }),
+    );
     return null;
   }
 
@@ -1408,8 +1452,8 @@ class BoltStore extends Notifier<BoltData> {
       list.add(
         Reminder(
           at: at,
-          title: '${s.title} today',
-          body: '${s.focus} · ~${s.mins} min. Scan the plaque when you arrive.',
+          title: tx('{workout} today', {'workout': tx(s.title)}),
+          body: tx('{focus} · ~{mins} min. Scan the plaque when you arrive.', {'focus': tx(s.focus), 'mins': s.mins}),
         ),
       );
     }

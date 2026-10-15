@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/bolt_data.dart';
 import '../../theme/text_styles.dart';
@@ -31,12 +32,12 @@ class RoleSwitch extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Kicker(a.admin ? 'ADMIN · VIEW AS' : 'MODE', size: 10),
+            Kicker(a.admin ? tx('ADMIN · VIEW AS') : tx('MODE'), size: 10),
             const SizedBox(height: 4),
             Text(
               a.admin
-                  ? 'Your data stays; only the screens change.'
-                  : 'Coach for your trainees, Solo for your own training.',
+                  ? tx('Your data stays; only the screens change.')
+                  : tx('Coach for your trainees, Solo for your own training.'),
               style: BoltText.a(12, color: BoltColors.muted),
             ),
             const SizedBox(height: 12),

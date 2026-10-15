@@ -1,3 +1,5 @@
+import '../../l10n/l10n.dart';
+
 /// One day's weigh-in and tape measurements, stored metric.
 class BodyEntry {
   BodyEntry({required this.date, this.weightKg, Map<String, double>? cm}) : cm = cm ?? {};
@@ -406,7 +408,7 @@ class Challenge {
   /// Progress as last reported by the trainee, on the coach's phone.
   int? progress;
 
-  String get title => '$target ${kinds[kind]}${target == 1 ? '' : 's'}';
+  String get title => plural(target, kinds[kind]!);
 
   Map<String, dynamic> toJson() => {
     'kind': kind,

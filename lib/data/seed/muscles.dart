@@ -1,6 +1,8 @@
 // Muscles: the keys exercises are tagged with, the badge group each one
 // counts toward, and what Learn says about them.
 
+import '../../l10n/l10n.dart';
+
 class MuscleInfo {
   const MuscleInfo({
     required this.name,
@@ -201,8 +203,8 @@ const kMuscleGroups = <String, String>{
 
 /// Name for a muscle selection: "Chest & Triceps", "Chest, Back & Arms".
 String musclesTitle(List<String> muscles) {
-  final n = [for (final m in muscles) kMuscles[m]?.name ?? m];
-  if (n.isEmpty) return 'Custom';
+  final n = [for (final m in muscles) tx(kMuscles[m]?.name ?? m)];
+  if (n.isEmpty) return tx('Custom');
   if (n.length == 1) return n.first;
   return '${n.sublist(0, n.length - 1).join(', ')} & ${n.last}';
 }

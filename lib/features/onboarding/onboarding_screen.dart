@@ -14,6 +14,7 @@ import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/fields.dart';
 import '../../widgets/forms.dart';
+import '../profile/language_picker.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/tap.dart';
 
@@ -178,28 +179,43 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('BOLT', style: BoltText.a(40, weight: 900, width: 125, spacing: .02, color: BoltColors.neon, height: 1)),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'BOLT',
+                style: BoltText.a(40, weight: 900, width: 125, spacing: .02, color: BoltColors.neon, height: 1),
+              ),
+            ),
+            const LanguagePicker(compact: true),
+          ],
+        ),
         const SizedBox(height: 6),
-        Text('Plan it, lift it, log it.', style: BoltText.a(13, color: BoltColors.muted, height: 1.5)),
+        Text(tx('Plan it, lift it, log it.'), style: BoltText.a(13, color: BoltColors.muted, height: 1.5)),
         const SizedBox(height: 28),
-        const Kicker('HOW DO YOU TRAIN?'),
+        Kicker(tx('HOW DO YOU TRAIN?')),
         const SizedBox(height: 10),
-        option(Role.solo, 'barbell', 'On my own', 'Plan your own sessions, log workouts and track your gym time.'),
+        option(
+          Role.solo,
+          'barbell',
+          tx('On my own'),
+          tx('Plan your own sessions, log workouts and track your gym time.'),
+        ),
         option(
           Role.trainee,
           'kettlebell',
-          'With a coach',
-          'Follow the plan your coach sends you. Accept it, move days, log it.',
+          tx('With a coach'),
+          tx('Follow the plan your coach sends you. Accept it, move days, log it.'),
         ),
         option(
           Role.coach,
           'group',
-          'I coach people',
-          'Plan your trainees\' weeks and send each of them their plan. Needs a coach license code.',
+          tx('I coach people'),
+          tx('Plan your trainees\' weeks and send each of them their plan. Needs a coach license code.'),
         ),
         const SizedBox(height: 14),
         Text(
-          'Everything you enter stays on this phone.',
+          tx('Everything you enter stays on this phone.'),
           textAlign: TextAlign.center,
           style: BoltText.a(12, color: BoltColors.muted2),
         ),
@@ -213,14 +229,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _header(
-          'COACH LICENSE',
-          'Your coach code',
-          sub: 'Coaching in Bolt needs a 5-digit license code. No code? Go back and train on your own or with a coach.',
+          tx('COACH LICENSE'),
+          tx('Your coach code'),
+          sub: tx(
+            tx(
+              'Coaching in Bolt needs a 5-digit license code. No code? Go back and train on your own or with a coach.',
+            ),
+          ),
         ),
-        const FieldLabel('CODE', top: 22),
+        FieldLabel(tx('CODE'), top: 22),
         BoltField(
           controller: _code,
-          hint: '5-digit code',
+          hint: tx('5-digit code'),
           number: true,
           onChanged: (_) => setState(() => _codeError = null),
         ),
@@ -230,7 +250,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ],
         const SizedBox(height: 22),
         NeonButton(
-          label: 'Unlock',
+          label: tx('Unlock'),
           color: ok ? BoltColors.neon : BoltColors.line,
           textColor: ok ? BoltColors.ink : BoltColors.muted,
           onTap: ok ? _unlock : null,
@@ -242,7 +262,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   void _unlock() {
     final license = ref.read(licenseProvider)(_code.text);
     if (license == null) {
-      setState(() => _codeError = 'That code is not valid. Check it and try again.');
+      setState(() => _codeError = tx('That code is not valid. Check it and try again.'));
       return;
     }
     FocusScope.of(context).unfocus();
@@ -259,33 +279,33 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _header(_admin ? 'ADMIN · STEP 1 OF 2' : 'STEP 1 OF 2', 'About you'),
-        const FieldLabel('NAME', top: 22),
-        BoltField(controller: _name, hint: 'Your name', words: true, onChanged: (_) => setState(() {})),
+        _header(_admin ? tx('ADMIN · STEP 1 OF 2') : tx('STEP 1 OF 2'), tx('About you')),
+        FieldLabel(tx('NAME'), top: 22),
+        BoltField(controller: _name, hint: tx('Your name'), words: true, onChanged: (_) => setState(() {})),
         if (coach) ...[
-          const FieldLabel('SPECIALTY'),
-          BoltField(controller: _specialty, hint: 'e.g. Strength & Hypertrophy (optional)'),
+          FieldLabel(tx('SPECIALTY')),
+          BoltField(controller: _specialty, hint: tx('e.g. Strength & Hypertrophy (optional)')),
         ] else ...[
-          const FieldLabel('GOAL'),
+          FieldLabel(tx('GOAL')),
           ChoiceChips(options: kGoals, selected: _goal, onSelect: (g) => setState(() => _goal = g)),
-          const FieldLabel('WEEKLY SPLIT'),
+          FieldLabel(tx('WEEKLY SPLIT')),
           SplitPicker(selected: _split, data: d, onSelect: (s) => setState(() => _split = s)),
         ],
         if (_role == Role.trainee) ...[
-          const FieldLabel('YOUR COACH'),
+          FieldLabel(tx('YOUR COACH')),
           ..._coachList(),
           BoltField(
             controller: _coach,
-            hint: 'Coach\'s name (optional)',
+            hint: tx('Coach\'s name (optional)'),
             words: true,
             onChanged: (_) => setState(() {}),
           ),
         ],
-        const FieldLabel('GYM'),
-        BoltField(controller: _gym, hint: 'Where you train (optional)', words: true),
+        FieldLabel(tx('GYM')),
+        BoltField(controller: _gym, hint: tx('Where you train (optional)'), words: true),
         const SizedBox(height: 22),
         NeonButton(
-          label: 'Continue',
+          label: tx('Continue'),
           color: ok ? BoltColors.neon : BoltColors.line,
           textColor: ok ? BoltColors.ink : BoltColors.muted,
           onTap: ok
@@ -308,12 +328,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
     return switch (ref.watch(listedCoachesProvider)) {
       AsyncData(value: null) ||
-      AsyncError() => [note('Could not load the coach list. Type your coach\'s name instead.')],
+      AsyncError() => [note(tx('Could not load the coach list. Type your coach\'s name instead.'))],
       AsyncData(value: final coaches?) => [
         for (final c in coaches) _coachRow(c),
-        if (coaches.isNotEmpty) note('Not listed? Type their name.'),
+        if (coaches.isNotEmpty) note(tx('Not listed? Type their name.')),
       ],
-      _ => [note('Loading coaches…')],
+      _ => [note(tx('Loading coaches…'))],
     };
   }
 
@@ -381,9 +401,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _header(
-          'STEP 2 OF 2',
-          'Your body',
-          sub: 'Optional. Add what you know to track progress. You can change it any time in your profile.',
+          tx('STEP 2 OF 2'),
+          tx('Your body'),
+          sub: tx('Optional. Add what you know to track progress. You can change it any time in your profile.'),
         ),
         const SizedBox(height: 16),
         Row(children: [unitTab('kg · cm', true), const SizedBox(width: 6), unitTab('lb · in', false)]),
@@ -404,10 +424,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Plan my next 3 weeks', style: BoltText.a(14, weight: 700)),
+                        Text(tx('Plan my next 3 weeks'), style: BoltText.a(14, weight: 700)),
                         const SizedBox(height: 2),
                         Text(
-                          'From your ${splitOf(ref.read(boltProvider), _split).name}',
+                          tx('From your {split}', {'split': tx(splitOf(ref.read(boltProvider), _split).name)}),
                           style: BoltText.a(12, color: BoltColors.muted),
                         ),
                       ],
@@ -422,7 +442,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ],
         const SizedBox(height: 22),
         NeonButton(
-          label: _role == Role.coach ? 'Start coaching' : 'Start training',
+          label: _role == Role.coach ? tx('Start coaching') : tx('Start training'),
           onTap: () => _finish(withBody: true),
         ),
         const SizedBox(height: 10),
@@ -431,7 +451,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             onTap: () => _finish(withBody: false),
             child: Padding(
               padding: const EdgeInsets.all(10),
-              child: Text('Skip for now', style: BoltText.a(13, weight: 700, color: BoltColors.muted)),
+              child: Text(tx('Skip for now'), style: BoltText.a(13, weight: 700, color: BoltColors.muted)),
             ),
           ),
         ),

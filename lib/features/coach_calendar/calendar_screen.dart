@@ -72,7 +72,7 @@ class _CoachCalendarScreenState extends ConsumerState<CoachCalendarScreen> {
 
     return ScreenScroll(
       children: [
-        Kicker('CALENDAR · ${plural(my.length, 'trainee').toUpperCase()}'),
+        Kicker('${tx('CALENDAR')} · ${plural(my.length, 'trainee').toUpperCase()}'),
         const SizedBox(height: 4),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -92,9 +92,9 @@ class _CoachCalendarScreenState extends ConsumerState<CoachCalendarScreen> {
         const SizedBox(height: 16),
         StatRow(
           children: [
-            StatTile(value: '${inMonth.length}', label: 'SESSIONS', valueSize: 26, gap: 0),
-            StatTile(value: '$ok', label: 'CONFIRMED', valueSize: 26, valueColor: BoltColors.neon, gap: 0),
-            StatTile(value: '$open', label: 'OPEN', valueSize: 26, gap: 0),
+            StatTile(value: '${inMonth.length}', label: tx('SESSIONS'), valueSize: 26, gap: 0),
+            StatTile(value: '$ok', label: tx('CONFIRMED'), valueSize: 26, valueColor: BoltColors.neon, gap: 0),
+            StatTile(value: '$open', label: tx('OPEN'), valueSize: 26, gap: 0),
           ],
         ),
         const SizedBox(height: 18),
@@ -135,7 +135,7 @@ class _CoachCalendarScreenState extends ConsumerState<CoachCalendarScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(2, 10, 2, 2),
             child: Text(
-              my.isEmpty ? 'Add trainees to see their sessions here.' : 'No sessions',
+              my.isEmpty ? tx('Add trainees to see their sessions here.') : tx('No sessions'),
               style: BoltText.a(12, color: BoltColors.muted3),
             ),
           ),

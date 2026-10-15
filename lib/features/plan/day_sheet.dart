@@ -8,6 +8,7 @@ import '../../app/ui_state.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/session.dart';
+import '../../data/rules.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
@@ -68,9 +69,9 @@ class DaySheet extends ConsumerWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          s.title.toUpperCase(),
+          tx(s.title).toUpperCase(),
           style: BoltText.a(
-            tsz(s.title, 44),
+            tsz(tx(s.title), 44),
             weight: 900,
             width: 115,
             spacing: -.02,
@@ -79,21 +80,23 @@ class DaySheet extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 6),
-        Text(s.focus, style: BoltText.a(14, color: BoltColors.muted)),
+        Text(tx(s.focus), style: BoltText.a(14, color: BoltColors.muted)),
         const SizedBox(height: 6),
         Kicker(sum, size: 10, spacing: .08, color: BoltColors.muted2),
         if (s.from != null) ...[
           const SizedBox(height: 4),
-          Kicker('ORIGINALLY ${fmtDay(s.from!).toUpperCase()}', size: 10, spacing: 0),
+          Kicker(tx('ORIGINALLY {day}', {'day': fmtDay(s.from!).toUpperCase()}), size: 10, spacing: 0),
         ],
         if (s.note.isNotEmpty) ...[
           const SizedBox(height: 12),
-          CoachNote(ini: initials(s.byCoach ? (coachName ?? 'Coach') : t.name), note: s.note),
+          CoachNote(ini: initials(s.byCoach ? (coachName ?? tx('Coach')) : t.name), note: tx(s.note)),
         ],
         if (fillIn && s.ex.isEmpty) ...[
           const SizedBox(height: 12),
           Text(
-            'You trained ${s.log ?? ''}. Add what you did: pick a workout or build it from muscles.',
+            tx('You trained {log}. Add what you did: pick a workout or build it from muscles.', {
+              'log': logText(s.log),
+            }),
             style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
           ),
         ],
@@ -105,11 +108,14 @@ class DaySheet extends ConsumerWidget {
         ExerciseRows(trainee: t, exercises: s.ex, canSwap: true, onHow: showExerciseSheet),
         if (s.status == SessionStatus.done) ...[
           const SizedBox(height: 12),
-          Text('Logged · ${s.log ?? ''}', style: BoltText.a(14, weight: 700, color: BoltColors.neon)),
+          Text(
+            tx('Logged · {log}', {'log': logText(s.log)}),
+            style: BoltText.a(14, weight: 700, color: BoltColors.neon),
+          ),
           if (fillIn) ...[
             const SizedBox(height: 10),
             OutlineButton(
-              label: s.ex.isEmpty ? 'Add exercises' : 'Edit exercises',
+              label: s.ex.isEmpty ? tx('Add exercises') : tx('Edit exercises'),
               onTap: () {
                 close();
                 rootNavigatorKey.currentContext!.push('/editor/day/${t.id}/$dayKey');
@@ -120,7 +126,7 @@ class DaySheet extends ConsumerWidget {
         const SizedBox(height: 16),
         if (s.status == SessionStatus.pending) ...[
           NeonButton(
-            label: 'Accept',
+            label: tx('Accept'),
             height: 52,
             scale: 1,
             onTap: () {
@@ -129,11 +135,11 @@ class DaySheet extends ConsumerWidget {
             },
           ),
           const SizedBox(height: 8),
-          OutlineButton(label: 'Can’t make it · pick another day', color: BoltColors.text, onTap: move),
+          OutlineButton(label: tx('Can’t make it · pick another day'), color: BoltColors.text, onTap: move),
         ],
         if (dayKey == today && (s.status == SessionStatus.approved || s.status == SessionStatus.moved))
           NeonButton(
-            label: 'Start workout',
+            label: tx('Start workout'),
             height: 52,
             scale: 1,
             onTap: () {
@@ -143,7 +149,7 @@ class DaySheet extends ConsumerWidget {
           ),
         if (logPast)
           NeonButton(
-            label: 'Log as done',
+            label: tx('Log as done'),
             height: 52,
             scale: 1,
             onTap: () {
@@ -157,7 +163,7 @@ class DaySheet extends ConsumerWidget {
             children: [
               Expanded(
                 child: OutlineButton(
-                  label: 'Edit exercises',
+                  label: tx('Edit exercises'),
                   onTap: () {
                     close();
                     rootNavigatorKey.currentContext!.push('/editor/day/${t.id}/$dayKey');
@@ -176,7 +182,7 @@ class DaySheet extends ConsumerWidget {
                   stroke: const Stroke(BoltColors.line),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   alignment: Alignment.center,
-                  child: Text('Remove', style: BoltText.a(14, weight: 700, color: BoltColors.muted)),
+                  child: Text(tx('Remove'), style: BoltText.a(14, weight: 700, color: BoltColors.muted)),
                 ),
               ),
             ],
@@ -185,7 +191,7 @@ class DaySheet extends ConsumerWidget {
         if (s.status != SessionStatus.done && s.status != SessionStatus.pending && dayKey.compareTo(today) >= 0) ...[
           const SizedBox(height: 8),
           OutlineButton(
-            label: 'Move to another day',
+            label: tx('Move to another day'),
             color: BoltColors.text,
             borderColor: BoltColors.line,
             weight: 700,
