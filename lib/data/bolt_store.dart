@@ -846,10 +846,10 @@ class BoltStore extends Notifier<BoltData> {
     if (week.isEmpty || week.any((s) => s.status != SessionStatus.done) || t.stats.lastPerfectWeek == wk) {
       return;
     }
-    final prev = dk(addDays(mon0, -7));
+    final last = t.stats.lastPerfectWeek;
     t.stats
       ..perfect += 1
-      ..streak = t.stats.lastPerfectWeek == prev ? t.stats.streak + 1 : 1
+      ..streak = last != null && awayBridge(t.stats, last, wk) ? t.stats.streak + 1 : 1
       ..lastPerfectWeek = wk;
     t.stats.bestStreak = math.max(t.stats.bestStreak, t.stats.streak);
   }
@@ -942,6 +942,25 @@ class BoltStore extends Notifier<BoltData> {
       ..programStart = null;
     _commit();
     _toast(tx('Program stopped'));
+  }
+
+  /// Marks [weeks] weeks from Monday [from] as away, or clears them when the
+  /// first is already away. Away weeks keep the streak and skip reminders.
+  void toggleAway(DateTime from, int weeks) {
+    final s = tr(state.account!.id).stats;
+    final keys = [for (var i = 0; i < weeks; i++) dk(addDays(from, 7 * i))];
+    final clear = s.away.contains(keys.first);
+    clear ? s.away.removeAll(keys) : s.away.addAll(keys);
+    _commit();
+    _toast(
+      clear
+          ? tx('Back on · away weeks cleared')
+          : tx('Away {from} to {to} · your streak is safe', {
+              'from': fmtDay(keys.first),
+              'to': fmtDay(dk(addDays(pk(keys.last), 6))),
+            }),
+    );
+    syncSessionReminders();
   }
 
   /// Sets or clears a challenge. For a coach the returned plan message
@@ -1709,6 +1728,7 @@ class BoltStore extends Notifier<BoltData> {
       final d = addDays(now, i);
       final s = p[dk(d)];
       if (s == null || (s.status != SessionStatus.approved && s.status != SessionStatus.moved)) continue;
+      if (trOrNull(a.id)?.stats.away.contains(dk(monday(d))) ?? false) continue;
       final at = DateTime(d.year, d.month, d.day).add(Duration(minutes: usual - 120));
       list.add(
         Reminder(

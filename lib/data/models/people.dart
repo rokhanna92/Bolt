@@ -205,8 +205,10 @@ class TraineeStats {
     this.full = 0,
     Set<String>? kinds,
     Map<String, int>? muscles,
+    Set<String>? away,
   }) : kinds = kinds ?? {},
-       muscles = muscles ?? {};
+       muscles = muscles ?? {},
+       away = away ?? {};
 
   int sessions;
   int mins;
@@ -249,6 +251,10 @@ class TraineeStats {
   /// Workouts logged per muscle group (`chest`, `back`, `legs`, ...).
   final Map<String, int> muscles;
 
+  /// Monday keys of weeks marked away (holiday, sick): they never break the
+  /// streak.
+  final Set<String> away;
+
   TraineeStats copy() => TraineeStats(
     sessions: sessions,
     mins: mins,
@@ -268,6 +274,7 @@ class TraineeStats {
     full: full,
     kinds: {...kinds},
     muscles: {...muscles},
+    away: {...away},
   );
 
   /// Badge counter by key, hours derived from minutes.
@@ -310,6 +317,7 @@ class TraineeStats {
     'full': full,
     'kinds': kinds.toList(),
     'muscles': muscles,
+    'away': away.toList(),
   };
 
   factory TraineeStats.fromJson(Map<String, dynamic> j) => TraineeStats(
@@ -331,6 +339,7 @@ class TraineeStats {
     full: j['full'] as int? ?? 0,
     kinds: {for (final k in j['kinds'] as List? ?? const []) k as String},
     muscles: (j['muscles'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, v as int)),
+    away: {for (final k in j['away'] as List? ?? const []) k as String},
   );
 }
 

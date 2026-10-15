@@ -113,6 +113,19 @@ class TodayScreen extends ConsumerWidget {
             ),
           ),
         ],
+        if (t.stats.away.contains(dk(monday(now)))) ...[
+          const SizedBox(height: 18),
+          BoltBox(
+            color: BoltColors.surface1,
+            stroke: const Stroke(BoltColors.lineSoft),
+            radius: 14,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Text(
+              tx('Away this week. Your streak is safe, train if you feel like it.'),
+              style: BoltText.a(13, weight: 700),
+            ),
+          ),
+        ],
         if (tp != null && tp.status != SessionStatus.done) ...[
           const SizedBox(height: 18),
           _HeroCard(session: tp, flagged: tp.ex.where((e) => isFlagged(t, e)).toList(), today: today),

@@ -17,6 +17,7 @@ import '../../widgets/bolt_sheet.dart';
 import '../../widgets/tap.dart';
 import '../workouts/deload_sheet.dart';
 import '../workouts/program_sheet.dart';
+import 'away_sheet.dart';
 
 class PlanScreen extends ConsumerWidget {
   const PlanScreen({super.key});
@@ -167,6 +168,14 @@ class PlanScreen extends ConsumerWidget {
               Tap(
                 onTap: () => showBoltSheet<void>(context, (_) => DeloadSheet(tid: t.id)),
                 child: Text(tx('Deload week…'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+              ),
+              const SizedBox(width: 16),
+              Tap(
+                onTap: () => showBoltSheet<void>(context, (_) => const AwaySheet()),
+                child: Text(
+                  t.stats.away.contains(dk(store.mon0)) ? tx('Away this week') : tx('Away…'),
+                  style: BoltText.a(13, weight: 700, color: BoltColors.neon),
+                ),
               ),
               const Spacer(),
               Tap(

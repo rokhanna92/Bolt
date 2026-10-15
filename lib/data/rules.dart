@@ -59,12 +59,21 @@ List<String> newlyUnlocked(TraineeStats before, TraineeStats after) => [
     if (before.value(b.key) < b.goal && after.value(b.key) >= b.goal) b.id,
 ];
 
+/// Whether every week after Monday [last] and before Monday [wk] was
+/// marked away, so a streak carries across them.
+bool awayBridge(TraineeStats s, String last, String wk) {
+  for (var m = addDays(pk(last), 7); dk(m).compareTo(wk) < 0; m = addDays(m, 7)) {
+    if (!s.away.contains(dk(m))) return false;
+  }
+  return true;
+}
+
 /// Streak as it stands today: it breaks once a whole week passes without
-/// a perfect week.
+/// a perfect week, unless that week was marked away.
 int currentStreak(TraineeStats s, DateTime now) {
   final last = s.lastPerfectWeek;
   if (last == null) return s.streak;
-  return last.compareTo(dk(addDays(monday(now), -7))) >= 0 ? s.streak : 0;
+  return awayBridge(s, last, dk(monday(now))) ? s.streak : 0;
 }
 
 /// Stats as shown on badges, with the streak brought up to date.
