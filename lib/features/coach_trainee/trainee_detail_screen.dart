@@ -23,6 +23,7 @@ import '../../widgets/calendar_grid.dart';
 import '../../widgets/common.dart';
 import '../../widgets/exercise_rows.dart';
 import '../../widgets/motion.dart';
+import '../../widgets/muscle_map.dart';
 import '../../widgets/tap.dart';
 import '../badges/badges_screen.dart';
 import '../gym/gym_screen.dart' show VisitRow, visitDay;
@@ -267,6 +268,22 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 ),
                 const SizedBox(height: 8),
                 BadgesCard(stats: displayStats(x.stats, store.now), female: x.body.sex == 'f'),
+                const SizedBox(height: 14),
+                Kicker(tx('MUSCLE VOLUME THIS WEEK'), size: 10),
+                const SizedBox(height: 8),
+                BoltBox(
+                  color: BoltColors.surface1,
+                  stroke: const Stroke(BoltColors.lineSoft),
+                  radius: 18,
+                  padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
+                  child: MuscleMap(
+                    sets: muscleSets(
+                      p,
+                      dk(weekStart(store.now, mondayFirst: d.settings.mondayFirst)),
+                      dk(addDays(weekStart(store.now, mondayFirst: d.settings.mondayFirst), 7)),
+                    ),
+                  ),
+                ),
                 if (loggedLifts(p).isNotEmpty) ...[
                   const SizedBox(height: 14),
                   Kicker(tx('LIFTS · FROM {name}\'S UPDATES', {'name': fn.toUpperCase()}), size: 10),

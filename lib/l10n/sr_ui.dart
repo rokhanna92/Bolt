@@ -688,4 +688,7 @@ const kSrUi = <String, String>{
   'Pick the first day. Log a few months and the phase estimate gets better.': 'Izaberi prvi dan. Što više meseci upišeš, procena faze je bolja.',
   'Yesterday': 'Juče',
   'Period start saved · {day}': 'Početak sačuvan · {day}',
+  'FRONT VIEW': 'SPREDA',
+  'BACK VIEW': 'POZADI',
+  'MUSCLE VOLUME THIS WEEK': 'OBIM PO MIŠIĆU OVE NEDELJE',
 };

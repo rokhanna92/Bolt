@@ -18,6 +18,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
+import '../../widgets/muscle_map.dart';
 import '../../widgets/tap.dart';
 import 'challenge_sheet.dart';
 
@@ -84,6 +85,14 @@ class ProgressScreen extends ConsumerWidget {
               style: BoltText.a(12, color: BoltColors.muted),
             ),
             const SizedBox(height: 10),
+            BoltBox(
+              color: BoltColors.surface1,
+              stroke: const Stroke(BoltColors.lineSoft),
+              radius: 18,
+              padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
+              child: MuscleMap(sets: muscleSets(plan, dk(ws), dk(addDays(ws, 7)))),
+            ),
+            const SizedBox(height: 8),
             _Volume(sets: muscleSets(plan, dk(ws), dk(addDays(ws, 7)))),
             const SizedBox(height: 24),
             SectionTitle(tx('Records')),
