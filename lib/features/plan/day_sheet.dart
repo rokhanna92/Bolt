@@ -37,6 +37,9 @@ class DaySheet extends ConsumerWidget {
     final open = s.status == SessionStatus.approved || s.status == SessionStatus.moved;
     final logPast = open && store.canLogPast(t.id, dayKey);
     final editable = open && (dayKey.compareTo(today) >= 0 || logPast);
+    // A logged day you planned yourself, like a gym session saved by
+    // scanning out, can still get what you trained.
+    final fillIn = store.canFillIn(s);
     final sum = '${plural(s.ex.length, 'exercise')} · ${plural(s.totalSets, 'set')} · ~${s.mins} min'.toUpperCase();
     void close() => Navigator.of(context).pop();
 
@@ -87,12 +90,32 @@ class DaySheet extends ConsumerWidget {
           const SizedBox(height: 12),
           CoachNote(ini: initials(s.byCoach ? (coachName ?? 'Coach') : t.name), note: s.note),
         ],
-        if (editable) ...[const SizedBox(height: 12), ChangeWorkoutButton(onTap: () => changeDayWorkout(t.id, dayKey))],
+        if (fillIn && s.ex.isEmpty) ...[
+          const SizedBox(height: 12),
+          Text(
+            'You trained ${s.log ?? ''}. Add what you did: pick a workout or build it from muscles.',
+            style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
+          ),
+        ],
+        if (editable || fillIn) ...[
+          const SizedBox(height: 12),
+          ChangeWorkoutButton(onTap: () => changeDayWorkout(t.id, dayKey)),
+        ],
         const SizedBox(height: 12),
         ExerciseRows(trainee: t, exercises: s.ex, canSwap: true, onHow: showExerciseSheet),
         if (s.status == SessionStatus.done) ...[
           const SizedBox(height: 12),
           Text('Logged · ${s.log ?? ''}', style: BoltText.a(14, weight: 700, color: BoltColors.neon)),
+          if (fillIn) ...[
+            const SizedBox(height: 10),
+            OutlineButton(
+              label: s.ex.isEmpty ? 'Add exercises' : 'Edit exercises',
+              onTap: () {
+                close();
+                rootNavigatorKey.currentContext!.push('/editor/day/${t.id}/$dayKey');
+              },
+            ),
+          ],
         ],
         const SizedBox(height: 16),
         if (s.status == SessionStatus.pending) ...[

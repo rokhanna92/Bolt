@@ -8,7 +8,9 @@ import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/bolt_data.dart';
 import '../../data/models/exercise.dart';
+import '../../data/models/people.dart';
 import '../../data/models/session.dart';
+import '../../data/models/visit.dart';
 import '../../data/rules.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
@@ -196,6 +198,20 @@ class TodayScreen extends ConsumerWidget {
             ],
           ],
         ),
+        const SizedBox(height: 26),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            const Expanded(child: SectionTitle('Your numbers')),
+            Tap(
+              onTap: () => context.go('/gym'),
+              child: Text('Gym time →', style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _Numbers(stats: t.stats, plan: plan, visits: d.visits[t.id] ?? const [], now: now, weekStart: ws),
         const SizedBox(height: 22),
         BadgesCard(stats: displayStats(t.stats, now), onTap: () => context.push('/badges')),
         if (pend.isNotEmpty) ...[
@@ -313,6 +329,60 @@ class TodayScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Totals at a glance: workouts, gym time, rest days and this week.
+class _Numbers extends StatelessWidget {
+  const _Numbers({
+    required this.stats,
+    required this.plan,
+    required this.visits,
+    required this.now,
+    required this.weekStart,
+  });
+
+  final TraineeStats stats;
+  final Map<String, Session> plan;
+  final List<Visit> visits;
+  final DateTime now;
+  final DateTime weekStart;
+
+  @override
+  Widget build(BuildContext context) {
+    final week = [for (var i = 0; i < 7; i++) plan[dk(addDays(weekStart, i))]]
+        .whereType<Session>()
+        .where((s) => s.status != SessionStatus.draft)
+        .toList();
+    final done = week.where((s) => s.status == SessionStatus.done).length;
+    Widget tile(String v, String l, {bool neon = false}) => StatTile(
+      value: v,
+      label: l,
+      valueSize: 20,
+      valueWeight: 800,
+      valueColor: neon ? BoltColors.neon : BoltColors.text,
+      labelFirst: true,
+      gap: 4,
+    );
+    return Column(
+      children: [
+        StatRow(
+          children: [
+            tile('${stats.workouts}', 'WORKOUTS', neon: true),
+            tile(totalTime(stats.mins), 'GYM TIME'),
+            tile('${restDays(plan, visits, now)}', 'REST DAYS'),
+          ],
+        ),
+        const SizedBox(height: 8),
+        StatRow(
+          children: [
+            tile('$done/${week.length}', 'THIS WEEK'),
+            tile('${stats.sessions}', 'GYM VISITS'),
+            tile(stats.sessions == 0 ? '-' : dur(stats.mins / stats.sessions), 'AVG VISIT'),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -24,6 +24,9 @@ abstract final class Gym {
 /// Template id of a day built from muscles; it has no template of its own.
 const mixTpl = 'mix';
 
+/// Title of a day saved by scanning out with nothing planned.
+const gymSessionTitle = 'Gym session';
+
 Exercise exerciseFromSeed(ExSeed a, String id) =>
     Exercise(id: id, name: a.name, sets: a.sets, reps: a.reps, load: a.load, area: a.area, alt: a.alt);
 

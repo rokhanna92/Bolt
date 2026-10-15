@@ -56,10 +56,16 @@ class ToastController extends Notifier<ToastMessage?> {
 
 /// Result of scanning the plaque.
 class ScanOutcome {
-  const ScanOutcome({required this.head, required this.sub, this.unlocked = const []});
+  const ScanOutcome({required this.head, required this.sub, this.hype, this.detail, this.unlocked = const []});
 
   final String head;
   final String sub;
+
+  /// A line to fire you up or celebrate.
+  final String? hype;
+
+  /// What happened to today's workout.
+  final String? detail;
 
   /// Badges unlocked by this check-out.
   final List<String> unlocked;
@@ -304,16 +310,92 @@ class BoltStore extends Notifier<BoltData> {
         );
       }
       _commit();
-      return ScanOutcome(head: 'Checked in', sub: '$since · have a good session');
+      final s = plan(id)[dk(n)];
+      final planned = s != null && s.status != SessionStatus.draft && s.status != SessionStatus.done;
+      return ScanOutcome(
+        head: 'Checked in',
+        sub: planned ? '$since · today: ${s.title}' : '$since · have a good session',
+        hype: _pick(_inHype),
+      );
     }
     final mins = math.max(1, g.elapsedMinutes(n).round());
+    final t = trOrNull(id);
+    final before = t?.stats.copy();
     final res = _closeVisit(id, g, mins, auto: false);
+    final day = t == null ? null : _finishDay(t, res.$1.date, mins);
     _commit();
+    if (day != null) syncSessionReminders();
     return ScanOutcome(
-      head: 'Checked out',
+      head: day == null ? 'Checked out' : 'Day done',
       sub: '${dur(mins)} in the gym · ${g.since} → ${res.$1.outT}',
-      unlocked: res.$2,
+      hype: day == null ? null : _pick(_outHype),
+      detail: day ?? (mins < minGymMins ? 'Under $minGymMins minutes, so it only counts as gym time.' : null),
+      unlocked: before == null ? res.$2 : newlyUnlocked(before, t!.stats),
     );
+  }
+
+  /// Visits shorter than this count as gym time but do not finish the day,
+  /// so a mistaken scan never logs a workout.
+  static const minGymMins = 10;
+
+  static const _inHype = ['Let\'s get it.', 'Make it count.', 'Yeah buddy!', 'Time to work.', 'Iron is waiting.'];
+
+  static const _outHype = [
+    'Beast mode: complete.',
+    'The iron never lies.',
+    'Light weight, baby!',
+    'Stronger than yesterday.',
+    'That is how legends are built.',
+    'Arnold would be proud.',
+    'Pump secured. Now go eat.',
+    'You showed up. That is the whole secret.',
+    'Done. Now grow.',
+    'Another day in the bank.',
+    'Sweat today, statue tomorrow.',
+    'Discipline beats motivation. You proved it.',
+    'Nobody remembers easy days. Today counts.',
+    'Iron sharpened.',
+  ];
+
+  String _pick(List<String> lines) => lines[math.Random().nextInt(lines.length)];
+
+  /// Scanning out finishes day [k]: a workout in progress is finished with
+  /// the sets checked, a planned one counts as done with every set, and a
+  /// day with nothing planned becomes a gym session to fill in later. The
+  /// gym time goes into the log. Returns what happened, or null when the
+  /// day is left as it was.
+  String? _finishDay(Trainee t, String k, int mins) {
+    if (mins < minGymMins) return null;
+    final p = plan(t.id);
+    final s = p[k];
+    final w = state.workout;
+    if (s == null) {
+      final g = Session(
+        tpl: mixTpl,
+        title: gymSessionTitle,
+        focus: 'Add what you trained',
+        mins: mins,
+        ex: [],
+        status: SessionStatus.done,
+        log: '${dur(mins)} in the gym',
+        code: 'GYM',
+      );
+      p[k] = g;
+      t.stats.workouts += 1;
+      _countWorkout(t, k, g);
+      _checkPerfectWeek(t);
+      return 'Saved as a gym session. Add what you trained from Plan.';
+    }
+    if (w != null && w.key == k && s.status != SessionStatus.done) {
+      state.workout = null;
+      _complete(t, k, s, _checkedSets(w, s));
+    } else if ({SessionStatus.approved, SessionStatus.moved, SessionStatus.pending}.contains(s.status)) {
+      _complete(t, k, s, s.totalSets, checked: false);
+    }
+    if (s.status != SessionStatus.done) return null;
+    if (!(s.log ?? '').contains('in the gym')) s.log = '${s.log} · ${dur(mins)} in the gym';
+    final coach = s.byCoach ? coachNameOf(t) : null;
+    return '${s.title} done${coach == null ? '' : '. Send ${firstName(coach)} an update from Me'}.';
   }
 
   (Visit, List<String>) _closeVisit(String id, GymIn g, int mins, {required bool auto}) {
@@ -426,26 +508,36 @@ class BoltStore extends Notifier<BoltData> {
       _commit();
       return const [];
     }
+    final before = t.stats.copy();
+    _complete(t, w.key, p, _checkedSets(w, p));
+    final unlocked = newlyUnlocked(before, t.stats);
+    _commit();
+    _toast('Workout logged · ${p.log}');
+    syncSessionReminders();
+    return unlocked;
+  }
+
+  int _checkedSets(ActiveWorkout w, Session p) {
     var dn = 0;
     for (final e in p.ex) {
       for (var i = 0; i < e.sets; i++) {
         if (w.isDone(e.id, i)) dn++;
       }
     }
+    return dn;
+  }
+
+  /// Marks day [k] done with [dn] sets and counts it toward badges. Sets that
+  /// were not [checked] off one by one never count as a full workout.
+  void _complete(Trainee t, String k, Session p, int dn, {bool checked = true}) {
     p.status = SessionStatus.done;
     p.log = '$dn/${p.totalSets} sets';
-    final before = t.stats.copy();
     t.stats
       ..workouts += 1
       ..sets += dn;
-    if (dn > 0 && dn == p.totalSets) t.stats.full++;
-    _countWorkout(t, w.key, p);
+    if (checked && dn > 0 && dn == p.totalSets) t.stats.full++;
+    _countWorkout(t, k, p);
     _checkPerfectWeek(t);
-    final unlocked = newlyUnlocked(before, t.stats);
-    _commit();
-    _toast('Workout logged · ${p.log}');
-    syncSessionReminders();
-    return unlocked;
   }
 
   /// Logs a past day from a solo user's diary: done with every set, counted
@@ -473,8 +565,15 @@ class BoltStore extends Notifier<BoltData> {
   /// Counters for the kind of workout logged on day [k]: weekend, variety,
   /// custom-built and the muscle groups it trained.
   void _countWorkout(Trainee t, String k, Session p) {
+    if (pk(k).weekday >= DateTime.saturday) t.stats.weekend++;
+    _countDetails(t, p);
+  }
+
+  /// Variety, custom-built and muscle counters. A gym session without
+  /// exercises counts once its details are filled in.
+  void _countDetails(Trainee t, Session p) {
+    if (p.ex.isEmpty) return;
     final s = t.stats;
-    if (pk(k).weekday >= DateTime.saturday) s.weekend++;
     s.kinds.add(p.title.trim().toLowerCase());
     if (p.tpl == mixTpl || (state.tpls[p.tpl]?.custom ?? false)) s.built++;
     for (final g in sessionGroups(p)) {
@@ -524,30 +623,50 @@ class BoltStore extends Notifier<BoltData> {
     return true;
   }
 
-  void setTemplate(String tid, String k, String tplId) {
+  /// Returns badges unlocked by filling in a logged gym session.
+  List<String> setTemplate(String tid, String k, String tplId) {
     final p = plan(tid);
     final o = p[k];
-    if (o == null || o.status == SessionStatus.done) return;
-    p[k] = sessionFromTemplate(state, tplId, _isCoach ? SessionStatus.draft : o.status)
+    if (o == null || (o.status == SessionStatus.done && !canFillIn(o))) return const [];
+    final n = p[k] = sessionFromTemplate(state, tplId, _isCoach ? SessionStatus.draft : o.status)
       ..note = o.note
       ..from = o.from
       ..byCoach = o.byCoach;
+    final unlocked = o.status == SessionStatus.done ? _filledIn(tid, o, n) : const <String>[];
     _commit();
+    return unlocked;
+  }
+
+  /// A logged day the owner planned themselves can still get its details,
+  /// e.g. a gym session saved by scanning out.
+  bool canFillIn(Session s) => s.status == SessionStatus.done && !_isCoach && !s.byCoach;
+
+  /// Keeps a filled-in day logged and counts what it trained, the first time
+  /// it gets exercises.
+  List<String> _filledIn(String tid, Session old, Session s) {
+    s
+      ..status = SessionStatus.done
+      ..log = old.log;
+    if (old.ex.isNotEmpty) return const [];
+    final t = tr(tid);
+    final before = t.stats.copy();
+    t.stats.sets += s.totalSets;
+    _countDetails(t, s);
+    return newlyUnlocked(before, t.stats);
   }
 
   /// Replaces day [k] with a workout built from [muscles]: [ex] as picked in
   /// the muscle builder. Kept as a one-off day, or saved to the Library as a
   /// template when [save] is set.
-  void useMuscles(String tid, String k, List<String> muscles, List<ExSeed> ex, {bool save = false}) {
+  List<String> useMuscles(String tid, String k, List<String> muscles, List<ExSeed> ex, {bool save = false}) {
     if (save) {
-      setTemplate(tid, k, templateFromMuscles(muscles, ex));
       _toast('${musclesTitle(muscles)} saved to your Library');
-      return;
+      return setTemplate(tid, k, templateFromMuscles(muscles, ex));
     }
     final p = plan(tid);
     final o = p[k];
-    if (o != null && o.status == SessionStatus.done) return;
-    p[k] = Session(
+    if (o != null && o.status == SessionStatus.done && !canFillIn(o)) return const [];
+    final n = p[k] = Session(
       tpl: mixTpl,
       title: musclesTitle(muscles),
       focus: [for (final m in muscles) kMuscles[m]?.name ?? m].join(' · '),
@@ -559,8 +678,10 @@ class BoltStore extends Notifier<BoltData> {
       byCoach: o?.byCoach ?? false,
       code: musclesCode(muscles),
     );
+    final unlocked = o != null && o.status == SessionStatus.done ? _filledIn(tid, o, n) : const <String>[];
     _commit();
     if (!_isCoach) syncSessionReminders();
+    return unlocked;
   }
 
   /// Saves a muscle-builder workout as a custom template. Returns its id.

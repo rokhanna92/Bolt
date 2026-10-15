@@ -71,12 +71,12 @@ Future<void> changeDayWorkout(String tid, String k) async {
   final pick = await showBoltSheet<String>(_root.context, (_) => WorkoutPickerSheet(selected: s?.tpl), maxHeight: .92);
   if (pick == null) return;
   if (pick != PickResult.muscles) {
-    store.setTemplate(tid, k, pick);
+    await showUnlocks(store.setTemplate(tid, k, pick));
     return;
   }
   final own = tid == Account.ownerId;
   final b = await _buildFromMuscles(forName: own ? null : firstName(store.tr(tid).name));
-  if (b != null) store.useMuscles(tid, k, b.muscles, b.ex, save: b.save);
+  if (b != null) await showUnlocks(store.useMuscles(tid, k, b.muscles, b.ex, save: b.save));
 }
 
 /// Library: build a template from muscles and open it in the editor.

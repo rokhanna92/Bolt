@@ -59,11 +59,17 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
     final res = ref.read(boltProvider.notifier).scan();
     setState(() => _done = res);
     _camera.stop();
-    _closeTimer = Timer(const Duration(milliseconds: 1800), () {
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      showUnlocks(res.unlocked);
-    });
+    // A finished day stays up longer so the message can be read; a tap
+    // closes it sooner.
+    _closeTimer = Timer(Duration(milliseconds: res.detail == null ? 1800 : 4500), _close);
+  }
+
+  void _close() {
+    _closeTimer?.cancel();
+    final res = _done;
+    if (!mounted || res == null) return;
+    Navigator.of(context).pop();
+    showUnlocks(res.unlocked);
   }
 
   void _onDetect(BarcodeCapture c) {
@@ -184,43 +190,67 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
   }
 
   Widget _success(ScanOutcome r) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          PopIn(
-            duration: const Duration(milliseconds: 500),
-            curve: const Cubic(.2, .8, .2, 1),
-            child: Container(
-              width: 120,
-              height: 120,
-              alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                color: BoltColors.neon,
-                shape: BoxShape.circle,
-                boxShadow: [BoxShadow(color: Color(0x73C6FF1A), blurRadius: 60)],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _close,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            PopIn(
+              duration: const Duration(milliseconds: 500),
+              curve: const Cubic(.2, .8, .2, 1),
+              child: Container(
+                width: 120,
+                height: 120,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  color: BoltColors.neon,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: Color(0x73C6FF1A), blurRadius: 60)],
+                ),
+                child: const BoltIcon('check', size: 56, color: BoltColors.ink),
               ),
-              child: const BoltIcon('check', size: 56, color: BoltColors.ink),
             ),
-          ),
-          const SizedBox(height: 16),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 150),
-            duration: const Duration(milliseconds: 400),
-            child: Text(r.head.toUpperCase(), style: BoltText.a(34, weight: 900, width: 115)),
-          ),
-          const SizedBox(height: 16),
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 250),
-            duration: const Duration(milliseconds: 400),
-            child: Text(
-              r.sub,
-              textAlign: TextAlign.center,
-              style: BoltText.m(13, color: BoltColors.muted),
+            const SizedBox(height: 16),
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 150),
+              duration: const Duration(milliseconds: 400),
+              child: Text(r.head.toUpperCase(), style: BoltText.a(34, weight: 900, width: 115)),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 250),
+              duration: const Duration(milliseconds: 400),
+              child: Text(
+                r.sub,
+                textAlign: TextAlign.center,
+                style: BoltText.m(13, color: BoltColors.muted),
+              ),
+            ),
+            if (r.hype != null) ...[
+              const SizedBox(height: 18),
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 400),
+                duration: const Duration(milliseconds: 450),
+                child: Text(
+                  r.hype!,
+                  textAlign: TextAlign.center,
+                  style: BoltText.a(22, weight: 900, color: BoltColors.neon, height: 1.15),
+                ),
+              ),
+            ],
+            if (r.detail != null) ...[
+              const SizedBox(height: 12),
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 550),
+                duration: const Duration(milliseconds: 400),
+                child: Text(r.detail!, textAlign: TextAlign.center, style: BoltText.a(14, weight: 600, height: 1.45)),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import '../core/format.dart';
 import 'models/exercise.dart';
 import 'models/people.dart';
 import 'models/session.dart';
+import 'models/visit.dart';
 import 'seed/badges.dart';
 import 'seed/exercises.dart';
 import 'seed/muscles.dart';
@@ -105,3 +106,23 @@ List<ExSeed> workoutForMuscles(List<String> muscles, math.Random rnd) {
   final ordered = [...picked.where((e) => e.compound), ...picked.where((e) => !e.compound)];
   return [for (final e in ordered) ExSeed(e.name, e.sets, e.reps, e.load, e.area, e.alt)];
 }
+
+/// Days with no logged workout and no gym visit, from the first active day
+/// up to yesterday.
+int restDays(Map<String, Session> plan, List<Visit> visits, DateTime now) {
+  final active = {
+    for (final e in plan.entries)
+      if (e.value.status == SessionStatus.done) e.key,
+    for (final v in visits) v.date,
+  };
+  if (active.isEmpty) return 0;
+  final today = DateTime(now.year, now.month, now.day);
+  var n = 0;
+  for (var d = pk(active.reduce((a, b) => a.compareTo(b) < 0 ? a : b)); d.isBefore(today); d = addDays(d, 1)) {
+    if (!active.contains(dk(d))) n++;
+  }
+  return n;
+}
+
+/// Total gym time, short: `42m`, `3h 05m`, then whole hours from 10 h.
+String totalTime(int mins) => mins < 600 ? dur(mins) : '${mins ~/ 60}h';
