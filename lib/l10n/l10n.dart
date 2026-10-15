@@ -3,6 +3,7 @@
 // translation (names you typed, custom workouts) shows as written.
 
 import 'sr.dart';
+import 'sr_female.dart';
 
 enum AppLang {
   en('English', 'EN'),
@@ -22,10 +23,14 @@ AppLang appLang = AppLang.en;
 
 bool get isSerbian => appLang != AppLang.en;
 
+/// The phone owner set Female: Serbian uses female word forms when talking
+/// to them. Set by the store.
+bool appFemale = false;
+
 /// [en] in the current language. `{name}` placeholders are filled from
 /// [args] after translating, so names and numbers are never changed.
 String tx(String en, [Map<String, Object?> args = const {}]) {
-  var s = isSerbian ? (kSr[en] ?? en) : en;
+  var s = isSerbian ? ((appFemale ? kSrFemale[en] : null) ?? kSr[en] ?? en) : en;
   args.forEach((k, v) => s = s.replaceAll('{$k}', '$v'));
   return s;
 }

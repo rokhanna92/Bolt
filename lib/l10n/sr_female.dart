@@ -1,0 +1,60 @@
+// Serbian female forms for text that talks to the phone owner, used when
+// they set Female. Keyed by the English text like kSr; anything missing
+// falls back to kSr.
+
+const kSrFemale = <String, String>{
+  // Screens and messages
+  'Checked in at {time}. Scan the plaque on your way out.': 'Prijavljena u {time}. Skeniraj pločicu kad budeš izlazila.',
+  'Checked in': 'Prijavljena',
+  'Checked out': 'Odjavljena',
+  'Add what you trained': 'Dodaj šta si trenirala',
+  'Saved as a gym session. Add what you trained from Plan.': 'Sačuvano kao trening u teretani. Dodaj šta si trenirala u Planu.',
+  'Fill in what you measured. Empty fields are skipped.': 'Popuni ono što si izmerila. Prazna polja se preskaču.',
+  'I coach people': 'Ja sam trenerka',
+  'Coaching in Bolt needs a 5-digit license code. No code? Go back and train on your own or with a coach.': 'Za trenere u Boltu potreban je petocifreni kod licence. Nemaš kod? Vrati se i treniraj sama ili sa trenerom.',
+  'You trained {log}. Add what you did: pick a workout or build it from muscles.': 'Trenirala si {log}. Dodaj šta si radila: izaberi trening ili ga složi od mišića.',
+  'Training solo': 'Treniram sama',
+  'If you are still checked in after 3 hours': 'Ako si i dalje prijavljena posle 3 sata',
+  'Import the plan {coach} sent you, or plan the days yourself.': 'Uvezi plan koji ti je poslao {coach} ili sama isplaniraj dane.',
+  'Plan it myself': 'Isplaniraću sama',
+  'Every 4-8 weeks, an easier week lets joints and muscles catch up so you come back stronger. Every session that week keeps its exercises with half the sets, and a note to go about 10% lighter.': 'Na svakih 4-8 nedelja, lakša nedelja pušta zglobove i mišiće da se oporave, pa se vraćaš jača. Svaki trening te nedelje zadržava vežbe sa upola manje serija i napomenom da ideš oko 10% lakše.',
+  'Live time while you are checked in': 'Vreme uživo dok si prijavljena',
+  'Moved by you': 'Pomerila si',
+  'Stronger than yesterday.': 'Jača nego juče.',
+  'You showed up. That is the whole secret.': 'Došla si. To je cela tajna.',
+  'Discipline beats motivation. You proved it.': 'Disciplina pobeđuje motivaciju. Dokazala si.',
+  'You missed {workout} on {day}.': 'Propustila si {workout} ({day}).',
+
+  // Learn
+  'Start with the heaviest compound press while fresh, then move to lighter isolation work.': 'Počni sa najtežim višezglobnim potiskom dok si sveža, pa pređi na lakše izolacione vežbe.',
+  'Overhead pressing first while fresh, then side and rear delts for width, then curls from three angles.': 'Prvo potisak iznad glave dok si sveža, pa bočna i zadnja ramena za širinu, pa pregibi iz tri ugla.',
+  'Six days a week is a lot. Start with three if you are new.': 'Šest dana nedeljno je mnogo. Počni sa tri ako si nova.',
+  'Comes back stronger, joints feel better.': 'Vraćaš se jača, zglobovi se osećaju bolje.',
+
+  // Badges
+  'Regular': 'Stalna gošća',
+  'Committed': 'Posvećena',
+  'Spartan': 'Spartanka',
+  'Olympian': 'Olimpijka',
+  'Record Keeper': 'Hroničarka',
+  'Historian': 'Istoričarka',
+  'Iron Monk': 'Gvozdena monahinja',
+  'Two Months Strong': 'Dva meseca jaka',
+  'Relentless': 'Neumoljiva',
+  'Volume Dealer': 'Dilerka obima',
+  'Volume King': 'Kraljica obima',
+  'Set Stacker': 'Slagačica serija',
+  'Mountain Mover': 'Pomeračica planina',
+  'Early Riser': 'Ranoranilka',
+  'Moonlighter': 'Mesečarka',
+  'Weekend Warrior': 'Vikend ratnica',
+  'Explorer': 'Istraživačica',
+  'Jack of All Lifts': 'Majstorica svih vežbi',
+  'Designer': 'Dizajnerka',
+  'Master Builder': 'Majstorica graditeljka',
+  'Bench Regular': 'Stalna na benču',
+  'Log a workout you built yourself, from muscles or your own template.': 'Upiši trening koji si sama složila, od mišića ili iz svog šablona.',
+  'Log 5 workouts you built yourself.': 'Upiši 5 treninga koje si sama složila.',
+  'Log 25 workouts you built yourself.': 'Upiši 25 treninga koje si sama složila.',
+  'Log 50 workouts you built yourself. Science can wait.': 'Upiši 50 treninga koje si sama složila. Nauka može da sačeka.',
+};

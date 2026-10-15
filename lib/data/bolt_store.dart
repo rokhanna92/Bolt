@@ -114,6 +114,15 @@ class ProfileInput {
   final Body? body;
 }
 
+/// Whether the phone owner set Female, for Serbian female word forms.
+bool _ownerFemale(BoltData d) {
+  final me = Account.ownerId;
+  final body = (d.account?.isCoach ?? false)
+      ? d.coaches.where((c) => c.id == me).firstOrNull?.body
+      : d.trainees.where((t) => t.id == me).firstOrNull?.body;
+  return body?.sex == 'f';
+}
+
 /// All business rules. State is mutated in place and listeners are notified,
 /// then saved to the phone in the background.
 class BoltStore extends Notifier<BoltData> {
@@ -121,6 +130,7 @@ class BoltStore extends Notifier<BoltData> {
   BoltData build() {
     final d = ref.read(initialDataProvider);
     appLang = AppLang.byName(d.settings.lang);
+    appFemale = _ownerFemale(d);
     return d;
   }
 
@@ -138,6 +148,7 @@ class BoltStore extends Notifier<BoltData> {
   BoltNotifications get _notify => ref.read(notificationsProvider);
 
   void _commit() {
+    appFemale = _ownerFemale(state);
     ref.notifyListeners();
     ref.read(repositoryProvider).scheduleSave(state);
   }
@@ -327,6 +338,7 @@ class BoltStore extends Notifier<BoltData> {
     _notify.replaceSessionReminders(const []);
     final lang = state.settings.lang;
     state = freshData()..settings.lang = lang;
+    appFemale = false;
     ref.read(repositoryProvider).scheduleSave(state);
   }
 
@@ -876,6 +888,7 @@ class BoltStore extends Notifier<BoltData> {
       _notify.cancelCheckout();
       state = d;
       appLang = AppLang.byName(d.settings.lang);
+      appFemale = _ownerFemale(d);
       ref.read(repositoryProvider).scheduleSave(state);
       syncSessionReminders();
       syncGymTimer();

@@ -3,7 +3,7 @@
 
 import '../l10n/l10n.dart';
 
-export '../l10n/l10n.dart' show AppLang, appLang, isSerbian, plural, tx, vocative;
+export '../l10n/l10n.dart' show AppLang, appFemale, appLang, isSerbian, plural, tx, vocative;
 
 const _weekdaysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const _weekdaysSr = ['Ned', 'Pon', 'Uto', 'Sre', 'Čet', 'Pet', 'Sub'];
