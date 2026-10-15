@@ -16,6 +16,7 @@ import '../../widgets/motion.dart';
 import '../../widgets/bolt_sheet.dart';
 import '../../widgets/tap.dart';
 import '../workouts/deload_sheet.dart';
+import '../workouts/program_sheet.dart';
 
 class PlanScreen extends ConsumerWidget {
   const PlanScreen({super.key});
@@ -161,12 +162,21 @@ class PlanScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Tap(
-              onTap: () => showBoltSheet<void>(context, (_) => DeloadSheet(tid: t.id)),
-              child: Text(tx('Deload week…'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
-            ),
+          Row(
+            children: [
+              Tap(
+                onTap: () => showBoltSheet<void>(context, (_) => DeloadSheet(tid: t.id)),
+                child: Text(tx('Deload week…'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+              ),
+              const Spacer(),
+              Tap(
+                onTap: () => showBoltSheet<void>(context, (_) => ProgramSheet(tid: t.id), maxHeight: .92),
+                child: Text(
+                  programWeekText(store, t.id) ?? tx('Programs…'),
+                  style: BoltText.a(13, weight: 700, color: BoltColors.neon),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 6),
           Text(

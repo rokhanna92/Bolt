@@ -13,6 +13,7 @@ import 'models/session.dart';
 import 'models/template.dart';
 import 'models/visit.dart';
 import 'lifts.dart';
+import 'programs.dart';
 import 'repositories/bolt_repository.dart';
 import 'rules.dart';
 import 'seed/content.dart';
@@ -881,6 +882,56 @@ class BoltStore extends Notifier<BoltData> {
     if (!_isCoach) syncSessionReminders();
   }
 
+  /// Starts [id] this week: empty days of its weeks are filled from the
+  /// split, then the main lifts of every session not done get the week's
+  /// sets, reps and % load. A coach's changed days become drafts.
+  void startProgram(String tid, String id) {
+    final prog = programById(id);
+    if (prog == null) return;
+    final t = tr(tid);
+    final p = plan(tid);
+    final split = splitOf(state, t.split);
+    var lifts = 0;
+    for (var w = 0; w < prog.weeks.length; w++) {
+      final (sets, reps, pct) = prog.weeks[w];
+      for (final d in split.days) {
+        final k = dk(addDays(mon0, 7 * w + d.weekday - 1));
+        if (k.compareTo(today) >= 0 && p[k] == null) p[k] = sessionFromTemplate(state, d.tpl, _newStatus);
+      }
+      for (var i = 0; i < 7; i++) {
+        final s = p[dk(addDays(mon0, 7 * w + i))];
+        if (s == null || s.status == SessionStatus.done) continue;
+        for (final e in s.ex.where((e) => kMainLifts.contains(e.name))) {
+          e
+            ..sets = sets
+            ..reps = reps
+            ..load = pctText(pct);
+          lifts++;
+          if (_isCoach) s.status = SessionStatus.draft;
+        }
+      }
+    }
+    t
+      ..program = id
+      ..programStart = dk(mon0);
+    _commit();
+    _toast(
+      lifts == 0
+          ? tx('No main barbell lifts in this split, so loads stay as they are')
+          : tx('{name} planned for {n}', {'name': tx(prog.name), 'n': plural(prog.weeks.length, 'week')}),
+    );
+    if (!_isCoach) syncSessionReminders();
+  }
+
+  /// Ends the program; planned days keep their loads.
+  void stopProgram(String tid) {
+    tr(tid)
+      ..program = null
+      ..programStart = null;
+    _commit();
+    _toast(tx('Program stopped'));
+  }
+
   /// Sets or clears a challenge. For a coach the returned plan message
   /// carries it to the trainee.
   String? setChallenge(String tid, Challenge? c) {
@@ -1327,6 +1378,8 @@ class BoltStore extends Notifier<BoltData> {
       'coach': coach.name,
       'injuries': t.injuries.map((i) => i.toJson()).toList(),
       'challenge': t.challenge?.toJson(),
+      'program': t.program,
+      'programStart': t.programStart,
       // Template ids differ between phones, so each day carries its own code.
       'sessions': {
         for (final k in keys)
@@ -1462,6 +1515,9 @@ class BoltStore extends Notifier<BoltData> {
     final coachName = packet['coach'] as String?;
     if (coachName != null && coachName.trim().isNotEmpty) me.coachName = coachName.trim();
     state.linkId = packet['tid'] as String?;
+    me
+      ..program = packet['program'] as String?
+      ..programStart = packet['programStart'] as String?;
     me.challenge = packet['challenge'] == null ? null : Challenge.fromJson(packet['challenge'] as Map<String, dynamic>);
     // Coach flags replace earlier coach flags; the trainee's own reports stay.
     final coachFlags = [

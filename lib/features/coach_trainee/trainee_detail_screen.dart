@@ -31,6 +31,7 @@ import '../profile/body_card.dart';
 import '../today/readiness_card.dart';
 import '../progress/challenge_sheet.dart';
 import '../workouts/deload_sheet.dart';
+import '../workouts/program_sheet.dart';
 import '../workouts/workout_picker.dart';
 
 class TraineeDetailScreen extends ConsumerStatefulWidget {
@@ -246,6 +247,14 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                         ),
                       ),
                     const Spacer(),
+                    Tap(
+                      onTap: () => showBoltSheet<void>(context, (_) => ProgramSheet(tid: x.id), maxHeight: .92),
+                      child: Text(
+                        programWeekText(store, x.id) ?? tx('Programs…'),
+                        style: BoltText.a(12, weight: 700, color: BoltColors.neon),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
                     Tap(
                       onTap: () => showBoltSheet<void>(context, (_) => DeloadSheet(tid: x.id)),
                       child: Text(tx('Deload week…'), style: BoltText.a(12, weight: 700, color: BoltColors.neon)),

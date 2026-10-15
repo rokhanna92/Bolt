@@ -350,6 +350,8 @@ class Trainee {
     Map<String, double>? maxes,
     List<String>? periods,
     Map<String, List<int>>? readiness,
+    this.program,
+    this.programStart,
   }) : body = body ?? Body(),
        maxes = maxes ?? {},
        periods = periods ?? [],
@@ -389,6 +391,10 @@ class Trainee {
   /// Check-ins by day: sleep, energy and soreness, each 1 (bad) to 3 (good).
   final Map<String, List<int>> readiness;
 
+  /// Program id from `kPrograms` and the Monday it started.
+  String? program;
+  String? programStart;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
@@ -404,6 +410,8 @@ class Trainee {
     'maxes': maxes,
     'periods': periods,
     'readiness': readiness,
+    'program': program,
+    'programStart': programStart,
   };
 
   factory Trainee.fromJson(Map<String, dynamic> j) => Trainee(
@@ -421,6 +429,8 @@ class Trainee {
     maxes: (j['maxes'] as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, (v as num).toDouble())),
     periods: [for (final x in j['periods'] as List? ?? const []) x as String],
     readiness: readinessFromJson(j['readiness']),
+    program: j['program'] as String?,
+    programStart: j['programStart'] as String?,
   );
 }
 
