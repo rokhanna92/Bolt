@@ -4,17 +4,21 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 
-/// A CSS-style border: solid or dashed.
+/// A CSS-style border: solid, dashed or dotted.
 class Stroke {
-  const Stroke(this.color, [this.width = 1, this.dashed = false]);
+  const Stroke(this.color, [this.width = 1, this.dashed = false]) : dotted = false;
 
-  const Stroke.dashed(this.color, [this.width = 1]) : dashed = true;
+  const Stroke.dashed(this.color, [this.width = 1]) : dashed = true, dotted = false;
+
+  /// Round dots, painted like a dashed border.
+  const Stroke.dotted(this.color, [this.width = 1]) : dashed = true, dotted = true;
 
   static const none = Stroke(Colors.transparent, 0);
 
   final Color color;
   final double width;
   final bool dashed;
+  final bool dotted;
 }
 
 /// A box with background, border (solid or dashed), radius and shadows.
@@ -87,8 +91,8 @@ class BoltBox extends StatelessWidget {
   }
 }
 
-/// Paints a dashed rounded rectangle or circle, roughly matching how browsers
-/// draw `border-style: dashed`.
+/// Paints a dashed or dotted rounded rectangle or circle, roughly matching
+/// how browsers draw `border-style: dashed` and `dotted`.
 class DashedBorderPainter extends CustomPainter {
   DashedBorderPainter({required this.stroke, this.radius = 0, this.circle = false});
 
@@ -109,9 +113,11 @@ class DashedBorderPainter extends CustomPainter {
     final paint = Paint()
       ..color = stroke.color
       ..strokeWidth = w
-      ..style = PaintingStyle.stroke;
-    final dash = math.max(3.0, w * 3);
-    final gap = math.max(2.5, w * 2.2);
+      ..style = PaintingStyle.stroke
+      ..strokeCap = stroke.dotted ? StrokeCap.round : StrokeCap.butt;
+    // A dot is a near-zero dash that the round cap turns into a circle.
+    final dash = stroke.dotted ? .01 : math.max(3.0, w * 3);
+    final gap = stroke.dotted ? math.max(3.0, w * 2.6) : math.max(2.5, w * 2.2);
     for (final m in path.computeMetrics()) {
       // Spread the pattern so it closes evenly around the shape.
       final count = math.max(1, (m.length / (dash + gap)).round());
@@ -126,7 +132,10 @@ class DashedBorderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(DashedBorderPainter old) =>
-      old.stroke.color != stroke.color || old.stroke.width != stroke.width || old.radius != radius;
+      old.stroke.color != stroke.color ||
+      old.stroke.width != stroke.width ||
+      old.stroke.dotted != stroke.dotted ||
+      old.radius != radius;
 }
 
 /// Shorthand for the prototype's standard card: surface1 with a soft border.

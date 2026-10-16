@@ -99,6 +99,11 @@ List<CalCell> buildCalendar({
       case null:
         break;
     }
+    // A rest day: dotted neon, so it never reads as a dashed "needs your OK".
+    if (p == null && rest.contains(k)) {
+      stroke = const Stroke.dotted(BoltColors.neon, 1.5);
+      lab = BoltColors.neon;
+    }
     final ds = dots[k] ?? const <SessionStatus>[];
     if (ds.isNotEmpty && inM && !past) num = BoltColors.text;
     if (moveFrom != null && p == null && !past && inM) bg = const Color(0x17C6FF1A);
@@ -323,6 +328,7 @@ const traineeLegend = [
   LegendItem('Confirmed', BoltColors.surface2, Stroke(BoltColors.line)),
   LegendItem('Needs your OK', Colors.transparent, Stroke.dashed(BoltColors.neon, 1.5)),
   LegendItem('Moved', BoltColors.surface2, Stroke(BoltColors.text, 1.5)),
+  LegendItem('Rest day', Colors.transparent, Stroke.dotted(BoltColors.neon, 1.5)),
 ];
 
 const coachLegend = [
