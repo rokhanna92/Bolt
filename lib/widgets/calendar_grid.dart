@@ -55,6 +55,7 @@ List<CalCell> buildCalendar({
   String? selKey,
   String? moveFrom,
   Map<String, List<SessionStatus>> dots = const {},
+  Set<String> rest = const {},
 }) {
   final first = DateTime(month.year, month.month, 1);
   final start = weekStart(first, mondayFirst: mondayFirst);
@@ -72,7 +73,7 @@ List<CalCell> buildCalendar({
     var bg = Colors.transparent;
     var stroke = const Stroke(Colors.transparent);
     var num = inM ? (past ? BoltColors.muted4 : BoltColors.textSoft) : BoltColors.handle;
-    var lab = BoltColors.neon;
+    var lab = p == null ? BoltColors.muted : BoltColors.neon;
     switch (p?.status) {
       case SessionStatus.done:
         bg = BoltColors.neon;
@@ -108,7 +109,9 @@ List<CalCell> buildCalendar({
       CalCell(
         k: k,
         n: d.day,
-        lab: p == null ? '' : (p.code ?? tpl?.code ?? (title.length > 4 ? title.substring(0, 4) : title).toUpperCase()),
+        lab: p == null
+            ? (rest.contains(k) ? tx('REST') : '')
+            : (p.code ?? tpl?.code ?? (title.length > 4 ? title.substring(0, 4) : title).toUpperCase()),
         bg: bg,
         stroke: stroke,
         num: num,
@@ -158,6 +161,7 @@ class CalendarGrid extends StatelessWidget {
     super.key,
     required this.cells,
     required this.onTap,
+    this.onLongPress,
     this.cellHeight = 50,
     this.numSize = 14,
     this.labSpacing = .04,
@@ -165,6 +169,7 @@ class CalendarGrid extends StatelessWidget {
 
   final List<CalCell> cells;
   final void Function(CalCell c) onTap;
+  final void Function(CalCell c)? onLongPress;
   final double cellHeight;
   final double numSize;
   final double labSpacing;
@@ -188,6 +193,7 @@ class CalendarGrid extends StatelessWidget {
   Widget _cell(CalCell c) {
     return Tap(
       onTap: () => onTap(c),
+      onLongPress: onLongPress == null ? null : () => onLongPress!(c),
       child: Opacity(
         opacity: c.inMonth ? 1 : .35,
         child: CustomPaint(

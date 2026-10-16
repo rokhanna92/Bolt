@@ -835,4 +835,5 @@ const kSrUi = <String, String>{
   'Train today': 'Treniraj danas',
   'Recovery is done. Time to move before the habit slips.': 'Oporavak je gotov. Pokreni se pre nego što navika izbledi.',
   'Rested enough? A short session today keeps the habit going.': 'Dosta odmora? Kratak trening danas čuva naviku.',
+  'Long-press one to mark it as a rest day.': 'Zadrži prst na danu da ga označiš kao dan odmora.',
 };

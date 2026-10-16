@@ -177,6 +177,15 @@ void main() {
     await tapText(tester, '18');
     await tapText(tester, 'Mark as rest day');
     expect(c.read(boltProvider).trainees.single.stats.rest, {'2026-10-18'});
+
+    // The calendar shows it, and a long press clears it again.
+    await tapText(tester, 'Plan');
+    expect(find.text('REST'), findsOneWidget);
+    expect(find.textContaining('Long-press one to mark it as a rest day.'), findsOneWidget);
+    await tester.longPress(find.text('18').first);
+    await settle(tester);
+    expect(c.read(boltProvider).trainees.single.stats.rest, isEmpty);
+    expect(find.text('REST'), findsNothing);
     await unmount(tester);
   });
 

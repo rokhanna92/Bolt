@@ -27,6 +27,7 @@ import '../progress/challenge_sheet.dart';
 import '../workouts/deload_sheet.dart';
 import '../progress/progress_screen.dart' show RecapTiles;
 import '../measurements/cycle_card.dart';
+import '../plan/free_day_sheet.dart';
 import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
 import '../sharing/import_sheet.dart';
 import 'readiness_card.dart';
@@ -430,7 +431,7 @@ class TodayScreen extends ConsumerWidget {
     return Tap(
       onTap: () => p != null
           ? openPlanDay(context, ref, k)
-          : showBoltSheet<void>(context, (_) => _FreeDaySheet(dayKey: k, onPlan: plan)),
+          : showBoltSheet<void>(context, (_) => FreeDaySheet(dayKey: k, onPlan: plan)),
       child: BoltBox(
         height: 72,
         radius: 14,
@@ -462,59 +463,6 @@ class TodayScreen extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// A day with nothing planned: mark it as rest, or add a workout.
-class _FreeDaySheet extends ConsumerWidget {
-  const _FreeDaySheet({required this.dayKey, required this.onPlan});
-
-  final String dayKey;
-  final VoidCallback onPlan;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final d = ref.watch(boltProvider);
-    final store = ref.read(boltProvider.notifier);
-    final rested = store.trOrNull(d.account?.id ?? '')?.stats.rest.contains(dayKey) ?? false;
-    void close() => Navigator.of(context).pop();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Kicker(fmtDay(dayKey).toUpperCase(), spacing: .1),
-        const SizedBox(height: 10),
-        Text(
-          rested ? tx('REST DAY') : tx('NOTHING PLANNED'),
-          style: BoltText.a(34, weight: 900, width: 115, color: BoltColors.neon),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          tx('Rest days count toward your days off. After 3 in a row, Bolt starts pushing you back to the gym.'),
-          style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
-        ),
-        const SizedBox(height: 16),
-        NeonButton(
-          label: rested ? tx('Clear rest day') : tx('Mark as rest day'),
-          height: 52,
-          scale: 1,
-          onTap: () {
-            store.toggleRest(dayKey);
-            close();
-          },
-        ),
-        const SizedBox(height: 8),
-        OutlineButton(
-          label: tx('Add a workout'),
-          color: BoltColors.text,
-          borderColor: BoltColors.line,
-          weight: 700,
-          onTap: () {
-            close();
-            onPlan();
-          },
-        ),
-      ],
     );
   }
 }

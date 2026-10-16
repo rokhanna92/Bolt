@@ -18,6 +18,7 @@ import '../../widgets/tap.dart';
 import '../workouts/deload_sheet.dart';
 import '../workouts/program_sheet.dart';
 import 'away_sheet.dart';
+import 'free_day_sheet.dart';
 
 class PlanScreen extends ConsumerWidget {
   const PlanScreen({super.key});
@@ -43,6 +44,7 @@ class PlanScreen extends ConsumerWidget {
       coach: false,
       mondayFirst: d.settings.mondayFirst,
       moveFrom: moving == null ? null : moveFrom,
+      rest: t.stats.rest,
     );
 
     void onTap(CalCell c) {
@@ -59,9 +61,24 @@ class PlanScreen extends ConsumerWidget {
       }
       if (c.session != null) {
         showDaySheet(c.k);
+      } else if (t.stats.rest.contains(c.k)) {
+        showBoltSheet<void>(
+          context,
+          (_) => FreeDaySheet(
+            dayKey: c.k,
+            onPlan: () {
+              if (store.addFromRotation(t.id, c.k)) showDaySheet(c.k);
+            },
+          ),
+        );
       } else if (store.addFromRotation(t.id, c.k)) {
         showDaySheet(c.k);
       }
+    }
+
+    // A free day is marked as rest with a long press.
+    void onLongPress(CalCell c) {
+      if (moving == null && c.session == null) store.toggleRest(c.k);
     }
 
     return ScreenScroll(
@@ -196,16 +213,14 @@ class PlanScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            d.account?.isSolo ?? false
-                ? tx('Tap an empty day to add the next session from your split. Past days too, to log your diary.')
-                : tx('Tap an empty day to add the next session from your split.'),
+            '${d.account?.isSolo ?? false ? tx('Tap an empty day to add the next session from your split. Past days too, to log your diary.') : tx('Tap an empty day to add the next session from your split.')} ${tx('Long-press one to mark it as a rest day.')}',
             style: BoltText.a(12, color: BoltColors.muted),
           ),
         ],
         const SizedBox(height: 16),
         WeekdayHeader(mondayFirst: d.settings.mondayFirst),
         const SizedBox(height: 6),
-        CalendarGrid(cells: cells, onTap: onTap),
+        CalendarGrid(cells: cells, onTap: onTap, onLongPress: onLongPress),
         const SizedBox(height: 14),
         Legend(items: traineeLegend),
         const SizedBox(height: 26),
