@@ -204,6 +204,32 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a check-in on a rest day gives no training advice and shows on the day', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    final store = c.read(boltProvider.notifier);
+    store.dismissHint('new:1.18');
+    if (c.read(boltProvider).plans[Account.ownerId]!['2026-10-14'] != null) {
+      store.removeDay(Account.ownerId, '2026-10-14');
+    }
+    await settle(tester);
+    await tapText(tester, 'Mark today as a rest day →');
+    await tapText(tester, 'Bad');
+    await tapText(tester, 'Low');
+    await tapText(tester, 'Very sore');
+    expect(find.text('Low today, so resting is the right call. Sleep well and eat well.'), findsOneWidget);
+    expect(find.text('Make today lighter'), findsNothing);
+    expect(find.textContaining('Take it lighter'), findsNothing);
+
+    // The calendar day shows the check-in.
+    await tapText(tester, 'Plan');
+    await tapText(tester, '14');
+    expect(find.text('REST DAY'), findsOneWidget);
+    expect(find.text('CHECK-IN · LOW'), findsOneWidget);
+    expect(find.text('Sleep: Bad · Energy: Low · Soreness: Very sore'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('a season starts from Progress and shows on Today', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

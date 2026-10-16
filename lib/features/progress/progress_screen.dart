@@ -22,6 +22,7 @@ import '../../widgets/muscle_map.dart';
 import '../../widgets/tap.dart';
 import 'challenge_sheet.dart';
 import 'lift_screen.dart' show LiftGoalCard;
+import '../today/readiness_card.dart' show CheckIns;
 import 'recovery_card.dart';
 import 'season_card.dart';
 
@@ -116,6 +117,15 @@ class ProgressScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 10),
             RecoveryCard(plan: plan, today: dk(now), big: true),
+            const SizedBox(height: 24),
+            SectionTitle(tx('Check-ins')),
+            const SizedBox(height: 4),
+            Text(
+              tx('Your daily sleep, energy and soreness answers. Tap a day on the calendar to see it.'),
+              style: BoltText.a(12, color: BoltColors.muted),
+            ),
+            const SizedBox(height: 10),
+            CheckIns(readiness: t.readiness, now: now),
             const SizedBox(height: 24),
             SectionTitle(tx('Muscle volume this week')),
             const SizedBox(height: 4),

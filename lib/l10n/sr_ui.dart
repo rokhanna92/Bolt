@@ -908,4 +908,12 @@ const kSrUi = <String, String>{
   'An 8:00 brief on training days. The home screen widget turns orange after 3 days off.': 'Pregled u 8:00 na dane treninga. Vidžet na početnom ekranu postaje narandžast posle 3 dana pauze.',
   'High fives': 'Pohvale',
   'Coaches can send a high five on a logged workout. It shows up here.': 'Trener može da pošalje pohvalu za upisan trening. Pojavljuje se ovde.',
+  'Feeling good. Enjoy the rest, you are set for the next session.': 'Osećaš se dobro. Uživaj u odmoru, spreman si za sledeći trening.',
+  'Saved. Rest up for the next session.': 'Sačuvano. Odmori se za sledeći trening.',
+  'Low today, so resting is the right call. Sleep well and eat well.': 'Danas ti je slabiji dan, pa je odmor pravi izbor. Dobro spavaj i dobro jedi.',
+  'CHECK-IN': 'PROVERA',
+  'IN THE GYM': 'U TERETANI',
+  'Answer the three questions on Today and every day shows up here.': 'Odgovori na tri pitanja na ekranu Danas i svaki dan se pojavljuje ovde.',
+  'Check-ins': 'Provere',
+  'Your daily sleep, energy and soreness answers. Tap a day on the calendar to see it.': 'Tvoji dnevni odgovori o snu, energiji i upali mišića. Dodirni dan u kalendaru da ga vidiš.',
 };

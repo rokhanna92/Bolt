@@ -15,6 +15,7 @@ import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/exercise_rows.dart';
 import '../../widgets/tap.dart';
+import '../today/readiness_card.dart' show DayLog;
 import '../workouts/workout_picker.dart';
 
 /// Trainee's day sheet: the session, its exercises and what they can do.
@@ -87,6 +88,7 @@ class DaySheet extends ConsumerWidget {
           const SizedBox(height: 4),
           Kicker(tx('ORIGINALLY {day}', {'day': fmtDay(s.from!).toUpperCase()}), size: 10, spacing: 0),
         ],
+        if (dayKey.compareTo(today) <= 0) ...[const SizedBox(height: 12), DayLog(dayKey: dayKey)],
         if (s.cheer != null) ...[
           const SizedBox(height: 10),
           Text(

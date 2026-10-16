@@ -6,6 +6,7 @@ import '../../data/bolt_store.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/common.dart';
+import '../today/readiness_card.dart' show DayLog;
 
 /// A day with nothing planned: mark it as rest, or add a workout.
 class FreeDaySheet extends ConsumerWidget {
@@ -34,6 +35,8 @@ class FreeDaySheet extends ConsumerWidget {
           tx('Rest days count toward your days off. After 3 in a row, Bolt starts pushing you back to the gym.'),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
+        const SizedBox(height: 12),
+        DayLog(dayKey: dayKey),
         const SizedBox(height: 16),
         NeonButton(
           label: rested ? tx('Clear rest day') : tx('Mark as rest day'),

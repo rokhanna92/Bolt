@@ -61,7 +61,9 @@ class PlanScreen extends ConsumerWidget {
       }
       if (c.session != null) {
         showDaySheet(c.k);
-      } else if (t.stats.rest.contains(c.k)) {
+      } else if (t.stats.rest.contains(c.k) ||
+          (c.k.compareTo(today) <= 0 &&
+              (t.readiness.containsKey(c.k) || (d.visits[t.id] ?? const []).any((v) => v.date == c.k)))) {
         showBoltSheet<void>(
           context,
           (_) => FreeDaySheet(

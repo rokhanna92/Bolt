@@ -73,4 +73,5 @@ const kSrFemale = <String, String>{
   'Rookie': 'Početnica',
   'Trainee': 'Klijentkinja',
   'Trainee · Coach {name}': 'Klijentkinja · trener {name}',
+  'Feeling good. Enjoy the rest, you are set for the next session.': 'Osećaš se dobro. Uživaj u odmoru, spremna si za sledeći trening.',
 };
