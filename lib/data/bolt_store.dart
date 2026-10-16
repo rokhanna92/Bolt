@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/format.dart';
+import '../core/units.dart';
 import '../services/notifications.dart';
 import 'models/bolt_data.dart';
 import 'models/custom_split.dart';
@@ -1710,12 +1711,14 @@ class BoltStore extends Notifier<BoltData> {
     switch (key) {
       case 'remind':
         s.remind = !s.remind;
+      case 'brief':
+        s.brief = !s.brief;
       case 'checkout':
         s.checkout = !s.checkout;
         if (!s.checkout) _notify.cancelCheckout();
     }
     _commit();
-    if (key == 'remind') syncSessionReminders();
+    if (key == 'remind' || key == 'brief') syncSessionReminders();
   }
 
   void toggleUnits() {
@@ -1750,12 +1753,14 @@ class BoltStore extends Notifier<BoltData> {
   void toast(String text) => _toast(text);
 
   /// Reminders 2 hours before each confirmed session in the coming week, at
-  /// the trainee's usual check-in time. Days with nothing planned and 3 or
-  /// more days off get a nudge at 9:00 instead, and from 5 days off another
-  /// one 2 hours before the usual check-in.
+  /// the trainee's usual check-in time, and a morning brief at 8:00 when
+  /// that is later. Days with nothing planned and 3 or more days off get a
+  /// nudge at 9:00 instead, and from 5 days off another one 2 hours before
+  /// the usual check-in.
   void syncSessionReminders() {
     final a = state.account;
-    if (a == null || !a.isTrainee || !state.settings.remind) {
+    final st = state.settings;
+    if (a == null || !a.isTrainee || (!st.remind && !st.brief)) {
       _notify.replaceSessionReminders(const []);
       return;
     }
@@ -1770,6 +1775,7 @@ class BoltStore extends Notifier<BoltData> {
       if (stats?.away.contains(dk(monday(d))) ?? false) continue;
       final at = day.add(Duration(minutes: usual - 120));
       if (s == null || (s.status != SessionStatus.approved && s.status != SessionStatus.moved)) {
+        if (!st.remind) continue;
         // Not while checked in: that visit counts once it closes.
         if (i == 0 && state.gymIn[a.id] != null) continue;
         final off = daysOff(p, state.visits[a.id] ?? const [], stats?.rest ?? const {}, d);
@@ -1781,6 +1787,13 @@ class BoltStore extends Notifier<BoltData> {
         }
         continue;
       }
+      final morning = day.add(const Duration(hours: 8));
+      if (st.brief && at.difference(morning).inMinutes >= 60) {
+        list.add(
+          Reminder(at: morning, title: tx('Today: {workout}', {'workout': tx(s.title)}), body: brief(a.id, dk(d))),
+        );
+      }
+      if (!st.remind) continue;
       list.add(
         Reminder(
           at: at,
@@ -1790,6 +1803,29 @@ class BoltStore extends Notifier<BoltData> {
       );
     }
     _notify.replaceSessionReminders(list);
+  }
+
+  /// The morning brief for day [k]: the size of the workout and what to
+  /// beat, a weight to go for or the last time's log.
+  String brief(String tid, String k) {
+    final p = plan(tid);
+    final s = p[k]!;
+    final size = '${plural(s.ex.length, 'exercise')} · ~${s.mins} min';
+    final metric = state.settings.kg;
+    for (final e in s.ex) {
+      final h = hintFor(p, e, k);
+      if (h != null && h.up && h.nextKg != null) {
+        return tx('{size}. Go for {kg} on {name}.', {
+          'size': size,
+          'kg': '${weightValue(h.nextKg, metric: metric)} ${weightUnit(metric)}',
+          'name': tx(e.name),
+        });
+      }
+    }
+    if (lastSame(p, s, k) case final last?) {
+      return tx('{size}. Last time {log}. Beat it.', {'size': size, 'log': logText(p[last]!.log)});
+    }
+    return '$size · ${tx(s.focus)}';
   }
 
   String _offBody(int off) => off >= 5

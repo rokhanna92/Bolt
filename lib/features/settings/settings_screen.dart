@@ -115,6 +115,13 @@ class SettingsScreen extends ConsumerWidget {
               toggle: s.remind,
               onTap: () => store.toggleSetting('remind'),
             ),
+          if (isT)
+            _Row(
+              tx('Morning brief'),
+              sub: tx('8:00 on training days: your workout and what to beat'),
+              toggle: s.brief,
+              onTap: () => store.toggleSetting('brief'),
+            ),
           _Row(
             tx('Check-out reminder'),
             sub: tx('If you are still checked in after 3 hours'),

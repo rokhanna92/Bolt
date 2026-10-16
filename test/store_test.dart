@@ -613,6 +613,28 @@ void ownerTests() {
       expect(n.last.first.title, '3 days off');
     });
 
+    test('training days get a morning brief with what to beat', () {
+      final n = _Reminders();
+      final f = Fresh(DateTime(2026, 10, 7, 18), n)
+        ..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'fb'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-07');
+      f.store.startWorkout('2026-10-07');
+      final e = f.mine['2026-10-07']!.ex.first;
+      f.store.logSet(e.id, 0, SetLog(kg: 100, reps: 99));
+      f.store.finish();
+      f.clock = wed;
+      f.store.addFromRotation(Account.ownerId, '2026-10-15');
+      f.store.setTemplate(Account.ownerId, '2026-10-15', f.mine['2026-10-07']!.tpl);
+      final brief = n.last.firstWhere((r) => r.at == DateTime(2026, 10, 15, 8));
+      expect(brief.title, 'Today: ${f.mine['2026-10-15']!.title}');
+      // Every rep was hit last time, so the weight goes up.
+      expect(brief.body, contains('Go for'));
+      expect(brief.body, contains(e.name));
+      f.store.toggleSetting('brief');
+      expect(n.last.where((r) => r.at.hour == 8), isEmpty);
+      expect(n.last.where((r) => r.at == DateTime(2026, 10, 15, 16)), hasLength(1));
+    });
+
     test('rest days survive a JSON round trip', () {
       final s = TraineeStats(rest: {'2026-10-12'});
       expect(TraineeStats.fromJson(jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>).rest, {'2026-10-12'});

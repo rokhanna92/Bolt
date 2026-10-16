@@ -1,6 +1,7 @@
 class AppSettings {
   AppSettings({
     this.remind = true,
+    this.brief = true,
     this.checkout = true,
     this.kg = true,
     this.restSecs = 90,
@@ -15,6 +16,9 @@ class AppSettings {
 
   /// Session reminders, 2 hours before a planned session.
   bool remind;
+
+  /// Morning brief at 8:00 on training days.
+  bool brief;
 
   /// Check-out reminder after 3 hours.
   bool checkout;
@@ -46,6 +50,7 @@ class AppSettings {
 
   Map<String, dynamic> toJson() => {
     'remind': remind,
+    'brief': brief,
     'checkout': checkout,
     'kg': kg,
     'restSecs': restSecs,
@@ -60,6 +65,7 @@ class AppSettings {
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
     remind: j['remind'] as bool? ?? true,
+    brief: j['brief'] as bool? ?? true,
     checkout: j['checkout'] as bool? ?? true,
     kg: j['kg'] as bool? ?? true,
     restSecs: j['restSecs'] as int? ?? 90,

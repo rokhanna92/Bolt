@@ -878,4 +878,9 @@ const kSrUi = <String, String>{
   'Titan': 'Titan',
   'Legend': 'Legenda',
   'TRAIN TODAY': 'TRENIRAJ DANAS',
+  'Today: {workout}': 'Danas: {workout}',
+  '{size}. Go for {kg} on {name}.': '{size}. {name}: probaj {kg}.',
+  '{size}. Last time {log}. Beat it.': '{size}. Prošli put {log}. Nadmaši to.',
+  'Morning brief': 'Jutarnji pregled',
+  '8:00 on training days: your workout and what to beat': 'U 8:00 na dane treninga: tvoj trening i šta da nadmašiš',
 };
