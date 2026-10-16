@@ -1,6 +1,7 @@
 // Default workout templates. The first seven are ported verbatim from `TPL`
 // in Bolt UI.html.
 
+import '../models/template.dart';
 import 'exercises.dart';
 
 class ExSeed {
@@ -363,8 +364,8 @@ ExSeed _x(String name, int sets, String reps, String load) {
   return ExSeed(name, sets, reps, load, e.area, e.alt);
 }
 
-/// How the workout picker groups the built-in templates. Custom templates
-/// are listed after these.
+/// How the workout picker groups the built-in templates. Your own ones
+/// (see [isOwnTemplate]) are listed before these.
 const kTemplateGroups = <(String, List<String>)>[
   ('Classic', ['push', 'pull', 'legs', 'upper', 'full']),
   ('Old school bodybuilding', ['chtri', 'bish', 'backbi', 'chback', 'sharm', 'hit']),
@@ -373,6 +374,20 @@ const kTemplateGroups = <(String, List<String>)>[
   ('Bodyweight & home', ['calis', 'home']),
   ('Engine & recovery', ['cond', 'hiit', 'zone2', 'mob']),
 ];
+
+/// A template you made, or a built-in one you changed: listed first in the
+/// library under Your workouts.
+bool isOwnTemplate(WorkoutTemplate t) {
+  final s = kTemplates[t.id];
+  if (t.custom || s == null) return true;
+  if (t.name != s.name || t.ex.length != s.ex.length) return true;
+  for (var i = 0; i < t.ex.length; i++) {
+    final e = t.ex[i], x = s.ex[i];
+    if (e.name != x.name || e.sets != x.sets || e.reps != x.reps || e.load != x.load) return true;
+    if (e.perSet || e.group != null || e.drop || e.rest != null) return true;
+  }
+  return false;
+}
 
 /// Every exercise Bolt knows, sorted by name, for the exercise picker.
 final List<ExSeed> kAllExercises = [for (final e in kExercises) ExSeed(e.name, e.sets, e.reps, e.load, e.area, e.alt)]

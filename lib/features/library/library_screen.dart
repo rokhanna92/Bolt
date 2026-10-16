@@ -24,20 +24,20 @@ class LibraryScreen extends ConsumerWidget {
     final d = ref.watch(boltProvider);
     final store = ref.read(boltProvider.notifier);
     final coach = d.account?.isCoach ?? false;
-    final custom = [
+    final own = [
       for (final t in d.tpls.values)
-        if (t.custom) t.id,
+        if (isOwnTemplate(t)) t.id,
     ];
     final groups = [
+      (tx('Your workouts'), own),
       for (final (title, ids) in kTemplateGroups)
         (
           title,
           [
             for (final id in ids)
-              if (d.tpls[id] != null) id,
+              if (d.tpls[id] != null && !own.contains(id)) id,
           ],
         ),
-      (tx('Your workouts'), custom),
     ];
     return ScreenScroll(
       children: [

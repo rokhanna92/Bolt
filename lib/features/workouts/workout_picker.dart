@@ -38,20 +38,20 @@ class WorkoutPickerSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tpls = ref.watch(boltProvider).tpls;
     void pick(String v) => Navigator.of(context).pop(v);
-    final custom = [
+    final own = [
       for (final t in tpls.values)
-        if (t.custom) t.id,
+        if (isOwnTemplate(t)) t.id,
     ];
     final groups = [
+      if (own.isNotEmpty) (tx('Your workouts'), own),
       for (final (title, ids) in kTemplateGroups)
         (
           title,
           [
             for (final id in ids)
-              if (tpls[id] != null) id,
+              if (tpls[id] != null && !own.contains(id)) id,
           ],
         ),
-      if (custom.isNotEmpty) (tx('Your workouts'), custom),
     ];
 
     return Column(
