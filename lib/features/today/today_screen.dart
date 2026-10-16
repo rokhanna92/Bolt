@@ -1131,36 +1131,20 @@ class _HeroCard extends ConsumerWidget {
   }
 }
 
-const _newId = 'new:1.18';
+const _newId = 'new:1.19';
 
-/// What 1.18 added and where to find it, until closed.
+/// What 1.19 added and where to find it, until closed.
 class _NewCard extends ConsumerWidget {
   const _NewCard();
 
   static const _items = [
     (
-      'Rest days and days off',
-      'Tap a free day this week to mark it as rest. From 3 days off Bolt pushes you back to the gym.',
-      '/plan',
+      'More gym exercises',
+      '37 new machine, cable and Smith machine exercises, like the incline machine chest press.',
+      '/workouts',
     ),
-    ('Athlete level', 'Sets, workouts, visits and PRs earn XP. Tap your level at the top of Today.', null),
-    ('Recovery map', 'Which muscles are ready to train and which are still recovering.', '/progress'),
-    ('Seasons', '8 weeks, one goal, and a season wrap to share at the end.', '/progress'),
-    ('Race your last session', 'During a workout, a bar shows how you stand against last time.', null),
-    ('PR moments', 'A new record gets its own moment the second you tick the set.', null),
-    (
-      'Morning brief and widget',
-      'An 8:00 brief on training days. The home screen widget turns orange after 3 days off.',
-      '/settings',
-    ),
-    ('High fives', 'Coaches can send a high five on a logged workout. It shows up here.', null),
-    ('Plan every set', 'Give each set its own weight and reps in a template, like 70, 75, 80 kg.', '/workouts'),
-    (
-      'Warm-up and check-ins',
-      'A warm-up for each workout here on Today. Your daily check-in shows on every day in the calendar.',
-      null,
-    ),
-    ('Move in Atlas', 'Walking, cycling, running and stretching, and why each one helps.', '/learn'),
+    ('Reorder exercises', 'Move exercises up and down with the arrows when you edit a workout.', '/workouts'),
+    ('What is this exercise?', 'Tap an exercise name to see how to do it and the common mistake.', null),
   ];
 
   @override
@@ -1176,7 +1160,7 @@ class _NewCard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Kicker(tx('NEW IN BOLT 1.18'), color: BoltColors.neon)),
+              Expanded(child: Kicker(tx('NEW IN BOLT 1.19'), color: BoltColors.neon)),
               Tap(
                 onTap: () => store.dismissHint(_newId),
                 child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),
