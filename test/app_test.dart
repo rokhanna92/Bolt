@@ -209,6 +209,8 @@ void main() {
     await onboard(tester, 'On my own', 'Dani');
     expect(find.text('LVL 1'), findsOneWidget);
     expect(find.text('RECOVERY'), findsOneWidget);
+    expect(find.text('NEW IN BOLT 1.18'), findsOneWidget);
+    expect(find.text('Recovery map'), findsOneWidget);
     await tapText(tester, 'Progress →');
     await tapText(tester, '+ Start a season');
     await tapText(tester, '4');

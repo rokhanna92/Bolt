@@ -948,36 +948,29 @@ class _HeroCard extends ConsumerWidget {
   }
 }
 
-const _newId = 'new:1.16';
+const _newId = 'new:1.18';
 
-/// What 1.16 added and where to find it, until closed.
+/// What 1.18 added and where to find it, until closed.
 class _NewCard extends ConsumerWidget {
   const _NewCard();
 
   static const _items = [
     (
-      'Programs and away weeks',
-      'Multi-week programs for the main lifts, and away weeks that keep your streak.',
+      'Rest days and days off',
+      'Tap a free day this week to mark it as rest. From 3 days off Bolt pushes you back to the gym.',
       '/plan',
     ),
+    ('Athlete level', 'Sets, workouts, visits and PRs earn XP. Tap your level at the top of Today.', null),
+    ('Recovery map', 'Which muscles are ready to train and which are still recovering.', '/progress'),
+    ('Seasons', '8 weeks, one goal, and a season wrap to share at the end.', '/progress'),
+    ('Race your last session', 'During a workout, a bar shows how you stand against last time.', null),
+    ('PR moments', 'A new record gets its own moment the second you tick the set.', null),
     (
-      'Lifts, goals and strength levels',
-      'Set a max and a goal on any main lift and see your level for your sex and weight.',
-      '/progress',
+      'Morning brief and widget',
+      'An 8:00 brief on training days. The home screen widget turns orange after 3 days off.',
+      '/settings',
     ),
-    ('Muscle map and your wrap', 'Your week on a body map, and your month or year as a card to share.', '/progress'),
-    (
-      'Body fat and cycle',
-      'Log your neck for a body fat estimate. Women can track their cycle. Set male or female first.',
-      '/measurements',
-    ),
-    ('Best gym times', 'When you train fastest, from your scanned visits.', '/gym'),
-    (
-      'Readiness and reps in reserve',
-      'A quick check-in below, and tap a ticked set to log reps left in the tank.',
-      null,
-    ),
-    ('Swaps', 'Tap ⇄ next to an exercise to swap it for another one for the same muscle.', null),
+    ('High fives', 'Coaches can send a high five on a logged workout. It shows up here.', null),
   ];
 
   @override
@@ -993,7 +986,7 @@ class _NewCard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Kicker(tx('NEW IN BOLT 1.16'), color: BoltColors.neon)),
+              Expanded(child: Kicker(tx('NEW IN BOLT 1.18'), color: BoltColors.neon)),
               Tap(
                 onTap: () => store.dismissHint(_newId),
                 child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),
