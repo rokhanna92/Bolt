@@ -682,6 +682,34 @@ void ownerTests() {
       expect(p['2026-10-17']!.status, SessionStatus.approved);
     });
 
+    test('a coach high five reaches the trainee with the next plan', () {
+      final coach = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Marko'));
+      final tid = coach.store.addTrainee(const ProfileInput(name: 'Ana', split: 'ppl'));
+      coach.store.autoFill(tid);
+      final ana = Fresh()..store.createProfile(Role.trainee, const ProfileInput(name: 'Ana'));
+      ana.store.importText(coach.store.sendDrafts(tid)!);
+      ana.store.accept('2026-10-14');
+      ana.store.startWorkout('2026-10-14');
+      ana.store.toggleSet(ana.mine['2026-10-14']!.ex.first.id, 0);
+      ana.store.finish();
+      coach.store.importText(ana.store.updateMessage());
+
+      // Only done days take a high five; the same one again takes it back.
+      coach.store.cheer(tid, '2026-10-16', '🔥');
+      expect(coach.data.plans[tid]!['2026-10-16']!.cheer, isNull);
+      coach.store.cheer(tid, '2026-10-14', '🔥');
+      coach.store.cheer(tid, '2026-10-14', '🔥');
+      expect(coach.data.plans[tid]!['2026-10-14']!.cheer, isNull);
+      coach.store.cheer(tid, '2026-10-14', '💪');
+
+      expect(ana.store.importText(coach.store.planMessage(tid)), isNull);
+      expect(ana.mine['2026-10-14']!.cheer, '💪');
+      expect(ana.toast, endsWith(' · 1 high five'));
+      // The same plan again brings nothing new.
+      ana.store.importText(coach.store.planMessage(tid));
+      expect(ana.toast, isNot(contains('high five')));
+    });
+
     test('re-importing a plan keeps days the trainee moved or did', () {
       final coach = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Marko'));
       final tid = coach.store.addTrainee(const ProfileInput(name: 'Ana', split: 'ppl'));

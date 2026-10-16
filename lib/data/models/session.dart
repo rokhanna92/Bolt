@@ -4,6 +4,9 @@ import 'exercise.dart';
 /// pending/approved --trainee moves--> moved --coach OK--> approved
 enum SessionStatus { draft, pending, approved, moved, done }
 
+/// High fives a coach can give a done workout.
+const kCheers = ['🔥', '💪', '👏', '⚡'];
+
 /// A planned day for one trainee. Exercises are copied from the template when
 /// the session is created, so later template edits never change planned days.
 class Session {
@@ -21,6 +24,7 @@ class Session {
     this.code,
     this.deload = false,
     this.took,
+    this.cheer,
     List<String>? prs,
   }) : prs = prs ?? [];
 
@@ -53,6 +57,9 @@ class Session {
   /// Lifts with a personal record in this workout.
   final List<String> prs;
 
+  /// The coach's high five on a done workout, an emoji.
+  String? cheer;
+
   int get totalSets => ex.fold(0, (a, e) => a + e.sets);
 
   Map<String, dynamic> toJson() => {
@@ -70,6 +77,7 @@ class Session {
     'deload': deload,
     'took': took,
     if (prs.isNotEmpty) 'prs': prs,
+    if (cheer != null) 'cheer': cheer,
   };
 
   factory Session.fromJson(Map<String, dynamic> j) => Session(
@@ -86,6 +94,7 @@ class Session {
     code: j['code'] as String?,
     deload: j['deload'] as bool? ?? false,
     took: j['took'] as int?,
+    cheer: j['cheer'] as String?,
     prs: [for (final x in j['prs'] as List? ?? const []) x as String],
   );
 }

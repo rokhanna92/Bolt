@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -485,6 +486,48 @@ class _SelectedDay extends ConsumerWidget {
           if (!editable) ...[
             const SizedBox(height: 4),
             Text(tx('Logged · {log}', {'log': logText(s.log)}), style: BoltText.a(13, color: BoltColors.neon)),
+            const SizedBox(height: 12),
+            Kicker(tx('HIGH FIVE'), size: 9, spacing: .1),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                for (final e in kCheers) ...[
+                  Tap(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      store.cheer(tid, dayKey, e);
+                    },
+                    scale: .92,
+                    child: BoltBox(
+                      width: 44,
+                      height: 44,
+                      radius: 12,
+                      color: s.cheer == e ? const Color(0x26C6FF1A) : BoltColors.surface2,
+                      stroke: Stroke(s.cheer == e ? BoltColors.neon : BoltColors.line, s.cheer == e ? 1.5 : 1),
+                      alignment: Alignment.center,
+                      child: Text(e, style: const TextStyle(fontSize: 20)),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                const Spacer(),
+                if (s.cheer != null)
+                  Tap(
+                    onTap: () async {
+                      final hint = await shareMessage(store.planMessage(tid), subject: tx('High five from Bolt'));
+                      store.toast(hint ?? tx('High five sent'));
+                    },
+                    child: BoltBox(
+                      height: 44,
+                      radius: 12,
+                      color: BoltColors.neon,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      alignment: Alignment.center,
+                      child: Text(tx('Send'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                    ),
+                  ),
+              ],
+            ),
           ],
           if (editable) ...[
             const SizedBox(height: 10),

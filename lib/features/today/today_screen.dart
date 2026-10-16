@@ -132,6 +132,10 @@ class TodayScreen extends ConsumerWidget {
           const SizedBox(height: 18),
           _OffCard(days: off, ready: readyMuscles(plan, today), onGo: train),
         ],
+        if (_cheers(plan, d.settings.hintsSeen, today) case final c when c.isNotEmpty) ...[
+          const SizedBox(height: 18),
+          _CheerCard(keys: c, plan: plan, coach: coachName),
+        ],
         if (!d.settings.hintsSeen.contains(_newId)) ...[const SizedBox(height: 18), const _NewCard()],
         if (t.stats.away.contains(dk(monday(now)))) ...[
           const SizedBox(height: 18),
@@ -468,6 +472,76 @@ class TodayScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Done days from the last four weeks with a high five not closed yet.
+List<String> _cheers(Map<String, Session> plan, List<String> seen, String today) => [
+  for (final k in plan.keys.toList()..sort((a, b) => b.compareTo(a)))
+    if (plan[k]!.cheer case final c?
+        when k.compareTo(dk(addDays(pk(today), -28))) >= 0 && !seen.contains('cheer:$k:$c'))
+      k,
+];
+
+/// High fives from the coach on logged workouts, until closed.
+class _CheerCard extends ConsumerWidget {
+  const _CheerCard({required this.keys, required this.plan, required this.coach});
+
+  final List<String> keys;
+  final Map<String, Session> plan;
+  final String? coach;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final store = ref.read(boltProvider.notifier);
+    void close() {
+      for (final k in keys) {
+        store.dismissHint('cheer:$k:${plan[k]!.cheer}');
+      }
+    }
+
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(Color(0x73C6FF1A)),
+      radius: 20,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Kicker(
+                  tx('HIGH FIVE FROM {name}', {'name': firstName(coach ?? tx('your coach')).toUpperCase()}),
+                  color: BoltColors.neon,
+                ),
+              ),
+              Tap(
+                onTap: close,
+                child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          for (final k in keys.take(3))
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Text(plan[k]!.cheer!, style: const TextStyle(fontSize: 26)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      tx('{workout} · {day}', {'workout': tx(plan[k]!.title), 'day': fmtDay(k)}),
+                      style: BoltText.a(15, weight: 800),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }

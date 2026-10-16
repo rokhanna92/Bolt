@@ -1448,6 +1448,11 @@ class BoltStore extends Notifier<BoltData> {
       'challenge': t.challenge?.toJson(),
       'program': t.program,
       'programStart': t.programStart,
+      // High fives on workouts from the last four weeks.
+      'cheers': {
+        for (final e in plan(tid).entries)
+          if (e.value.cheer != null && e.key.compareTo(dk(addDays(now, -28))) >= 0) e.key: e.value.cheer,
+      },
       // Template ids differ between phones, so each day carries its own code.
       'sessions': {
         for (final k in keys)
@@ -1581,6 +1586,13 @@ class BoltStore extends Notifier<BoltData> {
       );
       n++;
     });
+    var cheers = 0;
+    (packet['cheers'] as Map<String, dynamic>? ?? const {}).forEach((k, v) {
+      final s = p[k];
+      if (s == null || s.cheer == v) return;
+      s.cheer = v as String;
+      cheers++;
+    });
     final coachName = packet['coach'] as String?;
     if (coachName != null && coachName.trim().isNotEmpty) me.coachName = coachName.trim();
     state.linkId = packet['tid'] as String?;
@@ -1605,8 +1617,18 @@ class BoltStore extends Notifier<BoltData> {
             'n': plural(n, 'session'),
             'coach': coachName == null ? tx('your coach') : firstName(coachName),
           }) +
-          (pending > 0 ? tx(' · {n} waiting for your OK', {'n': pending}) : ''),
+          (pending > 0 ? tx(' · {n} waiting for your OK', {'n': pending}) : '') +
+          (cheers > 0 ? ' · ${plural(cheers, 'high five')}' : ''),
     );
+  }
+
+  /// Coach: a high five on trainee [tid]'s done day [k], or none when [emoji]
+  /// is the one already there. It travels with the next plan.
+  void cheer(String tid, String k, String emoji) {
+    final s = plan(tid)[k];
+    if (s == null || s.status != SessionStatus.done) return;
+    s.cheer = s.cheer == emoji ? null : emoji;
+    _commit();
   }
 
   String? _importUpdate(Map<String, dynamic> packet) {

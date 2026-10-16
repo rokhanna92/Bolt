@@ -87,6 +87,13 @@ class DaySheet extends ConsumerWidget {
           const SizedBox(height: 4),
           Kicker(tx('ORIGINALLY {day}', {'day': fmtDay(s.from!).toUpperCase()}), size: 10, spacing: 0),
         ],
+        if (s.cheer != null) ...[
+          const SizedBox(height: 10),
+          Text(
+            '${s.cheer} ${tx('High five from {name}', {'name': firstName(coachName ?? tx('your coach'))})}',
+            style: BoltText.a(14, weight: 800, color: BoltColors.neon),
+          ),
+        ],
         if (s.note.isNotEmpty) ...[
           const SizedBox(height: 12),
           CoachNote(ini: initials(s.byCoach ? (coachName ?? tx('Coach')) : t.name), note: tx(s.note)),

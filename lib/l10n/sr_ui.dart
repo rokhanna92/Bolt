@@ -883,4 +883,10 @@ const kSrUi = <String, String>{
   '{size}. Last time {log}. Beat it.': '{size}. Prošli put {log}. Nadmaši to.',
   'Morning brief': 'Jutarnji pregled',
   '8:00 on training days: your workout and what to beat': 'U 8:00 na dane treninga: tvoj trening i šta da nadmašiš',
+  'HIGH FIVE': 'POHVALA',
+  'High five from Bolt': 'Pohvala iz Bolta',
+  'High five sent': 'Pohvala poslata',
+  'High five from {name}': '{name} ti šalje pohvalu',
+  'HIGH FIVE FROM {name}': '{name} TI ŠALJE POHVALU',
+  '{workout} · {day}': '{workout} · {day}',
 };

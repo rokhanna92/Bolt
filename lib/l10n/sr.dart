@@ -13,6 +13,7 @@ const kSrNouns = <String, List<String>>{
   'exercise': ['vežba', 'vežbe', 'vežbi'],
   'set': ['serija', 'serije', 'serija'],
   'rep': ['ponavljanje', 'ponavljanja', 'ponavljanja'],
+  'high five': ['pohvala', 'pohvale', 'pohvala'],
   'day': ['dan', 'dana', 'dana'],
   'week': ['nedelja', 'nedelje', 'nedelja'],
   'trainee': ['vežbač', 'vežbača', 'vežbača'],
