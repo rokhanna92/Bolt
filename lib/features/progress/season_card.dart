@@ -38,7 +38,8 @@ class SeasonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (done, prs) = seasonProgress(s, plan);
-    final pace = (s.goal * s.week(today) / Season.weeks).ceil();
+    // Pace counts finished weeks only, so week 1 starts on pace.
+    final pace = (s.goal * (s.week(today) - 1) / Season.weeks).floor();
     return Tap(
       onTap: () => showBoltSheet<void>(context, (_) => const SeasonSheet()),
       child: BoltBox(

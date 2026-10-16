@@ -51,6 +51,7 @@ class LevelCard extends StatelessWidget {
               child: SizedBox(
                 height: 6,
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (left > 0)
                       Expanded(
