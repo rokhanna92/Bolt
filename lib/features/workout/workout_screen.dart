@@ -55,6 +55,26 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   /// Lifts that already had their record moment in this workout.
   final _celebrated = <String>{};
 
+  /// Already ahead of the last session, so the buzz played.
+  bool _passed = false;
+
+  /// One strong buzz the moment this workout overtakes the last one.
+  void _checkRace() {
+    if (_passed) return;
+    final d = ref.read(boltProvider);
+    final store = ref.read(boltProvider.notifier);
+    final plan = store.plan(d.account!.id);
+    final s = plan[widget.dayKey];
+    final w = d.workout;
+    final k = s == null ? null : lastSame(plan, s, widget.dayKey);
+    if (s == null || w == null || k == null) return;
+    final (done, target, _) = race(_work(w), workOf(plan[k]!.ex.expand((e) => e.logged)));
+    if (target > 0 && done > target) {
+      _passed = true;
+      HapticFeedback.heavyImpact();
+    }
+  }
+
   @override
   void dispose() {
     _ticker?.cancel();
@@ -129,6 +149,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     final log = SetLog(kg: prev?.kg ?? pctKg ?? hint?.nextKg ?? loadKg(e.load), reps: prev?.reps ?? targetReps(e.reps));
     store.logSet(e.id, j, log);
     HapticFeedback.lightImpact();
+    _checkRace();
     final partnerNext = e.group != null && i + 1 < ex.length && ex[i + 1].group == e.group;
     if (!partnerNext) _startRest(_nextAfter(ex, i, j, w), restFor(e, auto: st.restAuto, fixed: st.restSecs));
     _celebrate(e, log);
@@ -136,6 +157,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
 
   /// A record set gets its moment, once per lift and workout.
   void _celebrate(Exercise e, SetLog log) {
+    _checkRace();
     if (_celebrated.contains(e.name)) return;
     final store = ref.read(boltProvider.notifier);
     final pr = livePr(store.plan(ref.read(boltProvider).account!.id), e.name, widget.dayKey, log);
@@ -188,6 +210,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
       }
     }
     final insets = MediaQuery.paddingOf(context);
+    final lastK = lastSame(store.plan(t.id), s, widget.dayKey);
     final restLeft = _restEnd == null
         ? 0
         : math.max(0, (_restEnd!.difference(DateTime.now()).inMilliseconds / 1000).ceil());
@@ -246,6 +269,15 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                     Text('$done / $tot ${tx('SETS')}', style: BoltText.m(11, weight: 700)),
                   ],
                 ),
+                if (lastK != null) ...[
+                  const SizedBox(height: 10),
+                  _Race(
+                    day: lastK,
+                    now: _work(w),
+                    last: workOf(store.plan(t.id)[lastK]!.ex.expand((e) => e.logged)),
+                    metric: d.settings.kg,
+                  ),
+                ],
                 if (s.note.isNotEmpty) ...[
                   const SizedBox(height: 14),
                   CoachNote(ini: initials(s.byCoach ? (coachName ?? tx('Coach')) : t.name), note: tx(s.note)),
@@ -700,6 +732,73 @@ class _RestBar extends StatelessWidget {
                 duration: const Duration(milliseconds: 500),
                 widthFactor: pct.clamp(0.0, 1.0),
                 child: Container(height: 4, color: BoltColors.ink),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// What the ticked sets of [w] moved so far.
+(double, int) _work(ActiveWorkout w) => workOf(w.logs.values.expand((m) => m.values));
+
+/// Kilograms moved, whole, in the chosen unit.
+String volumeText(double kg, {required bool metric}) => '${(metric ? kg : kg * 2.20462).round()} ${weightUnit(metric)}';
+
+/// This workout against the last time you did it.
+class _Race extends StatelessWidget {
+  const _Race({required this.day, required this.now, required this.last, required this.metric});
+
+  final String day;
+  final (double, int) now;
+  final (double, int) last;
+  final bool metric;
+
+  @override
+  Widget build(BuildContext context) {
+    final (done, target, byKg) = race(now, last);
+    final ahead = target > 0 && done > target;
+    String v(double x) => byKg ? volumeText(x, metric: metric) : plural(x.round(), 'rep');
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: Stroke(ahead ? BoltColors.neon : BoltColors.lineSoft, ahead ? 1.5 : 1),
+      radius: 14,
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Kicker(
+                  ahead
+                      ? tx('AHEAD OF {day} BY {x}', {
+                          'day': fmtDay(day).toUpperCase(),
+                          'x': v(done - target).toUpperCase(),
+                        })
+                      : tx('RACING {day}', {'day': fmtDay(day).toUpperCase()}),
+                  size: 9,
+                  spacing: .1,
+                  color: ahead ? BoltColors.neon : BoltColors.muted,
+                ),
+              ),
+              Text('${v(done)} / ${v(target)}', style: BoltText.m(10, weight: 700)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: Container(
+              height: 6,
+              color: BoltColors.lineSoft,
+              alignment: Alignment.centerLeft,
+              child: AnimatedFractionallySizedBox(
+                duration: const Duration(milliseconds: 350),
+                widthFactor: target == 0 ? 0 : (done / target).clamp(0.0, 1.0),
+                heightFactor: 1,
+                child: ColoredBox(color: ahead ? BoltColors.neon : BoltColors.textSoft),
               ),
             ),
           ),

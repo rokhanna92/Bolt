@@ -10,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
+import '../../data/lifts.dart';
 import '../../data/models/session.dart';
 import '../../data/rules.dart';
 import '../../data/seed/exercises.dart';
@@ -18,6 +19,7 @@ import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
+import 'workout_screen.dart' show volumeText;
 
 /// Shares the card under [key] as a PNG named [file].
 Future<void> shareCard(GlobalKey key, String file, String subject, BoltStore store) async {
@@ -72,6 +74,20 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
         if (kExerciseByName[e.name]?.muscle case final String m when kMuscles.containsKey(m)) m,
     };
     final title = tx(s.title);
+    final lastK = lastSame(store.plan(t.id), s, widget.dayKey);
+    final vs = lastK == null
+        ? null
+        : race(workOf(s.ex.expand((e) => e.logged)), workOf(store.plan(t.id)[lastK]!.ex.expand((e) => e.logged)));
+    String vsText((double, double, bool) r) {
+      final (done, target, byKg) = r;
+      String v(double x) => byKg ? volumeText(x, metric: metric) : plural(x.round(), 'rep');
+      return done > target
+          ? tx('Beat {day} by {x}', {'day': fmtDay(lastK!), 'x': v(done - target)})
+          : done == target
+          ? tx('Level with {day}', {'day': fmtDay(lastK!)})
+          : tx('{x} short of {day}', {'day': fmtDay(lastK!), 'x': v(target - done)});
+    }
+
     Widget stat(String v, String l) => Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,6 +150,13 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                         ),
                       ],
                     ),
+                    if (vs != null && vs.$2 > 0) ...[
+                      const SizedBox(height: 14),
+                      Text(
+                        '${vs.$1 > vs.$2 ? '▲' : '▼'} ${vsText(vs)}',
+                        style: BoltText.a(15, weight: 800, color: BoltColors.ink),
+                      ),
+                    ],
                     if (s.prs.isNotEmpty) ...[
                       const SizedBox(height: 18),
                       Text(

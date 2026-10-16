@@ -501,6 +501,19 @@ void ownerTests() {
       expect(more.was, closeTo(116.67, .01));
       expect(livePr(f.mine, 'Nothing logged', '2026-10-14', SetLog(kg: 10, reps: 5)), isNull);
     });
+
+    test('a workout races the last one with the same template', () {
+      final f = lifted();
+      final first = f.mine['2026-10-07']!;
+      expect(f.store.addFromRotation(Account.ownerId, '2026-10-14'), isTrue);
+      f.store.setTemplate(Account.ownerId, '2026-10-14', first.tpl);
+      expect(lastSame(f.mine, f.mine['2026-10-14']!, '2026-10-14'), '2026-10-07');
+      expect(lastSame(f.mine, first, '2026-10-07'), isNull);
+      final last = workOf(first.ex.expand((e) => e.logged));
+      expect(race(workOf([SetLog(kg: 100, reps: 6)]), last), (600.0, 500.0, true));
+      // Bodyweight work races on reps.
+      expect(race((0.0, 12), (0.0, 20)), (12.0, 20.0, false));
+    });
   });
 
   group('rest days', () {

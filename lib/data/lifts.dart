@@ -144,6 +144,27 @@ LivePr? livePr(Map<String, Session> plan, String name, String k, SetLog log) {
   return null;
 }
 
+/// What [sets] moved: weight × reps, and the reps for bodyweight work.
+(double kg, int reps) workOf(Iterable<SetLog> sets) =>
+    sets.fold((0.0, 0), (a, s) => (a.$1 + (s.kg ?? 0) * (s.reps ?? 0), a.$2 + (s.reps ?? 0)));
+
+/// Day key of the last finished workout before [k] with the same template
+/// or title as [s] and logged sets: the session to race.
+String? lastSame(Map<String, Session> plan, Session s, String k) {
+  final keys = plan.keys.where((x) => x.compareTo(k) < 0).toList()..sort((a, b) => b.compareTo(a));
+  for (final x in keys) {
+    final p = plan[x]!;
+    if (p.status != SessionStatus.done || (p.tpl != s.tpl && p.title != s.title)) continue;
+    if (p.ex.any((e) => e.logged.isNotEmpty)) return x;
+  }
+  return null;
+}
+
+/// How [now] stands against [last]: by weight moved when the last session
+/// had weights, otherwise by reps. Returns (done, target, by weight).
+(double, double, bool) race((double, int) now, (double, int) last) =>
+    last.$1 > 0 ? (now.$1, last.$1, true) : (now.$2.toDouble(), last.$2.toDouble(), false);
+
 /// "8, 8, 7" reps of a lift day.
 String repsText(LiftDay d) => d.sets.map((s) => s.reps?.toString() ?? '-').join(', ');
 

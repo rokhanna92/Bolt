@@ -843,4 +843,9 @@ const kSrUi = <String, String>{
   'EST. MAX': 'PROC. MAKS.',
   'The heaviest you have ever lifted on it.': 'Najteže što si ikad podigao na ovoj vežbi.',
   'Your best set ever on it, by estimated max.': 'Tvoja najbolja serija ikad na ovoj vežbi, po procenjenom maksimumu.',
+  'AHEAD OF {day} BY {x}': 'ISPRED {day} ZA {x}',
+  'RACING {day}': 'TRKA SA {day}',
+  'Beat {day} by {x}': 'Bolje od {day} za {x}',
+  'Level with {day}': 'Izjednačeno sa {day}',
+  '{x} short of {day}': '{x} manje nego {day}',
 };
