@@ -121,9 +121,9 @@ void main() {
       expect(h.data.gymIn['t1']!.since, '18:00');
       h.clock = wed.add(const Duration(minutes: 72));
       final out = h.store.scan();
-      expect(out.head, 'Checked out');
+      expect(out.head, 'Day done');
       expect(out.sub, '1h 12m in the gym · 18:00 → 19:12');
-      expect(out.unlocked, ['s25']);
+      expect(out.unlocked, ['s25', 'lg1', 'st10', 'mb1', 'ms1', 'ma1']);
       expect(h.data.visits['t1']!.first.mins, 72);
       expect(h.data.trainees.first.stats.sessions, 25);
     });
@@ -197,7 +197,7 @@ void main() {
       f.store.toggleSet(ex[0].id, 0);
       f.store.toggleSet(ex[1].id, 0);
       f.store.toggleSet(ex[1].id, 1);
-      expect(f.store.finish(), ['lg1']);
+      expect(f.store.finish(), ['lg1', 'mb1', 'ms1', 'ma1']);
       final stats = f.data.trainees.single.stats;
       expect(stats.workouts, 1);
       expect(stats.sets, 3);
@@ -440,7 +440,7 @@ void ownerTests() {
       expect(f.store.addFromRotation(Account.ownerId, '2026-10-07'), isTrue);
       final s = f.mine['2026-10-07']!;
       expect(s.status, SessionStatus.approved);
-      expect(f.store.logPast('2026-10-07'), ['lg1']);
+      expect(f.store.logPast('2026-10-07'), ['lg1', 'di1', 'st10', 'mc1', 'ms1', 'ma1']);
       expect(s.status, SessionStatus.done);
       expect(s.log, '${s.totalSets}/${s.totalSets} sets');
       expect(f.toast, 'Wed 7 Oct logged · ${s.log}');

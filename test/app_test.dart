@@ -5,6 +5,7 @@ import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/models/session.dart';
+import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/features/gym/scanner_overlay.dart';
 import 'package:bolt/features/updates/update_sheet.dart';
@@ -144,7 +145,7 @@ void main() {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     expect(find.text('ACHIEVEMENTS'), findsOneWidget);
-    expect(find.text('0 / 24'), findsOneWidget);
+    expect(find.text('0 / ${kBadges.length}'), findsOneWidget);
     expect(find.text('Next: First Rep'), findsOneWidget);
     await tapText(tester, 'ACHIEVEMENTS');
     expect(find.text('Trophy rack'), findsOneWidget);
@@ -325,12 +326,12 @@ void main() {
     store.toggleWeekStart();
     store.toggleWeekStart();
     await settle(tester);
-    // First Rep, Ten Down, Under the Bar and Logged.
-    expect(find.text('12 SESSIONS · 0W STREAK · 4/24 BADGES'), findsOneWidget);
+    // Sessions 1, 5 and 10, hours 1, 5 and 10, and the first logged workout.
+    expect(find.text('12 SESSIONS · 0W STREAK · 7/${kBadges.length} BADGES'), findsOneWidget);
 
     await tapText(tester, 'Ana Marić');
     expect(find.text('Progress'), findsOneWidget);
-    expect(find.text('4 / 24'), findsOneWidget);
+    expect(find.text('7 / ${kBadges.length}'), findsOneWidget);
     expect(find.text('Next: 25 Club'), findsOneWidget);
     await unmount(tester);
   });
