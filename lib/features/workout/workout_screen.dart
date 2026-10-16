@@ -28,6 +28,7 @@ import '../../widgets/common.dart';
 import '../../widgets/exercise_rows.dart';
 import '../../widgets/fields.dart';
 import '../../widgets/forms.dart';
+import '../../widgets/moment_overlay.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/swap_sheet.dart';
 import '../../widgets/tap.dart';
@@ -50,6 +51,9 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
 
   late final BoltNotifications _notify = ref.read(notificationsProvider);
   String _restNext = '';
+
+  /// Lifts that already had their record moment in this workout.
+  final _celebrated = <String>{};
 
   @override
   void dispose() {
@@ -115,23 +119,48 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     final store = ref.read(boltProvider.notifier);
     final st = ref.read(boltProvider).settings;
     if (w.isDone(e.id, j)) {
-      showBoltSheet<void>(context, (_) => _SetSheet(e: e, set: j));
+      showBoltSheet<void>(context, (_) => _SetSheet(e: e, set: j, onSaved: (log) => _celebrate(e, log)));
       return;
     }
     SetLog? prev;
     for (var k = j - 1; k >= 0 && prev == null; k--) {
       prev = w.log(e.id, k);
     }
-    store.logSet(
-      e.id,
-      j,
-      SetLog(kg: prev?.kg ?? pctKg ?? hint?.nextKg ?? loadKg(e.load), reps: prev?.reps ?? targetReps(e.reps)),
-    );
+    final log = SetLog(kg: prev?.kg ?? pctKg ?? hint?.nextKg ?? loadKg(e.load), reps: prev?.reps ?? targetReps(e.reps));
+    store.logSet(e.id, j, log);
+    HapticFeedback.lightImpact();
     final partnerNext = e.group != null && i + 1 < ex.length && ex[i + 1].group == e.group;
     if (!partnerNext) _startRest(_nextAfter(ex, i, j, w), restFor(e, auto: st.restAuto, fixed: st.restSecs));
+    _celebrate(e, log);
+  }
+
+  /// A record set gets its moment, once per lift and workout.
+  void _celebrate(Exercise e, SetLog log) {
+    if (_celebrated.contains(e.name)) return;
+    final store = ref.read(boltProvider.notifier);
+    final pr = livePr(store.plan(ref.read(boltProvider).account!.id), e.name, widget.dayKey, log);
+    if (pr == null) return;
+    _celebrated.add(e.name);
+    final metric = ref.read(boltProvider).settings.kg;
+    final unit = weightUnit(metric);
+    Navigator.of(context).push(
+      MomentRoute(
+        Moment(
+          kicker: tx('NEW PR'),
+          big: weightValue(pr.now, metric: metric),
+          unit: pr.heavier ? unit.toUpperCase() : '${unit.toUpperCase()} · ${tx('EST. MAX')}',
+          was: '${weightValue(pr.was, metric: metric)} $unit',
+          title: tx(e.name),
+          sub: pr.heavier
+              ? tx('The heaviest you have ever lifted on it.')
+              : tx('Your best set ever on it, by estimated max.'),
+        ),
+      ),
+    );
   }
 
   void _finish() {
+    HapticFeedback.mediumImpact();
     final unlocked = ref.read(boltProvider.notifier).finish();
     _ticker?.cancel();
     _notify.clearRest();
@@ -498,10 +527,11 @@ class _SetButton extends StatelessWidget {
 
 /// Change a ticked set's weight and reps, or untick it.
 class _SetSheet extends ConsumerStatefulWidget {
-  const _SetSheet({required this.e, required this.set});
+  const _SetSheet({required this.e, required this.set, required this.onSaved});
 
   final Exercise e;
   final int set;
+  final ValueChanged<SetLog> onSaved;
 
   @override
   ConsumerState<_SetSheet> createState() => _SetSheetState();
@@ -565,16 +595,14 @@ class _SetSheetState extends ConsumerState<_SetSheet> {
           height: 52,
           scale: 1,
           onTap: () {
-            store.logSet(
-              widget.e.id,
-              widget.set,
-              SetLog(
-                kg: parseWeight(_kg.text, metric: _metric),
-                reps: int.tryParse(_reps.text.trim()),
-                rir: _rir,
-              ),
+            final log = SetLog(
+              kg: parseWeight(_kg.text, metric: _metric),
+              reps: int.tryParse(_reps.text.trim()),
+              rir: _rir,
             );
+            store.logSet(widget.e.id, widget.set, log);
             Navigator.of(context).pop();
+            widget.onSaved(log);
           },
         ),
         const SizedBox(height: 8),
@@ -584,6 +612,7 @@ class _SetSheetState extends ConsumerState<_SetSheet> {
           borderColor: BoltColors.line,
           weight: 700,
           onTap: () {
+            HapticFeedback.selectionClick();
             store.toggleSet(widget.e.id, widget.set);
             Navigator.of(context).pop();
           },

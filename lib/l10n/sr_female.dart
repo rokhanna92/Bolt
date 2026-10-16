@@ -69,4 +69,5 @@ const kSrFemale = <String, String>{
   'Away {from} to {to} · your streak is safe': 'Odsutna {from} do {to} · niz je bezbedan',
   'Away this week': 'Odsutna ove nedelje',
   'Away this week. Your streak is safe, train if you feel like it.': 'Odsutna si ove nedelje. Niz je bezbedan, treniraj ako ti se da.',
+  'The heaviest you have ever lifted on it.': 'Najteže što si ikad podigla na ovoj vežbi.',
 };

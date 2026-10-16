@@ -9,6 +9,8 @@ import 'package:bolt/core/format.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/bolt_data.dart';
+import 'package:bolt/data/lifts.dart';
+import 'package:bolt/data/models/exercise.dart';
 import 'package:bolt/data/models/session.dart';
 import 'package:bolt/data/models/visit.dart';
 import 'package:bolt/data/rules.dart';
@@ -471,6 +473,33 @@ void ownerTests() {
       expect(f.store.move('2026-10-16', '2026-10-17'), isTrue);
       expect(f.mine['2026-10-17']!.status, SessionStatus.approved);
       expect(f.mine['2026-10-17']!.from, isNull);
+    });
+  });
+
+  group('immersion', () {
+    /// A solo user who lifted 100 kg × 5 on the first exercise a week ago.
+    Fresh lifted() {
+      final f = Fresh(DateTime(2026, 10, 7, 18))
+        ..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'fb'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-07');
+      f.store.startWorkout('2026-10-07');
+      final e = f.mine['2026-10-07']!.ex.first;
+      f.store.logSet(e.id, 0, SetLog(kg: 100, reps: 5));
+      f.store.finish();
+      f.clock = wed;
+      return f;
+    }
+
+    test('a live record is a heavier weight, else a better estimated max', () {
+      final f = lifted();
+      final name = f.mine['2026-10-07']!.ex.first.name;
+      LivePr? pr(SetLog l) => livePr(f.mine, name, '2026-10-14', l);
+      expect(pr(SetLog(kg: 100, reps: 5)), isNull);
+      expect(pr(SetLog(kg: 102.5, reps: 1))!.heavier, isTrue);
+      final more = pr(SetLog(kg: 100, reps: 8))!;
+      expect(more.heavier, isFalse);
+      expect(more.was, closeTo(116.67, .01));
+      expect(livePr(f.mine, 'Nothing logged', '2026-10-14', SetLog(kg: 10, reps: 5)), isNull);
     });
   });
 

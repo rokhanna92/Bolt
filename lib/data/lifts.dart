@@ -121,6 +121,29 @@ LiftHint? hintFor(Map<String, Session> plan, Exercise e, String today) {
   return LiftHint(last: last, nextKg: up ? top + _step(e.name) * (easy ? 2 : 1) : top, up: up, easy: easy);
 }
 
+/// A record set in the workout in progress: a heavier weight than ever, or
+/// else a better estimated max.
+class LivePr {
+  const LivePr({required this.heavier, required this.was, required this.now});
+
+  final bool heavier;
+  final double was;
+  final double now;
+}
+
+/// Whether [log] of [name] on day [k] beats every earlier workout. Null when
+/// there is no history to beat.
+LivePr? livePr(Map<String, Session> plan, String name, String k, SetLog log) {
+  final prev = liftHistory(plan, name, before: k);
+  double? most(double? Function(LiftDay) f) =>
+      prev.map(f).whereType<double>().fold<double?>(null, (a, b) => a == null || b > a ? b : a);
+  final top = most((d) => d.topKg), best = most((d) => d.best);
+  if (log.kg != null && top != null && log.kg! > top) return LivePr(heavier: true, was: top, now: log.kg!);
+  final e = e1rm(log);
+  if (e != null && best != null && e > best + .01) return LivePr(heavier: false, was: best, now: e);
+  return null;
+}
+
 /// "8, 8, 7" reps of a lift day.
 String repsText(LiftDay d) => d.sets.map((s) => s.reps?.toString() ?? '-').join(', ');
 

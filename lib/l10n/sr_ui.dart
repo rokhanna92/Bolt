@@ -839,4 +839,8 @@ const kSrUi = <String, String>{
   '{days} off': '{days} pauze',
   'Still time to train today': 'Još ima vremena za trening danas',
   '2 hours before a planned session, and a nudge after 3 days off': '2 sata pre planiranog treninga, i podsetnik posle 3 dana pauze',
+  'NEW PR': 'NOVI REKORD',
+  'EST. MAX': 'PROC. MAKS.',
+  'The heaviest you have ever lifted on it.': 'Najteže što si ikad podigao na ovoj vežbi.',
+  'Your best set ever on it, by estimated max.': 'Tvoja najbolja serija ikad na ovoj vežbi, po procenjenom maksimumu.',
 };
