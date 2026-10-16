@@ -409,6 +409,17 @@ double? percentKg(Trainee t, Map<String, Session> plan, Exercise e) {
   return max == null ? null : plates(max * p!);
 }
 
+/// Kilograms planned for set [i] of [e] when that set has its own load:
+/// a weight, or a percentage of the max rounded to plates.
+double? setKg(Trainee t, Map<String, Session> plan, Exercise e, int i) {
+  final own = e.ownLoad(i);
+  if (own == null) return null;
+  final p = percentLoad(own);
+  if (p == null) return loadKg(own);
+  final max = maxFor(t, plan, e.name);
+  return max == null ? null : plates(max * p);
+}
+
 /// A planned load for display: `80% · 76 kg` for percentages with a known
 /// max, otherwise the load in the chosen unit.
 String loadText(Trainee t, Map<String, Session> plan, Exercise e, {required bool metric}) {

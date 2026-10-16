@@ -32,7 +32,11 @@ class Exercise {
     this.fullSets,
     this.rest,
     List<SetLog>? logged,
-  }) : logged = logged ?? [];
+    List<String>? setReps,
+    List<String>? setLoads,
+  }) : logged = logged ?? [],
+       setReps = setReps ?? [],
+       setLoads = setLoads ?? [];
 
   final String id;
   String name;
@@ -65,6 +69,34 @@ class Exercise {
   /// Sets done in a finished workout, in order.
   final List<SetLog> logged;
 
+  /// Reps and load planned for each set from the second on, like 70, 75,
+  /// 80 kg; an empty or missing entry means the same as [reps] and [load].
+  final List<String> setReps;
+  final List<String> setLoads;
+
+  String? _own(List<String> l, int i) => i < l.length && l[i].trim().isNotEmpty ? l[i].trim() : null;
+
+  /// Set [i]'s own reps or load, when it has one.
+  String? ownReps(int i) => _own(setReps, i);
+  String? ownLoad(int i) => _own(setLoads, i);
+
+  String repsFor(int i) => ownReps(i) ?? reps;
+  String loadFor(int i) => ownLoad(i) ?? load;
+
+  /// Some set has its own reps or load.
+  bool get perSet => [for (var i = 1; i < sets; i++) i].any((i) => ownReps(i) != null || ownLoad(i) != null);
+
+  /// Sets set [i]'s own reps or load; empty goes back to the default.
+  void planSet(int i, {String? reps, String? load}) {
+    for (final (l, v) in [(setReps, reps), (setLoads, load)]) {
+      if (v == null) continue;
+      while (l.length <= i) {
+        l.add('');
+      }
+      l[i] = v;
+    }
+  }
+
   Exercise copyWith({required String id}) => Exercise(
     id: id,
     name: name,
@@ -78,6 +110,8 @@ class Exercise {
     group: group,
     drop: drop,
     rest: rest,
+    setReps: [...setReps],
+    setLoads: [...setLoads],
   );
 
   Map<String, dynamic> toJson() => {
@@ -95,6 +129,8 @@ class Exercise {
     'fullSets': fullSets,
     'rest': rest,
     if (logged.isNotEmpty) 'logged': logged.map((x) => x.toJson()).toList(),
+    if (setReps.any((x) => x.isNotEmpty)) 'setReps': setReps,
+    if (setLoads.any((x) => x.isNotEmpty)) 'setLoads': setLoads,
   };
 
   factory Exercise.fromJson(Map<String, dynamic> j) => Exercise(
@@ -112,5 +148,7 @@ class Exercise {
     fullSets: j['fullSets'] as int?,
     rest: j['rest'] as int?,
     logged: [for (final x in j['logged'] as List? ?? const []) SetLog.fromJson(x as Map<String, dynamic>)],
+    setReps: [for (final x in j['setReps'] as List? ?? const []) x as String],
+    setLoads: [for (final x in j['setLoads'] as List? ?? const []) x as String],
   );
 }

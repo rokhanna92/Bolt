@@ -146,7 +146,14 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     for (var k = j - 1; k >= 0 && prev == null; k--) {
       prev = w.log(e.id, k);
     }
-    final log = SetLog(kg: prev?.kg ?? pctKg ?? hint?.nextKg ?? loadKg(e.load), reps: prev?.reps ?? targetReps(e.reps));
+    // A set with its own plan (70, 75, 80 kg) starts from that plan.
+    final t = ref.read(boltProvider.notifier).tr(ref.read(boltProvider).account!.id);
+    final own = setKg(t, ref.read(boltProvider.notifier).plan(t.id), e, j);
+    final ownReps = e.ownReps(j) == null ? null : targetReps(e.ownReps(j)!);
+    final log = SetLog(
+      kg: own ?? prev?.kg ?? pctKg ?? hint?.nextKg ?? loadKg(e.load),
+      reps: ownReps ?? prev?.reps ?? targetReps(e.reps),
+    );
     store.logSet(e.id, j, log);
     HapticFeedback.lightImpact();
     _checkRace();
@@ -486,7 +493,9 @@ class _ExerciseCard extends ConsumerWidget {
               for (var j = 0; j < e.sets; j++)
                 _SetButton(
                   n: j + 1,
-                  reps: e.reps,
+                  reps: e.ownLoad(j) == null
+                      ? e.repsFor(j)
+                      : '${unitLoad(e.ownLoad(j)!, kg: metric).replaceAll(RegExp(r'\s?(kg|lb)$'), '')}×${e.repsFor(j)}',
                   done: workout.isDone(e.id, j),
                   logged: workout.log(e.id, j),
                   metric: metric,

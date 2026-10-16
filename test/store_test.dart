@@ -614,6 +614,30 @@ void ownerTests() {
       expect(n.last.first.title, '3 days off');
     });
 
+    test('each set can have its own reps and load, carried into planned days', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      final e = f.data.tpls['push']!.ex.first
+        ..sets = 4
+        ..load = '70 kg';
+      e.planSet(1, load: '75 kg');
+      e.planSet(2, load: '80 kg', reps: '6');
+      e.planSet(3, load: '85 kg', reps: '4');
+      expect([for (var i = 0; i < 4; i++) e.loadFor(i)], ['70 kg', '75 kg', '80 kg', '85 kg']);
+      expect((e.repsFor(1), e.repsFor(2)), (e.reps, '6'));
+      expect(e.perSet, isTrue);
+      e.planSet(1, load: '');
+      expect(e.loadFor(1), '70 kg');
+
+      f.store.addFromRotation(Account.ownerId, '2026-10-15');
+      f.store.setTemplate(Account.ownerId, '2026-10-15', 'push');
+      final s = f.mine['2026-10-15']!.ex.first;
+      expect(s.loadFor(3), '85 kg');
+      final t = f.data.trainees.single;
+      expect((setKg(t, f.mine, s, 0), setKg(t, f.mine, s, 2)), (null, 80.0));
+      final back = Exercise.fromJson(jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
+      expect((back.loadFor(2), back.repsFor(3)), ('80 kg', '4'));
+    });
+
     test('a season runs 8 weeks from this Monday and counts its workouts', () {
       final f = lifted();
       expect(f.store.currentSeason(), isNull);

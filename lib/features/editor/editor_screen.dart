@@ -265,6 +265,39 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               Expanded(child: _input(_ctl(_loads, e.id, e.load), tx('Load'), (v) => _edit(() => e.load = v))),
             ],
           ),
+          // Sets from the second on: their own reps and load, empty means
+          // the same as the first.
+          for (var j = 1; j < e.sets; j++) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                // Lines up with the reps and load of the first row: the
+                // sets stepper is 108 wide plus its border and gap.
+                SizedBox(
+                  width: 118,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 14),
+                    child: Text(tx('SET {n}', {'n': j + 1}), style: BoltText.m(10, color: BoltColors.muted)),
+                  ),
+                ),
+                Expanded(
+                  child: _input(
+                    _ctl(_reps, '${e.id}:$j', e.ownReps(j) ?? ''),
+                    e.reps,
+                    (v) => _edit(() => e.planSet(j, reps: v)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _input(
+                    _ctl(_loads, '${e.id}:$j', e.ownLoad(j) ?? ''),
+                    e.load,
+                    (v) => _edit(() => e.planSet(j, load: v)),
+                  ),
+                ),
+              ],
+            ),
+          ],
           if (f) ...[
             const SizedBox(height: 8),
             Row(

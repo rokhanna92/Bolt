@@ -94,6 +94,14 @@ class ExerciseRows extends ConsumerWidget {
               Text('${e.sets} × ${e.reps}$load', style: BoltText.m(11, color: BoltColors.muted)),
             ],
           ),
+          if (e.perSet)
+            Padding(
+              padding: const EdgeInsets.only(left: 26, top: 4),
+              child: Text(
+                [for (var j = 0; j < e.sets; j++) '${store.unit(e.loadFor(j))} × ${e.repsFor(j)}'].join('  ·  '),
+                style: BoltText.m(10, color: BoltColors.neon),
+              ),
+            ),
           if (f)
             Padding(
               padding: const EdgeInsets.only(left: 26, top: 6),
