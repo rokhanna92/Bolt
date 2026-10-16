@@ -23,6 +23,7 @@ import '../../widgets/tap.dart';
 import 'challenge_sheet.dart';
 import 'lift_screen.dart' show LiftGoalCard;
 import 'recovery_card.dart';
+import 'season_card.dart';
 
 /// Everything you have built up: challenge, last week, muscle volume this
 /// week, records and every lift you have logged.
@@ -77,6 +78,16 @@ class ProgressScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 10),
+            if (store.currentSeason() case final s?)
+              SeasonCard(s: s, plan: plan, today: dk(now))
+            else
+              OutlineButton(
+                label: tx('+ Start a season'),
+                height: 48,
+                radius: 14,
+                onTap: () => showBoltSheet<void>(context, (_) => const SeasonSheet()),
+              ),
             const SizedBox(height: 16),
             if (c != null)
               ChallengeCard(

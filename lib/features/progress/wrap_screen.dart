@@ -16,10 +16,14 @@ import '../../widgets/common.dart';
 import '../../widgets/forms.dart';
 import '../workout/summary_screen.dart' show shareCard;
 
-/// A month or year in Bolt as one card: workouts, gym time, sets, weight
-/// lifted, records, the top lift and the most trained muscle. Shareable.
+/// A month, year or season in Bolt as one card: workouts, gym time, sets,
+/// weight lifted, records, the top lift and the most trained muscle.
+/// Shareable.
 class WrapScreen extends ConsumerStatefulWidget {
-  const WrapScreen({super.key});
+  const WrapScreen({super.key, this.season});
+
+  /// Opens on this season's wrap.
+  final int? season;
 
   @override
   ConsumerState<WrapScreen> createState() => _WrapScreenState();
@@ -27,7 +31,7 @@ class WrapScreen extends ConsumerStatefulWidget {
 
 class _WrapScreenState extends ConsumerState<WrapScreen> {
   final _card = GlobalKey();
-  String _period = 'month';
+  late String _period = widget.season == null ? 'month' : 'season';
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +40,12 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
     final t = store.trOrNull(d.account?.id ?? '');
     if (t == null) return const BoltPage(child: SizedBox.expand());
     final now = store.now;
+    // The season asked for, else the latest one started.
+    final season =
+        t.seasons.where((s) => s.n == widget.season).firstOrNull ??
+        t.seasons.where((s) => s.start.compareTo(store.today) <= 0).lastOrNull;
     final (from, to, label) = switch (_period) {
+      'season' when season != null => (pk(season.start), pk(season.end), season.name),
       'last' => (
         DateTime(now.year, now.month - 1),
         DateTime(now.year, now.month),
@@ -111,8 +120,8 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
             ),
             const SizedBox(height: 14),
             ChoiceChips(
-              options: const ['month', 'last', 'year'],
-              labels: const {'month': 'This month', 'last': 'Last month', 'year': 'This year'},
+              options: ['month', 'last', 'year', if (season != null) 'season'],
+              labels: const {'month': 'This month', 'last': 'Last month', 'year': 'This year', 'season': 'Season'},
               selected: _period,
               onSelect: (p) => setState(() => _period = p),
             ),

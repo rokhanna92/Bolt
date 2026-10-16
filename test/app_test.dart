@@ -204,6 +204,23 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a season starts from Progress and shows on Today', (tester) async {
+    await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    expect(find.text('LVL 1'), findsOneWidget);
+    expect(find.text('RECOVERY'), findsOneWidget);
+    await tapText(tester, 'Progress →');
+    await tapText(tester, '+ Start a season');
+    await tapText(tester, '4');
+    await tapText(tester, 'Start season 1');
+    expect(find.text('SEASON 1 · WEEK 1 OF 8'), findsOneWidget);
+    await tester.tap(find.text('‹'));
+    await settle(tester);
+    expect(find.text('SEASON 1 · WEEK 1 OF 8'), findsOneWidget);
+    expect(find.text('SEASON 1'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('solo users log past days from their diary', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

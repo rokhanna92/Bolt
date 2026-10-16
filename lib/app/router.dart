@@ -165,7 +165,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/wrap',
         parentNavigatorKey: rootNavigatorKey,
-        pageBuilder: (c, s) => _enter(s, const WrapScreen()),
+        pageBuilder: (c, s) => _enter(s, WrapScreen(season: int.tryParse(s.uri.queryParameters['season'] ?? ''))),
       ),
       GoRoute(
         path: '/lift/:name',

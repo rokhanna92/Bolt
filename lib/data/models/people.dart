@@ -1,4 +1,4 @@
-import '../../l10n/l10n.dart';
+import '../../core/format.dart';
 
 /// One day's weigh-in and tape measurements, stored metric.
 class BodyEntry {
@@ -370,7 +370,9 @@ class Trainee {
     this.program,
     this.programStart,
     Map<String, (double, String)>? liftGoals,
+    List<Season>? seasons,
   }) : liftGoals = liftGoals ?? {},
+       seasons = seasons ?? [],
        body = body ?? Body(),
        maxes = maxes ?? {},
        periods = periods ?? [],
@@ -417,6 +419,9 @@ class Trainee {
   /// One-rep max targets by exercise name: kg and the day to reach it by.
   final Map<String, (double, String)> liftGoals;
 
+  /// Seasons started, oldest first.
+  final List<Season> seasons;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
@@ -435,6 +440,7 @@ class Trainee {
     'program': program,
     'programStart': programStart,
     'liftGoals': liftGoalsToJson(liftGoals),
+    'seasons': seasons.map((s) => s.toJson()).toList(),
   };
 
   factory Trainee.fromJson(Map<String, dynamic> j) => Trainee(
@@ -455,7 +461,38 @@ class Trainee {
     program: j['program'] as String?,
     programStart: j['programStart'] as String?,
     liftGoals: liftGoalsFromJson(j['liftGoals']),
+    seasons: [for (final x in j['seasons'] as List? ?? const []) Season.fromJson(x as Map<String, dynamic>)],
   );
+}
+
+/// An 8-week block with a name and a workout goal, ending in its own wrap.
+class Season {
+  const Season({required this.n, required this.name, required this.start, required this.goal});
+
+  static const weeks = 8;
+
+  /// Season number, from 1.
+  final int n;
+  final String name;
+
+  /// Monday it started.
+  final String start;
+
+  /// Workouts to log in it.
+  final int goal;
+
+  /// Day after the last day.
+  String get end => dk(addDays(pk(start), 7 * weeks));
+
+  bool has(String k) => k.compareTo(start) >= 0 && k.compareTo(end) < 0;
+
+  /// Week of the season [today] is in, 1 to 8.
+  int week(String today) => ((pk(today).difference(pk(start)).inHours / 24).round() ~/ 7 + 1).clamp(1, weeks);
+
+  Map<String, dynamic> toJson() => {'n': n, 'name': name, 'start': start, 'goal': goal};
+
+  factory Season.fromJson(Map<String, dynamic> j) =>
+      Season(n: j['n'] as int, name: j['name'] as String, start: j['start'] as String, goal: j['goal'] as int);
 }
 
 Map<String, Object> liftGoalsToJson(Map<String, (double, String)> g) =>

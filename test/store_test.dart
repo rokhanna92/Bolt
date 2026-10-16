@@ -12,6 +12,7 @@ import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/level.dart';
 import 'package:bolt/data/lifts.dart';
 import 'package:bolt/data/models/exercise.dart';
+import 'package:bolt/features/progress/season_card.dart';
 import 'package:bolt/data/models/session.dart';
 import 'package:bolt/data/models/visit.dart';
 import 'package:bolt/data/rules.dart';
@@ -325,6 +326,19 @@ class Fresh {
   Map<String, Session> get mine => data.plans[Account.ownerId]!;
 }
 
+/// A solo user who lifted 100 kg × 5 on the first exercise a week ago.
+Fresh lifted() {
+  final f = Fresh(DateTime(2026, 10, 7, 18))
+    ..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'fb'));
+  f.store.addFromRotation(Account.ownerId, '2026-10-07');
+  f.store.startWorkout('2026-10-07');
+  final e = f.mine['2026-10-07']!.ex.first;
+  f.store.logSet(e.id, 0, SetLog(kg: 100, reps: 5));
+  f.store.finish();
+  f.clock = wed;
+  return f;
+}
+
 void ownerTests() {
   group('onboarding', () {
     test('a fresh phone has templates and nobody in it', () {
@@ -478,19 +492,6 @@ void ownerTests() {
   });
 
   group('immersion', () {
-    /// A solo user who lifted 100 kg × 5 on the first exercise a week ago.
-    Fresh lifted() {
-      final f = Fresh(DateTime(2026, 10, 7, 18))
-        ..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'fb'));
-      f.store.addFromRotation(Account.ownerId, '2026-10-07');
-      f.store.startWorkout('2026-10-07');
-      final e = f.mine['2026-10-07']!.ex.first;
-      f.store.logSet(e.id, 0, SetLog(kg: 100, reps: 5));
-      f.store.finish();
-      f.clock = wed;
-      return f;
-    }
-
     test('a live record is a heavier weight, else a better estimated max', () {
       final f = lifted();
       final name = f.mine['2026-10-07']!.ex.first.name;
@@ -611,6 +612,28 @@ void ownerTests() {
       // Trained today, so the next nudge is three days off later.
       expect(at(n.last.first), '2026-10-18 09:00');
       expect(n.last.first.title, '3 days off');
+    });
+
+    test('a season runs 8 weeks from this Monday and counts its workouts', () {
+      final f = lifted();
+      expect(f.store.currentSeason(), isNull);
+      f.store.startSeason('', 3);
+      final s = f.store.currentSeason()!;
+      expect((s.n, s.name, s.start, s.end, s.goal), (1, 'Season 1', '2026-10-12', '2026-12-07', 24));
+      expect([s.week('2026-10-14'), s.week('2026-10-19'), s.week('2026-12-06')], [1, 2, 8]);
+      // The workout on 7 October was before it.
+      expect(seasonProgress(s, f.mine), (0, 0));
+      f.store.addFromRotation(Account.ownerId, '2026-10-13');
+      f.store.logPast('2026-10-13');
+      expect(seasonProgress(s, f.mine), (1, 0));
+      final back = Trainee.fromJson(jsonDecode(jsonEncode(f.data.trainees.single.toJson())) as Map<String, dynamic>);
+      expect(back.seasons.single.toJson(), s.toJson());
+      f.clock = DateTime(2026, 12, 8, 18);
+      expect(f.store.currentSeason(), isNull);
+      f.store.startSeason('Cut', 4);
+      expect((f.store.currentSeason()!.n, f.store.currentSeason()!.name), (2, 'Cut'));
+      f.store.stopSeason();
+      expect(f.store.currentSeason(), isNull);
     });
 
     test('training days get a morning brief with what to beat', () {

@@ -27,6 +27,7 @@ import '../progress/challenge_sheet.dart';
 import '../workouts/deload_sheet.dart';
 import '../progress/progress_screen.dart' show RecapTiles;
 import '../progress/recovery_card.dart';
+import '../progress/season_card.dart';
 import '../measurements/cycle_card.dart';
 import '../plan/free_day_sheet.dart';
 import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
@@ -204,6 +205,16 @@ class TodayScreen extends ConsumerWidget {
         if (tp?.status != SessionStatus.done && d.workout?.key != today) ...[
           const SizedBox(height: 12),
           ReadinessCard(trainee: t, session: tp, dayKey: today),
+        ],
+        if (store.currentSeason() case final s?) ...[
+          const SizedBox(height: 12),
+          SeasonCard(s: s, plan: plan, today: today),
+        ] else if (t.seasons.lastOrNull case final s?
+            when s.end.compareTo(today) <= 0 &&
+                dk(addDays(pk(s.end), 14)).compareTo(today) > 0 &&
+                !d.settings.hintsSeen.contains('season:${s.n}')) ...[
+          const SizedBox(height: 12),
+          SeasonDoneCard(s: s, plan: plan),
         ],
         if (t.challenge case final c? when daysLeft(c, now) > 0 || dk(addDays(now, -3)).compareTo(c.to) <= 0) ...[
           const SizedBox(height: 12),

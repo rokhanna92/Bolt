@@ -949,6 +949,36 @@ class BoltStore extends Notifier<BoltData> {
     _toast(tx('Program stopped'));
   }
 
+  /// The owner's season running today, if any.
+  Season? currentSeason() {
+    final t = trOrNull(state.account?.id ?? '');
+    return t?.seasons.where((s) => s.has(today)).lastOrNull;
+  }
+
+  /// Starts the next season this Monday: 8 weeks, [perWeek] workouts a week.
+  void startSeason(String name, int perWeek) {
+    final t = tr(state.account!.id);
+    final n = (t.seasons.lastOrNull?.n ?? 0) + 1;
+    final s = Season(
+      n: n,
+      name: name.trim().isEmpty ? tx('Season {n}', {'n': n}) : name.trim(),
+      start: dk(mon0),
+      goal: perWeek * Season.weeks,
+    );
+    t.seasons
+      ..removeWhere((x) => x.has(today))
+      ..add(s);
+    _commit();
+    _toast(tx('{name} started · 8 weeks, {n}', {'name': s.name, 'n': plural(s.goal, 'workout')}));
+  }
+
+  /// Stops the season running today; it is gone from the list.
+  void stopSeason() {
+    tr(state.account!.id).seasons.removeWhere((x) => x.has(today));
+    _commit();
+    _toast(tx('Season stopped'));
+  }
+
   /// The owner's level when it is higher than the last one celebrated, once.
   /// A save from before levels only remembers where it stands.
   int? levelUp() {
