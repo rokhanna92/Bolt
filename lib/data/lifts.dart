@@ -9,6 +9,7 @@ import 'rules.dart' show unitLoad;
 import 'models/exercise.dart';
 import 'models/people.dart';
 import 'models/session.dart';
+import 'models/template.dart';
 import 'models/visit.dart';
 import 'seed/exercises.dart';
 import 'seed/muscles.dart';
@@ -26,6 +27,22 @@ double? loadKg(String load) {
   final m = RegExp(r'^(\d+(?:\.\d+)?)\s?kg$').firstMatch(load.trim());
   return m == null ? null : double.parse(m[1]!);
 }
+
+/// A load typed as a bare number gets its unit: `15` is `15 kg`, `72,5` is
+/// `72.5 kg`. Anything else stays as typed.
+String withKg(String load) {
+  final m = RegExp(r'^(\d+(?:[.,]\d+)?)$').firstMatch(load.trim());
+  return m == null ? load : '${m[1]!.replaceAll(',', '.')} kg';
+}
+
+/// `max` reps: as many as you can, to the end of the set.
+bool isMax(String reps) => reps.trim().toLowerCase() == 'max';
+
+/// Reps typed as Max or MAX are kept as `max`.
+String withMax(String reps) => isMax(reps) ? 'max' : reps;
+
+/// `75 kg`, `72.5 kg`.
+String kgText(double kg) => '${kg == kg.roundToDouble() ? kg.round() : kg} kg';
 
 /// Estimated one-rep max (Epley), from sets of 1 to 12 reps.
 double? e1rm(SetLog s) {
@@ -164,6 +181,101 @@ String? lastSame(Map<String, Session> plan, Session s, String k) {
 /// had weights, otherwise by reps. Returns (done, target, by weight).
 (double, double, bool) race((double, int) now, (double, int) last) =>
     last.$1 > 0 ? (now.$1, last.$1, true) : (now.$2.toDouble(), last.$2.toDouble(), false);
+
+/// Bottom of a rep target: `8-10` is 8, `10/leg` is 10. Null for `max`
+/// and for time or distance targets.
+int? lowReps(String reps) {
+  final m = RegExp(r'^(\d+)(?:-\d+)?(?:/\w+)?$').firstMatch(reps.trim());
+  return m == null ? null : int.parse(m[1]!);
+}
+
+/// Strength of a set for comparing days: Epley's estimate at any rep count.
+double? _strength(double? kg, int? reps) => kg == null || reps == null || reps < 1 ? null : kg * (1 + reps / 30);
+
+/// One exercise of a finished workout against its template, the standard.
+/// Weighted lifts compare their best set, bodyweight work its total reps;
+/// [doneKg] and [stdKg] are null for bodyweight.
+class VsStandard {
+  const VsStandard(this.name, this.pct, {this.doneKg, required this.doneReps, this.stdKg, required this.stdReps});
+
+  final String name;
+
+  /// 0.05 is 5 % above the standard.
+  final double pct;
+  final double? doneKg;
+  final int doneReps;
+  final double? stdKg;
+  final int stdReps;
+}
+
+/// How the logged sets of [s] stand against template [t], exercise by
+/// exercise. Exercises without a comparable plan or log are left out.
+List<VsStandard> vsStandard(WorkoutTemplate t, Session s) {
+  final out = <VsStandard>[];
+  for (final e in t.ex) {
+    final log = [
+      for (final x in s.ex)
+        if (x.name == e.name) ...x.logged,
+    ];
+    if (log.isEmpty) continue;
+    final js = [for (var j = 0; j < e.sets; j++) j];
+    if (js.any((j) => loadKg(e.loadFor(j)) != null)) {
+      (double, int)? best(Iterable<(double?, int?)> sets) {
+        (double, int)? b;
+        for (final (kg, reps) in sets) {
+          final x = _strength(kg, reps);
+          if (x != null && (b == null || x > _strength(b.$1, b.$2)!)) b = (kg!, reps!);
+        }
+        return b;
+      }
+
+      final std = best(js.map((j) => (loadKg(e.loadFor(j)), lowReps(e.repsFor(j)))));
+      final done = best(log.map((l) => (l.kg, l.reps)));
+      if (std == null || done == null) continue;
+      out.add(
+        VsStandard(
+          e.name,
+          _strength(done.$1, done.$2)! / _strength(std.$1, std.$2)! - 1,
+          doneKg: done.$1,
+          doneReps: done.$2,
+          stdKg: std.$1,
+          stdReps: std.$2,
+        ),
+      );
+    } else if (js.every((j) => e.loadFor(j).trim().toUpperCase() == 'BW' && lowReps(e.repsFor(j)) != null)) {
+      final std = js.fold(0, (a, j) => a + lowReps(e.repsFor(j))!);
+      final done = log.fold(0, (a, l) => a + (l.reps ?? 0));
+      if (std == 0 || done == 0) continue;
+      out.add(VsStandard(e.name, done / std - 1, doneReps: done, stdReps: std));
+    }
+  }
+  return out;
+}
+
+/// The average of [v]: how the whole workout stands against its standard.
+double? overallPct(List<VsStandard> v) => v.isEmpty ? null : v.fold(0.0, (a, x) => a + x.pct) / v.length;
+
+/// `+5%`, `−3%`, `±0%`.
+String diffText(double p) {
+  final n = (p * 100).round();
+  return n > 0 ? '+$n%' : (n < 0 ? '−${-n}%' : '±0%');
+}
+
+/// "5% above your standard", "3% below your standard", "On your standard".
+String standardText(double p) {
+  final n = (p * 100).round();
+  return n > 0
+      ? tx('{n}% above your standard', {'n': n})
+      : n < 0
+      ? tx('{n}% below your standard', {'n': -n})
+      : tx('On your standard');
+}
+
+/// Finished workouts of template [id] with logged sets, newest first.
+List<String> standardDays(Map<String, Session> plan, String id) => [
+  for (final k in plan.keys.toList()..sort((a, b) => b.compareTo(a)))
+    if (plan[k]!.tpl == id && plan[k]!.status == SessionStatus.done && plan[k]!.ex.any((e) => e.logged.isNotEmpty)) k,
+];
 
 /// "8, 8, 7" reps of a lift day.
 String repsText(LiftDay d) => d.sets.map((s) => s.reps?.toString() ?? '-').join(', ');

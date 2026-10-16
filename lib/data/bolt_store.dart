@@ -1422,6 +1422,41 @@ class BoltStore extends Notifier<BoltData> {
     }
   }
 
+  /// Makes what was lifted on day [k] the standard of template [tplId]: the
+  /// sets, weights and reps of every exercise both share. Max sets stay max.
+  void setStandard(String tplId, String k) {
+    final t = state.tpls[tplId];
+    final s = plan(state.account!.id)[k];
+    if (t == null || s == null) return;
+    for (final e in t.ex) {
+      final done = [
+        for (final x in s.ex)
+          if (x.name == e.name) ...x.logged,
+      ];
+      if (done.isEmpty) continue;
+      final reps = [
+        for (var j = 0; j < done.length; j++)
+          isMax(e.repsFor(math.min(j, e.sets - 1))) ? 'max' : done[j].reps?.toString() ?? e.repsFor(j),
+      ];
+      final loads = [
+        for (var j = 0; j < done.length; j++)
+          done[j].kg == null ? e.loadFor(math.min(j, e.sets - 1)) : kgText(done[j].kg!),
+      ];
+      e
+        ..sets = done.length
+        ..reps = reps.first
+        ..load = loads.first;
+      e.setReps
+        ..clear()
+        ..addAll([for (var j = 0; j < reps.length; j++) j == 0 || reps[j] == reps.first ? '' : reps[j]]);
+      e.setLoads
+        ..clear()
+        ..addAll([for (var j = 0; j < loads.length; j++) j == 0 || loads[j] == loads.first ? '' : loads[j]]);
+    }
+    _commit();
+    _toast(tx('{name} has a new standard', {'name': tx(t.name)}));
+  }
+
   String _newTemplateId() {
     var n = state.tpls.keys.where((k) => k.startsWith('cu')).length + 1;
     while (state.tpls.containsKey('cu$n')) {

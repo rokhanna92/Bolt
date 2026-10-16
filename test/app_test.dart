@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:bolt/app.dart';
+import 'package:bolt/app/router.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/bolt_data.dart';
+import 'package:bolt/data/models/exercise.dart';
 import 'package:bolt/data/models/session.dart';
 import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
@@ -211,7 +213,7 @@ void main() {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     final store = c.read(boltProvider.notifier);
-    store.dismissHint('new:1.19');
+    store.dismissHint('new:1.20');
     if (c.read(boltProvider).plans[Account.ownerId]!['2026-10-14'] != null) {
       store.removeDay(Account.ownerId, '2026-10-14');
     }
@@ -238,8 +240,8 @@ void main() {
     await onboard(tester, 'On my own', 'Dani');
     expect(find.text('LVL 1'), findsOneWidget);
     expect(find.text('RECOVERY'), findsOneWidget);
-    expect(find.text('NEW IN BOLT 1.19'), findsOneWidget);
-    expect(find.text('More gym exercises'), findsOneWidget);
+    expect(find.text('NEW IN BOLT 1.20'), findsOneWidget);
+    expect(find.text('Your standard'), findsOneWidget);
     await tapText(tester, 'Progress →');
     await tapText(tester, '+ Start a season');
     await tapText(tester, '4');
@@ -297,6 +299,52 @@ void main() {
     await tester.tap(find.text('‹'));
     await settle(tester);
     expect(find.text('Training solo'), findsOneWidget);
+    await unmount(tester);
+  });
+
+  testWidgets('a changed workout gets kg, max reps and goes to the top of the library', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapText(tester, 'Me');
+    await tapText(tester, 'Workouts');
+    await tapText(tester, 'Push');
+    expect(find.text('VS YOUR STANDARD'), findsOneWidget);
+    final bench = c.read(boltProvider).tpls['push']!.ex.first;
+    await tester.enterText(find.widgetWithText(TextField, '70 kg').first, '75');
+    expect(bench.load, '75 kg');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await settle(tester);
+    expect(tester.widget<TextField>(find.widgetWithText(TextField, '75 kg').first).controller!.text, '75 kg');
+    await tapText(tester, 'Max reps');
+    expect(bench.reps, 'max');
+    await tapText(tester, '‹');
+    expect(tester.getTopLeft(find.text('YOUR WORKOUTS')).dy, lessThan(tester.getTopLeft(find.text('CLASSIC')).dy));
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
+  testWidgets('a finished workout shows against its standard and can become it', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    final store = c.read(boltProvider.notifier);
+    store.addFromRotation(Account.ownerId, '2026-10-12');
+    store.setTemplate(Account.ownerId, '2026-10-12', 'push');
+    store.logPast('2026-10-12');
+    c.read(boltProvider).plans[Account.ownerId]!['2026-10-12']!.ex.first.logged.add(SetLog(kg: 80, reps: 5));
+    c.read(routerProvider).push('/summary/2026-10-12');
+    await settle(tester);
+    expect(find.text('▲ 11% above your standard'), findsOneWidget);
+    await tapText(tester, 'Done');
+    await tapText(tester, 'Me');
+    await tapText(tester, 'Workouts');
+    await tapText(tester, 'Push');
+    await tapText(tester, '+11%');
+    expect(find.text('80 kg × 5 · standard 70 kg × 6'), findsOneWidget);
+    await tapText(tester, 'Make this my standard');
+    expect(c.read(boltProvider).tpls['push']!.ex.first.load, '80 kg');
+    expect(find.text('±0%'), findsOneWidget);
+    expect(find.widgetWithText(TextField, '80 kg'), findsWidgets);
+    expect(tester.takeException(), isNull);
     await unmount(tester);
   });
 

@@ -586,6 +586,48 @@ void ownerTests() {
     });
   });
 
+  group('your standard', () {
+    test('typed loads get kg and max reps stay max', () {
+      expect(withKg('15'), '15 kg');
+      expect(withKg('72,5'), '72.5 kg');
+      expect(withKg('15 kg'), '15 kg');
+      expect(withKg('BW'), 'BW');
+      expect(withMax('MAX'), 'max');
+      expect(withMax('8-10'), '8-10');
+      expect(lowReps('8-10'), 8);
+      expect(lowReps('max'), isNull);
+      expect(targetReps('max'), isNull);
+    });
+
+    test('changed and custom templates are your own', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      expect(f.data.tpls.values.where(isOwnTemplate), isEmpty);
+      f.store.edit(const TemplateTarget('push'), () => f.data.tpls['push']!.ex.first.load = '75 kg');
+      final id = f.store.newTemplate();
+      expect(f.data.tpls.values.where(isOwnTemplate).map((t) => t.id), ['push', id]);
+    });
+
+    test('a workout stands against its template and can become the standard', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-12');
+      f.store.setTemplate(Account.ownerId, '2026-10-12', 'push');
+      f.store.logPast('2026-10-12');
+      final s = f.mine['2026-10-12']!;
+      // The standard is 4 × 6-8 at 70 kg: 70 kg × 6.
+      s.ex.first.logged.addAll([SetLog(kg: 75, reps: 6), SetLog(kg: 75, reps: 6), SetLog(kg: 80, reps: 5)]);
+      final vs = vsStandard(f.data.tpls['push']!, s).single;
+      expect([vs.name, vs.stdKg, vs.stdReps, vs.doneKg, vs.doneReps], ['Bench Press', 70, 6, 80, 5]);
+      expect(vs.pct, closeTo(80 * (1 + 5 / 30) / (70 * (1 + 6 / 30)) - 1, 1e-9));
+      expect(standardText(vs.pct), '11% above your standard');
+      expect(standardDays(f.mine, 'push'), ['2026-10-12']);
+
+      f.store.setStandard('push', '2026-10-12');
+      final bench = f.data.tpls['push']!.ex.first;
+      expect([bench.sets, bench.load, bench.reps, bench.loadFor(2), bench.repsFor(2)], [3, '75 kg', '6', '80 kg', '5']);
+      expect(overallPct(vsStandard(f.data.tpls['push']!, s)), closeTo(0, 1e-9));
+    });
+  });
+
   group('rest days', () {
     test('days off count back to the last workout, today once marked', () {
       final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));

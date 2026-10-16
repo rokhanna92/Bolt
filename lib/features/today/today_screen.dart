@@ -1131,20 +1131,20 @@ class _HeroCard extends ConsumerWidget {
   }
 }
 
-const _newId = 'new:1.19';
+const _newId = 'new:1.20';
 
-/// What 1.19 added and where to find it, until closed.
+/// What 1.20 added and where to find it, until closed.
 class _NewCard extends ConsumerWidget {
   const _NewCard();
 
-  static const _items = [
+  static const _items = <(String, String, String?)>[
     (
-      'More gym exercises',
-      '37 new machine, cable and Smith machine exercises, like the incline machine chest press.',
+      'Your standard',
+      "A workout's numbers are your standard. See every time above or below it, and make a good day the new standard.",
       '/workouts',
     ),
-    ('Reorder exercises', 'Move exercises up and down with the arrows when you edit a workout.', '/workouts'),
-    ('What is this exercise?', 'Tap an exercise name to see how to do it and the common mistake.', null),
+    ('Your workouts first', 'Workouts you made or changed sit at the top of the library.', '/workouts'),
+    ('Max reps and kg', 'Type 15 and it becomes 15 kg. Max reps for sets to the end.', '/workouts'),
   ];
 
   @override
@@ -1160,7 +1160,7 @@ class _NewCard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Kicker(tx('NEW IN BOLT 1.19'), color: BoltColors.neon)),
+              Expanded(child: Kicker(tx('NEW IN BOLT 1.20'), color: BoltColors.neon)),
               Tap(
                 onTap: () => store.dismissHint(_newId),
                 child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),

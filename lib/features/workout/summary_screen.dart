@@ -88,6 +88,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
           : tx('{x} short of {day}', {'day': fmtDay(lastK!), 'x': v(target - done)});
     }
 
+    final tpl = d.tpls[s.tpl];
+    final std = tpl == null ? null : overallPct(vsStandard(tpl, s));
+
     Widget stat(String v, String l) => Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,6 +160,13 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                         style: BoltText.a(15, weight: 800, color: BoltColors.ink),
                       ),
                     ],
+                    if (std != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        '${std >= 0 ? '▲' : '▼'} ${standardText(std)}',
+                        style: BoltText.a(15, weight: 800, color: BoltColors.ink),
+                      ),
+                    ],
                     if (s.prs.isNotEmpty) ...[
                       const SizedBox(height: 18),
                       Text(
@@ -198,6 +208,14 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
             const SizedBox(height: 18),
             NeonButton(label: tx('Share'), height: 52, scale: 1, onTap: () => _share(title)),
             const SizedBox(height: 8),
+            if (std != null) ...[
+              OutlineButton(
+                label: tx('Make this my standard'),
+                weight: 700,
+                onTap: () => store.setStandard(s.tpl, widget.dayKey),
+              ),
+              const SizedBox(height: 8),
+            ],
             OutlineButton(
               label: tx('Done'),
               color: BoltColors.text,

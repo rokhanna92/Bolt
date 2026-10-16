@@ -151,6 +151,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               ),
             ],
             const SizedBox(height: 16),
+            if (isTpl) ...[_Standard(tpl: o, onNew: _resetFields), const SizedBox(height: 12)],
             for (var i = 0; i < ex.length; i++) ...[_row(i, ex[i], x), const SizedBox(height: 8)],
             if (ex.isEmpty) ...[
               BoltBox(
@@ -289,9 +290,9 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              Expanded(child: _input(_ctl(_reps, e.id, e.reps), tx('Reps'), (v) => _edit(() => e.reps = v))),
+              Expanded(child: _input(_ctl(_reps, e.id, e.reps), tx('Reps'), withMax, (v) => _edit(() => e.reps = v))),
               const SizedBox(width: 8),
-              Expanded(child: _input(_ctl(_loads, e.id, e.load), tx('Load'), (v) => _edit(() => e.load = v))),
+              Expanded(child: _input(_ctl(_loads, e.id, e.load), tx('Load'), withKg, (v) => _edit(() => e.load = v))),
             ],
           ),
           // Sets from the second on: their own reps and load, empty means
@@ -313,6 +314,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                   child: _input(
                     _ctl(_reps, '${e.id}:$j', e.ownReps(j) ?? ''),
                     e.reps,
+                    withMax,
                     (v) => _edit(() => e.planSet(j, reps: v)),
                   ),
                 ),
@@ -321,6 +323,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                   child: _input(
                     _ctl(_loads, '${e.id}:$j', e.ownLoad(j) ?? ''),
                     e.load,
+                    withKg,
                     (v) => _edit(() => e.planSet(j, load: v)),
                   ),
                 ),
@@ -355,13 +358,20 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               if (i + 1 < _store.editExercises(widget.target).length) ...[
                 _chip(
                   e.group != null && _store.editExercises(widget.target)[i + 1].group == e.group
-                      ? tx('Superset {g} with next ✓', {'g': e.group})
+                      ? tx('Superset {g} with next', {'g': e.group})
                       : tx('Superset with next'),
                   e.group != null && _store.editExercises(widget.target)[i + 1].group == e.group,
                   () => _edit(() => toggleSuperset(_store.editExercises(widget.target), i)),
                 ),
               ],
-              _chip(e.drop ? tx('Drop set ✓') : tx('Drop set'), e.drop, () => _edit(() => e.drop = !e.drop)),
+              _chip(tx('Max reps'), isMax(e.reps), () {
+                _edit(() {
+                  e.reps = isMax(e.reps) ? kExerciseByName[e.name]?.reps ?? '10' : 'max';
+                  e.setReps.clear();
+                });
+                _resetFields();
+              }),
+              _chip(tx('Drop set'), e.drop, () => _edit(() => e.drop = !e.drop)),
               _chip(
                 e.rest == null ? tx('Rest auto') : tx('Rest {s} s', {'s': e.rest}),
                 e.rest != null,
@@ -399,17 +409,183 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
     ),
   );
 
-  Widget _input(TextEditingController c, String hint, ValueChanged<String> onChanged) => BoltField(
-    controller: c,
-    hint: hint,
-    onChanged: onChanged,
-    height: 40,
-    fontSize: 14,
-    weight: 700,
-    radius: 10,
-    fill: BoltColors.ink,
-    padding: 10,
-  );
+  /// A reps or load field. [fix] tidies what was typed (`15` is `15 kg`):
+  /// the plan gets it at once, the field when you leave it.
+  Widget _input(TextEditingController c, String hint, String Function(String) fix, ValueChanged<String> onChanged) =>
+      Focus(
+        onFocusChange: (f) {
+          if (!f && fix(c.text) != c.text) c.text = fix(c.text);
+        },
+        child: BoltField(
+          controller: c,
+          hint: hint,
+          onChanged: (v) => onChanged(fix(v)),
+          height: 40,
+          fontSize: 14,
+          weight: 700,
+          radius: 10,
+          fill: BoltColors.ink,
+          padding: 10,
+        ),
+      );
+
+  /// Throws away the reps and load fields so they show the plan again.
+  void _resetFields() => setState(() {
+    for (final c in [..._reps.values, ..._loads.values]) {
+      c.dispose();
+    }
+    _reps.clear();
+    _loads.clear();
+  });
+}
+
+/// How each finished workout of this template stood against it, newest
+/// first. Tap one to see it lift by lift or make it the new standard.
+class _Standard extends ConsumerWidget {
+  const _Standard({required this.tpl, required this.onNew});
+
+  final WorkoutTemplate tpl;
+  final VoidCallback onNew;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final d = ref.watch(boltProvider);
+    final store = ref.read(boltProvider.notifier);
+    final t = store.trOrNull(d.account?.id ?? '');
+    if (t == null) return const SizedBox.shrink();
+    final plan = store.plan(t.id);
+    final days = standardDays(plan, tpl.id).take(6).toList();
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(BoltColors.lineSoft),
+      radius: 16,
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Kicker(tx('VS YOUR STANDARD'), size: 10),
+          const SizedBox(height: 6),
+          if (days.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                tx(
+                  'The numbers below are your standard. Finish this workout and every time shows here, above or below it.',
+                ),
+                style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
+              ),
+            ),
+          for (final k in days)
+            Tap(
+              onTap: () => showBoltSheet<void>(context, (_) => _StandardDay(tpl: tpl, dayKey: k, onNew: onNew)),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: const BoxDecoration(
+                  border: Border(top: BorderSide(color: BoltColors.divider)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(child: Text(fmtDay(k), style: BoltText.a(13, weight: 700))),
+                    if (overallPct(vsStandard(tpl, plan[k]!)) case final p?)
+                      Text(
+                        diffText(p),
+                        style: BoltText.m(12, weight: 700, color: p >= 0 ? BoltColors.neon : BoltColors.warn),
+                      ),
+                    const SizedBox(width: 8),
+                    const Chevron(size: 16),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One finished workout lift by lift against the standard, with a button
+/// to make it the new standard.
+class _StandardDay extends ConsumerWidget {
+  const _StandardDay({required this.tpl, required this.dayKey, required this.onNew});
+
+  final WorkoutTemplate tpl;
+  final String dayKey;
+  final VoidCallback onNew;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final d = ref.watch(boltProvider);
+    final store = ref.read(boltProvider.notifier);
+    final s = store.plan(d.account!.id)[dayKey];
+    if (s == null) return const SizedBox(height: 120);
+    final vs = vsStandard(tpl, s);
+    final all = overallPct(vs);
+    String set(double? kg, int reps) => kg == null ? plural(reps, 'rep') : '${store.unit(kgText(kg))} × $reps';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Kicker(fmtDay(dayKey).toUpperCase(), size: 10),
+        const SizedBox(height: 4),
+        Text(tx(tpl.name), style: BoltText.a(20, weight: 900)),
+        if (all != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            standardText(all),
+            style: BoltText.a(14, weight: 800, color: all >= 0 ? BoltColors.neon : BoltColors.warn),
+          ),
+        ],
+        const SizedBox(height: 10),
+        for (final v in vs)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: const BoxDecoration(
+              border: Border(top: BorderSide(color: BoltColors.divider)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(tx(v.name), style: BoltText.a(14, weight: 700)),
+                      const SizedBox(height: 2),
+                      Text(
+                        tx('{done} · standard {std}', {
+                          'done': set(v.doneKg, v.doneReps),
+                          'std': set(v.stdKg, v.stdReps),
+                        }),
+                        style: BoltText.a(11, color: BoltColors.muted),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  diffText(v.pct),
+                  style: BoltText.m(12, weight: 700, color: v.pct >= 0 ? BoltColors.neon : BoltColors.warn),
+                ),
+              ],
+            ),
+          ),
+        if (vs.isEmpty)
+          Text(
+            tx('Nothing to compare: log weights and reps for the exercises of this workout.'),
+            style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
+          ),
+        const SizedBox(height: 14),
+        NeonButton(
+          label: tx('Make this my standard'),
+          height: 50,
+          scale: 1,
+          onTap: () {
+            store.setStandard(tpl.id, dayKey);
+            onNew();
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+  }
 }
 
 /// Every exercise Bolt knows, grouped by muscle, with a muscle filter.

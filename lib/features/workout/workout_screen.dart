@@ -150,16 +150,22 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     final t = ref.read(boltProvider.notifier).tr(ref.read(boltProvider).account!.id);
     final own = setKg(t, ref.read(boltProvider.notifier).plan(t.id), e, j);
     final ownReps = e.ownReps(j) == null ? null : targetReps(e.ownReps(j)!);
+    // A max set has no rep count to fill in: the sheet asks what you got.
+    final max = isMax(e.repsFor(j));
     final log = SetLog(
       kg: own ?? prev?.kg ?? pctKg ?? hint?.nextKg ?? loadKg(e.load),
-      reps: ownReps ?? prev?.reps ?? targetReps(e.reps),
+      reps: max ? null : ownReps ?? prev?.reps ?? targetReps(e.reps),
     );
     store.logSet(e.id, j, log);
     HapticFeedback.lightImpact();
     _checkRace();
     final partnerNext = e.group != null && i + 1 < ex.length && ex[i + 1].group == e.group;
     if (!partnerNext) _startRest(_nextAfter(ex, i, j, w), restFor(e, auto: st.restAuto, fixed: st.restSecs));
-    _celebrate(e, log);
+    if (max) {
+      showBoltSheet<void>(context, (_) => _SetSheet(e: e, set: j, onSaved: (log) => _celebrate(e, log)));
+    } else {
+      _celebrate(e, log);
+    }
   }
 
   /// A record set gets its moment, once per lift and workout.
