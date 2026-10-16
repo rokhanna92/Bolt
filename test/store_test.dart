@@ -569,6 +569,21 @@ void ownerTests() {
       expect(r.containsKey('biceps'), isFalse);
       expect(recovery(f.mine, '2026-10-16')['quads'], 1.0);
     });
+
+    test('forearms count a share of curls, pulls and presses', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-12');
+      f.store.setTemplate(Account.ownerId, '2026-10-12', 'push');
+      f.store.logPast('2026-10-12');
+      expect(muscleSets(f.mine, '2026-10-12', '2026-10-19')['forearms'], 4);
+      f.store.addFromRotation(Account.ownerId, '2026-10-13');
+      f.store.setTemplate(Account.ownerId, '2026-10-13', 'pull');
+      f.store.logPast('2026-10-13');
+      final sets = muscleSets(f.mine, '2026-10-12', '2026-10-19');
+      // 16 pressing sets × ¼, 13 pulling sets × ¼ and 3 curl sets × ½.
+      expect(sets['forearms'], 9);
+      expect(sets['biceps'], 3);
+    });
   });
 
   group('rest days', () {

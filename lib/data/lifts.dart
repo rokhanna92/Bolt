@@ -187,19 +187,29 @@ Exercise? warmupFor(List<Exercise> ex) {
   return null;
 }
 
+/// The forearms hold the weight in most upper-body lifts: each set of curls
+/// counts as half a forearm set, each set of pulling or pressing as a
+/// quarter.
+const _forearmShare = {'biceps': .5, 'back': .25, 'traps': .25, 'chest': .25, 'shoulders': .25, 'triceps': .25};
+
 /// Sets per muscle in finished workouts from [from] to [to] (day keys,
 /// [to] excluded). Logged sets count when there are any, otherwise the
-/// planned sets. Cardio and mobility are left out.
+/// planned sets. Forearms also get their share of upper-body sets, rounded.
+/// Cardio and mobility are left out.
 Map<String, int> muscleSets(Map<String, Session> plan, String from, String to) {
   final out = <String, int>{};
+  var forearms = 0.0;
   plan.forEach((k, s) {
     if (s.status != SessionStatus.done || k.compareTo(from) < 0 || k.compareTo(to) >= 0) return;
     for (final e in s.ex) {
       final m = kExerciseByName[e.name]?.muscle;
       if (m == null || m == 'cardio' || m == 'mobility') continue;
-      out[m] = (out[m] ?? 0) + (e.logged.isNotEmpty ? e.logged.length : e.sets);
+      final n = e.logged.isNotEmpty ? e.logged.length : e.sets;
+      out[m] = (out[m] ?? 0) + n;
+      forearms += n * (_forearmShare[m] ?? 0);
     }
   });
+  if (forearms.round() case final f when f > 0) out['forearms'] = (out['forearms'] ?? 0) + f;
   return out;
 }
 
