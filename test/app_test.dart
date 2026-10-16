@@ -199,7 +199,15 @@ void main() {
     expect(find.text('Edit exercises'), findsOneWidget);
     await tapText(tester, 'Log as done');
     expect(find.text('BADGE UNLOCKED'), findsOneWidget);
+    while (find.text('BADGE UNLOCKED').evaluate().isNotEmpty) {
+      await tapText(tester, 'Tap to continue');
+    }
+    // A full logged day is enough for level 2.
+    expect(find.text('LEVEL UP'), findsOneWidget);
+    expect(find.text('ROOKIE'), findsOneWidget);
     await tapText(tester, 'Tap to continue');
+    await tapText(tester, 'Today');
+    expect(find.text('LVL 2'), findsOneWidget);
     final s = c.read(boltProvider).plans[Account.ownerId]!['2026-10-13']!;
     expect(s.status, SessionStatus.done);
     expect(c.read(boltProvider).trainees.single.stats.workouts, 1);

@@ -31,6 +31,7 @@ import '../measurements/cycle_card.dart';
 import '../plan/free_day_sheet.dart';
 import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
 import '../sharing/import_sheet.dart';
+import 'level_card.dart';
 import 'readiness_card.dart';
 import '../../widgets/bolt_sheet.dart';
 
@@ -95,6 +96,8 @@ class TodayScreen extends ConsumerWidget {
             Avatar(ini: initials(t.name), ring: BoltColors.neon, color: BoltColors.neon),
           ],
         ),
+        const SizedBox(height: 14),
+        LevelCard(stats: t.stats, daysOff: off),
         if (g != null) ...[
           const SizedBox(height: 18),
           Tap(

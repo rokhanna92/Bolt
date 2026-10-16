@@ -9,6 +9,7 @@ import 'package:bolt/core/format.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/bolt_data.dart';
+import 'package:bolt/data/level.dart';
 import 'package:bolt/data/lifts.dart';
 import 'package:bolt/data/models/exercise.dart';
 import 'package:bolt/data/models/session.dart';
@@ -513,6 +514,31 @@ void ownerTests() {
       expect(race(workOf([SetLog(kg: 100, reps: 6)]), last), (600.0, 500.0, true));
       // Bodyweight work races on reps.
       expect(race((0.0, 12), (0.0, 20)), (12.0, 20.0, false));
+    });
+
+    test('levels come from XP, each takes 100 more and days off rust the bar', () {
+      expect(levelOf(199).level, 1);
+      expect(levelOf(200).level, 2);
+      expect((levelOf(500).level, levelOf(500).into, levelOf(500).need), (3, 0, 400));
+      expect(xpOf(TraineeStats(sets: 10, workouts: 1, sessions: 1, prs: 1, perfect: 1)), 480);
+      expect([rustOf(2), rustOf(3), rustOf(5)], [0, 25, 75]);
+      expect([rankOf(1), rankOf(5), rankOf(44)], ['Rookie', 'Regular', 'Legend']);
+    });
+
+    test('a new level is celebrated once', () {
+      final f = lifted();
+      final stats = f.data.trainees.single.stats;
+      // One set, one workout and a perfect week: 260 XP.
+      expect(xpOf(stats), 260);
+      expect(f.store.levelUp(), 2);
+      expect(f.store.levelUp(), isNull);
+      stats.sets += 30;
+      expect(f.store.levelUp(), 3);
+      // A save from before levels starts where it stands.
+      f.data.settings.levelSeen = null;
+      stats.sets += 40;
+      expect(f.store.levelUp(), isNull);
+      expect(f.data.settings.levelSeen, 4);
     });
 
     test('muscles recover in 3 days for legs and back, 2 for the rest', () {

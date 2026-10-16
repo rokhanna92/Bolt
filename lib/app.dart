@@ -73,6 +73,8 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
     final store = ref.read(boltProvider.notifier);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       store.autoCloseStale();
+      // Saves from before levels start counting where they stand.
+      if (ref.read(boltProvider).settings.levelSeen == null) store.levelUp();
       store.syncSessionReminders();
       store.syncGymTimer();
       AppShortcuts.listen(openShortcut);

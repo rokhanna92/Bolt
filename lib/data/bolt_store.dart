@@ -12,6 +12,7 @@ import 'models/people.dart';
 import 'models/session.dart';
 import 'models/template.dart';
 import 'models/visit.dart';
+import 'level.dart';
 import 'lifts.dart';
 import 'programs.dart';
 import 'repositories/bolt_repository.dart';
@@ -228,6 +229,7 @@ class BoltStore extends Notifier<BoltData> {
     }
     state.settings.gymName = p.gym?.trim() ?? '';
     state.account = Account(role, Account.ownerId, admin: admin);
+    state.settings.levelSeen = 1;
     if (autoPlan && role != Role.coach) _fill(Account.ownerId, SessionStatus.approved);
     _commit();
     syncSessionReminders();
@@ -944,6 +946,19 @@ class BoltStore extends Notifier<BoltData> {
       ..programStart = null;
     _commit();
     _toast(tx('Program stopped'));
+  }
+
+  /// The owner's level when it is higher than the last one celebrated, once.
+  /// A save from before levels only remembers where it stands.
+  int? levelUp() {
+    final t = trOrNull(state.account?.id ?? '');
+    if (t == null) return null;
+    final l = levelOf(xpOf(t.stats)).level;
+    final seen = state.settings.levelSeen;
+    if (seen != null && l <= seen) return null;
+    state.settings.levelSeen = l;
+    _commit();
+    return seen == null ? null : l;
   }
 
   /// Marks day [k] as a rest day, or clears the mark. A session planned

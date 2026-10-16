@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/format.dart';
 import '../data/bolt_store.dart';
+import '../data/level.dart';
 import '../data/models/bolt_data.dart';
 import '../data/models/session.dart';
 import '../features/badges/unlock_overlay.dart';
@@ -15,6 +16,7 @@ import '../features/workouts/muscle_builder.dart';
 import '../features/workouts/split_sheet.dart';
 import '../features/workouts/workout_picker.dart';
 import '../widgets/bolt_sheet.dart';
+import '../widgets/moment_overlay.dart';
 import 'router.dart';
 import 'ui_state.dart';
 
@@ -55,11 +57,28 @@ void openShortcut(String what) {
   }
 }
 
-/// Badge unlock overlays, one after another.
+/// Badge unlock overlays, one after another, then a new level if there is
+/// one.
 Future<void> showUnlocks(List<String> ids) async {
   for (final id in ids) {
     await _root.push(UnlockRoute(id));
   }
+  final l = _store.levelUp();
+  if (l != null) await _root.push(MomentRoute(levelMoment(l)));
+}
+
+/// The level-up moment: the level, its rank and what the next one takes.
+Moment levelMoment(int l) {
+  final rank = rankOf(l);
+  return Moment(
+    kicker: tx('LEVEL UP'),
+    big: '$l',
+    unit: tx('LEVEL'),
+    title: tx(rank).toUpperCase(),
+    sub: rank != rankOf(l - 1)
+        ? tx('New rank: {rank}. Keep stacking sets.', {'rank': tx(rank)})
+        : tx('{n} XP to level {next}.', {'n': xpToNext(l), 'next': l + 1}),
+  );
 }
 
 void showDaySheet(String k) => showBoltSheet<void>(_root.context, (_) => DaySheet(dayKey: k));

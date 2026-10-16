@@ -9,6 +9,7 @@ class AppSettings {
     this.recapSeen,
     this.lang = 'en',
     this.restAuto = true,
+    this.levelSeen,
     List<String>? hintsSeen,
   }) : hintsSeen = hintsSeen ?? [];
 
@@ -40,6 +41,9 @@ class AppSettings {
   /// App language: `en` or `sr` (Serbian, Latin script).
   String lang;
 
+  /// Highest athlete level already celebrated.
+  int? levelSeen;
+
   Map<String, dynamic> toJson() => {
     'remind': remind,
     'checkout': checkout,
@@ -51,6 +55,7 @@ class AppSettings {
     'lang': lang,
     'restAuto': restAuto,
     'hintsSeen': hintsSeen,
+    'levelSeen': levelSeen,
   };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
@@ -64,5 +69,6 @@ class AppSettings {
     lang: j['lang'] as String? ?? 'en',
     restAuto: j['restAuto'] as bool? ?? true,
     hintsSeen: [for (final x in j['hintsSeen'] as List? ?? const []) x as String],
+    levelSeen: j['levelSeen'] as int?,
   );
 }
