@@ -944,6 +944,24 @@ class BoltStore extends Notifier<BoltData> {
     _toast(tx('Program stopped'));
   }
 
+  /// Marks day [k] as a rest day, or clears the mark. A session planned
+  /// there that is not done yet makes way for the rest.
+  void toggleRest(String k) {
+    final id = state.account!.id;
+    final rest = tr(id).stats.rest;
+    final s = plan(id)[k];
+    if (rest.remove(k)) {
+      _toast(tx('Rest day cleared'));
+    } else {
+      if (s?.status == SessionStatus.done) return;
+      plan(id).remove(k);
+      rest.add(k);
+      _toast(tx('Rest day · recover well'));
+    }
+    _commit();
+    syncSessionReminders();
+  }
+
   /// Marks [weeks] weeks from Monday [from] as away, or clears them when the
   /// first is already away. Away weeks keep the streak and skip reminders.
   void toggleAway(DateTime from, int weeks) {
@@ -1076,6 +1094,7 @@ class BoltStore extends Notifier<BoltData> {
     final p = plan(tid);
     if (p[k] != null || (k.compareTo(today) < 0 && !canLogPast(tid, k))) return false;
     p[k] = sessionFromTemplate(state, nextInRotation(p, splitOf(state, t.split), k), _newStatus);
+    t.stats.rest.remove(k);
     _commit();
     if (!_isCoach) syncSessionReminders();
     return true;

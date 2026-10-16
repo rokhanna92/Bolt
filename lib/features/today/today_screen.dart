@@ -60,6 +60,16 @@ class TodayScreen extends ConsumerWidget {
     final nothingAhead = vis(today) == null && nextK == null;
     final withCoach = d.account?.role == Role.trainee;
     final noteBy = tp != null && tp.byCoach ? (coachName ?? tx('Coach')) : t.name;
+    final off = daysOff(plan, d.visits[t.id] ?? const [], t.stats.rest, now);
+    final rested = t.stats.rest.contains(today);
+
+    void train() {
+      if (tp != null) {
+        tp.status == SessionStatus.pending ? openPlanDay(context, ref, today) : startWorkout(context, ref, today);
+      } else if (store.addFromRotation(t.id, today)) {
+        openPlanDay(context, ref, today);
+      }
+    }
 
     return ScreenScroll(
       children: [
@@ -113,6 +123,10 @@ class TodayScreen extends ConsumerWidget {
             ),
           ),
         ],
+        if (off >= 3 && g == null && !t.stats.away.contains(dk(monday(now)))) ...[
+          const SizedBox(height: 18),
+          _OffCard(days: off, onGo: train),
+        ],
         if (!d.settings.hintsSeen.contains(_newId)) ...[const SizedBox(height: 18), const _NewCard()],
         if (t.stats.away.contains(dk(monday(now)))) ...[
           const SizedBox(height: 18),
@@ -165,6 +179,14 @@ class TodayScreen extends ConsumerWidget {
                 Text(tx('REST DAY'), style: BoltText.a(34, weight: 900, width: 115)),
                 const SizedBox(height: 6),
                 Text(tx('Next: {what}', {'what': nextText}), style: BoltText.a(14, color: BoltColors.muted)),
+                const SizedBox(height: 14),
+                Tap(
+                  onTap: () => store.toggleRest(today),
+                  child: Text(
+                    rested ? tx('✓ Marked as a rest day · Undo') : tx('Mark today as a rest day →'),
+                    style: BoltText.a(13, weight: 800, color: rested ? BoltColors.muted : BoltColors.neon),
+                  ),
+                ),
               ],
             ),
           ),
@@ -281,7 +303,7 @@ class TodayScreen extends ConsumerWidget {
           children: [
             for (var i = 0; i < 7; i++) ...[
               if (i > 0) const SizedBox(width: 6),
-              Expanded(child: _weekDay(context, ref, addDays(ws, i), today, vis)),
+              Expanded(child: _weekDay(context, ref, addDays(ws, i), today, vis, t.stats.rest)),
             ],
           ],
         ),
@@ -380,11 +402,19 @@ class TodayScreen extends ConsumerWidget {
     );
   }
 
-  Widget _weekDay(BuildContext context, WidgetRef ref, DateTime day, String today, Session? Function(String) vis) {
+  Widget _weekDay(
+    BuildContext context,
+    WidgetRef ref,
+    DateTime day,
+    String today,
+    Session? Function(String) vis,
+    Set<String> rest,
+  ) {
     final k = dk(day);
     final p = vis(k);
     final it = k == today;
     final past = k.compareTo(today) < 0;
+    final rested = p == null && rest.contains(k);
     final dot = p == null
         ? Colors.transparent
         : p.status == SessionStatus.done
@@ -392,8 +422,15 @@ class TodayScreen extends ConsumerWidget {
         : p.status == SessionStatus.pending
         ? BoltColors.muted2
         : (it ? BoltColors.ink : BoltColors.text);
+    void plan() {
+      final store = ref.read(boltProvider.notifier);
+      openPlanDay(context, ref, store.addFromRotation(ref.read(boltProvider).account!.id, k) ? k : null);
+    }
+
     return Tap(
-      onTap: () => openPlanDay(context, ref, p == null ? null : k),
+      onTap: () => p != null
+          ? openPlanDay(context, ref, k)
+          : showBoltSheet<void>(context, (_) => _FreeDaySheet(dayKey: k, onPlan: plan)),
       child: BoltBox(
         height: 72,
         radius: 14,
@@ -416,7 +453,11 @@ class TodayScreen extends ConsumerWidget {
             Container(
               width: 6,
               height: 6,
-              decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: dot,
+                shape: BoxShape.circle,
+                border: rested ? Border.all(color: it ? BoltColors.ink : BoltColors.muted2, width: 1.5) : null,
+              ),
             ),
           ],
         ),
@@ -425,7 +466,144 @@ class TodayScreen extends ConsumerWidget {
   }
 }
 
-/// Totals at a glance: workouts, gym time, rest days and this week.
+/// A day with nothing planned: mark it as rest, or add a workout.
+class _FreeDaySheet extends ConsumerWidget {
+  const _FreeDaySheet({required this.dayKey, required this.onPlan});
+
+  final String dayKey;
+  final VoidCallback onPlan;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final d = ref.watch(boltProvider);
+    final store = ref.read(boltProvider.notifier);
+    final rested = store.trOrNull(d.account?.id ?? '')?.stats.rest.contains(dayKey) ?? false;
+    void close() => Navigator.of(context).pop();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Kicker(fmtDay(dayKey).toUpperCase(), spacing: .1),
+        const SizedBox(height: 10),
+        Text(
+          rested ? tx('REST DAY') : tx('NOTHING PLANNED'),
+          style: BoltText.a(34, weight: 900, width: 115, color: BoltColors.neon),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          tx('Rest days count toward your days off. After 3 in a row, Bolt starts pushing you back to the gym.'),
+          style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
+        ),
+        const SizedBox(height: 16),
+        NeonButton(
+          label: rested ? tx('Clear rest day') : tx('Mark as rest day'),
+          height: 52,
+          scale: 1,
+          onTap: () {
+            store.toggleRest(dayKey);
+            close();
+          },
+        ),
+        const SizedBox(height: 8),
+        OutlineButton(
+          label: tx('Add a workout'),
+          color: BoltColors.text,
+          borderColor: BoltColors.line,
+          weight: 700,
+          onTap: () {
+            close();
+            onPlan();
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// Days off in a row: a nudge at 3, louder at 4, all out from 5.
+class _OffCard extends StatelessWidget {
+  const _OffCard({required this.days, required this.onGo});
+
+  final int days;
+  final VoidCallback onGo;
+
+  @override
+  Widget build(BuildContext context) {
+    final kicker = tx('{days} OFF', {'days': plural(days, 'day').toUpperCase()});
+    if (days >= 5) {
+      const ink = BoltColors.ink;
+      return BoltBox(
+        color: BoltColors.warn,
+        radius: 24,
+        padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const PulseDot(),
+                const SizedBox(width: 10),
+                Text(kicker, style: BoltText.m(11, weight: 700, spacing: .12, color: ink)),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              days >= 7 ? tx('GET BACK IN.') : tx('ENOUGH REST.'),
+              style: BoltText.a(44, weight: 900, width: 115, spacing: -.03, height: .95, color: ink),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              tx('Your body has recovered and the habit is slipping. Get to the gym today, even 20 minutes counts.'),
+              style: BoltText.a(14, weight: 600, color: ink.withValues(alpha: .8), height: 1.4),
+            ),
+            const SizedBox(height: 16),
+            NeonButton(
+              label: tx('Train today'),
+              height: 50,
+              radius: 14,
+              color: ink,
+              textColor: BoltColors.warn,
+              onTap: onGo,
+            ),
+          ],
+        ),
+      );
+    }
+    final c = days >= 4 ? BoltColors.warn : BoltColors.neon;
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: Stroke(c, 1.5),
+      radius: 20,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Kicker(kicker, color: c),
+          const SizedBox(height: 6),
+          Text(
+            days >= 4
+                ? tx('Recovery is done. Time to move before the habit slips.')
+                : tx('Rested enough? A short session today keeps the habit going.'),
+            style: BoltText.a(16, weight: 800, height: 1.3),
+          ),
+          const SizedBox(height: 12),
+          Tap(
+            onTap: onGo,
+            scale: .96,
+            child: BoltBox(
+              color: c,
+              radius: 12,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              child: Text(tx('Train today'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Totals at a glance: workouts, gym time, rest days, this week and days off
+/// in a row.
 class _Numbers extends StatelessWidget {
   const _Numbers({
     required this.stats,
@@ -448,12 +626,13 @@ class _Numbers extends StatelessWidget {
         .where((s) => s.status != SessionStatus.draft)
         .toList();
     final done = week.where((s) => s.status == SessionStatus.done).length;
-    Widget tile(String v, String l, {bool neon = false}) => StatTile(
+    final off = daysOff(plan, visits, stats.rest, now);
+    Widget tile(String v, String l, {bool neon = false, bool warn = false}) => StatTile(
       value: v,
       label: l,
       valueSize: 20,
       valueWeight: 800,
-      valueColor: neon ? BoltColors.neon : BoltColors.text,
+      valueColor: neon ? BoltColors.neon : (warn ? BoltColors.warn : BoltColors.text),
       labelFirst: true,
       gap: 4,
     );
@@ -471,7 +650,7 @@ class _Numbers extends StatelessWidget {
           children: [
             tile('$done/${week.length}', tx('THIS WEEK')),
             tile('${stats.sessions}', tx('GYM VISITS')),
-            tile(stats.sessions == 0 ? '-' : dur(stats.mins / stats.sessions), tx('AVG VISIT')),
+            tile('$off', tx('DAYS OFF'), warn: off >= 3),
           ],
         ),
       ],

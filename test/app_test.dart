@@ -159,6 +159,27 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('days off push you back to the gym and free days can be marked rest', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    final store = c.read(boltProvider.notifier);
+    store.addFromRotation(Account.ownerId, '2026-10-08');
+    store.logPast('2026-10-08');
+    if (c.read(boltProvider).plans[Account.ownerId]!['2026-10-18'] != null) {
+      store.removeDay(Account.ownerId, '2026-10-18');
+    }
+    await settle(tester);
+    // 9 to 13 October without training.
+    expect(find.text('5 DAYS OFF'), findsOneWidget);
+    expect(find.text('ENOUGH REST.'), findsOneWidget);
+    expect(find.text('DAYS OFF'), findsOneWidget);
+
+    await tapText(tester, '18');
+    await tapText(tester, 'Mark as rest day');
+    expect(c.read(boltProvider).trainees.single.stats.rest, {'2026-10-18'});
+    await unmount(tester);
+  });
+
   testWidgets('solo users log past days from their diary', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

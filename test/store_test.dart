@@ -468,6 +468,47 @@ void ownerTests() {
     });
   });
 
+  group('rest days', () {
+    test('days off count back to the last workout, today once marked', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      final rest = f.data.trainees.single.stats.rest;
+      int off() => daysOff(f.mine, const [], rest, f.store.now);
+      expect(off(), 0);
+      expect(f.store.addFromRotation(Account.ownerId, '2026-10-10'), isTrue);
+      f.store.logPast('2026-10-10');
+      // 11, 12 and 13 October; today is not over yet.
+      expect(off(), 3);
+      f.store.toggleRest('2026-10-14');
+      expect(f.toast, 'Rest day · recover well');
+      expect(off(), 4);
+      f.store.toggleRest('2026-10-14');
+      expect(f.toast, 'Rest day cleared');
+      expect(off(), 3);
+    });
+
+    test('a rest day replaces a planned session but never a logged one', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'), autoPlan: true);
+      final rest = f.data.trainees.single.stats.rest;
+      final k = (f.mine.keys.where((k) => k.compareTo('2026-10-14') >= 0).toList()..sort()).first;
+      f.store.toggleRest(k);
+      expect(f.mine[k], isNull);
+      expect(rest, {k});
+      // Adding a workout back clears the rest mark.
+      expect(f.store.addFromRotation(Account.ownerId, k), isTrue);
+      expect(rest, isEmpty);
+      f.store.addFromRotation(Account.ownerId, '2026-10-07');
+      f.store.logPast('2026-10-07');
+      f.store.toggleRest('2026-10-07');
+      expect(f.mine['2026-10-07']!.status, SessionStatus.done);
+      expect(rest, isEmpty);
+    });
+
+    test('rest days survive a JSON round trip', () {
+      final s = TraineeStats(rest: {'2026-10-12'});
+      expect(TraineeStats.fromJson(jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>).rest, {'2026-10-12'});
+    });
+  });
+
   group('coach and trainee on two phones', () {
     test('plan goes out, progress comes back', () {
       final coach = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Marko Ilić'));

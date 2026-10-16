@@ -216,6 +216,19 @@ class DaySheet extends ConsumerWidget {
             onTap: move,
           ),
         ],
+        if (editable) ...[
+          const SizedBox(height: 8),
+          OutlineButton(
+            label: tx('Rest day instead'),
+            color: BoltColors.text,
+            borderColor: BoltColors.line,
+            weight: 700,
+            onTap: () {
+              store.toggleRest(dayKey);
+              close();
+            },
+          ),
+        ],
       ],
     );
   }

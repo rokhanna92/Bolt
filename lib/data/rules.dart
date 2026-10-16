@@ -143,6 +143,25 @@ int restDays(Map<String, Session> plan, List<Visit> visits, DateTime now) {
   return n;
 }
 
+/// Days in a row without a logged workout or gym visit: yesterday back to
+/// the last active day, plus today once it is marked as a rest day.
+int daysOff(Map<String, Session> plan, List<Visit> visits, Set<String> rest, DateTime now) {
+  final active = {
+    for (final e in plan.entries)
+      if (e.value.status == SessionStatus.done) e.key,
+    for (final v in visits) v.date,
+  };
+  final today = dk(now);
+  final known = {...active, ...rest};
+  if (active.contains(today) || known.isEmpty) return 0;
+  final first = known.reduce((a, b) => a.compareTo(b) < 0 ? a : b);
+  var n = rest.contains(today) ? 1 : 0;
+  for (var d = addDays(pk(today), -1); dk(d).compareTo(first) >= 0 && !active.contains(dk(d)); d = addDays(d, -1)) {
+    n++;
+  }
+  return n;
+}
+
 /// Total gym time, short: `42m`, `3h 05m`, then whole hours from 10 h.
 String totalTime(int mins) => mins < 600 ? dur(mins) : '${mins ~/ 60}h';
 
