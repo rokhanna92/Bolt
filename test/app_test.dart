@@ -287,7 +287,8 @@ void main() {
   testWidgets('a coach adds a trainee and plans for them', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'I coach people', 'Marko Ilić');
-    expect(find.text('Coach Marko'), findsOneWidget);
+    expect(find.text('COACH'), findsOneWidget);
+    expect(find.text('Marko'), findsOneWidget);
     expect(find.text('TRAINEES · 0'), findsOneWidget);
 
     await tapText(tester, '+ Add trainee');
@@ -369,7 +370,8 @@ void main() {
     await typeInto(tester, 'Your name', 'Dani');
     await tapText(tester, 'Continue');
     await tapText(tester, 'Start coaching');
-    expect(find.text('Coach Dani'), findsOneWidget);
+    expect(find.text('COACH'), findsOneWidget);
+    expect(find.text('Dani'), findsOneWidget);
     // The admin's own trainee record is not one of their trainees.
     expect(find.text('TRAINEES · 0'), findsOneWidget);
 
@@ -449,7 +451,8 @@ void main() {
     await tapText(tester, 'Me');
     expect(find.text('Training solo'), findsOneWidget);
     await tapText(tester, 'Coach');
-    expect(find.text('Coach Marko'), findsOneWidget);
+    expect(find.text('COACH'), findsOneWidget);
+    expect(find.text('Marko'), findsOneWidget);
     await unmount(tester);
   });
 

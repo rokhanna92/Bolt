@@ -134,10 +134,10 @@ class RosterScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Kicker(c.role.toUpperCase()),
+                  Kicker(tx(c.role).toUpperCase()),
                   const SizedBox(height: 4),
                   Text(
-                    tx('Coach {name}', {'name': firstName(c.name)}),
+                    firstName(c.name),
                     style: BoltText.a(26, weight: 800, spacing: -.02),
                   ),
                 ],
