@@ -152,8 +152,11 @@ void main() {
     await tester.tap(find.text('‹'));
     await settle(tester);
 
-    await tapText(tester, 'Learn');
+    await tapText(tester, 'Atlas');
     expect(find.text('Train smarter'), findsOneWidget);
+    await tapText(tester, 'Move');
+    expect(find.text('Walking'), findsOneWidget);
+    expect(find.textContaining('Every extra 1,000 steps a day'), findsOneWidget);
     expect(find.text('Supplements'), findsOneWidget);
     expect(find.text('‹'), findsNothing);
     await unmount(tester);

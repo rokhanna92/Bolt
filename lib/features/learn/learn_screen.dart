@@ -10,6 +10,7 @@ import '../../data/bolt_store.dart';
 import '../../data/models/bolt_data.dart';
 import '../../data/seed/exercises.dart';
 import '../../data/seed/learn.dart';
+import '../../data/seed/move.dart';
 import '../../data/seed/muscles.dart';
 import '../../data/seed/splits.dart' show splitOf;
 import '../../theme/text_styles.dart';
@@ -21,6 +22,7 @@ import '../../widgets/tap.dart';
 
 const _tabs = [
   ('w', 'Workouts'),
+  ('mv', 'Move'),
   ('st', 'Styles'),
   ('m', 'Muscles'),
   ('e', 'Exercises'),
@@ -62,7 +64,7 @@ class LearnScreen extends ConsumerWidget {
             Row(
               children: [
                 if (pushed) ...[BackBox(onTap: () => context.pop()), const SizedBox(width: 12)],
-                Kicker(tx('LEARN')),
+                Kicker(tx('ATLAS')),
               ],
             ),
             const SizedBox(height: 4),
@@ -125,6 +127,32 @@ class LearnScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
+                ],
+              ],
+              'mv' => [
+                intro(
+                  tx(
+                    'Walking, cycling, running and stretching: why each one helps beyond the weights, and how to start. Numbers are from large studies and show links, not guarantees.',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                for (final m in kMove) ...[
+                  _Card(
+                    children: [
+                      Kicker(tx(m.tag).toUpperCase(), size: 9, spacing: .1, color: BoltColors.neon),
+                      const SizedBox(height: 4),
+                      Text(tx(m.name), style: BoltText.a(20, weight: 900)),
+                      const SizedBox(height: 10),
+                      _Bullets(m.why),
+                      const SizedBox(height: 14),
+                      Kicker(tx('HOW TO START'), size: 9, spacing: .1),
+                      const SizedBox(height: 8),
+                      _Bullets(m.how),
+                      const SizedBox(height: 12),
+                      Text(m.source, style: BoltText.a(11, color: BoltColors.muted3, height: 1.4)),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
                 ],
               ],
               'm' => [

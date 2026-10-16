@@ -15,6 +15,7 @@ import '../../data/cycle.dart';
 import '../../data/lifts.dart';
 import '../../data/rules.dart';
 import '../../data/suggestions.dart';
+import '../../data/warmup.dart';
 import '../../data/seed/muscles.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
@@ -174,6 +175,13 @@ class TodayScreen extends ConsumerWidget {
               ],
             ),
           ),
+        ],
+        if (tp != null &&
+            {SessionStatus.approved, SessionStatus.moved}.contains(tp.status) &&
+            d.workout?.key != today &&
+            !d.settings.hintsSeen.contains('warm:$today')) ...[
+          const SizedBox(height: 12),
+          _WarmupCard(session: tp, today: today),
         ],
         if (tp == null) ...[
           const SizedBox(height: 18),
@@ -530,6 +538,55 @@ class _CheerCard extends ConsumerWidget {
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// What to warm up before today's workout and for how long, until closed.
+class _WarmupCard extends ConsumerWidget {
+  const _WarmupCard({required this.session, required this.today});
+
+  final Session session;
+  final String today;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final (mins, steps) = warmupPlan(session);
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(BoltColors.lineSoft),
+      radius: 18,
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Kicker(tx('WARM-UP · ~{n} MIN', {'n': mins}), size: 9, spacing: .1, color: BoltColors.neon),
+              ),
+              Tap(
+                onTap: () => ref.read(boltProvider.notifier).dismissHint('warm:$today'),
+                child: Text('✕', style: BoltText.a(14, color: BoltColors.muted2)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          for (final (i, s) in steps.indexed) ...[
+            if (i > 0) const SizedBox(height: 6),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 20,
+                  child: Text('${i + 1}', style: BoltText.m(11, weight: 700, color: BoltColors.neon)),
+                ),
+                Expanded(child: Text(s, style: BoltText.a(13, weight: 600, height: 1.4))),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -1097,6 +1154,13 @@ class _NewCard extends ConsumerWidget {
       '/settings',
     ),
     ('High fives', 'Coaches can send a high five on a logged workout. It shows up here.', null),
+    ('Plan every set', 'Give each set its own weight and reps in a template, like 70, 75, 80 kg.', '/workouts'),
+    (
+      'Warm-up and check-ins',
+      'A warm-up for each workout here on Today. Your daily check-in shows on every day in the calendar.',
+      null,
+    ),
+    ('Move in Atlas', 'Walking, cycling, running and stretching, and why each one helps.', '/learn'),
   ];
 
   @override
@@ -1123,7 +1187,9 @@ class _NewCard extends ConsumerWidget {
             Tap(
               onTap: route == null
                   ? null
-                  : () => route.startsWith('/plan') || route == '/gym' ? context.go(route) : context.push(route),
+                  : () => route.startsWith('/plan') || route == '/gym' || route == '/learn'
+                        ? context.go(route)
+                        : context.push(route),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: const BoxDecoration(

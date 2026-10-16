@@ -29,7 +29,7 @@ class BoltShell extends ConsumerWidget {
         ? [
             NavItem(label: tx('Today'), icon: 'barbell'),
             NavItem(label: tx('Plan'), icon: 'calendar'),
-            NavItem(label: tx('Learn'), icon: 'book'),
+            NavItem(label: tx('Atlas'), icon: 'book'),
             NavItem(label: tx('Me'), initials: initials(name)),
           ]
         : [

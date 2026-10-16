@@ -11,6 +11,7 @@ import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/level.dart';
 import 'package:bolt/data/lifts.dart';
+import 'package:bolt/data/warmup.dart';
 import 'package:bolt/data/models/exercise.dart';
 import 'package:bolt/features/progress/season_card.dart';
 import 'package:bolt/data/models/session.dart';
@@ -636,6 +637,20 @@ void ownerTests() {
       expect((setKg(t, f.mine, s, 0), setKg(t, f.mine, s, 2)), (null, 80.0));
       final back = Exercise.fromJson(jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
       expect((back.loadFor(2), back.repsFor(3)), ('80 kg', '4'));
+    });
+
+    test('the warm-up follows what the workout trains', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-15');
+      f.store.setTemplate(Account.ownerId, '2026-10-15', 'push');
+      final (mins, steps) = warmupPlan(f.mine['2026-10-15']!);
+      expect(steps.first, '5 minutes easy cardio: bike, rower or incline walk.');
+      expect(steps, contains('Shoulders: 15 arm circles, 15 band pull-aparts, 10 push-ups.'));
+      expect(steps.any((x) => x.startsWith('Legs')), isFalse);
+      expect(steps.last, startsWith('Then 2-3 lighter ramp-up sets of '));
+      expect(mins, 8);
+      f.store.setTemplate(Account.ownerId, '2026-10-15', 'full');
+      expect(warmupPlan(f.mine['2026-10-15']!).$1, greaterThan(8));
     });
 
     test('a season runs 8 weeks from this Monday and counts its workouts', () {
