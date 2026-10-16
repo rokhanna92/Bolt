@@ -405,6 +405,7 @@ class BoltStore extends Notifier<BoltData> {
         );
       }
       _commit();
+      syncSessionReminders();
       final s = plan(id)[dk(n)];
       final planned = s != null && s.status != SessionStatus.draft && s.status != SessionStatus.done;
       return ScanOutcome(
@@ -422,7 +423,7 @@ class BoltStore extends Notifier<BoltData> {
     final res = _closeVisit(id, g, mins, auto: false);
     final day = t == null ? null : _finishDay(t, res.$1.date, mins);
     _commit();
-    if (day != null) syncSessionReminders();
+    syncSessionReminders();
     return ScanOutcome(
       head: day == null ? tx('Checked out') : tx('Day done'),
       sub: tx('{time} in the gym · {from} → {to}', {'time': dur(mins), 'from': g.since, 'to': res.$1.outT}),
@@ -811,6 +812,7 @@ class BoltStore extends Notifier<BoltData> {
     _checkPerfectWeek(t);
     final unlocked = newlyUnlocked(before, t.stats);
     _commit();
+    syncSessionReminders();
     _toast(tx('{day} logged · {log}', {'day': fmtDay(k), 'log': logText(p.log)}));
     return unlocked;
   }
@@ -1733,7 +1735,9 @@ class BoltStore extends Notifier<BoltData> {
   void toast(String text) => _toast(text);
 
   /// Reminders 2 hours before each confirmed session in the coming week, at
-  /// the trainee's usual check-in time.
+  /// the trainee's usual check-in time. Days with nothing planned and 3 or
+  /// more days off get a nudge at 9:00 instead, and from 5 days off another
+  /// one 2 hours before the usual check-in.
   void syncSessionReminders() {
     final a = state.account;
     if (a == null || !a.isTrainee || !state.settings.remind) {
@@ -1743,12 +1747,25 @@ class BoltStore extends Notifier<BoltData> {
     final usual = _usualCheckIn(a.id);
     final p = plan(a.id);
     final list = <Reminder>[];
+    final stats = trOrNull(a.id)?.stats;
     for (var i = 0; i < 8; i++) {
       final d = addDays(now, i);
+      final day = DateTime(d.year, d.month, d.day);
       final s = p[dk(d)];
-      if (s == null || (s.status != SessionStatus.approved && s.status != SessionStatus.moved)) continue;
-      if (trOrNull(a.id)?.stats.away.contains(dk(monday(d))) ?? false) continue;
-      final at = DateTime(d.year, d.month, d.day).add(Duration(minutes: usual - 120));
+      if (stats?.away.contains(dk(monday(d))) ?? false) continue;
+      final at = day.add(Duration(minutes: usual - 120));
+      if (s == null || (s.status != SessionStatus.approved && s.status != SessionStatus.moved)) {
+        // Not while checked in: that visit counts once it closes.
+        if (i == 0 && state.gymIn[a.id] != null) continue;
+        final off = daysOff(p, state.visits[a.id] ?? const [], stats?.rest ?? const {}, d);
+        if (off < 3) continue;
+        final title = tx('{days} off', {'days': plural(off, 'day')});
+        list.add(Reminder(at: day.add(const Duration(hours: 9)), title: title, body: _offBody(off)));
+        if (off >= 5 && at.hour > 9) {
+          list.add(Reminder(at: at, title: tx('Still time to train today'), body: _offBody(off)));
+        }
+        continue;
+      }
       list.add(
         Reminder(
           at: at,
@@ -1759,6 +1776,12 @@ class BoltStore extends Notifier<BoltData> {
     }
     _notify.replaceSessionReminders(list);
   }
+
+  String _offBody(int off) => off >= 5
+      ? tx('Your body has recovered and the habit is slipping. Get to the gym today, even 20 minutes counts.')
+      : off == 4
+      ? tx('Recovery is done. Time to move before the habit slips.')
+      : tx('Rested enough? A short session today keeps the habit going.');
 
   /// Median check-in time of recent visits, in minutes after midnight.
   int _usualCheckIn(String id) {

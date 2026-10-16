@@ -836,4 +836,7 @@ const kSrUi = <String, String>{
   'Recovery is done. Time to move before the habit slips.': 'Oporavak je gotov. Pokreni se pre nego što navika izbledi.',
   'Rested enough? A short session today keeps the habit going.': 'Dosta odmora? Kratak trening danas čuva naviku.',
   'Long-press one to mark it as a rest day.': 'Zadrži prst na danu da ga označiš kao dan odmora.',
+  '{days} off': '{days} pauze',
+  'Still time to train today': 'Još ima vremena za trening danas',
+  '2 hours before a planned session, and a nudge after 3 days off': '2 sata pre planiranog treninga, i podsetnik posle 3 dana pauze',
 };

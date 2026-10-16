@@ -67,7 +67,7 @@ class LocalNotifications implements BoltNotifications {
   static const _inGymId = 2;
   static const _restId = 3;
   static const _sessionBase = 100;
-  static const _sessionSlots = 14;
+  static const _sessionSlots = 24;
 
   static const _details = NotificationDetails(
     android: AndroidNotificationDetails(

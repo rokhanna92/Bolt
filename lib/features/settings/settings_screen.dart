@@ -111,7 +111,7 @@ class SettingsScreen extends ConsumerWidget {
           if (isT)
             _Row(
               tx('Session reminders'),
-              sub: tx('2 hours before a planned session'),
+              sub: tx('2 hours before a planned session, and a nudge after 3 days off'),
               toggle: s.remind,
               onTap: () => store.toggleSetting('remind'),
             ),

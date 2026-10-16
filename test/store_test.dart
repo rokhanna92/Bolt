@@ -15,6 +15,7 @@ import 'package:bolt/data/rules.dart';
 import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/data/seed/templates.dart';
+import 'package:bolt/services/notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -303,8 +304,13 @@ void main() {
 
 /// A phone with nothing on it yet.
 class Fresh {
-  Fresh([DateTime? start]) : clock = start ?? wed {
-    container = ProviderContainer(overrides: [clockProvider.overrideWithValue(() => clock)]);
+  Fresh([DateTime? start, BoltNotifications? notify]) : clock = start ?? wed {
+    container = ProviderContainer(
+      overrides: [
+        clockProvider.overrideWithValue(() => clock),
+        if (notify != null) notificationsProvider.overrideWithValue(notify),
+      ],
+    );
   }
 
   DateTime clock;
@@ -503,6 +509,27 @@ void ownerTests() {
       expect(rest, isEmpty);
     });
 
+    test('3 days off schedule nudges, louder from 5, quiet in the gym', () {
+      final n = _Reminders();
+      final f = Fresh(wed, n)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-10');
+      f.store.logPast('2026-10-10');
+      String at(Reminder r) => '${dk(r.at)} ${hm(r.at)}';
+      expect([for (final r in n.last.take(4)) '${at(r)} ${r.title}'], [
+        '2026-10-14 09:00 3 days off',
+        '2026-10-15 09:00 4 days off',
+        '2026-10-16 09:00 5 days off',
+        '2026-10-16 16:00 Still time to train today',
+      ]);
+      f.store.scan();
+      expect(n.last.where((r) => dk(r.at) == '2026-10-14'), isEmpty);
+      f.clock = wed.add(const Duration(minutes: 72));
+      f.store.scan();
+      // Trained today, so the next nudge is three days off later.
+      expect(at(n.last.first), '2026-10-18 09:00');
+      expect(n.last.first.title, '3 days off');
+    });
+
     test('rest days survive a JSON round trip', () {
       final s = TraineeStats(rest: {'2026-10-12'});
       expect(TraineeStats.fromJson(jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>).rest, {'2026-10-12'});
@@ -604,4 +631,12 @@ void ownerTests() {
     expect(parseLength('84,5', metric: true), 84.5);
     expect(parseWeight('', metric: true), isNull);
   });
+}
+
+/// Keeps the last scheduled reminders.
+class _Reminders extends NoopNotifications {
+  List<Reminder> last = const [];
+
+  @override
+  Future<void> replaceSessionReminders(List<Reminder> list) async => last = list;
 }
