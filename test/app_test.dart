@@ -319,6 +319,9 @@ void main() {
     expect(bench.reps, 'max');
     await tapText(tester, '‹');
     expect(tester.getTopLeft(find.text('YOUR WORKOUTS')).dy, lessThan(tester.getTopLeft(find.text('CLASSIC')).dy));
+    await tapText(tester, '✕');
+    expect(find.text('YOUR WORKOUTS'), findsNothing);
+    expect(c.read(boltProvider).tpls['push']!.ex.first.load, '75 kg');
     expect(tester.takeException(), isNull);
     await unmount(tester);
   });

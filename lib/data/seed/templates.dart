@@ -375,10 +375,11 @@ const kTemplateGroups = <(String, List<String>)>[
   ('Engine & recovery', ['cond', 'hiit', 'zone2', 'mob']),
 ];
 
-/// A template you made, or a built-in one you changed: listed first in the
-/// library under Your workouts.
+/// A template you made, or a built-in one you changed, and did not take off
+/// the list: listed first in the library under Your workouts.
 bool isOwnTemplate(WorkoutTemplate t) {
   final s = kTemplates[t.id];
+  if (t.hidden) return false;
   if (t.custom || s == null) return true;
   if (t.name != s.name || t.ex.length != s.ex.length) return true;
   for (var i = 0; i < t.ex.length; i++) {

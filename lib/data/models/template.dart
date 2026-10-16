@@ -10,6 +10,7 @@ class WorkoutTemplate {
     required this.mins,
     required this.ex,
     this.custom = false,
+    this.hidden = false,
   });
 
   final String id;
@@ -22,6 +23,10 @@ class WorkoutTemplate {
   List<Exercise> ex;
   bool custom;
 
+  /// Taken off Your workouts at the top of the library; saving it in the
+  /// editor brings it back.
+  bool hidden;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
@@ -30,6 +35,7 @@ class WorkoutTemplate {
     'mins': mins,
     'ex': ex.map((e) => e.toJson()).toList(),
     'custom': custom,
+    if (hidden) 'hidden': true,
   };
 
   factory WorkoutTemplate.fromJson(Map<String, dynamic> j) => WorkoutTemplate(
@@ -40,5 +46,6 @@ class WorkoutTemplate {
     mins: j['mins'] as int,
     ex: (j['ex'] as List).map((e) => Exercise.fromJson(e as Map<String, dynamic>)).toList(),
     custom: j['custom'] as bool? ?? false,
+    hidden: j['hidden'] as bool? ?? false,
   );
 }

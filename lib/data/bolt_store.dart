@@ -1415,11 +1415,22 @@ class BoltStore extends Notifier<BoltData> {
         _commit();
         _toast(tx('Session saved'));
         return null;
-      case TemplateTarget():
+      case TemplateTarget(:final id):
+        state.tpls[id]?.hidden = false;
         _commit();
         _toast(tx('Template saved · used by future auto-fills'));
         return null;
     }
+  }
+
+  /// Takes template [id] off Your workouts. Nothing is deleted: a built-in
+  /// one goes back to its group, one you made to Your other workouts.
+  void hideTemplate(String id) {
+    final t = state.tpls[id];
+    if (t == null) return;
+    t.hidden = true;
+    _commit();
+    _toast(tx('{name} removed from your workouts', {'name': tx(t.name)}));
   }
 
   /// Makes what was lifted on day [k] the standard of template [tplId]: the

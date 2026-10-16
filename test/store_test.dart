@@ -15,6 +15,7 @@ import 'package:bolt/data/warmup.dart';
 import 'package:bolt/data/models/exercise.dart';
 import 'package:bolt/features/progress/season_card.dart';
 import 'package:bolt/data/models/session.dart';
+import 'package:bolt/data/models/template.dart';
 import 'package:bolt/data/models/visit.dart';
 import 'package:bolt/data/rules.dart';
 import 'package:bolt/data/seed/badges.dart';
@@ -605,6 +606,14 @@ void ownerTests() {
       f.store.edit(const TemplateTarget('push'), () => f.data.tpls['push']!.ex.first.load = '75 kg');
       final id = f.store.newTemplate();
       expect(f.data.tpls.values.where(isOwnTemplate).map((t) => t.id), ['push', id]);
+
+      // Taken off the list, kept as it is; saving it brings it back.
+      f.store.hideTemplate('push');
+      expect(f.data.tpls.values.where(isOwnTemplate).map((t) => t.id), [id]);
+      expect(f.data.tpls['push']!.ex.first.load, '75 kg');
+      expect(WorkoutTemplate.fromJson(f.data.tpls['push']!.toJson()).hidden, isTrue);
+      f.store.saveEdit(const TemplateTarget('push'));
+      expect(isOwnTemplate(f.data.tpls['push']!), isTrue);
     });
 
     test('a workout stands against its template and can become the standard', () {

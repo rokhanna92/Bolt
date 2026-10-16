@@ -52,6 +52,13 @@ class WorkoutPickerSheet extends ConsumerWidget {
               if (tpls[id] != null && !own.contains(id)) id,
           ],
         ),
+      (
+        tx('Your other workouts'),
+        [
+          for (final t in tpls.values)
+            if (t.custom && t.hidden) t.id,
+        ],
+      ),
     ];
 
     return Column(

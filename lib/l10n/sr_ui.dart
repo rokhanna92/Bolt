@@ -930,4 +930,6 @@ const kSrUi = <String, String>{
   '{n}% below your standard': '{n}% ispod tvog standarda',
   'On your standard': 'Tačno na tvom standardu',
   'Max reps': 'Maks. ponavljanja',
+  'Your other workouts': 'Tvoji ostali treninzi',
+  '{name} removed from your workouts': 'Uklonjeno iz tvojih treninga: {name}',
 };

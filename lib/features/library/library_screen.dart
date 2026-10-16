@@ -38,6 +38,13 @@ class LibraryScreen extends ConsumerWidget {
               if (d.tpls[id] != null && !own.contains(id)) id,
           ],
         ),
+      (
+        tx('Your other workouts'),
+        [
+          for (final t in d.tpls.values)
+            if (t.custom && t.hidden) t.id,
+        ],
+      ),
     ];
     return ScreenScroll(
       children: [
@@ -105,9 +112,18 @@ class LibraryScreen extends ConsumerWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(child: _tplCard(context, d.tpls[ids[r]]!)),
-                    const SizedBox(width: 8),
-                    Expanded(child: r + 1 < ids.length ? _tplCard(context, d.tpls[ids[r + 1]]!) : const SizedBox()),
+                    for (final i in [r, r + 1]) ...[
+                      if (i > r) const SizedBox(width: 8),
+                      Expanded(
+                        child: i < ids.length
+                            ? _tplCard(
+                                context,
+                                d.tpls[ids[i]]!,
+                                onRemove: identical(ids, own) ? () => store.hideTemplate(ids[i]) : null,
+                              )
+                            : const SizedBox(),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -139,7 +155,7 @@ class LibraryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _tplCard(BuildContext context, WorkoutTemplate t) {
+  Widget _tplCard(BuildContext context, WorkoutTemplate t, {VoidCallback? onRemove}) {
     return Tap(
       onTap: () => context.push('/editor/tpl/${t.id}'),
       child: BoltBox(
@@ -147,25 +163,48 @@ class LibraryScreen extends ConsumerWidget {
         stroke: const Stroke(BoltColors.lineSoft),
         radius: 18,
         padding: const EdgeInsets.all(14),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 112 - 30),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(t.code, style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.neon)),
-              const SizedBox(height: 6),
-              Text(tx(t.name), style: BoltText.a(18, weight: 900)),
-              const SizedBox(height: 6),
-              Expanded(
-                child: Text(tx(t.focus), style: BoltText.a(11, color: BoltColors.muted)),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 112 - 30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t.code, style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.neon)),
+                  const SizedBox(height: 6),
+                  Text(tx(t.name), style: BoltText.a(18, weight: 900)),
+                  const SizedBox(height: 6),
+                  Expanded(
+                    child: Text(tx(t.focus), style: BoltText.a(11, color: BoltColors.muted)),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '${plural(t.ex.length, 'exercise')} · ${t.mins} min'.toUpperCase(),
+                    style: BoltText.m(9, color: BoltColors.muted2),
+                  ),
+                ],
               ),
-              const SizedBox(height: 6),
-              Text(
-                '${plural(t.ex.length, 'exercise')} · ${t.mins} min'.toUpperCase(),
-                style: BoltText.m(9, color: BoltColors.muted2),
+            ),
+            // Takes it off Your workouts, in the corner so the card keeps
+            // the size of the others.
+            if (onRemove != null)
+              Positioned(
+                top: -4,
+                right: -4,
+                child: Tap(
+                  onTap: onRemove,
+                  child: SizedBox(
+                    width: 32,
+                    height: 28,
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Text('✕', style: BoltText.a(13, color: BoltColors.muted2, height: 1)),
+                    ),
+                  ),
+                ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );
