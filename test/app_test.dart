@@ -213,7 +213,7 @@ void main() {
       store.removeDay(Account.ownerId, '2026-10-14');
     }
     await settle(tester);
-    await tapText(tester, 'Mark today as a rest day →');
+    await tapText(tester, 'Mark as rest day');
     await tapText(tester, 'Bad');
     await tapText(tester, 'Low');
     await tapText(tester, 'Very sore');

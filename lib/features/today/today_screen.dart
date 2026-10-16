@@ -15,6 +15,7 @@ import '../../data/cycle.dart';
 import '../../data/lifts.dart';
 import '../../data/rules.dart';
 import '../../data/suggestions.dart';
+import '../../data/seed/muscles.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -176,30 +177,7 @@ class TodayScreen extends ConsumerWidget {
         ],
         if (tp == null) ...[
           const SizedBox(height: 18),
-          BoltBox(
-            color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
-            radius: 24,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Kicker(tx('TODAY')),
-                const SizedBox(height: 8),
-                Text(tx('REST DAY'), style: BoltText.a(34, weight: 900, width: 115)),
-                const SizedBox(height: 6),
-                Text(tx('Next: {what}', {'what': nextText}), style: BoltText.a(14, color: BoltColors.muted)),
-                const SizedBox(height: 14),
-                Tap(
-                  onTap: () => store.toggleRest(today),
-                  child: Text(
-                    rested ? tx('✓ Marked as a rest day · Undo') : tx('Mark today as a rest day →'),
-                    style: BoltText.a(13, weight: 800, color: rested ? BoltColors.muted : BoltColors.neon),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _RestHero(plan: plan, today: today, next: nextText, off: off, rested: rested, onTrain: train),
         ],
         if (nothingAhead) ...[const SizedBox(height: 12), _StartCard(withCoach: withCoach, coachName: coachName)],
         if (tp?.status != SessionStatus.done && d.workout?.key != today) ...[
@@ -553,6 +531,154 @@ class _CheerCard extends ConsumerWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// Today without a workout: a calm card for recovery, dotted like rest days
+/// on the calendar, with how the body is recovering and what comes next.
+class _RestHero extends ConsumerWidget {
+  const _RestHero({
+    required this.plan,
+    required this.today,
+    required this.next,
+    required this.off,
+    required this.rested,
+    required this.onTrain,
+  });
+
+  final Map<String, Session> plan;
+  final String today;
+  final String next;
+  final int off;
+  final bool rested;
+  final VoidCallback onTrain;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final store = ref.read(boltProvider.notifier);
+    final r = recovery(plan, today);
+    final last = lastTrained(plan, today);
+    final busy = [
+      for (final m in kMuscles.keys)
+        if (r[m] case final x? when x < 1) m,
+    ];
+    final ready = readyMuscles(plan, today);
+    final body = busy.isNotEmpty
+        ? tx('Recovering: {muscles}. All ready {day}.', {
+            'muscles': busy.map((m) => tx(kMuscles[m]!.name)).join(', '),
+            'day': fmtDay(
+              busy.map((m) => dk(addDays(pk(last[m]!), recoveryDays(m)))).reduce((a, b) => a.compareTo(b) > 0 ? a : b),
+            ),
+          })
+        : ready.isNotEmpty
+        ? tx('Fully recovered: {muscles}.', {'muscles': ready.join(', ')})
+        : tx('Sleep, eat well and move a little. Rest is where you grow.');
+    final title = tx('REST DAY');
+    Widget ring(double size, double width, double alpha) => SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: DashedBorderPainter(
+          stroke: Stroke.dotted(BoltColors.neon.withValues(alpha: alpha), width),
+          circle: true,
+        ),
+      ),
+    );
+    return BoltBox(
+      radius: 24,
+      stroke: const Stroke.dotted(Color(0x99C6FF1A), 1.5),
+      gradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF171A13), Color(0xFF0E1408)],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
+          children: [
+            Positioned(right: -70, top: -70, child: ring(220, 3, .22)),
+            Positioned(right: 4, top: 4, child: ring(84, 2, .4)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Text(tx('TODAY'), style: BoltText.m(11, weight: 700, spacing: .12, color: BoltColors.muted)),
+                      const SizedBox(width: 8),
+                      BoltBox(
+                        radius: 99,
+                        stroke: const Stroke(BoltColors.neon),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        child: Text(
+                          rested ? tx('RESTING') : tx('NOTHING PLANNED'),
+                          style: BoltText.m(10, weight: 700, spacing: .08, color: BoltColors.neon),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(title, style: BoltText.a(tsz(title, 54), weight: 900, width: 115, spacing: -.03, height: .95)),
+                  const SizedBox(height: 8),
+                  Text(body, style: BoltText.a(14, weight: 600, color: BoltColors.textSoft, height: 1.4)),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final c in [
+                        if (off > 0) tx('{days} off', {'days': plural(off, 'day')}),
+                        tx('Next: {what}', {'what': next}),
+                      ])
+                        BoltBox(
+                          radius: 99,
+                          stroke: const Stroke(BoltColors.line),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          child: Text(c, style: BoltText.m(11, weight: 600, color: BoltColors.textSoft)),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      if (!rested) ...[
+                        Expanded(
+                          child: NeonButton(
+                            label: tx('Mark as rest day'),
+                            height: 50,
+                            radius: 14,
+                            onTap: () => store.toggleRest(today),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      Expanded(
+                        child: OutlineButton(label: tx('Train anyway'), height: 50, radius: 14, onTap: onTrain),
+                      ),
+                      if (rested) ...[
+                        const SizedBox(width: 8),
+                        Tap(
+                          onTap: () => store.toggleRest(today),
+                          child: BoltBox(
+                            height: 50,
+                            radius: 14,
+                            stroke: const Stroke(BoltColors.line),
+                            padding: const EdgeInsets.symmetric(horizontal: 18),
+                            alignment: Alignment.center,
+                            child: Text(tx('Undo'), style: BoltText.a(14, weight: 700, color: BoltColors.muted)),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
