@@ -893,7 +893,6 @@ const kSrUi = <String, String>{
   '{name} started · 8 weeks, {n}': '{name} počinje · 8 nedelja, {n}',
   'Season stopped': 'Sezona prekinuta',
   'SEASON {n} · WEEK {w} OF 8': 'SEZONA {n} · NEDELJA {w} OD 8',
-  '{n} PRS': '{n} REKORDA',
   '{done} of {goal} workouts': '{done} od {goal} treninga',
   'on pace': 'u ritmu',
   '{n} behind pace': '{n} iza ritma',

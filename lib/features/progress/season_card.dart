@@ -59,7 +59,7 @@ class SeasonCard extends StatelessWidget {
                     color: BoltColors.neon,
                   ),
                 ),
-                Text(tx('{n} PRS', {'n': prs}), style: BoltText.m(10, weight: 700, color: BoltColors.muted)),
+                Text(plural(prs, 'PR').toUpperCase(), style: BoltText.m(10, weight: 700, color: BoltColors.muted)),
               ],
             ),
             const SizedBox(height: 4),
