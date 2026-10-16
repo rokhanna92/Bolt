@@ -19,7 +19,9 @@ import 'package:bolt/data/models/visit.dart';
 import 'package:bolt/data/rules.dart';
 import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
+import 'package:bolt/data/seed/exercises.dart';
 import 'package:bolt/data/seed/templates.dart';
+import 'package:bolt/l10n/sr.dart';
 import 'package:bolt/services/notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -84,6 +86,16 @@ void main() {
       expect(names.toSet().length, names.length);
       expect(names.first, '90/90 Hip Switch');
       expect(names, contains('Bench Press'));
+    });
+
+    test('every exercise has Serbian text and a real swap', () {
+      for (final e in kExercises) {
+        for (final s in [e.name, e.works, e.avoid, ...e.cues]) {
+          expect(kSr, contains(s), reason: s);
+        }
+        if (e.alt != null) expect(kExerciseByName, contains(e.alt), reason: e.name);
+      }
+      expect(kExerciseByName, contains('Incline Machine Chest Press'));
     });
 
     test('plaque token is checked', () {
