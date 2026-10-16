@@ -160,6 +160,14 @@ void main() {
   });
 
   testWidgets('days off push you back to the gym and free days can be marked rest', (tester) async {
+    var widget = <Object?, Object?>{};
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('bolt/widget'), (call) async {
+      widget = call.arguments as Map<Object?, Object?>;
+      return true;
+    });
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('bolt/widget'), null),
+    );
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     final store = c.read(boltProvider.notifier);
@@ -171,6 +179,13 @@ void main() {
     await settle(tester);
     // 9 to 13 October without training.
     expect(find.text('5 DAYS OFF'), findsOneWidget);
+    // The home screen widget turns orange today and stays ahead a week.
+    await tester.pump(const Duration(milliseconds: 700));
+    expect(widget['off_2026-10-14'], '5 DAYS OFF');
+    expect(widget['off_2026-10-16'], '7 DAYS OFF');
+    expect(widget['off_2026-10-13'], isNull);
+    expect(widget['kicker'], '5 DAYS OFF');
+    expect(widget['footer'] as String, startsWith('LVL 2 · '));
     expect(find.text('ENOUGH REST.'), findsOneWidget);
     expect(find.text('DAYS OFF'), findsOneWidget);
 

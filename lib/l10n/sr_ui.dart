@@ -877,4 +877,5 @@ const kSrUi = <String, String>{
   'Steel': 'Čelik',
   'Titan': 'Titan',
   'Legend': 'Legenda',
+  'TRAIN TODAY': 'TRENIRAJ DANAS',
 };

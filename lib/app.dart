@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'l10n/l10n.dart';
-
 import 'app/actions.dart';
 import 'app/router.dart';
 import 'core/format.dart';
 import 'data/bolt_store.dart';
+import 'data/level.dart';
 import 'data/models/session.dart';
 import 'data/rules.dart';
+import 'features/progress/recovery_card.dart' show readyMuscles;
 import 'services/home_widget.dart';
 import 'services/shortcuts.dart';
 import 'theme/bolt_theme.dart';
@@ -28,16 +28,20 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
   Timer? _widgetDebounce;
 
   /// What the home screen widget shows: today's workout or rest day, the
-  /// gym clock while checked in, and the streak.
+  /// gym clock while checked in, level and streak. From 3 days off it turns
+  /// orange; the days-off line goes ahead a week so it shows even when Bolt
+  /// stays closed.
   void _pushWidget() {
     final d = ref.read(boltProvider);
     final store = ref.read(boltProvider.notifier);
     final a = d.account;
     final today = store.today;
     var kicker = tx('TODAY'), title = 'Bolt', sub = '', footer = '';
+    final off = <String, Object?>{};
     if (a != null && a.isTrainee) {
       final t = store.trOrNull(a.id);
-      final s = t == null ? null : store.plan(t.id)[today];
+      final plan = t == null ? const <String, Session>{} : store.plan(t.id);
+      final s = plan[today];
       if (s == null || s.status == SessionStatus.draft) {
         title = tx('REST DAY');
       } else {
@@ -48,7 +52,21 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
       }
       if (t != null) {
         footer =
-            '${plural(t.stats.workouts, 'workout')} · ${tx('Streak {n}', {'n': plural(currentStreak(t.stats, store.now), 'week')})}';
+            '${tx('LVL')} ${levelOf(xpOf(t.stats)).level} · ${tx('Streak {n}', {'n': plural(currentStreak(t.stats, store.now), 'week')})}';
+        final visits = d.visits[t.id] ?? const [];
+        for (var i = -7; i <= 7; i++) {
+          final day = addDays(store.now, i);
+          final n = i < 0 || d.gymIn[a.id] != null || t.stats.away.contains(dk(monday(day)))
+              ? 0
+              : daysOff(plan, visits, t.stats.rest, day);
+          off['off_${dk(day)}'] = n >= 3 ? tx('{days} OFF', {'days': plural(n, 'day').toUpperCase()}) : null;
+        }
+        if (off['off_$today'] case final String k) {
+          kicker = k;
+          if (s == null || s.status == SessionStatus.draft) title = tx('TRAIN TODAY');
+          final ready = readyMuscles(plan, today);
+          if (ready.isNotEmpty) sub = tx('Fully recovered: {muscles}.', {'muscles': ready.join(', ')});
+        }
       }
     } else if (a != null) {
       kicker = tx('TRAINEES');
@@ -63,6 +81,8 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
       'scan': tx('SCAN'),
       'stale': tx("Open Bolt for today's plan"),
       'gymSince': d.gymIn[a?.id]?.checkInTime().millisecondsSinceEpoch ?? 0,
+      'offTitle': tx('TRAIN TODAY'),
+      ...off,
     });
   }
 

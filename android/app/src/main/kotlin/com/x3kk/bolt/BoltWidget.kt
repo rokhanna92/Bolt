@@ -48,9 +48,22 @@ class BoltWidget : AppWidgetProvider() {
             val v = RemoteViews(context.packageName, R.layout.bolt_widget)
             val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
             val fresh = p.getString("date", null) == today
-            v.setTextViewText(R.id.kicker, if (fresh) p.getString("kicker", "") else "")
-            v.setTextViewText(R.id.title, if (fresh) p.getString("title", "Bolt") else p.getString("stale", "Bolt"))
+            // Days off: Bolt sends a line for each of the coming days, so the
+            // widget turns orange on the right day even when Bolt stays closed.
+            val off = p.getString("off_$today", null)
+            v.setTextViewText(R.id.kicker, off ?: if (fresh) p.getString("kicker", "") else "")
+            v.setTextViewText(
+                R.id.title,
+                when {
+                    fresh -> p.getString("title", "Bolt")
+                    off != null -> p.getString("offTitle", "Bolt")
+                    else -> p.getString("stale", "Bolt")
+                },
+            )
             v.setTextViewText(R.id.sub, if (fresh) p.getString("sub", "") else "")
+            v.setTextColor(R.id.kicker, if (off != null) 0xFFFF7A45.toInt() else 0xFF9CA393.toInt())
+            v.setTextColor(R.id.title, if (off != null) 0xFFFF7A45.toInt() else 0xFFF1F4EC.toInt())
+            v.setInt(R.id.root, "setBackgroundResource", if (off != null) R.drawable.widget_bg_alert else R.drawable.widget_bg)
             v.setTextViewText(R.id.footer, p.getString("footer", ""))
             v.setTextViewText(R.id.scan, p.getString("scan", "SCAN"))
             val since = p.getLong("gymSince", 0)
