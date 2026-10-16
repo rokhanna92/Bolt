@@ -514,6 +514,21 @@ void ownerTests() {
       // Bodyweight work races on reps.
       expect(race((0.0, 12), (0.0, 20)), (12.0, 20.0, false));
     });
+
+    test('muscles recover in 3 days for legs and back, 2 for the rest', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-13');
+      f.store.setTemplate(Account.ownerId, '2026-10-13', 'legs');
+      f.store.logPast('2026-10-13');
+      f.store.addFromRotation(Account.ownerId, '2026-10-12');
+      f.store.setTemplate(Account.ownerId, '2026-10-12', 'push');
+      f.store.logPast('2026-10-12');
+      final r = recovery(f.mine, '2026-10-14');
+      expect(r['quads'], closeTo(1 / 3, .01));
+      expect(r['chest'], 1.0);
+      expect(r.containsKey('biceps'), isFalse);
+      expect(recovery(f.mine, '2026-10-16')['quads'], 1.0);
+    });
   });
 
   group('rest days', () {

@@ -7,12 +7,17 @@ import '../theme/tokens.dart';
 
 /// Front and back body outlines with each muscle shaded by its sets against
 /// the low end of its weekly range: dim when untouched, full neon once
-/// reached.
+/// reached. With [recovery] instead: orange while recovering, neon when
+/// ready, grey when never trained.
 class MuscleMap extends StatelessWidget {
-  const MuscleMap({super.key, required this.sets});
+  const MuscleMap({super.key, this.sets = const {}, this.recovery, this.labels = true});
 
   /// Sets per muscle key.
   final Map<String, int> sets;
+
+  /// Recovery per muscle key, 0 to 1.
+  final Map<String, double>? recovery;
+  final bool labels;
 
   @override
   Widget build(BuildContext context) {
@@ -20,27 +25,29 @@ class MuscleMap extends StatelessWidget {
       children: [
         AspectRatio(
           aspectRatio: 200 / 165,
-          child: CustomPaint(painter: _MapPainter(sets)),
+          child: CustomPaint(painter: _MapPainter(sets, recovery)),
         ),
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                tx('FRONT VIEW'),
-                textAlign: TextAlign.center,
-                style: BoltText.m(9, color: BoltColors.muted),
+        if (labels) ...[
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  tx('FRONT VIEW'),
+                  textAlign: TextAlign.center,
+                  style: BoltText.m(9, color: BoltColors.muted),
+                ),
               ),
-            ),
-            Expanded(
-              child: Text(
-                tx('BACK VIEW'),
-                textAlign: TextAlign.center,
-                style: BoltText.m(9, color: BoltColors.muted),
+              Expanded(
+                child: Text(
+                  tx('BACK VIEW'),
+                  textAlign: TextAlign.center,
+                  style: BoltText.m(9, color: BoltColors.muted),
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ],
     );
   }
@@ -84,11 +91,17 @@ const _back = <_Part>[
 ];
 
 class _MapPainter extends CustomPainter {
-  const _MapPainter(this.sets);
+  const _MapPainter(this.sets, this.recovery);
 
   final Map<String, int> sets;
+  final Map<String, double>? recovery;
 
   Color _shade(String m) {
+    if (recovery case final r?) {
+      final x = r[m];
+      if (x == null) return BoltColors.line;
+      return x >= 1 ? BoltColors.neon : Color.lerp(BoltColors.warn, const Color(0xFFFFC233), x)!;
+    }
     final n = sets[m] ?? 0;
     if (n == 0) return BoltColors.line;
     final lo = volumeRange(m)?.$1 ?? 10;
@@ -137,5 +150,5 @@ class _MapPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_MapPainter old) => old.sets != sets;
+  bool shouldRepaint(_MapPainter old) => old.sets != sets || old.recovery != recovery;
 }

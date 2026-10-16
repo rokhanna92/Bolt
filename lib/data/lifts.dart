@@ -203,6 +203,32 @@ Map<String, int> muscleSets(Map<String, Session> plan, String from, String to) {
   return out;
 }
 
+/// Days a muscle needs between hard sessions: three for the big legs and
+/// back muscles, two for the rest.
+int recoveryDays(String muscle) => const {'quads', 'hamstrings', 'glutes', 'back'}.contains(muscle) ? 3 : 2;
+
+/// Day key of the last finished workout up to [today] that trained each
+/// muscle. Cardio and mobility are left out.
+Map<String, String> lastTrained(Map<String, Session> plan, String today) {
+  final out = <String, String>{};
+  plan.forEach((k, s) {
+    if (s.status != SessionStatus.done || k.compareTo(today) > 0) return;
+    for (final e in s.ex) {
+      final m = kExerciseByName[e.name]?.muscle;
+      if (m == null || m == 'cardio' || m == 'mobility') continue;
+      if ((out[m] ?? '').compareTo(k) < 0) out[m] = k;
+    }
+  });
+  return out;
+}
+
+/// How recovered each trained muscle is on [today], 0 to 1. Muscles never
+/// trained are left out.
+Map<String, double> recovery(Map<String, Session> plan, String today) => {
+  for (final e in lastTrained(plan, today).entries)
+    e.key: ((pk(today).difference(pk(e.value)).inHours / 24).round() / recoveryDays(e.key)).clamp(0.0, 1.0),
+};
+
 /// Weekly set range from a muscle's Learn volume, e.g. "10-20 sets a week".
 (int, int)? volumeRange(String muscle) {
   final m = RegExp(r'(\d+)-(\d+)').firstMatch(kMuscles[muscle]?.volume ?? '');

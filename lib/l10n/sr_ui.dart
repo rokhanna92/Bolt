@@ -848,4 +848,12 @@ const kSrUi = <String, String>{
   'Beat {day} by {x}': 'Bolje od {day} za {x}',
   'Level with {day}': 'Izjednačeno sa {day}',
   '{x} short of {day}': '{x} manje nego {day}',
+  'READY': 'SPREMNO',
+  'RECOVERING': 'OPORAVLJA SE',
+  'RECOVERY': 'OPORAVAK',
+  'Recovery': 'Oporavak',
+  'all ready {day}': 'sve spremno {day}',
+  'Log a workout and each muscle shows how recovered it is.': 'Upiši trening i svaki mišić će pokazati koliko se oporavio.',
+  'From your last workout for each muscle: 3 days for legs and back, 2 for the rest.': 'Od poslednjeg treninga za svaki mišić: 3 dana za noge i leđa, 2 za ostalo.',
+  'Fully recovered: {muscles}.': 'Potpuno oporavljeno: {muscles}.',
 };

@@ -26,6 +26,7 @@ import '../badges/badges_screen.dart';
 import '../progress/challenge_sheet.dart';
 import '../workouts/deload_sheet.dart';
 import '../progress/progress_screen.dart' show RecapTiles;
+import '../progress/recovery_card.dart';
 import '../measurements/cycle_card.dart';
 import '../plan/free_day_sheet.dart';
 import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
@@ -126,7 +127,7 @@ class TodayScreen extends ConsumerWidget {
         ],
         if (off >= 3 && g == null && !t.stats.away.contains(dk(monday(now)))) ...[
           const SizedBox(height: 18),
-          _OffCard(days: off, onGo: train),
+          _OffCard(days: off, ready: readyMuscles(plan, today), onGo: train),
         ],
         if (!d.settings.hintsSeen.contains(_newId)) ...[const SizedBox(height: 18), const _NewCard()],
         if (t.stats.away.contains(dk(monday(now)))) ...[
@@ -324,6 +325,8 @@ class TodayScreen extends ConsumerWidget {
         _Numbers(stats: t.stats, plan: plan, visits: d.visits[t.id] ?? const [], now: now, weekStart: ws),
         const SizedBox(height: 8),
         _WeightTile(body: t.body, now: now, metric: d.settings.kg),
+        const SizedBox(height: 8),
+        RecoveryCard(plan: plan, today: today),
         const SizedBox(height: 22),
         BadgesCard(stats: displayStats(t.stats, now), onTap: () => context.push('/badges')),
         if (pend.isNotEmpty) ...[
@@ -469,9 +472,12 @@ class TodayScreen extends ConsumerWidget {
 
 /// Days off in a row: a nudge at 3, louder at 4, all out from 5.
 class _OffCard extends StatelessWidget {
-  const _OffCard({required this.days, required this.onGo});
+  const _OffCard({required this.days, required this.ready, required this.onGo});
 
   final int days;
+
+  /// Muscles fully recovered and waiting.
+  final List<String> ready;
   final VoidCallback onGo;
 
   @override
@@ -503,6 +509,13 @@ class _OffCard extends StatelessWidget {
               tx('Your body has recovered and the habit is slipping. Get to the gym today, even 20 minutes counts.'),
               style: BoltText.a(14, weight: 600, color: ink.withValues(alpha: .8), height: 1.4),
             ),
+            if (ready.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                tx('Fully recovered: {muscles}.', {'muscles': ready.join(', ')}),
+                style: BoltText.a(13, weight: 800, color: ink),
+              ),
+            ],
             const SizedBox(height: 16),
             NeonButton(
               label: tx('Train today'),
@@ -533,6 +546,13 @@ class _OffCard extends StatelessWidget {
                 : tx('Rested enough? A short session today keeps the habit going.'),
             style: BoltText.a(16, weight: 800, height: 1.3),
           ),
+          if (ready.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              tx('Fully recovered: {muscles}.', {'muscles': ready.join(', ')}),
+              style: BoltText.a(12, color: BoltColors.muted, height: 1.35),
+            ),
+          ],
           const SizedBox(height: 12),
           Tap(
             onTap: onGo,

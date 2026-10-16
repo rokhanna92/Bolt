@@ -22,6 +22,7 @@ import '../../widgets/muscle_map.dart';
 import '../../widgets/tap.dart';
 import 'challenge_sheet.dart';
 import 'lift_screen.dart' show LiftGoalCard;
+import 'recovery_card.dart';
 
 /// Everything you have built up: challenge, last week, muscle volume this
 /// week, records and every lift you have logged.
@@ -95,6 +96,15 @@ class ProgressScreen extends ConsumerWidget {
             SectionTitle(tx('Last week')),
             const SizedBox(height: 10),
             RecapTiles(r: weekRecap(plan, visits, t.body, addDays(ws, -7)), metric: metric),
+            const SizedBox(height: 24),
+            SectionTitle(tx('Recovery')),
+            const SizedBox(height: 4),
+            Text(
+              tx('From your last workout for each muscle: 3 days for legs and back, 2 for the rest.'),
+              style: BoltText.a(12, color: BoltColors.muted),
+            ),
+            const SizedBox(height: 10),
+            RecoveryCard(plan: plan, today: dk(now), big: true),
             const SizedBox(height: 24),
             SectionTitle(tx('Muscle volume this week')),
             const SizedBox(height: 4),
