@@ -168,10 +168,6 @@ class _MuscleBuilderSheetState extends State<MuscleBuilderSheet> {
                     radius: 6,
                     color: _save ? BoltColors.neon : Colors.transparent,
                     stroke: Stroke(_save ? BoltColors.neon : BoltColors.line, 1.5),
-                    alignment: Alignment.center,
-                    child: _save
-                        ? Text('✓', style: BoltText.a(13, weight: 900, color: BoltColors.ink, height: 1))
-                        : null,
                   ),
                   const SizedBox(width: 10),
                   Expanded(

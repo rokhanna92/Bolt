@@ -60,7 +60,6 @@ class LanguagePicker extends ConsumerWidget {
               child: Row(
                 children: [
                   Expanded(child: Text(l.label, style: BoltText.a(14, weight: 800))),
-                  if (l == cur) Text('✓', style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
                 ],
               ),
             ),

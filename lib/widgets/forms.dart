@@ -103,7 +103,6 @@ class SplitPicker extends StatelessWidget {
                             child: Text(tx('Edit'), style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
                           ),
                         ),
-                      if (k == selected) Text('✓', style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
                     ],
                   ),
                   const SizedBox(height: 10),

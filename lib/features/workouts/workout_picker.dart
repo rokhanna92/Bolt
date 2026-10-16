@@ -173,7 +173,6 @@ class _Row extends StatelessWidget {
                 ],
               ),
             ),
-            if (on) Text('✓', style: BoltText.a(15, weight: 800, color: BoltColors.neon)),
           ],
         ),
       ),

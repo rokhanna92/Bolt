@@ -364,7 +364,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ],
                 ),
               ),
-              if (on) Text('✓', style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
             ],
           ),
         ),

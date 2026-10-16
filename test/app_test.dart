@@ -408,10 +408,9 @@ void main() {
     expect(find.text('Strength & Hypertrophy'), findsOneWidget);
     expect(find.text('Not listed? Type their name.'), findsOneWidget);
     await typeInto(tester, 'Your name', 'Ana');
-    // The split already has its tick; the coach gets the second.
-    expect(find.text('✓'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Marko Ilić'), findsNothing);
     await tapText(tester, 'Marko Ilić');
-    expect(find.text('✓'), findsNWidgets(2));
+    expect(find.widgetWithText(TextField, 'Marko Ilić'), findsOneWidget);
     await tapText(tester, 'Continue');
     await tapText(tester, 'Start training');
     expect(c.read(boltProvider).trainees.single.coachName, 'Marko Ilić');
