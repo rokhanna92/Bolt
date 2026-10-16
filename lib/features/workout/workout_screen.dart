@@ -407,7 +407,11 @@ class _ExerciseCard extends ConsumerWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Tap(
-                  onTap: h == null ? null : () => context.push('/lift/${Uri.encodeComponent(e.name)}'),
+                  onTap: h != null
+                      ? () => context.push('/lift/${Uri.encodeComponent(e.name)}')
+                      : kHow.containsKey(e.name)
+                      ? () => showExerciseSheet(e.name)
+                      : null,
                   child: Text(tx(e.name), style: BoltText.a(16, weight: 800)),
                 ),
               ),

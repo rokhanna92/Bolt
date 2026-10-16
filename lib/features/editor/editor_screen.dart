@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/actions.dart';
 import '../../app/share.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
@@ -12,6 +13,7 @@ import '../../data/models/template.dart';
 import '../../data/lifts.dart';
 import '../../data/rules.dart';
 import '../../data/seed/exercises.dart';
+import '../../data/seed/learn.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -205,9 +207,29 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
     );
   }
 
+  /// Moves exercise [i] one place up ([by] -1) or down (+1).
+  void _move(int i, int by) => _edit(() {
+    final list = _store.editExercises(widget.target);
+    list.insert(i + by, list.removeAt(i));
+    normalizeGroups(list);
+  });
+
+  Widget _arrow(String l, VoidCallback? f) => Tap(
+    onTap: f,
+    child: SizedBox(
+      width: 30,
+      height: 30,
+      child: Center(
+        child: Text(l, style: BoltText.m(15, weight: 700, color: f == null ? BoltColors.line : BoltColors.muted)),
+      ),
+    ),
+  );
+
   Widget _row(int i, Exercise e, Trainee? x) {
     final f = isFlagged(x, e);
+    final last = _store.editExercises(widget.target).length - 1;
     return BoltBox(
+      key: ValueKey(e.id),
       color: BoltColors.surface1,
       stroke: const Stroke(BoltColors.lineSoft),
       radius: 16,
@@ -219,7 +241,14 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
             children: [
               Text(pad(i + 1), style: BoltText.m(11, color: BoltColors.muted4)),
               const SizedBox(width: 10),
-              Expanded(child: Text(tx(e.name), style: BoltText.a(15, weight: 800))),
+              Expanded(
+                child: Tap(
+                  onTap: kHow.containsKey(e.name) ? () => showExerciseSheet(e.name) : null,
+                  child: Text(tx(e.name), style: BoltText.a(15, weight: 800)),
+                ),
+              ),
+              _arrow('↑', i > 0 ? () => _move(i, -1) : null),
+              _arrow('↓', i < last ? () => _move(i, 1) : null),
               Tap(
                 onTap: () => _edit(() {
                   final list = _store.editExercises(widget.target)..remove(e);
@@ -456,6 +485,18 @@ class _PickerState extends ConsumerState<_Picker> {
                     Text(
                       '${a.sets} × ${a.reps}${a.load != '—' ? ' · ${a.load}' : ''}'.toUpperCase(),
                       style: BoltText.m(9, color: BoltColors.muted),
+                    ),
+                    const SizedBox(width: 10),
+                    Tap(
+                      onTap: () => showExerciseSheet(a.name),
+                      child: BoltBox(
+                        width: 24,
+                        height: 24,
+                        circle: true,
+                        stroke: const Stroke(BoltColors.line),
+                        alignment: Alignment.center,
+                        child: Text(tx('i'), style: BoltText.a(11, weight: 800, color: BoltColors.neon, height: 1)),
+                      ),
                     ),
                   ],
                 ),

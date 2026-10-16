@@ -300,6 +300,24 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('exercises move up and down and explain themselves in the editor', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapText(tester, 'Me');
+    await tapText(tester, 'Workouts');
+    await tapText(tester, 'Push');
+    List<String> names() => c.read(boltProvider).tpls['push']!.ex.map((e) => e.name).toList();
+    expect(names().take(2), ['Bench Press', 'Overhead Press']);
+    await tapText(tester, '↓');
+    expect(names().take(2), ['Overhead Press', 'Bench Press']);
+    await tapText(tester, '↑');
+    expect(names().take(2), ['Overhead Press', 'Bench Press'], reason: 'the first row cannot move up');
+    await tapText(tester, 'Incline DB Press');
+    expect(find.text('INCLINE DB PRESS'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
   testWidgets('a trainee starts empty and can import or plan', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'With a coach', 'Ana');

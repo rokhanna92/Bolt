@@ -71,7 +71,12 @@ class ExerciseRows extends ConsumerWidget {
                 child: Text(pad(i + 1), style: BoltText.m(11, color: BoltColors.muted4)),
               ),
               const SizedBox(width: 10),
-              Expanded(child: Text(tx(e.name), style: BoltText.a(compact ? 14 : 15, weight: 700))),
+              Expanded(
+                child: Tap(
+                  onTap: onHow != null && kHow.containsKey(e.name) ? () => onHow!(e.name) : null,
+                  child: Text(tx(e.name), style: BoltText.a(compact ? 14 : 15, weight: 700)),
+                ),
+              ),
               if (onHow != null && kHow.containsKey(e.name)) ...[
                 const SizedBox(width: 10),
                 Tap(
