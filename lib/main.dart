@@ -13,8 +13,8 @@ Future<void> main() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  final repo = await BoltRepository.open();
-  final notifications = await LocalNotifications.init();
+  // Independent setup, so it runs side by side before the first frame.
+  final (repo, notifications) = await (BoltRepository.open(), LocalNotifications.init()).wait;
   // Everything lives on this phone. First launch (or an old demo install)
   // starts empty and goes through onboarding.
   final data = repo.load() ?? freshData();
