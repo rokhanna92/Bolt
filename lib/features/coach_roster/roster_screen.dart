@@ -372,7 +372,7 @@ class _TraineeCard extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           child: Text(
                             kAreas[x.injuries.first.area]!.toUpperCase(),
-                            style: BoltText.m(9, weight: 700, color: BoltColors.warn),
+                            style: BoltText.m(10, weight: 700, color: BoltColors.warn),
                           ),
                         ),
                       ],
@@ -390,14 +390,14 @@ class _TraineeCard extends ConsumerWidget {
                       const SizedBox(width: 6),
                       Text(
                         '${planned.where((s) => s.status == SessionStatus.done).length}/${planned.length} ${tx('THIS WEEK')}',
-                        style: BoltText.m(9, color: BoltColors.muted),
+                        style: BoltText.m(10, color: BoltColors.muted),
                       ),
                     ],
                   ),
                   const SizedBox(height: 5),
                   Text(
                     '${plural(stats.sessions, 'session').toUpperCase()} · ${tx('{n}W STREAK', {'n': stats.streak})} · $badges/${kBadges.length} ${tx('BADGES')}',
-                    style: BoltText.m(9, color: BoltColors.muted),
+                    style: BoltText.m(10, color: BoltColors.muted),
                   ),
                 ],
               ),

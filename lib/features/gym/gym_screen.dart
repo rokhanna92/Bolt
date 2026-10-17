@@ -176,7 +176,7 @@ class GymScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 6),
-        Text(dayMonth(d).toUpperCase(), style: BoltText.m(9, color: BoltColors.muted3)),
+        Text(dayMonth(d).toUpperCase(), style: BoltText.m(10, color: BoltColors.muted3)),
       ],
     );
   }

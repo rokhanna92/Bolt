@@ -181,7 +181,7 @@ class LibraryScreen extends ConsumerWidget {
                   const SizedBox(height: 6),
                   Text(
                     '${plural(t.ex.length, 'exercise')} · ${t.mins} min'.toUpperCase(),
-                    style: BoltText.m(9, color: BoltColors.muted2),
+                    style: BoltText.m(10, color: BoltColors.muted2),
                   ),
                 ],
               ),
@@ -227,7 +227,7 @@ class LibraryScreen extends ConsumerWidget {
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Expanded(child: Text(tx(splitOf(d, k).name), style: BoltText.a(14, weight: 800))),
-                Text(used, style: BoltText.m(9, color: BoltColors.muted)),
+                Text(used, style: BoltText.m(10, color: BoltColors.muted)),
                 if (custom) ...[
                   const SizedBox(width: 8),
                   Text(tx('Edit'), style: BoltText.a(12, weight: 800, color: BoltColors.neon)),

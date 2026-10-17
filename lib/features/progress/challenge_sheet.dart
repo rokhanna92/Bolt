@@ -175,7 +175,7 @@ class ChallengeCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Expanded(child: Text(c.title, style: BoltText.a(19, weight: 900))),
+              Expanded(child: Text(c.title, style: BoltText.a(18, weight: 900))),
               Text(
                 progress == null ? '?' : '$n / ${c.target}',
                 style: BoltText.m(14, weight: 700, color: BoltColors.neon),

@@ -188,7 +188,7 @@ class LearnScreen extends ConsumerWidget {
               for (final (title, points) in kBasics) ...[
                 _Card(
                   children: [
-                    Text(tx(title), style: BoltText.a(17, weight: 900)),
+                    Text(tx(title), style: BoltText.a(18, weight: 900)),
                     const SizedBox(height: 10),
                     _Bullets(points),
                   ],
@@ -212,7 +212,7 @@ class LearnScreen extends ConsumerWidget {
                             style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.neon),
                           ),
                           const SizedBox(width: 10),
-                          Expanded(child: Text(tx(d.tpls[k]!.name), style: BoltText.a(19, weight: 900))),
+                          Expanded(child: Text(tx(d.tpls[k]!.name), style: BoltText.a(18, weight: 900))),
                         ],
                       ),
                       const SizedBox(height: 2),
@@ -288,7 +288,7 @@ class _StyleCard extends ConsumerWidget {
     final split = style.split;
     return _Card(
       children: [
-        Text(tx(style.name), style: BoltText.a(19, weight: 900)),
+        Text(tx(style.name), style: BoltText.a(18, weight: 900)),
         const SizedBox(height: 4),
         Text(tx(style.who), style: BoltText.a(12, weight: 600, color: BoltColors.neon, height: 1.4)),
         const SizedBox(height: 10),
@@ -344,12 +344,12 @@ class _MuscleCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text(tx(m.name), style: BoltText.a(19, weight: 900))),
+            Expanded(child: Text(tx(m.name), style: BoltText.a(18, weight: 900))),
             BoltBox(
               radius: 6,
               stroke: const Stroke(BoltColors.neon),
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-              child: Text(tx(m.volume).toUpperCase(), style: BoltText.m(8, weight: 700, color: BoltColors.neon)),
+              child: Text(tx(m.volume).toUpperCase(), style: BoltText.m(9, weight: 700, color: BoltColors.neon)),
             ),
           ],
         ),
@@ -461,7 +461,7 @@ class _SuppList extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Expanded(child: Text(tx(u.name), style: BoltText.a(17, weight: 900))),
+                  Expanded(child: Text(tx(u.name), style: BoltText.a(18, weight: 900))),
                   const SizedBox(width: 8),
                   BoltBox(
                     radius: 6,

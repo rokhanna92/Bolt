@@ -266,7 +266,7 @@ class _UpRow extends StatelessWidget {
                 children: [
                   Kicker(fmtDay(dayKey).toUpperCase(), size: 10, spacing: .1),
                   const SizedBox(height: 3),
-                  Text(tx(session.title), style: BoltText.a(17, weight: 800)),
+                  Text(tx(session.title), style: BoltText.a(18, weight: 800)),
                   const SizedBox(height: 3),
                   Text(tx(session.focus), style: BoltText.a(12, color: BoltColors.muted)),
                 ],

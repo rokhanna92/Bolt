@@ -134,7 +134,7 @@ class BadgesScreen extends ConsumerWidget {
               child: _Progress(value: pct, height: 3, fill: BoltColors.muted2),
             ),
             const SizedBox(height: 8),
-            Text('${v < b.goal ? v : b.goal} / ${b.goal}', style: BoltText.m(9, color: BoltColors.muted3)),
+            Text('${v < b.goal ? v : b.goal} / ${b.goal}', style: BoltText.m(10, color: BoltColors.muted3)),
           ],
         ],
       ),

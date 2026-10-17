@@ -35,14 +35,14 @@ class MuscleMap extends StatelessWidget {
                 child: Text(
                   tx('FRONT VIEW'),
                   textAlign: TextAlign.center,
-                  style: BoltText.m(9, color: BoltColors.muted),
+                  style: BoltText.m(10, color: BoltColors.muted),
                 ),
               ),
               Expanded(
                 child: Text(
                   tx('BACK VIEW'),
                   textAlign: TextAlign.center,
-                  style: BoltText.m(9, color: BoltColors.muted),
+                  style: BoltText.m(10, color: BoltColors.muted),
                 ),
               ),
             ],

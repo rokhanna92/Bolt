@@ -175,7 +175,7 @@ class _Row extends StatelessWidget {
                   Text(focus, style: BoltText.a(12, color: BoltColors.muted)),
                   if (meta.isNotEmpty) ...[
                     const SizedBox(height: 4),
-                    Text(meta, style: BoltText.m(9, color: BoltColors.muted2)),
+                    Text(meta, style: BoltText.m(10, color: BoltColors.muted2)),
                   ],
                 ],
               ),

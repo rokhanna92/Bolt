@@ -281,7 +281,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text('${e.sets}', style: BoltText.a(15, weight: 800, height: 1.1)),
-                          Text(tx('SETS'), style: BoltText.m(8, color: BoltColors.muted, height: 1.1)),
+                          Text(tx('SETS'), style: BoltText.m(9, color: BoltColors.muted, height: 1.1)),
                         ],
                       ),
                     ),
@@ -660,7 +660,7 @@ class _PickerState extends ConsumerState<_Picker> {
                     const SizedBox(width: 10),
                     Text(
                       '${a.sets} × ${a.reps}${a.load != '—' ? ' · ${a.load}' : ''}'.toUpperCase(),
-                      style: BoltText.m(9, color: BoltColors.muted),
+                      style: BoltText.m(10, color: BoltColors.muted),
                     ),
                     const SizedBox(width: 10),
                     Tap(

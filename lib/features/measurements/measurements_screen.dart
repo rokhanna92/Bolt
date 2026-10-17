@@ -397,7 +397,7 @@ class _MetricCard extends StatelessWidget {
                       bodyDelta(keyName, ch.delta, metric: metric),
                       style: BoltText.a(14, weight: 800, color: BoltColors.neon),
                     ),
-                    Text(tx('since {day}', {'day': fmtDay(ch.since)}), style: BoltText.m(9, color: BoltColors.muted)),
+                    Text(tx('since {day}', {'day': fmtDay(ch.since)}), style: BoltText.m(10, color: BoltColors.muted)),
                   ],
                 ),
             ],

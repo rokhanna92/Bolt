@@ -142,11 +142,11 @@ class SplitWeek extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(weekdays[wd % 7][0], style: BoltText.m(8, color: BoltColors.muted3)),
+                  Text(weekdays[wd % 7][0], style: BoltText.m(9, color: BoltColors.muted3)),
                   const SizedBox(height: 1),
                   Text(
                     byDay[wd] == null ? '' : tpls[byDay[wd]]?.code ?? '',
-                    style: BoltText.m(8, weight: 700, color: BoltColors.neon),
+                    style: BoltText.m(9, weight: 700, color: BoltColors.neon),
                   ),
                 ],
               ),

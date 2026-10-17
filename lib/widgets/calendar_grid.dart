@@ -221,7 +221,7 @@ class CalendarGrid extends StatelessWidget {
                       if (c.dots.isEmpty)
                         Text(
                           c.lab,
-                          style: BoltText.m(8, weight: 700, color: c.labColor, spacing: labSpacing),
+                          style: BoltText.m(9, weight: 700, color: c.labColor, spacing: labSpacing),
                         )
                       else
                         _dots(c.dots),
@@ -261,7 +261,7 @@ Widget _dots(List<SessionStatus> d) {
         ],
         if (more) ...[
           const SizedBox(width: 2),
-          Text('+${d.length - 3}', style: BoltText.m(8, weight: 700, color: BoltColors.neon, height: 1)),
+          Text('+${d.length - 3}', style: BoltText.m(9, weight: 700, color: BoltColors.neon, height: 1)),
         ],
       ],
     ),
