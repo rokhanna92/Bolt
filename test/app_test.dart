@@ -351,6 +351,37 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a ticked set starts a rest that can grow, be skipped or run out', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    final store = c.read(boltProvider.notifier);
+    store.addFromRotation(Account.ownerId, '2026-10-14');
+    store.setTemplate(Account.ownerId, '2026-10-14', 'push');
+    store.startWorkout('2026-10-14');
+    c.read(routerProvider).push('/workout/2026-10-14');
+    await settle(tester);
+    final rest = c.read(boltProvider).settings.restAuto ? null : c.read(boltProvider).settings.restSecs;
+    await tapText(tester, 'SET 1');
+    expect(find.text('REST'), findsOneWidget);
+    final shown = tester.widget<Text>(find.textContaining(RegExp(r'^\d+:\d\d$'))).data!;
+    if (rest != null) expect(shown, '${rest ~/ 60}:${(rest % 60).toString().padLeft(2, '0')}');
+    await tapText(tester, '+15');
+    final longer = tester.widget<Text>(find.textContaining(RegExp(r'^\d+:\d\d$'))).data!;
+    int secs(String t) => int.parse(t.split(':')[0]) * 60 + int.parse(t.split(':')[1]);
+    expect(secs(longer), secs(shown) + 15);
+    await tapText(tester, 'Skip');
+    expect(find.text('REST'), findsNothing);
+
+    // The next rest runs out by itself.
+    await tapText(tester, 'SET 2');
+    expect(find.text('REST'), findsOneWidget);
+    await tester.pump(const Duration(minutes: 6));
+    await settle(tester);
+    expect(find.text('REST'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
   testWidgets('exercises move up and down and explain themselves in the editor', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

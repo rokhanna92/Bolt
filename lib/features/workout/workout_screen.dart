@@ -90,17 +90,18 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
       _restNext = next;
     });
     _notify.showRest(_restEnd!, next);
+    _armRest();
+  }
+
+  /// One timer for the end of the rest. The bar counts down on its own, so
+  /// the screen does not rebuild while you rest.
+  void _armRest() {
     _ticker?.cancel();
-    _ticker = Timer.periodic(const Duration(milliseconds: 250), (_) {
-      if (!mounted || _restEnd == null) return;
-      if (!DateTime.now().isBefore(_restEnd!)) {
-        _ticker?.cancel();
-        HapticFeedback.vibrate();
-        _notify.clearRest();
-        setState(() => _restEnd = null);
-      } else {
-        setState(() {});
-      }
+    _ticker = Timer(_restEnd!.difference(DateTime.now()), () {
+      if (!mounted) return;
+      HapticFeedback.vibrate();
+      _notify.clearRest();
+      setState(() => _restEnd = null);
     });
   }
 
@@ -111,6 +112,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
       _restTotal = math.max(1, _restTotal + s);
     });
     _notify.showRest(_restEnd!, _restNext);
+    _armRest();
   }
 
   void _skip() {
@@ -224,9 +226,6 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     }
     final insets = MediaQuery.paddingOf(context);
     final lastK = lastSame(store.plan(t.id), s, widget.dayKey);
-    final restLeft = _restEnd == null
-        ? 0
-        : math.max(0, (_restEnd!.difference(DateTime.now()).inMilliseconds / 1000).ceil());
 
     return BoltPage(
       child: Stack(
@@ -336,8 +335,8 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
               child: FadeSlideIn(
                 duration: const Duration(milliseconds: 300),
                 child: _RestBar(
-                  time: '${restLeft ~/ 60}:${pad(restLeft % 60)}',
-                  pct: restLeft / _restTotal,
+                  end: _restEnd!,
+                  total: _restTotal,
                   onMinus: () => _restAdd(-15),
                   onPlus: () => _restAdd(15),
                   onSkip: _skip,
@@ -673,23 +672,60 @@ class _SetSheetState extends ConsumerState<_SetSheet> {
   }
 }
 
-class _RestBar extends StatelessWidget {
+/// The rest countdown. It runs its own animation from [end], so only the
+/// bar repaints each frame.
+class _RestBar extends StatefulWidget {
   const _RestBar({
-    required this.time,
-    required this.pct,
+    required this.end,
+    required this.total,
     required this.onMinus,
     required this.onPlus,
     required this.onSkip,
   });
 
-  final String time;
-  final double pct;
+  final DateTime end;
+
+  /// Full rest in seconds.
+  final int total;
   final VoidCallback onMinus;
   final VoidCallback onPlus;
   final VoidCallback onSkip;
 
   @override
+  State<_RestBar> createState() => _RestBarState();
+}
+
+class _RestBarState extends State<_RestBar> with SingleTickerProviderStateMixin {
+  /// Share of the rest still left, running down to 0 in real time.
+  late final _c = AnimationController(vsync: this);
+
+  @override
+  void initState() {
+    super.initState();
+    _run();
+  }
+
+  @override
+  void didUpdateWidget(_RestBar old) {
+    super.didUpdateWidget(old);
+    if (old.end != widget.end || old.total != widget.total) _run();
+  }
+
+  void _run() {
+    final left = widget.end.difference(DateTime.now());
+    _c.value = (left.inMilliseconds / (widget.total * 1000)).clamp(0.0, 1.0);
+    if (left > Duration.zero) _c.animateTo(0, duration: left);
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final onMinus = widget.onMinus, onPlus = widget.onPlus, onSkip = widget.onSkip;
     Widget step(String l, VoidCallback f) => Tap(
       onTap: f,
       child: BoltBox(
@@ -722,7 +758,17 @@ class _RestBar extends StatelessWidget {
                         tx('REST'),
                         style: BoltText.m(10, weight: 700, spacing: .12, color: BoltColors.ink.withValues(alpha: .6)),
                       ),
-                      Text(time, style: BoltText.m(28, weight: 700, color: BoltColors.ink, height: 1)),
+                      AnimatedBuilder(
+                        animation: _c,
+                        builder: (context, _) {
+                          final ms = widget.end.difference(DateTime.now()).inMilliseconds;
+                          final left = math.max(0, (ms / 1000).ceil());
+                          return Text(
+                            '${left ~/ 60}:${pad(left % 60)}',
+                            style: BoltText.m(28, weight: 700, color: BoltColors.ink, height: 1),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -747,9 +793,9 @@ class _RestBar extends StatelessWidget {
           Positioned.fill(
             child: Align(
               alignment: Alignment.bottomLeft,
-              child: AnimatedFractionallySizedBox(
-                duration: const Duration(milliseconds: 500),
-                widthFactor: pct.clamp(0.0, 1.0),
+              child: AnimatedBuilder(
+                animation: _c,
+                builder: (context, child) => FractionallySizedBox(widthFactor: _c.value, child: child),
                 child: Container(height: 4, color: BoltColors.ink),
               ),
             ),
