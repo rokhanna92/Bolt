@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../app/tick.dart';
 import '../core/format.dart';
 import '../data/bolt_store.dart';
 import '../theme/text_styles.dart';
@@ -21,7 +20,8 @@ class NavItem {
 }
 
 /// Five-slot bottom nav with the raised neon button in the middle: the gym
-/// scanner for people who train, the calendar for coaches.
+/// scanner for people who train, the calendar for coaches. Icons only; the
+/// labels are read out to screen readers.
 class BoltNavBar extends ConsumerWidget {
   const BoltNavBar({
     super.key,
@@ -46,33 +46,70 @@ class BoltNavBar extends ConsumerWidget {
   final bool scanActive;
   final String centerIcon;
 
-  /// Fixed label; null shows "Check in" or the time in the gym.
+  /// Fixed label for screen readers; null says check in or scan out.
   final String? centerLabel;
+
+  /// Solid strip under the icons, above the safe area.
+  static const height = 52.0;
+
+  /// Fade above the strip; taps pass through it to the page.
+  static const _fade = 20.0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return Container(
-      height: 84 + bottom,
-      padding: EdgeInsets.fromLTRB(8, 0, 8, 10 + bottom),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          colors: [BoltColors.ink, BoltColors.ink, Color(0x000A0B09)],
-          stops: [0, .7, 1],
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+    return SizedBox(
+      height: height + _fade + bottom,
+      child: Stack(
         children: [
-          Expanded(child: _tab(0)),
-          Expanded(child: _tab(1)),
-          Expanded(
-            child: _ScanSlot(onTap: onScan, highlighted: scanActive, icon: centerIcon, fixedLabel: centerLabel),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: height + bottom,
+            child: const ColoredBox(color: BoltColors.ink),
           ),
-          Expanded(child: _tab(2)),
-          Expanded(child: _tab(3)),
+          const Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            height: _fade,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [BoltColors.ink, Color(0x000A0B09)],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 8,
+            right: 8,
+            bottom: bottom,
+            height: height,
+            child: Row(
+              children: [
+                Expanded(child: _tab(0)),
+                Expanded(child: _tab(1)),
+                const Spacer(),
+                Expanded(child: _tab(2)),
+                Expanded(child: _tab(3)),
+              ],
+            ),
+          ),
+          // The raised button sits a little above the icons.
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: bottom + 6,
+            child: Center(
+              child: _ScanSlot(onTap: onScan, highlighted: scanActive, icon: centerIcon, fixedLabel: centerLabel),
+            ),
+          ),
         ],
       ),
     );
@@ -82,12 +119,13 @@ class BoltNavBar extends ConsumerWidget {
     final it = items[i];
     final on = active == i;
     final c = on ? BoltColors.neon : BoltColors.muted;
-    return Tap(
-      onTap: () => onTap(i),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedContainer(
+    return Semantics(
+      label: it.label,
+      selected: on,
+      child: Tap(
+        onTap: () => onTap(i),
+        child: Center(
+          child: AnimatedContainer(
             duration: const Duration(milliseconds: 250),
             width: it.pillWidth,
             height: 30,
@@ -109,14 +147,7 @@ class BoltNavBar extends ConsumerWidget {
                   )
                 : BoltIcon(it.icon!, color: c),
           ),
-          const SizedBox(height: 4),
-          Text(
-            it.label,
-            maxLines: 1,
-            softWrap: false,
-            style: BoltText.a(11, weight: 700, color: on ? BoltColors.text : BoltColors.muted),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -132,41 +163,33 @@ class _ScanSlot extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final id = ref.watch(boltProvider.select((d) => d.account?.id));
-    final g = ref.watch(boltProvider.select((d) => d.gymIn[id]));
-    final label = fixedLabel ?? (g == null ? tx('Check in') : dur(g.elapsedMinutes(watchMinutes(ref, [g]))));
-    return Tap(
-      onTap: onTap,
-      scale: .92,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // In the prototype the button is pulled up 18 px with a negative
-          // margin; laying out its full height lands it in the same spot.
-          Container(
-            width: 58,
-            height: 58,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: BoltColors.neon,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [BoxShadow(color: Color(0x59C6FF1A), blurRadius: 24, offset: Offset(0, 6))],
-            ),
-            child: BoltIcon(icon, size: 26, color: BoltColors.ink),
+    final inGym = ref.watch(boltProvider.select((d) => d.gymIn[d.account?.id] != null));
+    final label = fixedLabel ?? (inGym ? tx('Tap to scan out') : tx('Check in'));
+    return Semantics(
+      label: label,
+      selected: highlighted,
+      child: Tap(
+        onTap: onTap,
+        scale: .92,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: 58,
+          height: 58,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: BoltColors.neon,
+            borderRadius: BorderRadius.circular(20),
+            // Glows brighter while its screen is open.
+            boxShadow: [
+              BoxShadow(
+                color: highlighted ? const Color(0x99C6FF1A) : const Color(0x59C6FF1A),
+                blurRadius: highlighted ? 30 : 24,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            maxLines: 1,
-            softWrap: false,
-            style: BoltText.m(
-              10,
-              weight: 700,
-              color: highlighted || (fixedLabel == null && g != null) ? BoltColors.text : BoltColors.muted,
-              height: 1.2,
-            ),
-          ),
-        ],
+          child: BoltIcon(icon, size: 26, color: BoltColors.ink),
+        ),
       ),
     );
   }

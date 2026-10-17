@@ -35,13 +35,13 @@ class BoltPage extends StatelessWidget {
 }
 
 /// Scrollable screen body with the prototype's padding (20 sides, 20 top,
-/// 120 bottom to clear the nav) below the status bar.
+/// 92 bottom to clear the nav) below the status bar.
 class ScreenScroll extends StatefulWidget {
   const ScreenScroll({
     super.key,
     required this.children,
     this.top = 20,
-    this.bottom = 120,
+    this.bottom = 92,
     this.controller,
     this.stagger = false,
   });

@@ -33,7 +33,7 @@ class _ToastLayerState extends ConsumerState<ToastLayer> {
       }
     });
     final t = ref.watch(toastProvider);
-    final bottom = MediaQuery.paddingOf(context).bottom + 104;
+    final bottom = MediaQuery.paddingOf(context).bottom + 80;
     return Positioned(
       left: 20,
       right: 20,

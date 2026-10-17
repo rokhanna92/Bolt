@@ -97,6 +97,13 @@ Future<void> tapText(WidgetTester tester, String text) async {
   await settle(tester);
 }
 
+/// Taps a bottom nav button. They show icons only, so they are found by the
+/// label screen readers hear.
+Future<void> tapTab(WidgetTester tester, String label) async {
+  await tester.tap(find.byWidgetPredicate((w) => w is Semantics && w.properties.label == label).first);
+  await settle(tester);
+}
+
 Future<void> typeInto(WidgetTester tester, String hint, String text) async {
   await tester.enterText(find.widgetWithText(TextField, hint), text);
   await tester.pump();
@@ -138,7 +145,7 @@ void main() {
     expect(find.text('PULL'), findsOneWidget);
     expect(c.read(boltProvider).trainees.single.body.weightKg, 81.5);
 
-    await tapText(tester, 'Me');
+    await tapTab(tester, 'Me');
     expect(find.text('Training solo'), findsOneWidget);
     expect(find.text('81.5 kg'), findsOneWidget);
     expect(find.text('Your coach'), findsNothing);
@@ -156,7 +163,7 @@ void main() {
     await tester.tap(find.text('‹'));
     await settle(tester);
 
-    await tapText(tester, 'Atlas');
+    await tapTab(tester, 'Atlas');
     expect(find.text('Train smarter'), findsOneWidget);
     await tapText(tester, 'Move');
     expect(find.text('Walking'), findsOneWidget);
@@ -201,7 +208,7 @@ void main() {
     expect(c.read(boltProvider).trainees.single.stats.rest, {'2026-10-18'});
 
     // The calendar shows it, and a long press clears it again.
-    await tapText(tester, 'Plan');
+    await tapTab(tester, 'Plan');
     expect(find.text('REST'), findsOneWidget);
     expect(find.textContaining('Long-press one to mark it as a rest day.'), findsOneWidget);
     await tester.longPress(find.text('18').first);
@@ -229,7 +236,7 @@ void main() {
     expect(find.textContaining('Take it lighter'), findsNothing);
 
     // The calendar day shows the check-in.
-    await tapText(tester, 'Plan');
+    await tapTab(tester, 'Plan');
     await tapText(tester, '14');
     expect(find.text('REST DAY'), findsOneWidget);
     expect(find.text('CHECK-IN · LOW'), findsOneWidget);
@@ -240,6 +247,8 @@ void main() {
   testWidgets('a season starts from Progress and shows on Today', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
+    // The nav shows icons only.
+    expect(find.text('Atlas'), findsNothing);
     expect(find.text('LVL 1'), findsOneWidget);
     expect(find.text('RECOVERY'), findsOneWidget);
     expect(find.text('NEW IN BOLT 1.20'), findsOneWidget);
@@ -259,7 +268,7 @@ void main() {
   testWidgets('solo users log past days from their diary', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
-    await tapText(tester, 'Plan');
+    await tapTab(tester, 'Plan');
     expect(find.textContaining('Past days too'), findsOneWidget);
     await tapText(tester, '13');
     expect(find.text('Log as done'), findsOneWidget);
@@ -273,7 +282,7 @@ void main() {
     expect(find.text('LEVEL UP'), findsOneWidget);
     expect(find.text('ROOKIE'), findsOneWidget);
     await tapText(tester, 'Tap to continue');
-    await tapText(tester, 'Today');
+    await tapTab(tester, 'Today');
     expect(find.text('LVL 2'), findsOneWidget);
     final s = c.read(boltProvider).plans[Account.ownerId]!['2026-10-13']!;
     expect(s.status, SessionStatus.done);
@@ -284,7 +293,7 @@ void main() {
   testWidgets('trainees cannot add days behind them', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'With a coach', 'Ana');
-    await tapText(tester, 'Plan');
+    await tapTab(tester, 'Plan');
     expect(find.textContaining('Past days too'), findsNothing);
     await tapText(tester, '13');
     expect(c.read(boltProvider).plans[Account.ownerId]!['2026-10-13'], isNull);
@@ -294,7 +303,7 @@ void main() {
   testWidgets('solo users open the workout library from Me', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
-    await tapText(tester, 'Me');
+    await tapTab(tester, 'Me');
     await tapText(tester, 'Workouts');
     expect(find.text('LIBRARY'), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -307,7 +316,7 @@ void main() {
   testWidgets('a changed workout gets kg, max reps and goes to the top of the library', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
-    await tapText(tester, 'Me');
+    await tapTab(tester, 'Me');
     await tapText(tester, 'Workouts');
     await tapText(tester, 'Push');
     expect(find.text('VS YOUR STANDARD'), findsOneWidget);
@@ -340,7 +349,7 @@ void main() {
     await settle(tester);
     expect(find.text('▲ 11% above your standard'), findsOneWidget);
     await tapText(tester, 'Done');
-    await tapText(tester, 'Me');
+    await tapTab(tester, 'Me');
     await tapText(tester, 'Workouts');
     await tapText(tester, 'Push');
     await tapText(tester, '+11%');
@@ -387,7 +396,7 @@ void main() {
   testWidgets('exercises move up and down and explain themselves in the editor', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
-    await tapText(tester, 'Me');
+    await tapTab(tester, 'Me');
     await tapText(tester, 'Workouts');
     await tapText(tester, 'Push');
     List<String> names() => c.read(boltProvider).tpls['push']!.ex.map((e) => e.name).toList();
@@ -450,7 +459,7 @@ void main() {
     await tapText(tester, 'Continue');
     await tapText(tester, 'Start training');
     expect(c.read(boltProvider).trainees.single.coachName, 'Marko Ilić');
-    await tapText(tester, 'Me');
+    await tapTab(tester, 'Me');
     expect(find.text('Trainee · Coach Marko Ilić'), findsOneWidget);
     await unmount(tester);
   });
@@ -505,11 +514,11 @@ void main() {
     // The admin's own trainee record is not one of their trainees.
     expect(find.text('TRAINEES · 0'), findsOneWidget);
 
-    await tapText(tester, 'Profile');
+    await tapTab(tester, 'Profile');
     expect(find.text('ADMIN · VIEW AS'), findsOneWidget);
     await tapText(tester, 'Trainee');
     expect(find.text('Hey Dani'), findsOneWidget);
-    await tapText(tester, 'Me');
+    await tapTab(tester, 'Me');
     expect(find.text('Trainee'), findsWidgets);
     await tapText(tester, 'Solo');
     expect(find.text('Training solo'), findsOneWidget);
@@ -543,13 +552,13 @@ void main() {
   testWidgets('the coach centre button opens a calendar of every trainee', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'I coach people', 'Marko');
-    expect(find.text('Check in'), findsNothing);
+    expect(find.byWidgetPredicate((w) => w is Semantics && w.properties.label == 'Check in'), findsNothing);
     final store = c.read(boltProvider.notifier);
     store.autoFill(store.addTrainee(const ProfileInput(name: 'Ana Marić')));
     store.autoFill(store.addTrainee(const ProfileInput(name: 'Luka Horvat')));
     await settle(tester);
 
-    await tapText(tester, 'Calendar');
+    await tapTab(tester, 'Calendar');
     expect(find.text('CALENDAR · 2 TRAINEES'), findsOneWidget);
     expect(find.text('October'), findsOneWidget);
     // Today both have Pull drafted.
@@ -572,13 +581,13 @@ void main() {
   testWidgets('a coach switches to solo and back from the profile', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'I coach people', 'Marko');
-    await tapText(tester, 'Profile');
+    await tapTab(tester, 'Profile');
     expect(find.text('MODE'), findsOneWidget);
     expect(find.text('Trainee'), findsNothing);
     await tapText(tester, 'Solo');
     expect(find.text('Hey Marko'), findsOneWidget);
     expect(find.text('ACHIEVEMENTS'), findsOneWidget);
-    await tapText(tester, 'Me');
+    await tapTab(tester, 'Me');
     expect(find.text('Training solo'), findsOneWidget);
     await tapText(tester, 'Coach');
     expect(find.text('COACH'), findsOneWidget);
@@ -589,7 +598,7 @@ void main() {
   testWidgets('scan button checks in from the frame', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
-    await tapText(tester, 'Check in');
+    await tapTab(tester, 'Check in');
     expect(find.text('Scan to check in'), findsWidgets);
     // Tapping the frame simulates a scan.
     await tester.tap(find.byKey(const Key('scan-frame')));
@@ -613,7 +622,7 @@ void main() {
       ),
     );
     await onboard(tester, 'On my own', 'Dani');
-    await tapText(tester, 'Me');
+    await tapTab(tester, 'Me');
     expect(find.text('ADMIN · VIEW AS'), findsNothing);
     expect(find.text('Bolt 1.2.0'), findsOneWidget);
     await tapText(tester, 'Update');
