@@ -78,6 +78,7 @@ class TodayScreen extends ConsumerWidget {
     }
 
     return ScreenScroll(
+      stagger: true,
       children: [
         Row(
           children: [
@@ -85,9 +86,7 @@ class TodayScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Kicker(
-                    '${weekdays[jsDay(now)]} · ${dayMonth(now)} ${now.year}'.toUpperCase(),
-                  ),
+                  Kicker('${weekdays[jsDay(now)]} · ${dayMonth(now)} ${now.year}'.toUpperCase()),
                   const SizedBox(height: 4),
                   Text(
                     tx('Hey {name}', {'name': vocative(firstName(t.name))}),

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,6 +20,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/forms.dart';
+import '../../widgets/motion.dart';
 import '../../widgets/tap.dart';
 
 const _tabs = [
@@ -99,7 +102,8 @@ class LearnScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 12),
-          ...switch (tab) {
+          // A new tab's cards rise in one after another.
+          for (final (i, w) in switch (tab) {
             'st' => [
               intro(
                 tx(
@@ -224,7 +228,14 @@ class LearnScreen extends ConsumerWidget {
                   const SizedBox(height: 10),
                 ],
             ],
-          },
+          }.indexed)
+            FadeSlideIn(
+              key: ValueKey('$tab $i'),
+              delay: Duration(milliseconds: 25 * math.min(i, 8)),
+              duration: const Duration(milliseconds: 280),
+              offset: 6,
+              child: w,
+            ),
         ],
       ),
     );

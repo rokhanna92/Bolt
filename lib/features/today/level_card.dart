@@ -9,6 +9,7 @@ import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/forms.dart';
+import '../../widgets/motion.dart';
 import '../../widgets/tap.dart';
 
 /// Level, rank and the bar to the next level. Days off rust some XP off the
@@ -39,7 +40,7 @@ class LevelCard extends StatelessWidget {
                 Text('${tx('LVL')} ${lv.level}', style: BoltText.a(15, weight: 900, color: BoltColors.neon)),
                 const SizedBox(width: 8),
                 Expanded(child: Kicker(tx(lv.rank).toUpperCase(), size: 10, spacing: .12)),
-                Text(
+                RollText(
                   tx('{n} XP TO LVL {next}', {'n': lv.need - left, 'next': lv.level + 1}),
                   style: BoltText.m(10, weight: 700, color: BoltColors.muted),
                 ),
@@ -48,26 +49,15 @@ class LevelCard extends StatelessWidget {
             const SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(99),
+              // XP fills in from the left, rust sits right after it.
               child: SizedBox(
                 height: 6,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    if (left > 0)
-                      Expanded(
-                        flex: left,
-                        child: const ColoredBox(color: BoltColors.neon),
-                      ),
-                    if (rust > 0)
-                      Expanded(
-                        flex: rust,
-                        child: const ColoredBox(color: BoltColors.warn),
-                      ),
-                    if (lv.need - lv.into > 0)
-                      Expanded(
-                        flex: lv.need - lv.into,
-                        child: const ColoredBox(color: BoltColors.lineSoft),
-                      ),
+                    const ColoredBox(color: BoltColors.lineSoft),
+                    GrowTo(value: (left + rust) / lv.need, builder: (context, v) => _fill(v, BoltColors.warn)),
+                    GrowTo(value: left / lv.need, builder: (context, v) => _fill(v, BoltColors.neon)),
                   ],
                 ),
               ),
@@ -85,6 +75,12 @@ class LevelCard extends StatelessWidget {
     );
   }
 }
+
+Widget _fill(double v, Color c) => FractionallySizedBox(
+  alignment: Alignment.centerLeft,
+  widthFactor: v.clamp(0.0, 1.0),
+  child: ColoredBox(color: c),
+);
 
 /// How XP is earned and the ranks.
 class LevelSheet extends StatelessWidget {

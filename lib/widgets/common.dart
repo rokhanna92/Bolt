@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
@@ -9,6 +11,7 @@ import '../data/models/session.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
 import 'box.dart';
+import 'motion.dart';
 import 'tap.dart';
 
 /// Page root: ink background, light status bar, Material ancestor for text.
@@ -33,21 +36,58 @@ class BoltPage extends StatelessWidget {
 
 /// Scrollable screen body with the prototype's padding (20 sides, 20 top,
 /// 120 bottom to clear the nav) below the status bar.
-class ScreenScroll extends StatelessWidget {
-  const ScreenScroll({super.key, required this.children, this.top = 20, this.bottom = 120, this.controller});
+class ScreenScroll extends StatefulWidget {
+  const ScreenScroll({
+    super.key,
+    required this.children,
+    this.top = 20,
+    this.bottom = 120,
+    this.controller,
+    this.stagger = false,
+  });
 
   final List<Widget> children;
   final double top;
   final double bottom;
   final ScrollController? controller;
 
+  /// Cards rise in one after another when the screen first shows. Cards
+  /// that come later appear in place.
+  final bool stagger;
+
+  @override
+  State<ScreenScroll> createState() => _ScreenScrollState();
+}
+
+class _ScreenScrollState extends State<ScreenScroll> {
+  late bool _intro = widget.stagger;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_intro) WidgetsBinding.instance.addPostFrameCallback((_) => _intro = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final pad = MediaQuery.paddingOf(context);
+    var k = 0;
     return SingleChildScrollView(
-      controller: controller,
-      padding: EdgeInsets.fromLTRB(20, pad.top + top, 20, bottom + pad.bottom),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+      controller: widget.controller,
+      padding: EdgeInsets.fromLTRB(20, pad.top + widget.top, 20, widget.bottom + pad.bottom),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: widget.stagger
+            ? [
+                for (final c in widget.children)
+                  FadeSlideIn(
+                    play: _intro,
+                    delay: Duration(milliseconds: 40 * math.min(c is SizedBox ? k : k++, 5)),
+                    child: c,
+                  ),
+              ]
+            : widget.children,
+      ),
     );
   }
 }
@@ -430,7 +470,7 @@ class StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final v = Text(
+    final v = RollText(
       value,
       maxLines: 1,
       style: BoltText.a(valueSize, weight: valueWeight, color: valueColor),

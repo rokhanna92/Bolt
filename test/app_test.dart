@@ -120,6 +120,8 @@ Future<void> onboard(WidgetTester tester, String role, String name, {String? wei
   expect(find.text('Your body'), findsOneWidget);
   if (weight != null) await typeInto(tester, 'Weight (kg)', weight);
   await tapText(tester, role == 'I coach people' ? 'Start coaching' : 'Start training');
+  // Today's cards rise in one after another; let them land.
+  await tester.pump(const Duration(milliseconds: 600));
 }
 
 void main() {

@@ -278,7 +278,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Text('$done / $tot ${tx('SETS')}', style: BoltText.m(11, weight: 700)),
+                    RollText('$done / $tot ${tx('SETS')}', style: BoltText.m(11, weight: 700)),
                   ],
                 ),
                 if (lastK != null) ...[
@@ -327,22 +327,35 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
               ],
             ),
           ),
-          if (_restEnd != null)
-            Positioned(
-              left: 14,
-              right: 14,
-              bottom: 16 + insets.bottom,
-              child: FadeSlideIn(
-                duration: const Duration(milliseconds: 300),
-                child: _RestBar(
-                  end: _restEnd!,
-                  total: _restTotal,
-                  onMinus: () => _restAdd(-15),
-                  onPlus: () => _restAdd(15),
-                  onSkip: _skip,
+          Positioned(
+            left: 14,
+            right: 14,
+            bottom: 16 + insets.bottom,
+            // Rises in when a rest starts and sinks away when it ends.
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              reverseDuration: const Duration(milliseconds: 220),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, a) => FadeTransition(
+                opacity: a,
+                child: SlideTransition(
+                  position: Tween(begin: const Offset(0, .25), end: Offset.zero).animate(a),
+                  child: child,
                 ),
               ),
+              child: _restEnd == null
+                  ? const SizedBox.shrink()
+                  : _RestBar(
+                      key: const ValueKey('rest'),
+                      end: _restEnd!,
+                      total: _restTotal,
+                      onMinus: () => _restAdd(-15),
+                      onPlus: () => _restAdd(15),
+                      onSkip: _skip,
+                    ),
             ),
+          ),
         ],
       ),
     );
@@ -552,23 +565,26 @@ class _SetButton extends StatelessWidget {
     return Tap(
       onTap: onTap,
       scale: .94,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        constraints: const BoxConstraints(minWidth: 64),
-        height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-          color: done ? BoltColors.neon : BoltColors.surface2,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: done ? BoltColors.neon : BoltColors.line),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(tx('SET {n}', {'n': n}), style: BoltText.m(9, spacing: .1, color: fg.withValues(alpha: .75))),
-            Text(value.isEmpty ? reps : value, style: BoltText.a(14, weight: 800, color: fg)),
-          ],
+      child: Bump(
+        on: done,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          constraints: const BoxConstraints(minWidth: 64),
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: done ? BoltColors.neon : BoltColors.surface2,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: done ? BoltColors.neon : BoltColors.line),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(tx('SET {n}', {'n': n}), style: BoltText.m(9, spacing: .1, color: fg.withValues(alpha: .75))),
+              Text(value.isEmpty ? reps : value, style: BoltText.a(14, weight: 800, color: fg)),
+            ],
+          ),
         ),
       ),
     );
@@ -676,6 +692,7 @@ class _SetSheetState extends ConsumerState<_SetSheet> {
 /// bar repaints each frame.
 class _RestBar extends StatefulWidget {
   const _RestBar({
+    super.key,
     required this.end,
     required this.total,
     required this.onMinus,
