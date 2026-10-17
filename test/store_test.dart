@@ -897,6 +897,19 @@ void ownerTests() {
     dir.deleteSync(recursive: true);
   });
 
+  test('saves queue up and the newest one lands on disk', () async {
+    final dir = Directory.systemTemp.createTempSync('bolt');
+    final repo = BoltRepository(File('${dir.path}/bolt.json'));
+    for (final r in [Role.coach, Role.trainee, Role.solo]) {
+      repo
+        ..scheduleSave(freshData()..account = Account(r, 'me'))
+        ..flush();
+    }
+    await repo.saved;
+    expect(BoltRepository(File('${dir.path}/bolt.json')).load()!.account!.role, Role.solo);
+    dir.deleteSync(recursive: true);
+  });
+
   test('body units convert both ways', () {
     expect(fmtWeight(80, metric: false), '176.4 lb');
     expect(parseWeight('176.4', metric: false)!, closeTo(80, .05));

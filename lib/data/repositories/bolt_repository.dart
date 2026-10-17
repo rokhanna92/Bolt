@@ -46,14 +46,27 @@ class BoltRepository {
     _debounce = Timer(const Duration(milliseconds: 300), flush);
   }
 
+  /// Done when every save so far is on disk.
+  Future<void> get saved => _writing;
+  Future<void> _writing = Future.value();
+
   /// Writes any pending change now, e.g. when the app goes to background.
+  /// The snapshot is taken here; the disk write runs off the UI thread, and
+  /// writes queue up so an older save never lands after a newer one.
   void flush() {
     _debounce?.cancel();
     final f = _file, d = _pending;
     if (f == null || d == null) return;
     _pending = null;
-    final tmp = File('${f.path}.tmp');
-    tmp.writeAsStringSync(jsonEncode(d.toJson()), flush: true);
-    tmp.renameSync(f.path);
+    final text = jsonEncode(d.toJson());
+    _writing = _writing.then((_) async {
+      try {
+        final tmp = File('${f.path}.tmp');
+        await tmp.writeAsString(text, flush: true);
+        await tmp.rename(f.path);
+      } catch (e) {
+        debugPrint('Bolt: could not save ($e)');
+      }
+    });
   }
 }
