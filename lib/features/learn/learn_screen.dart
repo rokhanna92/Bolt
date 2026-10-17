@@ -56,178 +56,176 @@ class LearnScreen extends ConsumerWidget {
     Widget intro(String t) => Text(t, style: BoltText.a(13, color: BoltColors.muted, height: 1.5));
 
     return BoltPage(
-      child: SingleChildScrollView(
+      // Built lazily: the exercise tab alone holds every exercise.
+      child: ListView(
         padding: EdgeInsets.fromLTRB(20, insets.top + 20, 20, 120 + insets.bottom),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
+        children: [
+          Row(
+            children: [
+              if (pushed) ...[BackBox(onTap: () => context.pop()), const SizedBox(width: 12)],
+              Kicker(tx('ATLAS')),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(tx('Train smarter'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+          const SizedBox(height: 16),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
+            child: Row(
               children: [
-                if (pushed) ...[BackBox(onTap: () => context.pop()), const SizedBox(width: 12)],
-                Kicker(tx('ATLAS')),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(tx('Train smarter'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
-            const SizedBox(height: 16),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              clipBehavior: Clip.none,
-              child: Row(
-                children: [
-                  for (final (i, (k, l)) in _tabs.indexed) ...[
-                    if (i > 0) const SizedBox(width: 6),
-                    Tap(
-                      onTap: () => ref.read(learnTabProvider.notifier).set(k),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        height: 40,
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: tab == k ? BoltColors.neon : const Color(0x00C6FF1A),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: tab == k ? BoltColors.neon : BoltColors.line),
-                        ),
-                        child: Text(
-                          tx(l),
-                          style: BoltText.a(13, weight: 800, color: tab == k ? BoltColors.ink : BoltColors.text),
-                        ),
+                for (final (i, (k, l)) in _tabs.indexed) ...[
+                  if (i > 0) const SizedBox(width: 6),
+                  Tap(
+                    onTap: () => ref.read(learnTabProvider.notifier).set(k),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      height: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: tab == k ? BoltColors.neon : const Color(0x00C6FF1A),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: tab == k ? BoltColors.neon : BoltColors.line),
+                      ),
+                      child: Text(
+                        tx(l),
+                        style: BoltText.a(13, weight: 800, color: tab == k ? BoltColors.ink : BoltColors.text),
                       ),
                     ),
-                  ],
+                  ),
                 ],
-              ),
+              ],
             ),
-            const SizedBox(height: 12),
-            ...switch (tab) {
-              'st' => [
-                intro(
-                  tx(
-                    'How the greats trained and the splits that copy them. Tap "Use this split" to plan your weeks with it.',
-                  ),
+          ),
+          const SizedBox(height: 12),
+          ...switch (tab) {
+            'st' => [
+              intro(
+                tx(
+                  'How the greats trained and the splits that copy them. Tap "Use this split" to plan your weeks with it.',
                 ),
-                const SizedBox(height: 12),
-                for (final st in kStyles) ...[_StyleCard(style: st, data: d), const SizedBox(height: 10)],
-                const SizedBox(height: 14),
-                SectionTitle(tx('Intensity techniques')),
-                const SizedBox(height: 4),
-                intro(tx('Old school tricks to push a set further. Use them on the last set, not every set.')),
-                const SizedBox(height: 12),
-                for (final t in kTechniques) ...[
-                  _Card(
-                    children: [
-                      Text(tx(t.name), style: BoltText.a(16, weight: 900)),
-                      const SizedBox(height: 6),
-                      Text(tx(t.how), style: BoltText.a(13, height: 1.45)),
-                      const SizedBox(height: 6),
-                      Text(tx(t.when), style: BoltText.a(12, color: BoltColors.muted, height: 1.4)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                ],
-              ],
-              'mv' => [
-                intro(
-                  tx(
-                    'Walking, cycling, running and stretching: why each one helps beyond the weights, and how to start. Numbers are from large studies and show links, not guarantees.',
-                  ),
-                ),
-                const SizedBox(height: 12),
-                for (final m in kMove) ...[
-                  _Card(
-                    children: [
-                      Kicker(tx(m.tag).toUpperCase(), size: 9, spacing: .1, color: BoltColors.neon),
-                      const SizedBox(height: 4),
-                      Text(tx(m.name), style: BoltText.a(20, weight: 900)),
-                      const SizedBox(height: 10),
-                      _Bullets(m.why),
-                      const SizedBox(height: 14),
-                      Kicker(tx('HOW TO START'), size: 9, spacing: .1),
-                      const SizedBox(height: 8),
-                      _Bullets(m.how),
-                      const SizedBox(height: 12),
-                      Text(m.source, style: BoltText.a(11, color: BoltColors.muted3, height: 1.4)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              ],
-              'm' => [
-                intro(
-                  tx('What each muscle does, how to train it and the exercises that hit it. Tap an exercise for form.'),
-                ),
-                const SizedBox(height: 12),
-                for (final e in kMuscles.entries) ...[_MuscleCard(id: e.key, m: e.value), const SizedBox(height: 10)],
-              ],
-              'e' => [
-                intro(tx('Correct form, step by step. You can also tap ⓘ next to any exercise in a workout.')),
-                for (final g in kExerciseGroups.entries) ...[
-                  const SizedBox(height: 16),
-                  Kicker(tx(g.value).toUpperCase(), size: 10, spacing: .1),
-                  const SizedBox(height: 8),
-                  for (final e in kExercises.where((x) => x.muscle == g.key)) ...[
-                    _ExerciseRow(e: e),
+              ),
+              const SizedBox(height: 12),
+              for (final st in kStyles) ...[_StyleCard(style: st, data: d), const SizedBox(height: 10)],
+              const SizedBox(height: 14),
+              SectionTitle(tx('Intensity techniques')),
+              const SizedBox(height: 4),
+              intro(tx('Old school tricks to push a set further. Use them on the last set, not every set.')),
+              const SizedBox(height: 12),
+              for (final t in kTechniques) ...[
+                _Card(
+                  children: [
+                    Text(tx(t.name), style: BoltText.a(16, weight: 900)),
                     const SizedBox(height: 6),
+                    Text(tx(t.how), style: BoltText.a(13, height: 1.45)),
+                    const SizedBox(height: 6),
+                    Text(tx(t.when), style: BoltText.a(12, color: BoltColors.muted, height: 1.4)),
                   ],
+                ),
+                const SizedBox(height: 8),
+              ],
+            ],
+            'mv' => [
+              intro(
+                tx(
+                  'Walking, cycling, running and stretching: why each one helps beyond the weights, and how to start. Numbers are from large studies and show links, not guarantees.',
+                ),
+              ),
+              const SizedBox(height: 12),
+              for (final m in kMove) ...[
+                _Card(
+                  children: [
+                    Kicker(tx(m.tag).toUpperCase(), size: 9, spacing: .1, color: BoltColors.neon),
+                    const SizedBox(height: 4),
+                    Text(tx(m.name), style: BoltText.a(20, weight: 900)),
+                    const SizedBox(height: 10),
+                    _Bullets(m.why),
+                    const SizedBox(height: 14),
+                    Kicker(tx('HOW TO START'), size: 9, spacing: .1),
+                    const SizedBox(height: 8),
+                    _Bullets(m.how),
+                    const SizedBox(height: 12),
+                    Text(m.source, style: BoltText.a(11, color: BoltColors.muted3, height: 1.4)),
+                  ],
+                ),
+                const SizedBox(height: 10),
+              ],
+            ],
+            'm' => [
+              intro(
+                tx('What each muscle does, how to train it and the exercises that hit it. Tap an exercise for form.'),
+              ),
+              const SizedBox(height: 12),
+              for (final e in kMuscles.entries) ...[_MuscleCard(id: e.key, m: e.value), const SizedBox(height: 10)],
+            ],
+            'e' => [
+              intro(tx('Correct form, step by step. You can also tap ⓘ next to any exercise in a workout.')),
+              for (final g in kExerciseGroups.entries) ...[
+                const SizedBox(height: 16),
+                Kicker(tx(g.value).toUpperCase(), size: 10, spacing: .1),
+                const SizedBox(height: 8),
+                for (final e in kExercises.where((x) => x.muscle == g.key)) ...[
+                  _ExerciseRow(e: e),
+                  const SizedBox(height: 6),
                 ],
               ],
-              's' => [
-                intro(
+            ],
+            's' => [
+              intro(
+                tx(
                   tx(
-                    tx(
-                      'What works, what might, and what is marketing. Food, sleep and training come first. Check with a doctor if you have a medical condition or take medication.',
-                    ),
+                    'What works, what might, and what is marketing. Food, sleep and training come first. Check with a doctor if you have a medical condition or take medication.',
                   ),
                 ),
-                const SizedBox(height: 12),
-                const _SuppList(),
+              ),
+              const SizedBox(height: 12),
+              const _SuppList(),
+            ],
+            'b' => [
+              intro(tx('The fundamentals behind every split. Get these right and any style works.')),
+              const SizedBox(height: 12),
+              for (final (title, points) in kBasics) ...[
+                _Card(
+                  children: [
+                    Text(tx(title), style: BoltText.a(17, weight: 900)),
+                    const SizedBox(height: 10),
+                    _Bullets(points),
+                  ],
+                ),
+                const SizedBox(height: 10),
               ],
-              'b' => [
-                intro(tx('The fundamentals behind every split. Get these right and any style works.')),
-                const SizedBox(height: 12),
-                for (final (title, points) in kBasics) ...[
+            ],
+            _ => [
+              intro(tx('Why each workout day exists and what it trains.')),
+              const SizedBox(height: 12),
+              for (final k in kWhy.keys)
+                if (d.tpls[k] != null) ...[
                   _Card(
                     children: [
-                      Text(tx(title), style: BoltText.a(17, weight: 900)),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            d.tpls[k]!.code,
+                            style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.neon),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(child: Text(tx(d.tpls[k]!.name), style: BoltText.a(19, weight: 900))),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(tx(d.tpls[k]!.focus), style: BoltText.a(12, color: BoltColors.muted)),
                       const SizedBox(height: 10),
-                      _Bullets(points),
+                      _Bullets(kWhy[k]!),
                     ],
                   ),
                   const SizedBox(height: 10),
                 ],
-              ],
-              _ => [
-                intro(tx('Why each workout day exists and what it trains.')),
-                const SizedBox(height: 12),
-                for (final k in kWhy.keys)
-                  if (d.tpls[k] != null) ...[
-                    _Card(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text(
-                              d.tpls[k]!.code,
-                              style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.neon),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(child: Text(tx(d.tpls[k]!.name), style: BoltText.a(19, weight: 900))),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(tx(d.tpls[k]!.focus), style: BoltText.a(12, color: BoltColors.muted)),
-                        const SizedBox(height: 10),
-                        _Bullets(kWhy[k]!),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-              ],
-            },
-          ],
-        ),
+            ],
+          },
+        ],
       ),
     );
   }
