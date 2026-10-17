@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 /// A tap target that shrinks slightly while pressed (the prototype's
 /// `:active { transform: scale(...) }`). [scale] 1 means no press effect.
+/// Screen readers announce it as a button.
 class Tap extends StatefulWidget {
   const Tap({super.key, required this.onTap, required this.child, this.scale = 1, this.onLongPress});
 
@@ -23,7 +24,7 @@ class _TapState extends State<Tap> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final detector = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: widget.onTap,
       onLongPress: widget.onLongPress,
@@ -38,5 +39,6 @@ class _TapState extends State<Tap> {
               child: widget.child,
             ),
     );
+    return widget.onTap == null ? detector : Semantics(button: true, child: detector);
   }
 }
