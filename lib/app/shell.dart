@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -60,7 +61,10 @@ class BoltShell extends ConsumerWidget {
               scanActive: shell.currentIndex == centre,
               centerIcon: trainee ? 'scan' : 'calendar',
               centerLabel: trainee ? null : tx('Calendar'),
-              onTap: (i) => shell.goBranch(branchOf[i], initialLocation: branchOf[i] == shell.currentIndex),
+              onTap: (i) {
+                if (branchOf[i] != shell.currentIndex) HapticFeedback.selectionClick();
+                shell.goBranch(branchOf[i], initialLocation: branchOf[i] == shell.currentIndex);
+              },
               onScan: trainee ? () => openScanner(context, ref) : () => shell.goBranch(centre),
             ),
           ),
@@ -81,7 +85,7 @@ class _TabFade extends StatefulWidget {
 }
 
 class _TabFadeState extends State<_TabFade> with SingleTickerProviderStateMixin {
-  late final _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 350))..forward();
+  late final _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 220))..forward();
   late final _a = CurvedAnimation(parent: _c, curve: Curves.easeOut);
 
   @override
@@ -98,13 +102,13 @@ class _TabFadeState extends State<_TabFade> with SingleTickerProviderStateMixin 
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _a,
-      builder: (context, child) => Opacity(
-        opacity: _a.value,
-        child: Transform.translate(offset: Offset(0, 10 * (1 - _a.value)), child: child),
+    return FadeTransition(
+      opacity: _a,
+      child: AnimatedBuilder(
+        animation: _a,
+        builder: (context, child) => Transform.translate(offset: Offset(0, 8 * (1 - _a.value)), child: child),
+        child: widget.child,
       ),
-      child: widget.child,
     );
   }
 }
