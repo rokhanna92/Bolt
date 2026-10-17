@@ -162,7 +162,7 @@ class TraineeSessionRow extends StatelessWidget {
                 children: [
                   Text(trainee.name, style: BoltText.a(14, weight: 800)),
                   const SizedBox(height: 2),
-                  Text(session.title, style: BoltText.a(12, color: BoltColors.muted)),
+                  Text(tx(session.title), style: BoltText.a(12, color: BoltColors.muted)),
                 ],
               ),
             ),

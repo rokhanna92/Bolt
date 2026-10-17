@@ -104,9 +104,7 @@ class LearnScreen extends ConsumerWidget {
               'st' => [
                 intro(
                   tx(
-                    tx(
-                      'How the greats trained and the splits that copy them. Tap "Use this split" to plan your weeks with it.',
-                    ),
+                    'How the greats trained and the splits that copy them. Tap "Use this split" to plan your weeks with it.',
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -123,7 +121,7 @@ class LearnScreen extends ConsumerWidget {
                       const SizedBox(height: 6),
                       Text(tx(t.how), style: BoltText.a(13, height: 1.45)),
                       const SizedBox(height: 6),
-                      Text(t.when, style: BoltText.a(12, color: BoltColors.muted, height: 1.4)),
+                      Text(tx(t.when), style: BoltText.a(12, color: BoltColors.muted, height: 1.4)),
                     ],
                   ),
                   const SizedBox(height: 8),
