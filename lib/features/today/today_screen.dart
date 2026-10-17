@@ -99,8 +99,6 @@ class TodayScreen extends ConsumerWidget {
             Avatar(ini: initials(t.name), ring: BoltColors.neon, color: BoltColors.neon),
           ],
         ),
-        const SizedBox(height: 14),
-        LevelCard(stats: t.stats, daysOff: off),
         if (g != null) ...[
           const SizedBox(height: 18),
           Tap(
@@ -135,11 +133,6 @@ class TodayScreen extends ConsumerWidget {
           const SizedBox(height: 18),
           _OffCard(days: off, ready: readyMuscles(plan, today), onGo: train),
         ],
-        if (_cheers(plan, d.settings.hintsSeen, today) case final c when c.isNotEmpty) ...[
-          const SizedBox(height: 18),
-          _CheerCard(keys: c, plan: plan, coach: coachName),
-        ],
-        if (!d.settings.hintsSeen.contains(_newId)) ...[const SizedBox(height: 18), const _NewCard()],
         if (t.stats.away.contains(dk(monday(now)))) ...[
           const SizedBox(height: 18),
           BoltBox(
@@ -188,6 +181,14 @@ class TodayScreen extends ConsumerWidget {
           _RestHero(plan: plan, today: today, next: nextText, off: off, rested: rested, onTrain: train),
         ],
         if (nothingAhead) ...[const SizedBox(height: 12), _StartCard(withCoach: withCoach, coachName: coachName)],
+        // Today's workout leads; level and news follow it.
+        const SizedBox(height: 18),
+        LevelCard(stats: t.stats, daysOff: off),
+        if (_cheers(plan, d.settings.hintsSeen, today) case final c when c.isNotEmpty) ...[
+          const SizedBox(height: 18),
+          _CheerCard(keys: c, plan: plan, coach: coachName),
+        ],
+        if (!d.settings.hintsSeen.contains(_newId)) ...[const SizedBox(height: 18), const _NewCard()],
         if (tp?.status != SessionStatus.done && d.workout?.key != today) ...[
           const SizedBox(height: 12),
           ReadinessCard(trainee: t, session: tp, dayKey: today),
