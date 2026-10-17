@@ -73,8 +73,52 @@ class _SheetBody extends StatefulWidget {
   State<_SheetBody> createState() => _SheetBodyState();
 }
 
-class _SheetBodyState extends State<_SheetBody> {
+class _SheetBodyState extends State<_SheetBody> with SingleTickerProviderStateMixin {
   double _drag = 0;
+
+  /// Eases a sheet that was not pulled far enough back into place.
+  late final _back = AnimationController(vsync: this, duration: const Duration(milliseconds: 220));
+  double _from = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _back.addListener(() => setState(() => _drag = _from * (1 - Curves.easeOutCubic.transform(_back.value))));
+  }
+
+  @override
+  void dispose() {
+    _back.dispose();
+    super.dispose();
+  }
+
+  void _move(double dy) {
+    _back.stop();
+    setState(() => _drag = (_drag + dy).clamp(0, double.infinity));
+  }
+
+  void _release(double velocity) {
+    if (_drag > 100 || velocity > 700) {
+      Navigator.of(context).pop();
+    } else if (_drag > 0) {
+      _from = _drag;
+      _back.forward(from: 0);
+    }
+  }
+
+  /// A sheet that scrolls follows the finger down once its content is at
+  /// the top, like one that fits.
+  bool _onScroll(ScrollNotification n) {
+    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
+    if (n is OverscrollNotification && n.dragDetails != null && n.overscroll < 0) {
+      _move(-n.overscroll);
+    } else if (n is ScrollUpdateNotification && n.dragDetails != null && _drag > 0) {
+      _move(-(n.scrollDelta ?? 0));
+    } else if (n is ScrollEndNotification && _drag > 0) {
+      _release(n.dragDetails?.primaryVelocity ?? 0);
+    }
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,30 +134,27 @@ class _SheetBodyState extends State<_SheetBody> {
         clipBehavior: Clip.antiAlias,
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onVerticalDragUpdate: (d) => setState(() => _drag = (_drag + d.delta.dy).clamp(0, double.infinity)),
-          onVerticalDragEnd: (d) {
-            if (_drag > 100 || (d.primaryVelocity ?? 0) > 700) {
-              Navigator.of(context).pop();
-            } else {
-              setState(() => _drag = 0);
-            }
-          },
-          child: SingleChildScrollView(
-            padding: widget.padding.copyWith(bottom: widget.padding.bottom + bottomInset),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 14),
-                    decoration: BoxDecoration(color: BoltColors.handle, borderRadius: BorderRadius.circular(99)),
+          onVerticalDragUpdate: (d) => _move(d.delta.dy),
+          onVerticalDragEnd: (d) => _release(d.primaryVelocity ?? 0),
+          child: NotificationListener<ScrollNotification>(
+            onNotification: _onScroll,
+            child: SingleChildScrollView(
+              padding: widget.padding.copyWith(bottom: widget.padding.bottom + bottomInset),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 14),
+                      decoration: BoxDecoration(color: BoltColors.handle, borderRadius: BorderRadius.circular(99)),
+                    ),
                   ),
-                ),
-                widget.child,
-              ],
+                  widget.child,
+                ],
+              ),
             ),
           ),
         ),
