@@ -240,7 +240,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
         children: [
           Row(
             children: [
-              Text(pad(i + 1), style: BoltText.m(11, color: BoltColors.muted4)),
+              Text(pad(i + 1), style: BoltText.m(11, color: BoltColors.muted3)),
               const SizedBox(width: 10),
               Expanded(
                 child: Tap(

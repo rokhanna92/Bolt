@@ -13,7 +13,8 @@ abstract final class BoltColors {
   static const textSoft = Color(0xFFC9CEC2);
   static const muted = Color(0xFF9CA393);
   static const muted2 = Color(0xFF80877A);
-  static const muted3 = Color(0xFF6E7566);
+  // The dimmest grey for text: 4.5:1 on cards. muted4 is too dark for text.
+  static const muted3 = Color(0xFF7A8172);
   static const muted4 = Color(0xFF5E6558);
   static const neon = Color(0xFFC6FF1A);
   static const warn = Color(0xFFFF7A45);

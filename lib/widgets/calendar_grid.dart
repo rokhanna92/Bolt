@@ -72,7 +72,7 @@ List<CalCell> buildCalendar({
     final past = k.compareTo(today) < 0;
     var bg = Colors.transparent;
     var stroke = const Stroke(Colors.transparent);
-    var num = inM ? (past ? BoltColors.muted4 : BoltColors.textSoft) : BoltColors.handle;
+    var num = inM ? (past ? BoltColors.muted3 : BoltColors.textSoft) : BoltColors.handle;
     var lab = p == null ? BoltColors.muted : BoltColors.neon;
     switch (p?.status) {
       case SessionStatus.done:

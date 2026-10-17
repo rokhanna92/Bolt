@@ -407,7 +407,7 @@ class _ExerciseCard extends ConsumerWidget {
             children: [
               Text(
                 pad(index + 1),
-                style: BoltText.m(12, weight: 700, color: all ? BoltColors.neon : BoltColors.muted4),
+                style: BoltText.m(12, weight: 700, color: all ? BoltColors.neon : BoltColors.muted3),
               ),
               const SizedBox(width: 10),
               Expanded(

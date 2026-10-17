@@ -138,7 +138,7 @@ class _MuscleBuilderSheetState extends State<MuscleBuilderSheet> {
                 children: [
                   SizedBox(
                     width: 22,
-                    child: Text('${i + 1}'.padLeft(2, '0'), style: BoltText.m(11, color: BoltColors.muted4)),
+                    child: Text('${i + 1}'.padLeft(2, '0'), style: BoltText.m(11, color: BoltColors.muted3)),
                   ),
                   const SizedBox(width: 6),
                   Expanded(child: Text(_ex[i].name, style: BoltText.a(14, weight: 700))),

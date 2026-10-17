@@ -68,7 +68,7 @@ class ExerciseRows extends ConsumerWidget {
             children: [
               SizedBox(
                 width: 16,
-                child: Text(pad(i + 1), style: BoltText.m(11, color: BoltColors.muted4)),
+                child: Text(pad(i + 1), style: BoltText.m(11, color: BoltColors.muted3)),
               ),
               const SizedBox(width: 10),
               Expanded(
