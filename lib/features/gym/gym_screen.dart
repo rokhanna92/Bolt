@@ -91,6 +91,11 @@ class GymScreen extends ConsumerWidget {
                 onTap: () => openScanner(context, ref),
                 leading: const BoltIcon('scan_line', size: 20, color: BoltColors.ink),
               ),
+              const SizedBox(height: 10),
+              OutlineButton(
+                label: g == null ? tx('Check in without scanning') : tx('Check out without scanning'),
+                onTap: () => openScanner(context, ref, manual: true),
+              ),
             ],
           ),
         ),

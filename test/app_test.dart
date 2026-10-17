@@ -612,6 +612,33 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('checking in and out works without a scan', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    bool inGym() => c.read(boltProvider).gymIn[Account.ownerId] != null;
+
+    // From the scanner, when the plaque or camera is not there.
+    await tapTab(tester, 'Check in');
+    await tapText(tester, 'Check in without scanning');
+    expect(find.text('CHECKED IN'), findsOneWidget);
+    expect(inGym(), isTrue);
+    await tester.pump(const Duration(seconds: 2));
+    await settle(tester);
+    expect(find.byType(ScannerOverlay), findsNothing);
+
+    // From the gym page: straight to the result, no camera.
+    await tapText(tester, 'Check out without scanning');
+    expect(find.byKey(const Key('scan-frame')), findsNothing);
+    expect(find.text('CHECKED OUT'), findsOneWidget);
+    expect(inGym(), isFalse);
+    // A short visit explains itself, so the result stays up longer.
+    await tester.pump(const Duration(seconds: 5));
+    await settle(tester);
+    expect(find.text('Check in without scanning'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
   testWidgets('the profile has an update button', (tester) async {
     await pumpApp(
       tester,

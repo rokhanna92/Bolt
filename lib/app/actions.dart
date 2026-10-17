@@ -23,12 +23,13 @@ import 'ui_state.dart';
 NavigatorState get _root => rootNavigatorKey.currentState!;
 
 /// Centre button: trainees land on the gym screen, then the scanner opens.
-void openScanner(BuildContext context, WidgetRef ref, {bool fromShortcut = false}) {
+/// [manual] checks in or out straight away, without the camera.
+void openScanner(BuildContext context, WidgetRef ref, {bool fromShortcut = false, bool manual = false}) {
   if (ref.read(boltProvider).account?.isTrainee ?? false) {
     ref.read(moveFromProvider.notifier).set(null);
     context.go('/gym');
   }
-  _root.push(ScannerRoute(fromShortcut: fromShortcut));
+  _root.push(ScannerRoute(fromShortcut: fromShortcut, manual: manual));
 }
 
 /// The app icon's long-press shortcuts: scan the plaque, today's workout or

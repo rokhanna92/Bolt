@@ -19,25 +19,28 @@ import '../../widgets/motion.dart';
 import '../../widgets/tap.dart';
 import '../plaque/plaque_qr.dart';
 
-/// Full-screen scanner. The plaque QR toggles check-in / check-out; tapping
-/// the frame simulates a scan (handy without a printed plaque).
+/// Full-screen scanner. The plaque QR toggles check-in / check-out; the
+/// button below (or tapping the frame) does the same without a scan.
 class ScannerRoute extends PageRouteBuilder<void> {
-  ScannerRoute({bool fromShortcut = false})
+  ScannerRoute({bool fromShortcut = false, bool manual = false})
     : super(
         opaque: true,
         transitionDuration: const Duration(milliseconds: 250),
         reverseTransitionDuration: const Duration(milliseconds: 200),
-        pageBuilder: (context, a, s) => ScannerOverlay(fromShortcut: fromShortcut),
+        pageBuilder: (context, a, s) => ScannerOverlay(fromShortcut: fromShortcut, manual: manual),
         transitionsBuilder: (context, a, s, child) => FadeTransition(opacity: a, child: child),
       );
 }
 
 class ScannerOverlay extends ConsumerStatefulWidget {
-  const ScannerOverlay({super.key, this.fromShortcut = false});
+  const ScannerOverlay({super.key, this.fromShortcut = false, this.manual = false});
 
   /// Opened from the app icon's shortcut: after checking in, Bolt steps out
   /// of the way and the timer keeps running in the notification.
   final bool fromShortcut;
+
+  /// Checks in or out at once without the camera; only the result shows.
+  final bool manual;
 
   @override
   ConsumerState<ScannerOverlay> createState() => _ScannerOverlayState();
@@ -54,6 +57,12 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
   Timer? _closeTimer;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.manual) WidgetsBinding.instance.addPostFrameCallback((_) => _scan());
+  }
+
+  @override
   void dispose() {
     _closeTimer?.cancel();
     _camera.dispose();
@@ -65,7 +74,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
     HapticFeedback.mediumImpact();
     final res = ref.read(boltProvider.notifier).scan();
     setState(() => _done = res);
-    _camera.stop();
+    if (!widget.manual) _camera.stop();
     // A finished day stays up longer so the message can be read; a tap
     // closes it sooner.
     _closeTimer = Timer(Duration(milliseconds: res.detail == null ? 1800 : 4500), _close);
@@ -122,14 +131,20 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
                 ],
               ),
             ),
-            Expanded(child: _done == null ? _aim() : _success(_done!)),
+            Expanded(
+              child: _done != null
+                  ? _success(_done!)
+                  : widget.manual
+                  ? const SizedBox.shrink()
+                  : _aim(inGym),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _aim() {
+  Widget _aim(bool inGym) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -190,9 +205,17 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
           SizedBox(
             width: 260,
             child: Text(
-              tx('Point at the plaque by the entrance.\nTap the frame to simulate a scan.'),
+              tx('Point at the plaque by the entrance.'),
               textAlign: TextAlign.center,
               style: BoltText.a(14, color: BoltColors.muted),
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: 260,
+            child: OutlineButton(
+              label: inGym ? tx('Check out without scanning') : tx('Check in without scanning'),
+              onTap: _scan,
             ),
           ),
         ],
