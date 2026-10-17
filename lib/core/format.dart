@@ -66,12 +66,13 @@ DateTime monday(DateTime d) => addDays(DateTime(d.year, d.month, d.day), -((jsDa
 DateTime weekStart(DateTime d, {required bool mondayFirst}) =>
     mondayFirst ? monday(d) : addDays(DateTime(d.year, d.month, d.day), -jsDay(d));
 
+/// `14 Oct`, in Serbian `14. okt`.
+String dayMonth(DateTime d) => '${d.day}${isSerbian ? '.' : ''} ${monthsShort[d.month - 1]}';
+
 /// `Wed 14 Oct`, in Serbian `Sre 14. okt`.
 String fmtDay(String k) {
   final d = pk(k);
-  return isSerbian
-      ? '${weekdays[jsDay(d)]} ${d.day}. ${monthsShort[d.month - 1]}'
-      : '${weekdays[jsDay(d)]} ${d.day} ${monthsShort[d.month - 1]}';
+  return '${weekdays[jsDay(d)]} ${dayMonth(d)}';
 }
 
 String hm(DateTime d) => '${pad(d.hour)}:${pad(d.minute)}';

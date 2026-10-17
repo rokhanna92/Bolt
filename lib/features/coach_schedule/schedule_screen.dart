@@ -99,8 +99,7 @@ class ScheduleScreen extends ConsumerWidget {
     return ScreenScroll(
       children: [
         Kicker(
-          '${tx('SCHEDULE')} · ${wM.day} ${monthsShort[wM.month - 1]} - ${wE.day} ${monthsShort[wE.month - 1]}'
-              .toUpperCase(),
+          '${tx('SCHEDULE')} · ${dayMonth(wM)} - ${dayMonth(wE)}'.toUpperCase(),
         ),
         const SizedBox(height: 4),
         Row(

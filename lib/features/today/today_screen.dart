@@ -86,7 +86,7 @@ class TodayScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Kicker(
-                    '${weekdays[jsDay(now)]} · ${now.day} ${monthsShort[now.month - 1]} ${now.year}'.toUpperCase(),
+                    '${weekdays[jsDay(now)]} · ${dayMonth(now)} ${now.year}'.toUpperCase(),
                   ),
                   const SizedBox(height: 4),
                   Text(
