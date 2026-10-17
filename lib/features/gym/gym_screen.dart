@@ -107,7 +107,7 @@ class GymScreen extends ConsumerWidget {
             ),
             StatTile(value: '$cnt', label: tx('VISITS'), valueSize: 20, valueWeight: 800, labelFirst: true, gap: 4),
             StatTile(
-              value: cnt > 0 ? dur(cwMin / cnt) : '—',
+              value: cnt > 0 ? dur(cwMin / cnt) : '-',
               label: tx('AVG VISIT'),
               valueSize: 20,
               valueWeight: 800,

@@ -13,6 +13,8 @@ import 'seed/templates.dart';
 
 /// Converts kg loads for display when the user prefers lb.
 String unitLoad(String load, {required bool kg}) {
+  // The seed marks "no load" with a long dash; it shows as nothing.
+  if (load == '—') return '';
   if (kg || load.isEmpty) return load;
   return load.replaceAllMapped(RegExp(r'([\d.]+)\s?kg'), (m) => '${(double.parse(m[1]!) * 2.2046).round()} lb');
 }

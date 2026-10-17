@@ -292,7 +292,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               const SizedBox(width: 8),
               Expanded(child: _input(_ctl(_reps, e.id, e.reps), tx('Reps'), withMax, (v) => _edit(() => e.reps = v))),
               const SizedBox(width: 8),
-              Expanded(child: _input(_ctl(_loads, e.id, e.load), tx('Load'), withKg, (v) => _edit(() => e.load = v))),
+              Expanded(child: _input(_ctl(_loads, e.id, unitLoad(e.load, kg: true)), tx('Load'), withKg, (v) => _edit(() => e.load = v))),
             ],
           ),
           // Sets from the second on: their own reps and load, empty means
@@ -322,7 +322,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                 Expanded(
                   child: _input(
                     _ctl(_loads, '${e.id}:$j', e.ownLoad(j) ?? ''),
-                    e.load,
+                    unitLoad(e.load, kg: true),
                     withKg,
                     (v) => _edit(() => e.planSet(j, load: v)),
                   ),
