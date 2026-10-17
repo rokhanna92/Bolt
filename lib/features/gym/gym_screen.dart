@@ -26,8 +26,8 @@ class GymScreen extends ConsumerWidget {
     final store = ref.read(boltProvider.notifier);
     final id = d.account?.id ?? '';
     final g = d.gymIn[id];
-    // Live numbers only need the tick while checked in.
-    final now = g == null ? store.now : watchNow(ref);
+    // Live numbers are in minutes; only the ring clock ticks every second.
+    final now = g == null ? store.now : watchMinutes(ref, [g]);
     final visits = d.visits[id] ?? const <Visit>[];
     final live = g?.elapsedMinutes(now) ?? 0;
     final mon0 = monday(now);
@@ -55,7 +55,7 @@ class GymScreen extends ConsumerWidget {
           child: Column(
             children: [
               if (g != null)
-                _LiveRing(timer: clockText(live), since: g.since)
+                _LiveRing(gym: g)
               else
                 BoltBox(
                   width: 200,
@@ -302,10 +302,9 @@ class VisitRow extends StatelessWidget {
 
 /// 200 px ring: neon arc rotating every 3 s and a breathing glow (2.4 s).
 class _LiveRing extends StatefulWidget {
-  const _LiveRing({required this.timer, required this.since});
+  const _LiveRing({required this.gym});
 
-  final String timer;
-  final String since;
+  final GymIn gym;
 
   @override
   State<_LiveRing> createState() => _LiveRingState();
@@ -359,9 +358,14 @@ class _LiveRingState extends State<_LiveRing> with TickerProviderStateMixin {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(widget.timer, style: BoltText.m(30, weight: 700, color: BoltColors.neon)),
+              Consumer(
+                builder: (context, ref, _) => Text(
+                  clockText(widget.gym.elapsedMinutes(watchNow(ref))),
+                  style: BoltText.m(30, weight: 700, color: BoltColors.neon),
+                ),
+              ),
               const SizedBox(height: 4),
-              Kicker(tx('IN SINCE {time}', {'time': widget.since}), spacing: .1),
+              Kicker(tx('IN SINCE {time}', {'time': widget.gym.since}), spacing: .1),
             ],
           ),
         ],

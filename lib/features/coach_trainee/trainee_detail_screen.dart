@@ -578,7 +578,7 @@ class _Visits extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final d = ref.watch(boltProvider);
     final g = d.gymIn[tid];
-    final now = g == null ? DateTime.now() : watchNow(ref);
+    final now = g == null ? DateTime.now() : watchMinutes(ref, [g]);
     final v = d.visits[tid] ?? const <Visit>[];
     if (g == null && v.isEmpty) {
       return Padding(

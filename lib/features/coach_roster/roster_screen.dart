@@ -220,7 +220,7 @@ class _LiveCard extends ConsumerWidget {
         if (d.gymIn[x.id] != null) (initials(x.name), firstName(x.name), x.id),
     ];
     if (live.isEmpty) return const SizedBox.shrink();
-    final now = watchNow(ref);
+    final now = watchMinutes(ref, [for (final x in live) d.gymIn[x.$3]!]);
     return Padding(
       padding: const EdgeInsets.only(top: 18),
       child: BoltBox(
