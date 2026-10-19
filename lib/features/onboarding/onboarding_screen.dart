@@ -8,6 +8,7 @@ import '../../data/models/bolt_data.dart';
 import '../../data/models/people.dart';
 import '../../data/seed/splits.dart';
 import '../../services/coach_directory.dart';
+import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
@@ -262,6 +263,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   void _unlock() {
     final license = ref.read(licenseProvider)(_code.text);
     if (license == null) {
+      Haptics.play(Feel.error);
       setState(() => _codeError = tx('That code is not valid. Check it and try again.'));
       return;
     }

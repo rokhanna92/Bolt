@@ -11,6 +11,7 @@ class AppSettings {
     this.lang = 'en',
     this.restAuto = true,
     this.levelSeen,
+    this.haptics = true,
     List<String>? hintsSeen,
   }) : hintsSeen = hintsSeen ?? [];
 
@@ -48,6 +49,9 @@ class AppSettings {
   /// Highest athlete level already celebrated.
   int? levelSeen;
 
+  /// Haptic feedback on steps, sets and records.
+  bool haptics;
+
   Map<String, dynamic> toJson() => {
     'remind': remind,
     'brief': brief,
@@ -61,6 +65,7 @@ class AppSettings {
     'restAuto': restAuto,
     'hintsSeen': hintsSeen,
     'levelSeen': levelSeen,
+    'haptics': haptics,
   };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
@@ -76,5 +81,6 @@ class AppSettings {
     restAuto: j['restAuto'] as bool? ?? true,
     hintsSeen: [for (final x in j['hintsSeen'] as List? ?? const []) x as String],
     levelSeen: j['levelSeen'] as int?,
+    haptics: j['haptics'] as bool? ?? true,
   );
 }

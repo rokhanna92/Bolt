@@ -6,6 +6,7 @@ import '../data/models/bolt_data.dart';
 import '../data/models/people.dart';
 import '../data/models/template.dart';
 import '../data/seed/splits.dart';
+import '../services/haptics.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
 import 'box.dart';
@@ -48,7 +49,10 @@ class ChoiceChips extends StatelessWidget {
       children: [
         for (final o in options)
           Tap(
-            onTap: () => onSelect(o),
+            onTap: () {
+              Haptics.play(Feel.tick);
+              onSelect(o);
+            },
             child: BoltBox(
               radius: 99,
               color: o == selected ? BoltColors.neon : BoltColors.surface2,

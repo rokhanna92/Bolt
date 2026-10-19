@@ -934,4 +934,6 @@ const kSrUi = <String, String>{
   'Max reps': 'Maks. ponavljanja',
   'Your other workouts': 'Tvoji ostali treninzi',
   '{name} removed from your workouts': 'Uklonjeno iz tvojih treninga: {name}',
+  'Haptics': 'Vibracija',
+  'Steppers tick, sets land with a thud, records swell': 'Koraci kucnu, serije lupnu, rekordi zabruje',
 };

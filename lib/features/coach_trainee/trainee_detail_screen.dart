@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,6 +13,7 @@ import '../../core/units.dart';
 import '../../data/lifts.dart';
 import '../../data/rules.dart';
 import '../../data/seed/splits.dart';
+import '../../services/haptics.dart';
 import '../../data/strength.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
@@ -494,7 +494,7 @@ class _SelectedDay extends ConsumerWidget {
                 for (final e in kCheers) ...[
                   Tap(
                     onTap: () {
-                      HapticFeedback.lightImpact();
+                      Haptics.play(Feel.tap);
                       store.cheer(tid, dayKey, e);
                     },
                     scale: .92,

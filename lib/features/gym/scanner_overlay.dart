@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -10,6 +9,7 @@ import '../../l10n/l10n.dart';
 import '../../app/actions.dart';
 import '../../data/bolt_store.dart';
 import '../../data/seed/content.dart';
+import '../../services/haptics.dart';
 import '../../services/shortcuts.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -71,7 +71,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
 
   void _scan() {
     if (_done != null) return;
-    HapticFeedback.mediumImpact();
+    Haptics.play(Feel.success);
     final res = ref.read(boltProvider.notifier).scan();
     setState(() => _done = res);
     if (!widget.manual) _camera.stop();

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/format.dart';
 import '../data/bolt_store.dart';
 import '../data/models/bolt_data.dart';
+import '../services/haptics.dart';
 import '../widgets/bolt_nav_bar.dart';
 import '../widgets/common.dart';
 import 'actions.dart';
@@ -62,7 +62,7 @@ class BoltShell extends ConsumerWidget {
               centerIcon: trainee ? 'scan' : 'calendar',
               centerLabel: trainee ? null : tx('Calendar'),
               onTap: (i) {
-                if (branchOf[i] != shell.currentIndex) HapticFeedback.selectionClick();
+                if (branchOf[i] != shell.currentIndex) Haptics.play(Feel.tick);
                 shell.goBranch(branchOf[i], initialLocation: branchOf[i] == shell.currentIndex);
               },
               onScan: trainee ? () => openScanner(context, ref) : () => shell.goBranch(centre),

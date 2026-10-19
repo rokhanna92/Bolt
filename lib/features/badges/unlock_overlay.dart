@@ -1,11 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../l10n/l10n.dart';
 
 import '../../data/seed/badges.dart';
+import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/motion.dart';
@@ -38,7 +38,7 @@ class _UnlockOverlayState extends State<UnlockOverlay> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    HapticFeedback.heavyImpact();
+    Haptics.play(Feel.success);
   }
 
   @override

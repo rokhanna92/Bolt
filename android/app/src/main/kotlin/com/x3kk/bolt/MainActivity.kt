@@ -21,6 +21,8 @@ import java.io.File
  *
  * "bolt/widget" saves what the home screen widget shows.
  *
+ * "bolt/haptics" plays a named feel (see BoltHaptics).
+ *
  * And "bolt/backup": Android's own pickers to save a backup file anywhere
  * ("save") and to pick one to restore ("open"). Null means cancelled.
  */
@@ -39,6 +41,14 @@ class MainActivity : FlutterActivity() {
                     "background" -> result.success(moveTaskToBack(true))
                     else -> result.notImplemented()
                 }
+            }
+        }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/haptics").setMethodCallHandler { call, result ->
+            if (call.method == "play") {
+                BoltHaptics.play(this, window?.decorView, call.arguments as String)
+                result.success(null)
+            } else {
+                result.notImplemented()
             }
         }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/widget").setMethodCallHandler { call, result ->

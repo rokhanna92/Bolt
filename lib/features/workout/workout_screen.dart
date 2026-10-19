@@ -19,6 +19,7 @@ import '../../data/models/people.dart';
 import '../../data/rules.dart';
 import '../../data/seed/learn.dart';
 import '../../data/seed/templates.dart';
+import '../../services/haptics.dart';
 import '../../services/notifications.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -71,7 +72,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     final (done, target, _) = race(_work(w), workOf(plan[k]!.ex.expand((e) => e.logged)));
     if (target > 0 && done > target) {
       _passed = true;
-      HapticFeedback.heavyImpact();
+      Haptics.play(Feel.success);
     }
   }
 
@@ -107,6 +108,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
 
   void _restAdd(int s) {
     if (_restEnd == null) return;
+    Haptics.play(Feel.tick);
     setState(() {
       _restEnd = _restEnd!.add(Duration(seconds: s));
       _restTotal = math.max(1, _restTotal + s);
@@ -116,6 +118,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   }
 
   void _skip() {
+    Haptics.play(Feel.tap);
     _ticker?.cancel();
     _notify.clearRest();
     setState(() => _restEnd = null);
@@ -159,7 +162,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
       reps: max ? null : ownReps ?? prev?.reps ?? targetReps(e.reps),
     );
     store.logSet(e.id, j, log);
-    HapticFeedback.lightImpact();
+    Haptics.play(Feel.set);
     _checkRace();
     final partnerNext = e.group != null && i + 1 < ex.length && ex[i + 1].group == e.group;
     if (!partnerNext) _startRest(_nextAfter(ex, i, j, w), restFor(e, auto: st.restAuto, fixed: st.restSecs));
@@ -188,6 +191,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
           unit: pr.heavier ? unit.toUpperCase() : '${unit.toUpperCase()} · ${tx('EST. MAX')}',
           was: '${weightValue(pr.was, metric: metric)} $unit',
           title: tx(e.name),
+          feel: Feel.record,
           sub: pr.heavier
               ? tx('The heaviest you have ever lifted on it.')
               : tx('Your best set ever on it, by estimated max.'),
@@ -197,7 +201,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   }
 
   void _finish() {
-    HapticFeedback.mediumImpact();
+    Haptics.play(Feel.success);
     final unlocked = ref.read(boltProvider.notifier).finish();
     _ticker?.cancel();
     _notify.clearRest();
@@ -678,7 +682,7 @@ class _SetSheetState extends ConsumerState<_SetSheet> {
           borderColor: BoltColors.line,
           weight: 700,
           onTap: () {
-            HapticFeedback.selectionClick();
+            Haptics.play(Feel.off);
             store.toggleSet(widget.e.id, widget.set);
             Navigator.of(context).pop();
           },

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/format.dart';
 import '../core/units.dart';
+import '../services/haptics.dart';
 import '../services/notifications.dart';
 import 'models/bolt_data.dart';
 import 'models/custom_split.dart';
@@ -135,6 +136,7 @@ class BoltStore extends Notifier<BoltData> {
     final d = ref.read(initialDataProvider);
     appLang = AppLang.byName(d.settings.lang);
     appFemale = _ownerFemale(d);
+    Haptics.enabled = d.settings.haptics;
     return d;
   }
 
@@ -1814,6 +1816,9 @@ class BoltStore extends Notifier<BoltData> {
       case 'checkout':
         s.checkout = !s.checkout;
         if (!s.checkout) _notify.cancelCheckout();
+      case 'haptics':
+        s.haptics = !s.haptics;
+        Haptics.enabled = s.haptics;
     }
     _commit();
     if (key == 'remind' || key == 'brief') syncSessionReminders();

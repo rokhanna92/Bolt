@@ -7,6 +7,7 @@ import '../../l10n/l10n.dart';
 import '../../app/share.dart';
 import '../../data/bolt_store.dart';
 import '../../services/backup.dart';
+import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -136,6 +137,12 @@ class SettingsScreen extends ConsumerWidget {
           _Row(tx('Units'), value: s.kg ? 'kg · cm' : 'lb · in', onTap: store.toggleUnits),
           _Row(tx('Week starts on'), value: s.mondayFirst ? tx('Monday') : tx('Sunday'), onTap: store.toggleWeekStart),
           _Row(
+            tx('Haptics'),
+            sub: tx('Steppers tick, sets land with a thud, records swell'),
+            toggle: s.haptics,
+            onTap: () => store.toggleSetting('haptics'),
+          ),
+          _Row(
             tx('Default rest timer'),
             sub: s.restAuto ? tx('Longer for big lifts, shorter for isolation') : null,
             value: s.restAuto ? tx('Auto') : '${s.restSecs} s',
@@ -214,7 +221,14 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _row(_Row r) {
     return Tap(
-      onTap: r.onTap,
+      onTap: r.toggle == null
+          ? r.onTap
+          : () {
+              // Plays before the switch flips, so turning haptics off still
+              // answers this one tap.
+              Haptics.play(r.toggle! ? Feel.off : Feel.on);
+              r.onTap?.call();
+            },
       child: Container(
         constraints: const BoxConstraints(minHeight: 52),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

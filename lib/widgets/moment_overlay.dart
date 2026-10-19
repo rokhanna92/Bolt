@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../core/format.dart';
+import '../services/haptics.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
 import 'motion.dart';
 
 /// A big moment worth stopping for: a personal record or a new level.
 class Moment {
-  const Moment({required this.kicker, required this.big, required this.unit, required this.title, this.was, this.sub});
+  const Moment({
+    required this.kicker,
+    required this.big,
+    required this.unit,
+    required this.title,
+    this.was,
+    this.sub,
+    this.feel = Feel.success,
+  });
 
   final String kicker;
   final String big;
@@ -18,6 +26,9 @@ class Moment {
   /// The number it beat, shown struck through.
   final String? was;
   final String? sub;
+
+  /// How it lands in the hand: a record swells, a level taps twice.
+  final Feel feel;
 }
 
 /// Full-screen moment; tap anywhere to continue.
@@ -46,8 +57,7 @@ class _MomentOverlayState extends State<MomentOverlay> {
   @override
   void initState() {
     super.initState();
-    HapticFeedback.heavyImpact();
-    Future.delayed(const Duration(milliseconds: 180), HapticFeedback.heavyImpact);
+    Haptics.play(widget.moment.feel);
   }
 
   @override
