@@ -18,6 +18,7 @@ class Moment {
     this.sub,
     this.feel = Feel.success,
     this.confetti = false,
+    this.art,
   });
 
   final String kicker;
@@ -34,6 +35,9 @@ class Moment {
 
   /// A burst of confetti, for records.
   final bool confetti;
+
+  /// A picture in place of [big], like a rank's emblem.
+  final Widget? art;
 }
 
 /// Full-screen moment; tap anywhere to continue.
@@ -85,17 +89,19 @@ class _MomentOverlayState extends State<MomentOverlay> {
                   const SizedBox(height: 18),
                   PopIn(
                     duration: const Duration(milliseconds: 550),
-                    child: Text(
-                      m.big,
-                      style: BoltText.a(
-                        96,
-                        weight: 900,
-                        width: 115,
-                        height: .95,
-                        spacing: -.03,
-                        color: BoltColors.neon,
-                      ),
-                    ),
+                    child:
+                        m.art ??
+                        Text(
+                          m.big,
+                          style: BoltText.a(
+                            96,
+                            weight: 900,
+                            width: 115,
+                            height: .95,
+                            spacing: -.03,
+                            color: BoltColors.neon,
+                          ),
+                        ),
                   ),
                   Text(m.unit, style: BoltText.m(12, weight: 700, spacing: .16, color: BoltColors.textSoft)),
                   if (m.was != null) ...[

@@ -15,6 +15,7 @@ class AppSettings {
     this.floor = false,
     this.restSound = 'chime',
     this.countdown = true,
+    this.rankSeen,
     List<String>? hintsSeen,
   }) : hintsSeen = hintsSeen ?? [];
 
@@ -64,6 +65,9 @@ class AppSettings {
   /// Ticks (and blips, with a sound on) in the last 3 seconds of a rest.
   bool countdown;
 
+  /// Highest rank step already celebrated.
+  int? rankSeen;
+
   Map<String, dynamic> toJson() => {
     'remind': remind,
     'brief': brief,
@@ -81,6 +85,7 @@ class AppSettings {
     'floor': floor,
     'restSound': restSound,
     'countdown': countdown,
+    'rankSeen': rankSeen,
   };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
@@ -100,5 +105,6 @@ class AppSettings {
     floor: j['floor'] as bool? ?? false,
     restSound: j['restSound'] as String? ?? 'chime',
     countdown: j['countdown'] as bool? ?? true,
+    rankSeen: j['rankSeen'] as int?,
   );
 }

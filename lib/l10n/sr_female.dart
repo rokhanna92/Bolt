@@ -70,8 +70,9 @@ const kSrFemale = <String, String>{
   'Away this week': 'Odsutna ove nedelje',
   'Away this week. Your streak is safe, train if you feel like it.': 'Odsutna si ove nedelje. Niz je bezbedan, treniraj ako ti se da.',
   'The heaviest you have ever lifted on it.': 'Najteže što si ikad podigla na ovoj vežbi.',
-  'Rookie': 'Početnica',
   'Trainee': 'Klijentkinja',
   'Trainee · Coach {name}': 'Klijentkinja · trener {name}',
   'Feeling good. Enjoy the rest, you are set for the next session.': 'Osećaš se dobro. Uživaj u odmoru, spremna si za sledeći trening.',
+  'Your best three main lifts for your bodyweight: a max you set, or your best logged set.': 'Tvoje tri najbolje glavne vežbe u odnosu na telesnu težinu: maksimum koji si upisala ili najbolja upisana serija.',
+  'Immortal': 'Besmrtnica',
 };

@@ -13,6 +13,7 @@ import '../../data/models/session.dart';
 import '../../data/models/visit.dart';
 import '../../data/cycle.dart';
 import '../../data/lifts.dart';
+import '../../data/rank.dart';
 import '../../data/rules.dart';
 import '../../data/suggestions.dart';
 import '../../data/warmup.dart';
@@ -34,6 +35,7 @@ import '../measurements/cycle_card.dart';
 import '../plan/free_day_sheet.dart';
 import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
 import '../sharing/import_sheet.dart';
+import '../rank/rank_screen.dart' show RankCard;
 import 'level_card.dart';
 import 'readiness_card.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -183,6 +185,8 @@ class TodayScreen extends ConsumerWidget {
         // Today's workout leads; level and news follow it.
         const SizedBox(height: 18),
         LevelCard(stats: t.stats, daysOff: off),
+        const SizedBox(height: 10),
+        RankCard(rank: rankOf(t, plan), t: t),
         if (_cheers(plan, d.settings.hintsSeen, today) case final c when c.isNotEmpty) ...[
           const SizedBox(height: 18),
           _CheerCard(keys: c, plan: plan, coach: coachName),

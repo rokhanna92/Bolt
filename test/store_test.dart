@@ -18,6 +18,7 @@ import 'package:bolt/data/models/session.dart';
 import 'package:bolt/data/models/template.dart';
 import 'package:bolt/data/models/visit.dart';
 import 'package:bolt/data/plates.dart';
+import 'package:bolt/data/rank.dart';
 import 'package:bolt/data/rules.dart';
 import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
@@ -560,7 +561,51 @@ void ownerTests() {
       expect((levelOf(500).level, levelOf(500).into, levelOf(500).need), (3, 0, 400));
       expect(xpOf(TraineeStats(sets: 10, workouts: 1, sessions: 1, prs: 1, perfect: 1)), 480);
       expect([rustOf(2), rustOf(3), rustOf(5)], [0, 25, 75]);
-      expect([rankOf(1), rankOf(5), rankOf(44)], ['Rookie', 'Regular', 'Legend']);
+    });
+
+    test('rank places the best three main lifts for bodyweight on the tiers', () {
+      final f = Fresh(wed)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'));
+      final t = f.data.trainees.single;
+      expect(rankName(rankOf(t, f.mine).step), 'Bodyweight');
+      t.body
+        ..weightKg = 80
+        ..sex = 'm';
+      expect(rankOf(t, f.mine).placed, isFalse);
+      // Bench at bodyweight is where Intermediate starts.
+      t.maxes['Bench Press'] = 80;
+      expect(rankName(rankOf(t, f.mine).step), 'Steel II');
+      t.maxes
+        ..['Back Squat'] = 200
+        ..['Deadlift'] = 250;
+      final r = rankOf(t, f.mine);
+      expect(rankName(r.step), 'Platinum I');
+      expect(r.lifts.map((l) => l.name), ['Deadlift', 'Back Squat', 'Bench Press']);
+      expect(nextStep(r, t.body), ('Back Squat', 17.5));
+      t.maxes
+        ..['Bench Press'] = 400
+        ..['Back Squat'] = 400
+        ..['Deadlift'] = 400;
+      expect(rankName(rankOf(t, f.mine).step), 'Olympia');
+      expect(nextStep(rankOf(t, f.mine), t.body), isNull);
+    });
+
+    test('a new rank is celebrated once', () {
+      final f = Fresh(wed)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'));
+      final t = f.data.trainees.single;
+      t.body
+        ..weightKg = 80
+        ..sex = 'm';
+      // A new profile starts at Bodyweight, so placing is a rank up.
+      expect(f.data.settings.rankSeen, 0);
+      expect(f.store.rankUp(), isNull);
+      t.maxes['Bench Press'] = 80;
+      expect(f.store.rankUp(), 11);
+      expect(f.store.rankUp(), isNull);
+      // A save from before ranks only remembers where it stands.
+      f.data.settings.rankSeen = null;
+      t.maxes['Back Squat'] = 200;
+      expect(f.store.rankUp(), isNull);
+      expect(f.data.settings.rankSeen, greaterThan(11));
     });
 
     test('a new level is celebrated once', () {

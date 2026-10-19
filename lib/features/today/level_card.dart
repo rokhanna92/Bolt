@@ -12,7 +12,7 @@ import '../../widgets/forms.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/tap.dart';
 
-/// Level, rank and the bar to the next level. Days off rust some XP off the
+/// Level and the bar to the next level. Days off rust some XP off the
 /// bar until the next workout.
 class LevelCard extends StatelessWidget {
   const LevelCard({super.key, required this.stats, required this.daysOff});
@@ -39,7 +39,7 @@ class LevelCard extends StatelessWidget {
               children: [
                 Text('${tx('LVL')} ${lv.level}', style: BoltText.a(15, weight: 900, color: BoltColors.neon)),
                 const SizedBox(width: 8),
-                Expanded(child: Kicker(tx(lv.rank).toUpperCase(), size: 10, spacing: .12)),
+                Expanded(child: Kicker(tx('ATHLETE LEVEL'), size: 10, spacing: .12)),
                 RollText(
                   tx('{n} XP TO LVL {next}', {'n': lv.need - left, 'next': lv.level + 1}),
                   style: BoltText.m(10, weight: 700, color: BoltColors.muted),
@@ -82,7 +82,7 @@ Widget _fill(double v, Color c) => FractionallySizedBox(
   child: ColoredBox(color: c),
 );
 
-/// How XP is earned and the ranks.
+/// How XP is earned.
 class LevelSheet extends StatelessWidget {
   const LevelSheet({super.key});
 
@@ -120,8 +120,11 @@ class LevelSheet extends StatelessWidget {
         ),
         FieldLabel(tx('XP')),
         for (final (l, n) in earn) row(l, '+$n XP'),
-        FieldLabel(tx('RANKS')),
-        for (final (l, name) in kRanks) row(tx(name), tx('LVL {n}+', {'n': l})),
+        const SizedBox(height: 14),
+        Text(
+          tx('Your rank is separate: it comes from what you can lift for your bodyweight. Tap Rank on Today.'),
+          style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
+        ),
       ],
     );
   }

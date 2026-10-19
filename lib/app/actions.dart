@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../core/format.dart';
 import '../data/bolt_store.dart';
+import '../core/units.dart';
 import '../data/level.dart';
+import '../data/rank.dart';
 import '../data/models/bolt_data.dart';
 import '../data/models/session.dart';
 import '../features/badges/unlock_overlay.dart';
@@ -12,11 +14,14 @@ import '../features/gym/scanner_overlay.dart';
 import '../features/learn/exercise_sheet.dart';
 import '../features/plan/day_sheet.dart';
 import '../features/profile/injury_sheet.dart';
+import '../features/rank/rank_screen.dart';
 import '../features/workouts/muscle_builder.dart';
 import '../features/workouts/split_sheet.dart';
 import '../features/workouts/workout_picker.dart';
 import '../widgets/bolt_sheet.dart';
+import '../services/haptics.dart';
 import '../widgets/moment_overlay.dart';
+import '../widgets/rank_emblem.dart';
 import 'router.dart';
 import 'ui_state.dart';
 
@@ -66,19 +71,45 @@ Future<void> showUnlocks(List<String> ids) async {
   }
   final l = _store.levelUp();
   if (l != null) await _root.push(MomentRoute(levelMoment(l)));
+  await showRankUp();
 }
 
-/// The level-up moment: the level, its rank and what the next one takes.
-Moment levelMoment(int l) {
-  final rank = rankOf(l);
-  return Moment(
-    kicker: tx('LEVEL UP'),
-    big: '$l',
-    unit: tx('LEVEL'),
-    title: tx(rank).toUpperCase(),
-    sub: rank != rankOf(l - 1)
-        ? tx('New rank: {rank}. Keep stacking sets.', {'rank': tx(rank)})
-        : tx('{n} XP to level {next}.', {'n': xpToNext(l), 'next': l + 1}),
+/// The level-up moment: the level and what the next one takes.
+Moment levelMoment(int l) => Moment(
+  kicker: tx('LEVEL UP'),
+  big: '$l',
+  unit: tx('LEVEL'),
+  title: tx('ATHLETE LEVEL'),
+  sub: tx('{n} XP to level {next}.', {'n': xpToNext(l), 'next': l + 1}),
+);
+
+/// A new rank, when a workout or a new max lifts it: the emblem, confetti
+/// and what the next division takes.
+Future<void> showRankUp() async {
+  final step = _store.rankUp();
+  if (step == null) return;
+  final d = _container.read(boltProvider);
+  final t = _store.tr(d.account!.id);
+  final next = nextStep(rankOf(t, _store.plan(t.id)), t.body);
+  await _root.push(
+    MomentRoute(
+      Moment(
+        kicker: tx('RANK UP'),
+        big: '',
+        art: RankEmblem(step: step, size: 150),
+        unit: '',
+        title: rankText(step),
+        feel: Feel.record,
+        confetti: true,
+        sub: next == null
+            ? tx('The top of the ladder.')
+            : tx('Next: {rank} · +{kg} on {lift}', {
+                'rank': rankText(step + 1),
+                'kg': fmtWeight(next.$2, metric: d.settings.kg),
+                'lift': tx(next.$1),
+              }),
+      ),
+    ),
   );
 }
 

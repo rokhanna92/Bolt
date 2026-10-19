@@ -18,6 +18,7 @@ import 'models/visit.dart';
 import 'level.dart';
 import 'lifts.dart';
 import 'programs.dart';
+import 'rank.dart';
 import 'repositories/bolt_repository.dart';
 import 'rules.dart';
 import 'seed/content.dart';
@@ -234,6 +235,8 @@ class BoltStore extends Notifier<BoltData> {
     state.settings.gymName = p.gym?.trim() ?? '';
     state.account = Account(role, Account.ownerId, admin: admin);
     state.settings.levelSeen = 1;
+    // Everyone starts at Bodyweight, so the first placement is celebrated.
+    state.settings.rankSeen = 0;
     if (autoPlan && role != Role.coach) _fill(Account.ownerId, SessionStatus.approved);
     _commit();
     syncSessionReminders();
@@ -993,6 +996,19 @@ class BoltStore extends Notifier<BoltData> {
     state.settings.levelSeen = l;
     _commit();
     return seen == null ? null : l;
+  }
+
+  /// The owner's rank step when it is higher than the last one celebrated,
+  /// once. The first look only remembers where it stands.
+  int? rankUp() {
+    final t = trOrNull(state.account?.id ?? '');
+    if (t == null) return null;
+    final step = rankOf(t, plan(t.id)).step;
+    final seen = state.settings.rankSeen;
+    if (seen != null && step <= seen) return null;
+    state.settings.rankSeen = step;
+    _commit();
+    return seen == null ? null : step;
   }
 
   /// Marks day [k] as a rest day, or clears the mark. A session planned

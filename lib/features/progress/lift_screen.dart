@@ -489,6 +489,8 @@ class _MaxSheetState extends ConsumerState<_MaxSheet> {
           onTap: () {
             store.setMax(widget.tid, widget.name, parseWeight(_c.text, metric: _metric));
             Navigator.of(context).pop();
+            // A new max can lift the rank.
+            showRankUp();
           },
         ),
       ],

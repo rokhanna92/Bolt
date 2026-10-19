@@ -1,5 +1,5 @@
-// Athlete level: XP from what Bolt already counts, levels that take a bit
-// more each time, and ranks.
+// Athlete level: XP from what Bolt already counts, and levels that take a
+// bit more each time. Rank (rank.dart) is separate: it comes from strength.
 
 import 'models/people.dart';
 
@@ -21,8 +21,6 @@ class Level {
   /// XP into this level, and what the level takes.
   final int into;
   final int need;
-
-  String get rank => rankOf(level);
 }
 
 Level levelOf(int xp) {
@@ -33,16 +31,3 @@ Level levelOf(int xp) {
   }
   return Level(l, left, xpToNext(l));
 }
-
-/// Rank names by level.
-const kRanks = [
-  (1, 'Rookie'),
-  (5, 'Regular'),
-  (10, 'Grinder'),
-  (15, 'Iron'),
-  (20, 'Steel'),
-  (30, 'Titan'),
-  (40, 'Legend'),
-];
-
-String rankOf(int level) => kRanks.lastWhere((r) => level >= r.$1).$2;

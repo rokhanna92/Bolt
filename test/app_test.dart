@@ -281,7 +281,7 @@ void main() {
     }
     // A full logged day is enough for level 2.
     expect(find.text('LEVEL UP'), findsOneWidget);
-    expect(find.text('ROOKIE'), findsOneWidget);
+    expect(find.text('ATHLETE LEVEL'), findsWidgets);
     await tapText(tester, 'Tap to continue');
     await tapTab(tester, 'Today');
     expect(find.text('LVL 2'), findsOneWidget);
@@ -438,6 +438,32 @@ void main() {
     expect(find.text('87.5'), findsOneWidget);
     await tapText(tester, 'LIST');
     expect(c.read(boltProvider).settings.floor, isFalse);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
+  testWidgets('everyone starts at Bodyweight and a new max ranks you up', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    expect(find.text('BODYWEIGHT'), findsOneWidget);
+    expect(find.text('Log a main lift to get placed'), findsOneWidget);
+    c.read(boltProvider).trainees.single.body
+      ..weightKg = 80
+      ..sex = 'm';
+    c.read(routerProvider).push('/lift/Bench Press');
+    await settle(tester);
+    await tapText(tester, 'Set max');
+    await typeInto(tester, 'Bench Press', '80');
+    await tapText(tester, 'Save');
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('RANK UP'), findsOneWidget);
+    expect(find.text('STEEL II'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+    await tapText(tester, 'Tap to continue');
+    c.read(routerProvider).push('/rank');
+    await settle(tester);
+    expect(find.text('Share my rank'), findsOneWidget);
+    expect(find.text('What counts'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await unmount(tester);
   });

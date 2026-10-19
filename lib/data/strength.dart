@@ -28,6 +28,14 @@ List<String> get kStandardLifts => _standards.keys.toList();
 /// Whether [lift] has strength standards.
 bool hasStandards(String lift) => _standards.containsKey(lift);
 
+/// The multiples for [lift] for [body]'s sex; null without standards or a
+/// sex set.
+List<double>? standardsFor(String lift, Body body) {
+  final s = _standards[lift];
+  if (s == null || body.sex == null) return null;
+  return body.sex == 'f' ? s.$2 : s.$1;
+}
+
 class StrengthLevel {
   const StrengthLevel(this.level, this.ratio, this.nextKg);
 

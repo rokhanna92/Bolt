@@ -25,6 +25,7 @@ import '../features/plaque/plaque_screen.dart';
 import '../features/plates/plate_screen.dart';
 import '../features/profile/edit_profile_screen.dart';
 import '../features/profile/me_screen.dart';
+import '../features/rank/rank_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/today/today_screen.dart';
 import '../features/workout/summary_screen.dart';
@@ -37,7 +38,7 @@ final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 // The Library (/workouts), editor, plaque, Learn guide (/guide) and settings
 // are shared: solo users and trainees plan for themselves too.
-const _traineeOnly = {'today', 'plan', 'gym', 'learn', 'badges', 'me', 'workout', 'wrap', 'history'};
+const _traineeOnly = {'today', 'plan', 'gym', 'learn', 'badges', 'me', 'workout', 'wrap', 'history', 'rank'};
 const _coachOnly = {'roster', 'schedule', 'profile', 'trainee', 'calendar'};
 
 /// Pushed screens: fade in and rise 10 px (350 ms, easeOut).
@@ -174,6 +175,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) =>
             _enter(s, LiftScreen(name: s.pathParameters['name']!, tid: s.uri.queryParameters['tid'])),
+      ),
+      GoRoute(
+        path: '/rank',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const RankScreen()),
       ),
       GoRoute(
         path: '/history',
