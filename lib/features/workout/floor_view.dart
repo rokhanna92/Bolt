@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/actions.dart';
 import '../../core/format.dart';
@@ -9,6 +10,7 @@ import '../../core/units.dart';
 import '../../data/lifts.dart';
 import '../../data/models/bolt_data.dart';
 import '../../data/models/exercise.dart';
+import '../../data/plates.dart';
 import '../../data/seed/learn.dart';
 import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
@@ -17,6 +19,7 @@ import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/fields.dart';
+import '../../widgets/plate_bar.dart';
 import '../../widgets/tap.dart';
 
 /// The order sets are done in: an exercise set by set, a superset round by
@@ -242,6 +245,33 @@ class _FloorViewState extends State<FloorView> {
     c.dispose();
   }
 
+  /// The plates for [kg] under the weight, live as it steps. Tap for the
+  /// full calculator.
+  Widget _plates(double kg) {
+    final plates = widget.metric ? kPlatesKg : kPlatesLb;
+    final total = widget.metric ? kg : kg * 2.20462;
+    final r = platesFor(total, plates.first == 25 ? 20 : 45, plates);
+    if (r.left < 0) return const SizedBox.shrink();
+    return Tap(
+      onTap: () => context.push('/plates?kg=$kg'),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Column(
+          children: [
+            PlateBar(side: r.side, plates: plates, height: 56),
+            const SizedBox(height: 4),
+            Text(
+              r.side.isEmpty
+                  ? tx('Just the bar')
+                  : tx('Each side: {plates}', {'plates': '${sideText(r.side)} ${weightUnit(widget.metric)}'}),
+              style: BoltText.m(11, weight: 700, color: BoltColors.textSoft),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final at = _at;
@@ -391,6 +421,7 @@ class _FloorViewState extends State<FloorView> {
                     (v) => setState(() => _kg = parseWeight(v, metric: metric)),
                   ),
                 ),
+                if (kBarbellLifts.contains(e.name) && _kg != null) _plates(_kg!),
                 if (secs == null && !distance) ...[
                   const SizedBox(height: 14),
                   FloorStepper(

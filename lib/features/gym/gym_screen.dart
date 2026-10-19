@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/actions.dart';
 import '../../app/tick.dart';
@@ -15,6 +16,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
+import '../../widgets/tap.dart';
 import '../today/today_screen.dart' show clockText;
 
 class GymScreen extends ConsumerWidget {
@@ -120,6 +122,34 @@ class GymScreen extends ConsumerWidget {
               gap: 4,
             ),
           ],
+        ),
+        const SizedBox(height: 10),
+        Tap(
+          onTap: () => context.push('/plates'),
+          child: BoltBox(
+            color: BoltColors.surface1,
+            stroke: const Stroke(BoltColors.line),
+            radius: 14,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(tx('Plate calculator'), style: BoltText.a(14, weight: 800)),
+                      const SizedBox(height: 2),
+                      Text(
+                        tx('Which plates go on each side of the bar'),
+                        style: BoltText.a(12, color: BoltColors.muted),
+                      ),
+                    ],
+                  ),
+                ),
+                const Chevron(size: 16),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 22),
         SectionTitle(tx('Last 6 weeks')),

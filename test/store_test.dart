@@ -17,6 +17,7 @@ import 'package:bolt/features/progress/season_card.dart';
 import 'package:bolt/data/models/session.dart';
 import 'package:bolt/data/models/template.dart';
 import 'package:bolt/data/models/visit.dart';
+import 'package:bolt/data/plates.dart';
 import 'package:bolt/data/rules.dart';
 import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
@@ -65,6 +66,28 @@ void main() {
       expect(initials('Marko Ilić'), 'MI');
       expect(plural(1, 'session'), '1 session');
       expect(plural(3, 'session'), '3 sessions');
+    });
+
+    test('plates load each side heaviest first and say what is short', () {
+      expect(platesFor(100, 20, kPlatesKg).side, [25.0, 15.0]);
+      expect(sideText(platesFor(142.5, 20, kPlatesKg).side), '2 × 25 · 10 · 1.25');
+      expect(platesFor(20, 20, kPlatesKg).side, isEmpty);
+      expect(platesFor(15, 20, kPlatesKg).left, -5);
+      expect(platesFor(101, 20, kPlatesKg).left, closeTo(1, 1e-9));
+      expect(platesFor(225, 45, kPlatesLb).side, [45.0, 45.0]);
+    });
+
+    test('weights step on the plate grid and time targets read as seconds', () {
+      expect(stepWeight(100, 1, metric: true), 102.5);
+      expect(stepWeight(101, -1, metric: true), 100);
+      expect(stepWeight(2.5, -1, metric: true), isNull);
+      expect(stepWeight(null, 1, metric: true), 2.5);
+      expect(weightValue(stepWeight(100 / 2.20462, 1, metric: false), metric: false), '105');
+      expect(targetSecs('45 s'), 45);
+      expect(targetSecs('30-45 s'), 45);
+      expect(targetSecs('30 min'), 1800);
+      expect(targetSecs('8-10'), isNull);
+      expect(targetSecs('250 m'), isNull);
     });
 
     test('title auto-size steps at 6 and 9 chars', () {

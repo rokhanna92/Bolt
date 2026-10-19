@@ -22,6 +22,7 @@ import '../features/progress/progress_screen.dart';
 import '../features/progress/wrap_screen.dart';
 import '../features/plan/plan_screen.dart';
 import '../features/plaque/plaque_screen.dart';
+import '../features/plates/plate_screen.dart';
 import '../features/profile/edit_profile_screen.dart';
 import '../features/profile/me_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -214,6 +215,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/workouts',
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) => _enter(s, const BoltPage(child: LibraryScreen())),
+      ),
+      GoRoute(
+        path: '/plates',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, PlateScreen(kg: double.tryParse(s.uri.queryParameters['kg'] ?? ''))),
       ),
       GoRoute(
         path: '/plaque',
