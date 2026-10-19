@@ -1135,20 +1135,24 @@ class _HeroCard extends ConsumerWidget {
   }
 }
 
-const _newId = 'new:1.20';
+const _newId = 'new:1.23';
 
-/// What 1.20 added and where to find it, until closed.
+/// What 1.23 added and where to find it, until closed.
 class _NewCard extends ConsumerWidget {
   const _NewCard();
 
   static const _items = <(String, String, String?)>[
     (
-      'Your standard',
-      "A workout's numbers are your standard. See every time above or below it, and make a good day the new standard.",
-      '/workouts',
+      'Gym floor mode',
+      'In a workout, tap GYM FLOOR: one set at a time, big weight and reps steppers, a big rest ring and the plates for the bar.',
+      null,
     ),
-    ('Your workouts first', 'Workouts you made or changed sit at the top of the library.', '/workouts'),
-    ('Max reps and kg', 'Type 15 and it becomes 15 kg. Max reps for sets to the end.', '/workouts'),
+    ('Last time, filled in', 'Every set starts at what you did on that set last time. Tap + if you go heavier.', null),
+    ('Rest on the lock screen', 'The rest counts down on the lock screen with −15, +15 and Skip, a chime in your headphones and a buzz in your pocket.', '/settings'),
+    ('Your rank', 'From Bodyweight to Olympia, by what you lift for your bodyweight. Share it.', '/rank'),
+    ('Logbook', 'Every workout set by set, with your latest records.', '/history'),
+    ('Plate calculator', 'Which plates go on each side of the bar.', '/plates'),
+    ('Feel it', 'Steppers tick, sets land with a thud, records swell with confetti.', '/settings'),
   ];
 
   @override
@@ -1164,7 +1168,7 @@ class _NewCard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Kicker(tx('NEW IN BOLT 1.20'), color: BoltColors.neon)),
+              Expanded(child: Kicker(tx('NEW IN BOLT 1.23'), color: BoltColors.neon)),
               Tap(
                 onTap: () => store.dismissHint(_newId),
                 child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),
