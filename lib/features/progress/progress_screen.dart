@@ -80,6 +80,34 @@ class ProgressScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 10),
+            Tap(
+              onTap: () => context.push('/history'),
+              child: BoltBox(
+                color: BoltColors.surface1,
+                stroke: const Stroke(BoltColors.line),
+                radius: 14,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(tx('Logbook'), style: BoltText.a(14, weight: 800)),
+                          const SizedBox(height: 2),
+                          Text(
+                            tx('Every workout, set by set, and your records'),
+                            style: BoltText.a(12, color: BoltColors.muted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Chevron(size: 16),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
             if (store.currentSeason() case final s?)
               SeasonCard(s: s, plan: plan, today: dk(now))
             else

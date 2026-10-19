@@ -292,7 +292,14 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               const SizedBox(width: 8),
               Expanded(child: _input(_ctl(_reps, e.id, e.reps), tx('Reps'), withMax, (v) => _edit(() => e.reps = v))),
               const SizedBox(width: 8),
-              Expanded(child: _input(_ctl(_loads, e.id, unitLoad(e.load, kg: true)), tx('Load'), withKg, (v) => _edit(() => e.load = v))),
+              Expanded(
+                child: _input(
+                  _ctl(_loads, e.id, unitLoad(e.load, kg: true)),
+                  tx('Load'),
+                  withKg,
+                  (v) => _edit(() => e.load = v),
+                ),
+              ),
             ],
           ),
           // Sets from the second on: their own reps and load, empty means
@@ -497,6 +504,16 @@ class _Standard extends ConsumerWidget {
                 ),
               ),
             ),
+          Tap(
+            onTap: () => context.push('/history?tpl=${Uri.encodeComponent(tpl.id)}'),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: BoltColors.divider)),
+              ),
+              child: Text(tx('Every time, set by set →'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+            ),
+          ),
         ],
       ),
     );

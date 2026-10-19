@@ -949,4 +949,11 @@ const kSrUi = <String, String>{
   'Done · set {n}': 'Gotovo · serija {n}',
   'LIST': 'LISTA',
   'GYM FLOOR': 'U TERETANI',
+  'LOGBOOK': 'DNEVNIK',
+  'Latest records': 'Najnoviji rekordi',
+  'Finish a workout with its sets ticked and it lands here: every set with its weight and reps.': 'Završi trening sa označenim serijama i stiže ovde: svaka serija sa težinom i ponavljanjima.',
+  'Logged as done without sets, so there are no weights to show.': 'Upisan kao završen bez serija, pa nema težina za prikaz.',
+  'History →': 'Istorija →',
+  'Every time, set by set →': 'Svaki put, serija po serija →',
+  'Every workout, set by set, and your records': 'Svaki trening, serija po serija, i tvoji rekordi',
 };

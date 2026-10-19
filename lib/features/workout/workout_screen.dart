@@ -342,7 +342,17 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(tx(s.focus), style: BoltText.a(14, color: BoltColors.muted)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(tx(s.focus), style: BoltText.a(14, color: BoltColors.muted)),
+                    ),
+                    Tap(
+                      onTap: () => context.push('/history?tpl=${Uri.encodeComponent(s.tpl)}'),
+                      child: Text(tx('History →'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 14),
                 _Progress(done: done, tot: tot),
                 if (lastK != null) ...[

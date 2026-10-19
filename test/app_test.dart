@@ -441,6 +441,30 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the logbook keeps every workout set by set and filters by workout', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    final store = c.read(boltProvider.notifier);
+    for (final (k, tpl) in [('2026-10-12', 'push'), ('2026-10-13', 'pull')]) {
+      store.addFromRotation(Account.ownerId, k);
+      store.setTemplate(Account.ownerId, k, tpl);
+      store.logPast(k);
+    }
+    final push = c.read(boltProvider).plans[Account.ownerId]!['2026-10-12']!;
+    push.ex.first.logged.addAll([SetLog(kg: 80, reps: 6), SetLog(kg: 82.5, reps: 5)]);
+    push.prs.add('Bench Press');
+    c.read(routerProvider).push('/history');
+    await settle(tester);
+    expect(find.text('2 workouts · 2 sets'), findsOneWidget);
+    expect(find.text('80×6 · 82.5×5 kg'), findsOneWidget);
+    expect(find.text('Latest records'), findsOneWidget);
+    await tapText(tester, 'Pull');
+    expect(find.text('1 workout · 0 sets'), findsOneWidget);
+    expect(find.text('80×6 · 82.5×5 kg'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
   testWidgets('a timed set counts down in gym floor mode and logs itself', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
