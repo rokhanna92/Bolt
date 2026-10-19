@@ -14,7 +14,7 @@ const kSrFemale = <String, String>{
   'Coaching in Bolt needs a 5-digit license code. No code? Go back and train on your own or with a coach.': 'Za trenere u Boltu potreban je petocifreni kod licence. Nemaš kod? Vrati se i treniraj sama ili sa trenerom.',
   'You trained {log}. Add what you did: pick a workout or build it from muscles.': 'Trenirala si {log}. Dodaj šta si radila: izaberi trening ili ga složi od mišića.',
   'Training solo': 'Treniram sama',
-  'If you are still checked in after 3 hours': 'Ako si i dalje prijavljena posle 3 sata',
+  'If you are still checked in after {time}': 'Ako si i dalje prijavljena posle {time}',
   'Import the plan {coach} sent you, or plan the days yourself.': 'Uvezi plan koji ti je poslao {coach} ili sama isplaniraj dane.',
   'Plan it myself': 'Isplaniraću sama',
   'Every 4-8 weeks, an easier week lets joints and muscles catch up so you come back stronger. Every session that week keeps its exercises with half the sets, and a note to go about 10% lighter.': 'Na svakih 4-8 nedelja, lakša nedelja pušta zglobove i mišiće da se oporave, pa se vraćaš jača. Svaki trening te nedelje zadržava vežbe sa upola manje serija i napomenom da ideš oko 10% lakše.',

@@ -83,6 +83,13 @@ String dur(num m) {
   return x >= 60 ? '${x ~/ 60}h ${pad(x % 60)}m' : '${x}m';
 }
 
+/// `45 min`, `2 h`, `1 h 30 min`.
+String spanText(int m) => m < 60
+    ? '$m min'
+    : m % 60 == 0
+    ? '${m ~/ 60} h'
+    : '${m ~/ 60} h ${m % 60} min';
+
 int toMin(String s) {
   final a = s.split(':').map(int.parse).toList();
   return a[0] * 60 + a[1];

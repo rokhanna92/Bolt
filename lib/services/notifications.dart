@@ -32,6 +32,12 @@ abstract class BoltNotifications {
   /// A rest countdown to [end] that shows on the lock screen.
   Future<void> showRest(DateTime end, String next);
   Future<void> clearRest();
+
+  /// Replaces every scheduled push from the app's owner with [list].
+  Future<void> replaceBroadcasts(List<Reminder> list);
+
+  /// Shows a notification right away, to try a push on this phone.
+  Future<void> showNow(String title, String body);
 }
 
 class NoopNotifications implements BoltNotifications {
@@ -57,6 +63,12 @@ class NoopNotifications implements BoltNotifications {
 
   @override
   Future<void> clearRest() async {}
+
+  @override
+  Future<void> replaceBroadcasts(List<Reminder> list) async {}
+
+  @override
+  Future<void> showNow(String title, String body) async {}
 }
 
 class LocalNotifications implements BoltNotifications {
@@ -69,6 +81,9 @@ class LocalNotifications implements BoltNotifications {
   static const _restId = 3;
   static const _sessionBase = 100;
   static const _sessionSlots = 24;
+  static const _pushBase = 300;
+  static const _pushSlots = 40;
+  static const _nowId = 4;
 
   static const _details = NotificationDetails(
     android: AndroidNotificationDetails(
@@ -207,6 +222,28 @@ class LocalNotifications implements BoltNotifications {
   Future<void> clearRest() async {
     try {
       await _plugin.cancel(id: _restId);
+    } catch (_) {}
+  }
+
+  @override
+  Future<void> replaceBroadcasts(List<Reminder> list) async {
+    try {
+      for (var i = 0; i < _pushSlots; i++) {
+        await _plugin.cancel(id: _pushBase + i);
+      }
+      if (list.isEmpty) return;
+      await _ensurePermission();
+      for (var i = 0; i < list.length && i < _pushSlots; i++) {
+        await _schedule(_pushBase + i, list[i]);
+      }
+    } catch (_) {}
+  }
+
+  @override
+  Future<void> showNow(String title, String body) async {
+    try {
+      await _ensurePermission();
+      await _plugin.show(id: _nowId, title: title, body: body, notificationDetails: _details);
     } catch (_) {}
   }
 

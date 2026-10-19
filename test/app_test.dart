@@ -4,6 +4,7 @@ import 'package:bolt/app.dart';
 import 'package:bolt/app/router.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
+import 'package:bolt/data/models/board.dart';
 import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/models/exercise.dart';
 import 'package:bolt/data/models/session.dart';
@@ -12,6 +13,7 @@ import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/features/gym/scanner_overlay.dart';
 import 'package:bolt/features/updates/update_sheet.dart';
 import 'package:bolt/services/coach_directory.dart';
+import 'package:bolt/services/notice_board.dart';
 import 'package:bolt/services/updater.dart';
 import 'package:bolt/widgets/common.dart';
 import 'package:bolt/widgets/confetti.dart';
@@ -46,11 +48,33 @@ class FakeDirectory extends CoachDirectory {
   Future<List<ListedCoach>?> fetch() async => coaches;
 }
 
+/// Holds the owner's notices in memory instead of GitHub.
+class FakeBoard extends NoticeBoard {
+  Board? published;
+  String? saved;
+
+  @override
+  Future<Board?> fetch() async => published;
+
+  @override
+  Future<String?> publish(Board b, String token) async {
+    published = Board.fromJson(b.toJson());
+    return null;
+  }
+
+  @override
+  Future<String?> token() async => saved;
+
+  @override
+  Future<void> saveToken(String? t) async => saved = t;
+}
+
 Future<ProviderContainer> pumpApp(
   WidgetTester tester, {
   BoltData? data,
   Updater? updater,
   List<ListedCoach>? coaches = const [],
+  FakeBoard? board,
 }) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 2.75;
@@ -62,6 +86,7 @@ Future<ProviderContainer> pumpApp(
         initialDataProvider.overrideWithValue(data ?? freshData()),
         updaterProvider.overrideWithValue(updater ?? FakeUpdater(const UpToDate())),
         coachDirectoryProvider.overrideWithValue(FakeDirectory(coaches)),
+        noticeBoardProvider.overrideWithValue(board ?? FakeBoard()),
         // Test codes; the real ones are not in the source.
         licenseProvider.overrideWithValue(
           (c) => switch (c) {
@@ -674,6 +699,49 @@ void main() {
     await tapText(tester, 'Solo');
     expect(find.text('Training solo'), findsOneWidget);
     expect(c.read(boltProvider).account!.admin, isTrue);
+    await unmount(tester);
+  });
+
+  testWidgets('the admin sets reminder times and pushes for every phone', (tester) async {
+    final board = FakeBoard();
+    final c = await pumpApp(tester, board: board);
+    await tapText(tester, 'I coach people');
+    await typeInto(tester, '5-digit code', '222222');
+    await tapText(tester, 'Unlock');
+    await typeInto(tester, 'Your name', 'Dani');
+    await tapText(tester, 'Continue');
+    await tapText(tester, 'Start coaching');
+    c.read(routerProvider).push('/settings');
+    await settle(tester);
+    await tapText(tester, 'Push notifications');
+    expect(find.text('BUILT-IN REMINDERS'), findsOneWidget);
+    expect(find.text('Published'), findsOneWidget);
+
+    // The session reminder moves to an hour before.
+    await tapText(tester, 'Session reminder');
+    await tapText(tester, '1 h');
+    expect(find.text('1 h before ›'), findsOneWidget);
+
+    await tapText(tester, '+ New push');
+    await tester.enterText(find.widgetWithText(TextField, 'Title').first, 'Gym closed Sunday');
+    await tester.pump();
+    await tapText(tester, 'Every day');
+    await tapText(tester, 'Coaches');
+    await tapText(tester, 'Save');
+    expect(find.text('Gym closed Sunday'), findsOneWidget);
+    expect(find.text('EVERY DAY · 18:00 · COACHES'), findsOneWidget);
+
+    // No token yet: publishing asks for one first.
+    await tapText(tester, 'Publish to every phone');
+    await tester.enterText(find.byType(TextField).last, 'github_pat_test');
+    await tapText(tester, 'Save');
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(board.saved, 'github_pat_test');
+    expect(board.published!.times.before, 60);
+    expect(board.published!.pushes.single.to, 'coaches');
+    expect(c.read(boltProvider).settings.board.pushes.single.title, 'Gym closed Sunday');
+    expect(find.text('Published'), findsOneWidget);
+    expect(tester.takeException(), isNull);
     await unmount(tester);
   });
 

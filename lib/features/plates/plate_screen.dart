@@ -9,7 +9,6 @@ import '../../data/plates.dart';
 import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
-import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/fields.dart';
@@ -52,30 +51,17 @@ class _PlateScreenState extends ConsumerState<PlateScreen> {
   }
 
   Future<void> _type() async {
-    final c = TextEditingController(text: _n(_total));
-    await showBoltSheet<void>(
+    final t = await askText(
       context,
-      (context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Kicker(tx('WEIGHT'), size: 10),
-          const SizedBox(height: 10),
-          BoltField(controller: c, hint: tx('WEIGHT'), number: true, suffix: weightUnit(_metric), autofocus: true),
-          const SizedBox(height: 14),
-          NeonButton(
-            label: tx('Save'),
-            height: 52,
-            scale: 1,
-            onTap: () {
-              final v = double.tryParse(c.text.trim().replaceAll(',', '.'));
-              if (v != null && v > 0) setState(() => _total = v);
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      ),
+      title: tx('WEIGHT'),
+      hint: tx('WEIGHT'),
+      save: tx('Save'),
+      initial: _n(_total),
+      suffix: weightUnit(_metric),
+      number: true,
     );
-    c.dispose();
+    final v = double.tryParse(t?.replaceAll(',', '.') ?? '');
+    if (v != null && v > 0 && mounted) setState(() => _total = v);
   }
 
   @override

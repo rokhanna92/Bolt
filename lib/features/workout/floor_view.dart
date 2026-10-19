@@ -15,7 +15,6 @@ import '../../data/seed/learn.dart';
 import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
-import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/fields.dart';
@@ -223,29 +222,16 @@ class _FloorViewState extends State<FloorView> {
   }
 
   Future<void> _type(String label, String value, String? unit, ValueChanged<String> onSave) async {
-    final c = TextEditingController(text: value);
-    await showBoltSheet<void>(
+    final v = await askText(
       context,
-      (context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Kicker(label, size: 10),
-          const SizedBox(height: 10),
-          BoltField(controller: c, hint: label, number: true, suffix: unit, autofocus: true),
-          const SizedBox(height: 14),
-          NeonButton(
-            label: tx('Save'),
-            height: 52,
-            scale: 1,
-            onTap: () {
-              onSave(c.text);
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      ),
+      title: label,
+      hint: label,
+      save: tx('Save'),
+      initial: value,
+      suffix: unit,
+      number: true,
     );
-    c.dispose();
+    if (v != null && mounted) onSave(v);
   }
 
   /// The plates for [kg] under the weight, live as it steps. Tap for the

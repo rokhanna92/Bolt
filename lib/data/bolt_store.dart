@@ -8,6 +8,7 @@ import '../core/units.dart';
 import '../services/haptics.dart';
 import '../services/notifications.dart';
 import '../services/rest_timer.dart' show kRestSounds;
+import 'models/board.dart';
 import 'models/bolt_data.dart';
 import 'models/custom_split.dart';
 import 'models/exercise.dart';
@@ -147,6 +148,7 @@ class BoltStore extends Notifier<BoltData> {
     state.settings.lang = l.name;
     appLang = l;
     _commit();
+    syncBroadcasts();
   }
 
   DateTime get now => ref.read(clockProvider)();
@@ -275,6 +277,7 @@ class BoltStore extends Notifier<BoltData> {
     state.account = Account(role, a.id, admin: a.admin);
     _commit();
     syncSessionReminders();
+    syncBroadcasts();
   }
 
   /// Saves "Edit profile" for the owner or, for a coach, one of their trainees.
@@ -407,7 +410,7 @@ class BoltStore extends Notifier<BoltData> {
       if (state.settings.checkout) {
         _notify.scheduleCheckout(
           Reminder(
-            at: n.add(const Duration(hours: 3)),
+            at: n.add(Duration(minutes: state.settings.board.times.checkout)),
             title: tx('Still at the gym?'),
             body: tx('Checked in at {time}. Scan the plaque on your way out.', {'time': since}),
           ),
@@ -1884,11 +1887,12 @@ class BoltStore extends Notifier<BoltData> {
 
   void toast(String text) => _toast(text);
 
-  /// Reminders 2 hours before each confirmed session in the coming week, at
-  /// the trainee's usual check-in time, and a morning brief at 8:00 when
-  /// that is later. Days with nothing planned and 3 or more days off get a
-  /// nudge at 9:00 instead, and from 5 days off another one 2 hours before
-  /// the usual check-in.
+  /// Reminders before each confirmed session in the coming week (2 hours
+  /// before the trainee's usual check-in unless the owner set otherwise),
+  /// and a morning brief at 8:00 when that is later. Days with nothing
+  /// planned and 3 or more days off get a nudge at 9:00 instead, and from 5
+  /// days off another one before the usual check-in. The owner's
+  /// notices.json can move each of these times.
   void syncSessionReminders() {
     final a = state.account;
     final st = state.settings;
@@ -1897,6 +1901,7 @@ class BoltStore extends Notifier<BoltData> {
       return;
     }
     final usual = _usualCheckIn(a.id);
+    final times = st.board.times;
     final p = plan(a.id);
     final list = <Reminder>[];
     final stats = trOrNull(a.id)?.stats;
@@ -1905,7 +1910,7 @@ class BoltStore extends Notifier<BoltData> {
       final day = DateTime(d.year, d.month, d.day);
       final s = p[dk(d)];
       if (stats?.away.contains(dk(monday(d))) ?? false) continue;
-      final at = day.add(Duration(minutes: usual - 120));
+      final at = day.add(Duration(minutes: usual - times.before));
       if (s == null || (s.status != SessionStatus.approved && s.status != SessionStatus.moved)) {
         if (!st.remind) continue;
         // Not while checked in: that visit counts once it closes.
@@ -1913,13 +1918,14 @@ class BoltStore extends Notifier<BoltData> {
         final off = daysOff(p, state.visits[a.id] ?? const [], stats?.rest ?? const {}, d);
         if (off < 3) continue;
         final title = tx('{days} off', {'days': plural(off, 'day')});
-        list.add(Reminder(at: day.add(const Duration(hours: 9)), title: title, body: _offBody(off)));
-        if (off >= 5 && at.hour > 9) {
+        final nudge = day.add(Duration(minutes: times.nudge));
+        list.add(Reminder(at: nudge, title: title, body: _offBody(off)));
+        if (off >= 5 && at.isAfter(nudge)) {
           list.add(Reminder(at: at, title: tx('Still time to train today'), body: _offBody(off)));
         }
         continue;
       }
-      final morning = day.add(const Duration(hours: 8));
+      final morning = day.add(Duration(minutes: times.brief));
       if (st.brief && at.difference(morning).inMinutes >= 60) {
         list.add(
           Reminder(at: morning, title: tx('Today: {workout}', {'workout': tx(s.title)}), body: brief(a.id, dk(d))),
@@ -1936,6 +1942,44 @@ class BoltStore extends Notifier<BoltData> {
     }
     _notify.replaceSessionReminders(list);
   }
+
+  /// Takes the owner's latest notices.json: new reminder times and pushes,
+  /// scheduled on this phone. Nothing happens when it has not changed.
+  void applyBoard(Board b) {
+    if (jsonEncode(b.toJson()) == jsonEncode(state.settings.board.toJson())) return;
+    state.settings.board = b;
+    _commit();
+    syncSessionReminders();
+    syncBroadcasts();
+  }
+
+  /// The owner's pushes for this phone's role over the next two weeks, in
+  /// the app language.
+  List<Reminder> broadcasts() {
+    final a = state.account;
+    if (a == null) return const [];
+    final role = switch (a.role) {
+      Role.solo => 'solo',
+      Role.trainee => 'clients',
+      Role.coach => 'coaches',
+    };
+    final out = <Reminder>[];
+    for (final p in state.settings.board.pushes) {
+      if (p.to != 'all' && p.to != role) continue;
+      final title = isSerbian && p.titleSr.isNotEmpty ? p.titleSr : p.title;
+      final body = isSerbian && p.bodySr.isNotEmpty ? p.bodySr : p.body;
+      for (var i = 0; i < 14; i++) {
+        final d = addDays(now, i);
+        final k = dk(d);
+        final on = p.date != null ? p.date == k : (p.days.isEmpty || p.days.contains(d.weekday));
+        final at = d.add(Duration(minutes: p.at));
+        if (on && at.isAfter(now)) out.add(Reminder(at: at, title: title, body: body));
+      }
+    }
+    return out..sort((x, y) => x.at.compareTo(y.at));
+  }
+
+  void syncBroadcasts() => _notify.replaceBroadcasts(broadcasts());
 
   /// The morning brief for day [k]: the size of the workout and what to
   /// beat, a weight to go for or the last time's log.

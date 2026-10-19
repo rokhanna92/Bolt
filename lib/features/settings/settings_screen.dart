@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../l10n/l10n.dart';
+import '../../core/format.dart';
 
 import '../../app/share.dart';
 import '../../data/bolt_store.dart';
@@ -113,20 +113,22 @@ class SettingsScreen extends ConsumerWidget {
           if (isT)
             _Row(
               tx('Session reminders'),
-              sub: tx('2 hours before a planned session, and a nudge after 3 days off'),
+              sub: tx('{time} before a planned session, and a nudge after 3 days off', {
+                'time': spanText(s.board.times.before),
+              }),
               toggle: s.remind,
               onTap: () => store.toggleSetting('remind'),
             ),
           if (isT)
             _Row(
               tx('Morning brief'),
-              sub: tx('8:00 on training days: your workout and what to beat'),
+              sub: tx('{time} on training days: your workout and what to beat', {'time': fromMin(s.board.times.brief)}),
               toggle: s.brief,
               onTap: () => store.toggleSetting('brief'),
             ),
           _Row(
             tx('Check-out reminder'),
-            sub: tx('If you are still checked in after 3 hours'),
+            sub: tx('If you are still checked in after {time}', {'time': spanText(s.board.times.checkout)}),
             toggle: s.checkout,
             onTap: () => store.toggleSetting('checkout'),
           ),
@@ -177,6 +179,18 @@ class SettingsScreen extends ConsumerWidget {
           _Row(tx('Check-in plaque'), value: tx('Print'), onTap: () => context.push('/plaque')),
         ],
       ),
+      if (d.account?.admin ?? false)
+        (
+          tx('ADMIN'),
+          [
+            _Row(
+              tx('Push notifications'),
+              sub: tx('When reminders go out on every phone, and your own pushes'),
+              value: '',
+              onTap: () => context.push('/admin'),
+            ),
+          ],
+        ),
       (
         tx('DATA'),
         [

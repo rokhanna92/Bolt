@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
+import 'bolt_sheet.dart';
+import 'common.dart';
 
 InputDecoration _decoration(String hint, EdgeInsets padding, {bool filled = true, Color fill = BoltColors.surface1}) {
   const border = OutlineInputBorder(
@@ -121,6 +123,95 @@ class BoltField extends StatelessWidget {
           focusedBorder: border,
         ),
       ),
+    );
+  }
+}
+
+/// A sheet with one field and Save, popping what was typed. [clear] adds a
+/// second button that pops an empty string. The sheet owns its controller,
+/// so the field outlives the closing animation.
+Future<String?> askText(
+  BuildContext context, {
+  required String title,
+  required String hint,
+  required String save,
+  String initial = '',
+  String? help,
+  String? suffix,
+  bool number = false,
+  String? clear,
+}) => showBoltSheet<String>(
+  context,
+  (_) => _TextSheet(
+    title: title,
+    hint: hint,
+    save: save,
+    initial: initial,
+    help: help,
+    suffix: suffix,
+    number: number,
+    clear: clear,
+  ),
+);
+
+class _TextSheet extends StatefulWidget {
+  const _TextSheet({
+    required this.title,
+    required this.hint,
+    required this.save,
+    required this.initial,
+    required this.help,
+    required this.suffix,
+    required this.number,
+    required this.clear,
+  });
+
+  final String title, hint, save, initial;
+  final String? help, suffix, clear;
+  final bool number;
+
+  @override
+  State<_TextSheet> createState() => _TextSheetState();
+}
+
+class _TextSheetState extends State<_TextSheet> {
+  late final _c = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  void _pop(String v) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    Navigator.of(context).pop(v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(widget.title, style: BoltText.a(20, weight: 900)),
+        if (widget.help != null) ...[
+          const SizedBox(height: 6),
+          Text(widget.help!, style: BoltText.a(13, color: BoltColors.muted, height: 1.45)),
+        ],
+        const SizedBox(height: 12),
+        BoltField(controller: _c, hint: widget.hint, number: widget.number, suffix: widget.suffix, autofocus: true),
+        const SizedBox(height: 14),
+        NeonButton(label: widget.save, height: 52, scale: 1, onTap: () => _pop(_c.text.trim())),
+        if (widget.clear != null) ...[
+          const SizedBox(height: 8),
+          OutlineButton(
+            label: widget.clear!,
+            color: BoltColors.warn,
+            borderColor: BoltColors.line,
+            onTap: () => _pop(''),
+          ),
+        ],
+      ],
     );
   }
 }

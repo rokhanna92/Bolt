@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../data/bolt_store.dart';
 import '../data/models/bolt_data.dart';
+import '../features/admin/admin_screen.dart';
 import '../features/badges/badges_screen.dart';
 import '../features/coach_calendar/calendar_screen.dart';
 import '../features/coach_profile/coach_profile_screen.dart';
@@ -82,6 +83,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final seg = state.uri.pathSegments.isEmpty ? '' : state.uri.pathSegments.first;
       if (a.isTrainee && _coachOnly.contains(seg)) return home;
       if (!a.isTrainee && _traineeOnly.contains(seg)) return home;
+      if (seg == 'admin' && !a.admin) return home;
       return null;
     },
     routes: [
@@ -175,6 +177,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) =>
             _enter(s, LiftScreen(name: s.pathParameters['name']!, tid: s.uri.queryParameters['tid'])),
+      ),
+      GoRoute(
+        path: '/admin',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const AdminScreen()),
       ),
       GoRoute(
         path: '/rank',

@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:bolt/core/format.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
+import 'package:bolt/data/models/board.dart';
 import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/level.dart';
 import 'package:bolt/data/lifts.dart';
@@ -428,7 +429,6 @@ void ownerTests() {
       expect(f.data.account!.admin, isTrue);
       final json = jsonEncode(f.data.toJson());
       expect(BoltData.fromJson(jsonDecode(json) as Map<String, dynamic>).account!.admin, isTrue);
-
     });
 
     test('a coach switches between coaching and training solo', () {
@@ -746,12 +746,15 @@ void ownerTests() {
       f.store.addFromRotation(Account.ownerId, '2026-10-10');
       f.store.logPast('2026-10-10');
       String at(Reminder r) => '${dk(r.at)} ${hm(r.at)}';
-      expect([for (final r in n.last.take(4)) '${at(r)} ${r.title}'], [
-        '2026-10-14 09:00 3 days off',
-        '2026-10-15 09:00 4 days off',
-        '2026-10-16 09:00 5 days off',
-        '2026-10-16 16:00 Still time to train today',
-      ]);
+      expect(
+        [for (final r in n.last.take(4)) '${at(r)} ${r.title}'],
+        [
+          '2026-10-14 09:00 3 days off',
+          '2026-10-15 09:00 4 days off',
+          '2026-10-16 09:00 5 days off',
+          '2026-10-16 16:00 Still time to train today',
+        ],
+      );
       f.store.scan();
       expect(n.last.where((r) => dk(r.at) == '2026-10-14'), isEmpty);
       f.clock = wed.add(const Duration(minutes: 72));
@@ -759,6 +762,59 @@ void ownerTests() {
       // Trained today, so the next nudge is three days off later.
       expect(at(n.last.first), '2026-10-18 09:00');
       expect(n.last.first.title, '3 days off');
+    });
+
+    test('the owner\'s notices move reminder times and push to the right people', () {
+      final n = _Reminders();
+      final f = Fresh(wed, n)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-10');
+      f.store.logPast('2026-10-10');
+      String at(Reminder r) => '${dk(r.at)} ${hm(r.at)}';
+      f.store.applyBoard(
+        Board.fromJson({
+          'times': {'nudge': 7 * 60 + 30, 'before': 60, 'checkout': 90, 'brief': 'bad'},
+          'pushes': [
+            {
+              'id': 'a',
+              'title': 'Gym closed',
+              'titleSr': 'Teretana zatvorena',
+              'body': 'Holiday',
+              'at': 20 * 60,
+              'date': '2026-10-15',
+            },
+            {
+              'id': 'b',
+              'title': 'Leg day',
+              'at': 7 * 60,
+              'days': [1, 3],
+              'to': 'solo',
+            },
+            {'id': 'c', 'title': 'Coaches only', 'at': 9 * 60, 'to': 'coaches'},
+            {'title': 'no id'},
+          ],
+        }),
+      );
+      expect(f.data.settings.board.times.brief, 8 * 60);
+      expect(
+        [for (final r in n.last.take(4)) at(r)],
+        ['2026-10-14 07:30', '2026-10-15 07:30', '2026-10-16 07:30', '2026-10-16 17:00'],
+      );
+      // Today is Wednesday 18:00: today's 07:00 push has passed.
+      expect(
+        [for (final r in f.store.broadcasts().take(4)) '${at(r)} ${r.title}'],
+        [
+          '2026-10-15 20:00 Gym closed',
+          '2026-10-19 07:00 Leg day',
+          '2026-10-21 07:00 Leg day',
+          '2026-10-26 07:00 Leg day',
+        ],
+      );
+      f.store.setLanguage(AppLang.sr);
+      expect(f.store.broadcasts().first.title, 'Teretana zatvorena');
+      f.store.setLanguage(AppLang.en);
+      f.store.scan();
+      // Checked in at 18:00, the check-out reminder comes 90 minutes later.
+      expect(f.data.settings.board.times.checkout, 90);
     });
 
     test('each set can have its own reps and load, carried into planned days', () {

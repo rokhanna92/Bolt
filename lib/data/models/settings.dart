@@ -1,3 +1,5 @@
+import 'board.dart';
+
 class AppSettings {
   AppSettings({
     this.remind = true,
@@ -16,8 +18,10 @@ class AppSettings {
     this.restSound = 'chime',
     this.countdown = true,
     this.rankSeen,
+    Board? board,
     List<String>? hintsSeen,
-  }) : hintsSeen = hintsSeen ?? [];
+  }) : hintsSeen = hintsSeen ?? [],
+       board = board ?? Board();
 
   /// Session reminders, 2 hours before a planned session.
   bool remind;
@@ -68,6 +72,9 @@ class AppSettings {
   /// Highest rank step already celebrated.
   int? rankSeen;
 
+  /// The owner's reminder times and pushes, as last read from notices.json.
+  Board board;
+
   Map<String, dynamic> toJson() => {
     'remind': remind,
     'brief': brief,
@@ -86,6 +93,7 @@ class AppSettings {
     'restSound': restSound,
     'countdown': countdown,
     'rankSeen': rankSeen,
+    'board': board.toJson(),
   };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
@@ -106,5 +114,6 @@ class AppSettings {
     restSound: j['restSound'] as String? ?? 'chime',
     countdown: j['countdown'] as bool? ?? true,
     rankSeen: j['rankSeen'] as int?,
+    board: Board.fromJson(j['board']),
   );
 }

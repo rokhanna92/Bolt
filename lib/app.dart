@@ -12,6 +12,7 @@ import 'data/models/session.dart';
 import 'data/rules.dart';
 import 'features/progress/recovery_card.dart' show readyMuscles;
 import 'services/home_widget.dart';
+import 'services/notice_board.dart';
 import 'services/shortcuts.dart';
 import 'theme/bolt_theme.dart';
 import 'widgets/toast.dart';
@@ -26,6 +27,17 @@ class BoltApp extends ConsumerStatefulWidget {
 class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
   Timer? _minute;
   Timer? _widgetDebounce;
+  DateTime? _boardAt;
+
+  /// The owner's notices.json: reminder times and pushes. Read when Bolt
+  /// opens and again on return after a quarter of an hour.
+  Future<void> _refreshBoard() async {
+    final last = _boardAt;
+    if (last != null && DateTime.now().difference(last).inMinutes < 15) return;
+    _boardAt = DateTime.now();
+    final b = await ref.read(noticeBoardProvider).fetch();
+    if (b != null && mounted) ref.read(boltProvider.notifier).applyBoard(b);
+  }
 
   /// What the home screen widget shows: today's workout or rest day, the
   /// gym clock while checked in, level and streak. From 3 days off it turns
@@ -97,7 +109,9 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
       if (ref.read(boltProvider).settings.levelSeen == null) store.levelUp();
       if (ref.read(boltProvider).settings.rankSeen == null) store.rankUp();
       store.syncSessionReminders();
+      store.syncBroadcasts();
       store.syncGymTimer();
+      _refreshBoard();
       AppShortcuts.listen(openShortcut);
       _pushWidget();
     });
@@ -123,6 +137,7 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
       ref.read(repositoryProvider).flush();
     } else if (state == AppLifecycleState.resumed) {
       ref.read(boltProvider.notifier).autoCloseStale();
+      _refreshBoard();
     }
   }
 
