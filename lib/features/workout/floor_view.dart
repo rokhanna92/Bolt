@@ -206,17 +206,20 @@ class _FloorViewState extends State<FloorView> {
     _work?.cancel();
     _work = Timer(Duration(seconds: secs), () {
       if (!mounted) return;
-      _stopWork(log: true, cancelCue: false);
+      _stopWork(log: true);
     });
   }
 
-  /// Ends a timed set, logged unless it was cancelled. When it ran out on
-  /// its own, the end cue is already playing and is left to finish.
-  void _stopWork({required bool log, bool cancelCue = true}) {
+  /// Ends a timed set, logged unless it was cancelled. A logged one hands
+  /// its countdown over to the rest that follows.
+  void _stopWork({required bool log}) {
     _work?.cancel();
     setState(() => _workEnd = null);
-    if (cancelCue) widget.onWork(null, 0, '');
-    if (log) _log();
+    if (log) {
+      _log();
+    } else {
+      widget.onWork(null, 0, '');
+    }
   }
 
   Future<void> _type(String label, String value, String? unit, ValueChanged<String> onSave) async {

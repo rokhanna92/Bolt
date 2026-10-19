@@ -6,6 +6,12 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- The rest countdown keeps running, on time, with the screen off, and
+         Android 16 may show it as a Live Update in the status bar. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS"/>
     <!-- In-app updates: ask GitHub for the latest release, download its APK
          and hand it to the system installer, which asks the user to confirm. -->
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -52,6 +58,15 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/bolt_widget_info"/>
         </receiver>
+        <!-- Rest countdown between sets, see RestTimerService. -->
+        <service
+            android:name=".RestTimerService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Rest timer between gym sets, with sound and vibration cues"/>
+        </service>
         <!-- flutter_local_notifications ships no receivers in its own manifest,
              so they are declared here. Without these, scheduled reminders are
              accepted by the plugin and then silently never fire. -->

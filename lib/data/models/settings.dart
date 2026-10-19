@@ -13,6 +13,8 @@ class AppSettings {
     this.levelSeen,
     this.haptics = true,
     this.floor = false,
+    this.restSound = 'chime',
+    this.countdown = true,
     List<String>? hintsSeen,
   }) : hintsSeen = hintsSeen ?? [];
 
@@ -56,6 +58,12 @@ class AppSettings {
   /// Workouts open in gym floor mode: one big set at a time.
   bool floor;
 
+  /// Sound at the end of a rest: `chime`, `beep` or `off`.
+  String restSound;
+
+  /// Ticks (and blips, with a sound on) in the last 3 seconds of a rest.
+  bool countdown;
+
   Map<String, dynamic> toJson() => {
     'remind': remind,
     'brief': brief,
@@ -71,6 +79,8 @@ class AppSettings {
     'levelSeen': levelSeen,
     'haptics': haptics,
     'floor': floor,
+    'restSound': restSound,
+    'countdown': countdown,
   };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
@@ -88,5 +98,7 @@ class AppSettings {
     levelSeen: j['levelSeen'] as int?,
     haptics: j['haptics'] as bool? ?? true,
     floor: j['floor'] as bool? ?? false,
+    restSound: j['restSound'] as String? ?? 'chime',
+    countdown: j['countdown'] as bool? ?? true,
   );
 }

@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +9,7 @@ import 'data/bolt_store.dart';
 import 'data/repositories/bolt_repository.dart';
 import 'data/seed/content.dart';
 import 'services/notifications.dart';
+import 'services/rest_timer.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +28,9 @@ Future<void> main() async {
       overrides: [
         repositoryProvider.overrideWithValue(repo),
         notificationsProvider.overrideWithValue(notifications),
+        restTimerProvider.overrideWithValue(
+          Platform.isAndroid ? AndroidRestTimer() : NotificationRestTimer(notifications),
+        ),
         initialDataProvider.overrideWithValue(data),
       ],
       child: const BoltApp(),

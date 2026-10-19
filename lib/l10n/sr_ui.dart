@@ -970,4 +970,12 @@ const kSrUi = <String, String>{
   '45 lb is the standard Olympic bar, 35 lb the women\'s bar, 15 lb a technique bar.': '45 lb je standardna olimpijska šipka, 35 lb ženska, 15 lb šipka za tehniku.',
   'Which plates go on each side of the bar': 'Koji tegovi idu na svaku stranu šipke',
   'Each side: {plates}': 'Svaka strana: {plates}',
+  'Timed set': 'Serija na vreme',
+  'Rest sound': 'Zvuk odmora',
+  'Plays at the end of a rest, in your headphones when they are in': 'Svira na kraju odmora, u slušalicama kad su uključene',
+  '3-2-1 countdown': 'Odbrojavanje 3-2-1',
+  'A tap, and a blip with a sound on, in the last 3 seconds of a rest': 'Vibracija, i kratak zvuk ako je uključen, u poslednje 3 sekunde odmora',
+  'Chime': 'Zvono',
+  'Beep': 'Bip',
+  'Off': 'Isključeno',
 };

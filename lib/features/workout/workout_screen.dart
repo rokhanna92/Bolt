@@ -20,7 +20,7 @@ import '../../data/rules.dart';
 import '../../data/seed/learn.dart';
 import '../../data/seed/templates.dart';
 import '../../services/haptics.dart';
-import '../../services/notifications.dart';
+import '../../services/rest_timer.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -51,7 +51,8 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   int _restTotal = 90;
   Timer? _ticker;
 
-  late final BoltNotifications _notify = ref.read(notificationsProvider);
+  late final RestTimer _rest = ref.read(restTimerProvider);
+  StreamSubscription<DateTime?>? _lockScreen;
   String _restNext = '';
 
   /// Lifts that already had their record moment in this workout.
@@ -78,10 +79,46 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // −15, +15 and Skip pressed on the lock screen.
+    _lockScreen = _rest.changes.listen((end) {
+      if (!mounted || _restEnd == null) return;
+      if (end == null) {
+        _ticker?.cancel();
+        setState(() => _restEnd = null);
+        return;
+      }
+      setState(() {
+        _restTotal = math.max(1, _restTotal + end.difference(_restEnd!).inSeconds);
+        _restEnd = end;
+      });
+      _armRest();
+    });
+  }
+
+  @override
   void dispose() {
     _ticker?.cancel();
-    _notify.clearRest();
+    _lockScreen?.cancel();
+    _rest.stop();
     super.dispose();
+  }
+
+  /// Counts down to [end] on the lock screen too, with the cues from
+  /// Settings.
+  void _countdown(DateTime end, int total, String title, String body, {required bool rest}) {
+    final st = ref.read(boltProvider).settings;
+    _rest.start(
+      end: end,
+      total: total,
+      title: title,
+      body: body,
+      rest: rest,
+      sound: st.restSound,
+      countdown: st.countdown,
+      haptics: st.haptics,
+    );
   }
 
   /// Rest after a set; [next] says what comes after it, on the lock screen.
@@ -91,18 +128,21 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
       _restEnd = DateTime.now().add(Duration(seconds: secs));
       _restNext = next;
     });
-    _notify.showRest(_restEnd!, next);
+    _countdown(_restEnd!, secs, tx('Rest'), next, rest: true);
     _armRest();
   }
 
   /// One timer for the end of the rest. The bar counts down on its own, so
-  /// the screen does not rebuild while you rest.
+  /// the screen does not rebuild while you rest. The phone plays the end cue
+  /// where it can, even with Bolt in the background.
   void _armRest() {
     _ticker?.cancel();
     _ticker = Timer(_restEnd!.difference(DateTime.now()), () {
       if (!mounted) return;
-      HapticFeedback.vibrate();
-      _notify.clearRest();
+      if (!_rest.cuesNatively) {
+        HapticFeedback.vibrate();
+        _rest.stop();
+      }
       setState(() => _restEnd = null);
     });
   }
@@ -114,7 +154,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
       _restEnd = _restEnd!.add(Duration(seconds: s));
       _restTotal = math.max(1, _restTotal + s);
     });
-    _notify.showRest(_restEnd!, _restNext);
+    _countdown(_restEnd!, _restTotal, tx('Rest'), _restNext, rest: true);
     _armRest();
   }
 
@@ -122,16 +162,16 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   /// stopped (null).
   void _onWork(DateTime? end, int total, String title) {
     if (end == null) {
-      _notify.clearRest();
+      _rest.stop();
     } else {
-      _notify.showRest(end, title);
+      _countdown(end, total, title, tx('Timed set'), rest: false);
     }
   }
 
   void _skip() {
     Haptics.play(Feel.tap);
     _ticker?.cancel();
-    _notify.clearRest();
+    _rest.stop();
     setState(() => _restEnd = null);
   }
 
@@ -198,6 +238,9 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     final partnerNext = e.group != null && i + 1 < ex.length && ex[i + 1].group == e.group;
     if (!again && !partnerNext) {
       _startRest(_nextAfter(ex, i, j, w), restFor(e, auto: st.restAuto, fixed: st.restSecs));
+    } else if (!again && _restEnd == null) {
+      // A timed set's countdown ends with it when no rest follows.
+      _rest.stop();
     }
     if (isMax(e.repsFor(j)) && log.reps == null) {
       showBoltSheet<void>(context, (_) => _SetSheet(e: e, set: j, onSaved: (log) => _celebrate(e, log)));
@@ -237,7 +280,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     Haptics.play(Feel.success);
     final unlocked = ref.read(boltProvider.notifier).finish();
     _ticker?.cancel();
-    _notify.clearRest();
+    _rest.stop();
     context.go('/today');
     rootNavigatorKey.currentContext?.push('/summary/${widget.dayKey}');
     showUnlocks(unlocked);

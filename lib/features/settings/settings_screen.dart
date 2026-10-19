@@ -8,6 +8,7 @@ import '../../app/share.dart';
 import '../../data/bolt_store.dart';
 import '../../services/backup.dart';
 import '../../services/haptics.dart';
+import '../../services/rest_timer.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -147,6 +148,21 @@ class SettingsScreen extends ConsumerWidget {
             sub: s.restAuto ? tx('Longer for big lifts, shorter for isolation') : null,
             value: s.restAuto ? tx('Auto') : '${s.restSecs} s',
             onTap: store.cycleRest,
+          ),
+          _Row(
+            tx('Rest sound'),
+            sub: tx('Plays at the end of a rest, in your headphones when they are in'),
+            value: tx(const {'chime': 'Chime', 'beep': 'Beep', 'off': 'Off'}[s.restSound] ?? 'Off'),
+            onTap: () {
+              Haptics.play(Feel.tick);
+              ref.read(restTimerProvider).preview(store.cycleRestSound());
+            },
+          ),
+          _Row(
+            tx('3-2-1 countdown'),
+            sub: tx('A tap, and a blip with a sound on, in the last 3 seconds of a rest'),
+            toggle: s.countdown,
+            onTap: () => store.toggleSetting('countdown'),
           ),
         ],
       ),

@@ -23,6 +23,9 @@ import java.io.File
  *
  * "bolt/haptics" plays a named feel (see BoltHaptics).
  *
+ * "bolt/rest" starts and stops the rest countdown service (RestTimerService)
+ * and previews its sounds; the service reports +15, Skip and the end back.
+ *
  * And "bolt/backup": Android's own pickers to save a backup file anywhere
  * ("save") and to pick one to restore ("open"). Null means cancelled.
  */
@@ -51,6 +54,26 @@ class MainActivity : FlutterActivity() {
                 result.notImplemented()
             }
         }
+        val rest = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/rest")
+        rest.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "start" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    RestTimerService.start(this, call.arguments as Map<String, Any?>)
+                    result.success(true)
+                }
+                "stop" -> {
+                    RestTimerService.stop()
+                    result.success(true)
+                }
+                "preview" -> {
+                    BoltTones.play(this, call.arguments as String, true)
+                    result.success(true)
+                }
+                else -> result.notImplemented()
+            }
+        }
+        RestTimerService.listener = { what, end -> runOnUiThread { rest.invokeMethod(what, end) } }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/widget").setMethodCallHandler { call, result ->
             if (call.method == "update") {
                 @Suppress("UNCHECKED_CAST")
@@ -129,6 +152,11 @@ class MainActivity : FlutterActivity() {
         } catch (e: Exception) {
             result.error("io", e.message, null)
         }
+    }
+
+    override fun onDestroy() {
+        RestTimerService.listener = null
+        super.onDestroy()
     }
 
     override fun onNewIntent(intent: Intent) {

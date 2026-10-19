@@ -7,6 +7,7 @@ import '../core/format.dart';
 import '../core/units.dart';
 import '../services/haptics.dart';
 import '../services/notifications.dart';
+import '../services/rest_timer.dart' show kRestSounds;
 import 'models/bolt_data.dart';
 import 'models/custom_split.dart';
 import 'models/exercise.dart';
@@ -1818,6 +1819,8 @@ class BoltStore extends Notifier<BoltData> {
         if (!s.checkout) _notify.cancelCheckout();
       case 'floor':
         s.floor = !s.floor;
+      case 'countdown':
+        s.countdown = !s.countdown;
       case 'haptics':
         s.haptics = !s.haptics;
         Haptics.enabled = s.haptics;
@@ -1834,6 +1837,14 @@ class BoltStore extends Notifier<BoltData> {
   void toggleWeekStart() {
     state.settings.mondayFirst = !state.settings.mondayFirst;
     _commit();
+  }
+
+  /// Chime, beep, off and round again. Returns the new sound.
+  String cycleRestSound() {
+    final s = state.settings;
+    s.restSound = kRestSounds[(kRestSounds.indexOf(s.restSound) + 1) % kRestSounds.length];
+    _commit();
+    return s.restSound;
   }
 
   /// Auto, then 60 to 180 seconds, then back to Auto.
