@@ -393,6 +393,80 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('sets start from last time and gym floor mode logs with steppers', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    final store = c.read(boltProvider.notifier);
+    store.addFromRotation(Account.ownerId, '2026-10-12');
+    store.setTemplate(Account.ownerId, '2026-10-12', 'push');
+    store.logPast('2026-10-12');
+    c.read(boltProvider).plans[Account.ownerId]!['2026-10-12']!.ex.first.logged.addAll([
+      SetLog(kg: 80, reps: 6),
+      SetLog(kg: 82.5, reps: 5),
+      SetLog(kg: 85, reps: 3),
+    ]);
+    store.addFromRotation(Account.ownerId, '2026-10-14');
+    store.setTemplate(Account.ownerId, '2026-10-14', 'push');
+    store.startWorkout('2026-10-14');
+    c.read(routerProvider).push('/workout/2026-10-14');
+    await settle(tester);
+    final bench = c.read(boltProvider).plans[Account.ownerId]!['2026-10-14']!.ex.first;
+    SetLog log(int j) => c.read(boltProvider).workout!.log(bench.id, j)!;
+
+    // A quick tick takes exactly what set 1 was last time.
+    await tapText(tester, 'SET 1');
+    expect((log(0).kg, log(0).reps), (80.0, 6));
+    await tapText(tester, 'Skip');
+
+    // Gym floor mode picks up at set 2, from last time's set 2.
+    await tapText(tester, 'GYM FLOOR');
+    expect(c.read(boltProvider).settings.floor, isTrue);
+    expect(find.text('SET 2 OF 4'), findsOneWidget);
+    expect(find.text('82.5'), findsOneWidget);
+    expect(find.text('Last Mon 12 Oct: 80×6 · 82.5×5 · 85×3 kg'), findsOneWidget);
+    await tester.tap(find.text('+').first);
+    await tester.pump();
+    expect(find.text('85'), findsOneWidget);
+    await tapText(tester, 'Done · set 2');
+    expect((log(1).kg, log(1).reps), (85.0, 5));
+    expect(find.text('REST'), findsOneWidget);
+    await tapText(tester, 'Skip');
+
+    // Going 2.5 kg heavier on set 2 carries over to set 3.
+    expect(find.text('SET 3 OF 4'), findsOneWidget);
+    expect(find.text('87.5'), findsOneWidget);
+    await tapText(tester, 'LIST');
+    expect(c.read(boltProvider).settings.floor, isFalse);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
+  testWidgets('a timed set counts down in gym floor mode and logs itself', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    final store = c.read(boltProvider.notifier);
+    store.addFromRotation(Account.ownerId, '2026-10-14');
+    store.setTemplate(Account.ownerId, '2026-10-14', 'hiit');
+    store.toggleSetting('floor');
+    store.startWorkout('2026-10-14');
+    c.read(routerProvider).push('/workout/2026-10-14');
+    await settle(tester);
+    final s = c.read(boltProvider).plans[Account.ownerId]!['2026-10-14']!;
+    final climber = s.ex.firstWhere((e) => e.name == 'Mountain Climber');
+    // To the mountain climbers: burpees and swings come first.
+    await tapText(tester, '›');
+    await tapText(tester, '›');
+    expect(find.text('Mountain Climber'), findsOneWidget);
+    await tapText(tester, 'Start 0:30');
+    expect(find.text('GO'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 31));
+    await settle(tester);
+    expect(c.read(boltProvider).workout!.isDone(climber.id, 0), isTrue);
+    expect(find.text('REST'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
   testWidgets('exercises move up and down and explain themselves in the editor', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

@@ -12,6 +12,7 @@ class AppSettings {
     this.restAuto = true,
     this.levelSeen,
     this.haptics = true,
+    this.floor = false,
     List<String>? hintsSeen,
   }) : hintsSeen = hintsSeen ?? [];
 
@@ -52,6 +53,9 @@ class AppSettings {
   /// Haptic feedback on steps, sets and records.
   bool haptics;
 
+  /// Workouts open in gym floor mode: one big set at a time.
+  bool floor;
+
   Map<String, dynamic> toJson() => {
     'remind': remind,
     'brief': brief,
@@ -66,6 +70,7 @@ class AppSettings {
     'hintsSeen': hintsSeen,
     'levelSeen': levelSeen,
     'haptics': haptics,
+    'floor': floor,
   };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
@@ -82,5 +87,6 @@ class AppSettings {
     hintsSeen: [for (final x in j['hintsSeen'] as List? ?? const []) x as String],
     levelSeen: j['levelSeen'] as int?,
     haptics: j['haptics'] as bool? ?? true,
+    floor: j['floor'] as bool? ?? false,
   );
 }

@@ -35,6 +35,18 @@ String withKg(String load) {
   return m == null ? load : '${m[1]!.replaceAll(',', '.')} kg';
 }
 
+/// Seconds in a time target: `45 s`, `30-45 s` (the top) or `30 min`. Null
+/// for reps and distances.
+int? targetSecs(String reps) {
+  final m = RegExp(r'^(\d+)(?:-(\d+))?\s?(s|sec|min)$').firstMatch(reps.trim().toLowerCase());
+  if (m == null) return null;
+  final n = int.parse(m[2] ?? m[1]!);
+  return m[3] == 'min' ? n * 60 : n;
+}
+
+/// `0:45`, `30:00`.
+String clockSecs(int s) => '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
+
 /// `max` reps: as many as you can, to the end of the set.
 bool isMax(String reps) => reps.trim().toLowerCase() == 'max';
 

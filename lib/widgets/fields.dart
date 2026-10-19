@@ -62,6 +62,7 @@ class BoltField extends StatelessWidget {
     this.number = false,
     this.suffix,
     this.words = false,
+    this.autofocus = false,
   });
 
   final TextEditingController controller;
@@ -83,6 +84,9 @@ class BoltField extends StatelessWidget {
   /// Capitalise words, for names.
   final bool words;
 
+  /// Opens the keyboard straight away.
+  final bool autofocus;
+
   @override
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
@@ -94,6 +98,7 @@ class BoltField extends StatelessWidget {
       child: TextField(
         controller: controller,
         onChanged: onChanged,
+        autofocus: autofocus,
         // Fill the fixed height like the prototype's inputs.
         expands: true,
         maxLines: null,

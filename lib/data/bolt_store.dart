@@ -1816,6 +1816,8 @@ class BoltStore extends Notifier<BoltData> {
       case 'checkout':
         s.checkout = !s.checkout;
         if (!s.checkout) _notify.cancelCheckout();
+      case 'floor':
+        s.floor = !s.floor;
       case 'haptics':
         s.haptics = !s.haptics;
         Haptics.enabled = s.haptics;

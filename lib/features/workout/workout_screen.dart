@@ -34,6 +34,7 @@ import '../../widgets/motion.dart';
 import '../../widgets/swap_sheet.dart';
 import '../../widgets/tap.dart';
 import '../plan/day_sheet.dart';
+import 'floor_view.dart';
 import '../today/today_screen.dart' show clockText;
 
 class WorkoutScreen extends ConsumerStatefulWidget {
@@ -117,6 +118,16 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     _armRest();
   }
 
+  /// A timed set in gym floor mode started (counting down to [end]) or
+  /// stopped (null).
+  void _onWork(DateTime? end, int total, String title) {
+    if (end == null) {
+      _notify.clearRest();
+    } else {
+      _notify.showRest(end, title);
+    }
+  }
+
   void _skip() {
     Haptics.play(Feel.tap);
     _ticker?.cancel();
@@ -136,37 +147,59 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
         : tx('Last set done. Finish the workout.');
   }
 
-  /// Ticks set [j] with the weight and reps last used in this workout, or
-  /// the suggestion, or the plan. Rest starts unless the superset partner
-  /// comes next.
+  /// What set [j] of [e] starts from: its own plan (70, 75, 80 kg), else
+  /// exactly what the same set was last time. A change on an earlier set
+  /// today carries over (+2.5 kg on set 1 makes set 2 last time's +2.5).
+  /// Percentage loads follow the program instead.
+  SetLog _prefill(Exercise e, int j, ActiveWorkout w, LiftHint? hint, double? pctKg) {
+    SetLog? prev;
+    var at = j;
+    while (prev == null && at > 0) {
+      prev = w.log(e.id, --at);
+    }
+    final store = ref.read(boltProvider.notifier);
+    final t = store.tr(ref.read(boltProvider).account!.id);
+    final own = setKg(t, store.plan(t.id), e, j);
+    final ownReps = e.ownReps(j) == null ? null : targetReps(e.ownReps(j)!);
+    final last = hint?.last.sets ?? const <SetLog>[];
+    SetLog? lastAt(int k) => last.isEmpty ? null : last[math.min(k, last.length - 1)];
+    final shift = prev?.kg != null && lastAt(at)?.kg != null ? prev!.kg! - lastAt(at)!.kg! : 0.0;
+    final lastKg = lastAt(j)?.kg;
+    final fromLast = lastKg == null || lastKg + shift <= 0 ? null : lastKg + shift;
+    final byPct = pctKg != null;
+    // A max set has no rep count to fill in: the sheet asks what you got.
+    final max = isMax(e.repsFor(j));
+    return SetLog(
+      kg: own ?? (byPct ? prev?.kg ?? pctKg : fromLast ?? prev?.kg ?? loadKg(e.load)),
+      reps: max ? null : ownReps ?? (byPct ? null : lastAt(j)?.reps) ?? prev?.reps ?? targetReps(e.reps),
+    );
+  }
+
+  /// Ticks set [j] with [_prefill]'s numbers; a ticked set opens its sheet.
   void _tick(List<Exercise> ex, int i, int j, ActiveWorkout w, LiftHint? hint, double? pctKg) {
     final e = ex[i];
-    final store = ref.read(boltProvider.notifier);
-    final st = ref.read(boltProvider).settings;
     if (w.isDone(e.id, j)) {
       showBoltSheet<void>(context, (_) => _SetSheet(e: e, set: j, onSaved: (log) => _celebrate(e, log)));
       return;
     }
-    SetLog? prev;
-    for (var k = j - 1; k >= 0 && prev == null; k--) {
-      prev = w.log(e.id, k);
-    }
-    // A set with its own plan (70, 75, 80 kg) starts from that plan.
-    final t = ref.read(boltProvider.notifier).tr(ref.read(boltProvider).account!.id);
-    final own = setKg(t, ref.read(boltProvider.notifier).plan(t.id), e, j);
-    final ownReps = e.ownReps(j) == null ? null : targetReps(e.ownReps(j)!);
-    // A max set has no rep count to fill in: the sheet asks what you got.
-    final max = isMax(e.repsFor(j));
-    final log = SetLog(
-      kg: own ?? prev?.kg ?? pctKg ?? hint?.nextKg ?? loadKg(e.load),
-      reps: max ? null : ownReps ?? prev?.reps ?? targetReps(e.reps),
-    );
-    store.logSet(e.id, j, log);
+    _log(ex, i, j, w, _prefill(e, j, w, hint, pctKg));
+  }
+
+  /// Ticks set [j] of exercise [i] with [log], or updates it when it is
+  /// done already. A new set starts the rest unless the superset partner
+  /// comes next; a max set without reps asks how many.
+  void _log(List<Exercise> ex, int i, int j, ActiveWorkout w, SetLog log) {
+    final e = ex[i];
+    final again = w.isDone(e.id, j);
+    final st = ref.read(boltProvider).settings;
+    ref.read(boltProvider.notifier).logSet(e.id, j, log);
     Haptics.play(Feel.set);
     _checkRace();
     final partnerNext = e.group != null && i + 1 < ex.length && ex[i + 1].group == e.group;
-    if (!partnerNext) _startRest(_nextAfter(ex, i, j, w), restFor(e, auto: st.restAuto, fixed: st.restSecs));
-    if (max) {
+    if (!again && !partnerNext) {
+      _startRest(_nextAfter(ex, i, j, w), restFor(e, auto: st.restAuto, fixed: st.restSecs));
+    }
+    if (isMax(e.repsFor(j)) && log.reps == null) {
       showBoltSheet<void>(context, (_) => _SetSheet(e: e, set: j, onSaved: (log) => _celebrate(e, log)));
     } else {
       _celebrate(e, log);
@@ -230,6 +263,62 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     }
     final insets = MediaQuery.paddingOf(context);
     final lastK = lastSame(store.plan(t.id), s, widget.dayKey);
+    final floor = d.settings.floor;
+    final top = Row(
+      children: [
+        BackBox(onTap: () => context.pop()),
+        const SizedBox(width: 12),
+        Expanded(child: Kicker(tx('SESSION · {day}', {'day': fmtDay(widget.dayKey).toUpperCase()}))),
+        Tap(
+          onTap: () {
+            Haptics.play(Feel.tap);
+            store.toggleSetting('floor');
+          },
+          child: BoltBox(
+            radius: 99,
+            stroke: const Stroke(BoltColors.neon, 1.5),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Text(
+              floor ? tx('LIST') : tx('GYM FLOOR'),
+              style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.neon),
+            ),
+          ),
+        ),
+        if (w.started != null) ...[const SizedBox(width: 10), _Elapsed(started: w.started!)],
+      ],
+    );
+
+    if (floor) {
+      final plan = store.plan(t.id);
+      LiftHint? hint(int i) => hintFor(plan, s.ex[i], widget.dayKey);
+      return BoltPage(
+        child: FloorView(
+          ex: s.ex,
+          workout: w,
+          metric: d.settings.kg,
+          prefill: (i, j) => _prefill(s.ex[i], j, w, hint(i), percentKg(t, plan, s.ex[i])),
+          hint: hint,
+          restEnd: _restEnd,
+          restTotal: _restTotal,
+          restNext: _restNext,
+          onLog: (i, j, log) => _log(s.ex, i, j, w, log),
+          onRestAdd: _restAdd,
+          onSkip: _skip,
+          onFinish: _finish,
+          onWork: _onWork,
+          header: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              top,
+              const SizedBox(height: 12),
+              Text(tx(s.title).toUpperCase(), style: BoltText.a(22, weight: 900, width: 112, color: BoltColors.neon)),
+              const SizedBox(height: 10),
+              _Progress(done: done, tot: tot),
+            ],
+          ),
+        ),
+      );
+    }
 
     return BoltPage(
       child: Stack(
@@ -239,14 +328,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(
-                  children: [
-                    BackBox(onTap: () => context.pop()),
-                    const SizedBox(width: 12),
-                    Expanded(child: Kicker(tx('SESSION · {day}', {'day': fmtDay(widget.dayKey).toUpperCase()}))),
-                    if (w.started != null) _Elapsed(started: w.started!),
-                  ],
-                ),
+                top,
                 const SizedBox(height: 16),
                 Text(
                   tx(s.title).toUpperCase(),
@@ -262,29 +344,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                 const SizedBox(height: 6),
                 Text(tx(s.focus), style: BoltText.a(14, color: BoltColors.muted)),
                 const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(99),
-                        child: Container(
-                          height: 8,
-                          color: BoltColors.lineSoft,
-                          alignment: Alignment.centerLeft,
-                          child: AnimatedFractionallySizedBox(
-                            duration: const Duration(milliseconds: 350),
-                            curve: const Cubic(.2, .8, .2, 1),
-                            widthFactor: tot == 0 ? 0 : done / tot,
-                            heightFactor: 1,
-                            child: const ColoredBox(color: BoltColors.neon),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    RollText('$done / $tot ${tx('SETS')}', style: BoltText.m(11, weight: 700)),
-                  ],
-                ),
+                _Progress(done: done, tot: tot),
                 if (lastK != null) ...[
                   const SizedBox(height: 10),
                   _Race(
@@ -890,6 +950,41 @@ class _Race extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Sets done of all, as a bar.
+class _Progress extends StatelessWidget {
+  const _Progress({required this.done, required this.tot});
+
+  final int done;
+  final int tot;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: Container(
+              height: 8,
+              color: BoltColors.lineSoft,
+              alignment: Alignment.centerLeft,
+              child: AnimatedFractionallySizedBox(
+                duration: const Duration(milliseconds: 350),
+                curve: const Cubic(.2, .8, .2, 1),
+                widthFactor: tot == 0 ? 0 : done / tot,
+                heightFactor: 1,
+                child: const ColoredBox(color: BoltColors.neon),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        RollText('$done / $tot ${tx('SETS')}', style: BoltText.m(11, weight: 700)),
+      ],
     );
   }
 }
