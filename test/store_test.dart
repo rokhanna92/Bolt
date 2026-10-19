@@ -589,6 +589,28 @@ void ownerTests() {
       expect(nextStep(rankOf(t, f.mine), t.body), isNull);
     });
 
+    test('days logged as done count toward the rank with their planned numbers', () {
+      final f = Fresh(wed)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      final t = f.data.trainees.single;
+      t.body
+        ..weightKg = 80
+        ..sex = 'm';
+      f.store.addFromRotation(Account.ownerId, '2026-10-12');
+      f.store.setTemplate(Account.ownerId, '2026-10-12', 'push');
+      expect(rankOf(t, f.mine).placed, isFalse);
+      f.store.logPast('2026-10-12');
+      // Push plans Bench Press 70 kg for 6-8: 6 reps, about 84 kg.
+      expect(plannedMax(f.mine, 'Bench Press'), closeTo(84, .01));
+      final r = rankOf(t, f.mine);
+      expect(r.placed, isTrue);
+      expect(r.lifts.map((l) => l.name), containsAll(['Bench Press', 'Overhead Press']));
+      // A ticked heavier set wins, and a max set by hand wins over both.
+      f.mine['2026-10-12']!.ex.first.logged.add(SetLog(kg: 90, reps: 3));
+      expect(rankOf(t, f.mine).lifts.firstWhere((l) => l.name == 'Bench Press').maxKg, closeTo(99, .01));
+      t.maxes['Bench Press'] = 60;
+      expect(rankOf(t, f.mine).lifts.firstWhere((l) => l.name == 'Bench Press').maxKg, 60);
+    });
+
     test('a new rank is celebrated once', () {
       final f = Fresh(wed)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'));
       final t = f.data.trainees.single;

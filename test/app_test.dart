@@ -471,7 +471,7 @@ void main() {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     expect(find.text('BODYWEIGHT'), findsOneWidget);
-    expect(find.text('Log a main lift to get placed'), findsOneWidget);
+    expect(find.text('Add your bodyweight and sex to get placed'), findsOneWidget);
     c.read(boltProvider).trainees.single.body
       ..weightKg = 80
       ..sex = 'm';

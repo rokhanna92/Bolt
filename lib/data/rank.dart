@@ -5,6 +5,7 @@
 import 'dart:math' as math;
 
 import 'lifts.dart';
+import 'models/exercise.dart';
 import 'models/people.dart';
 import 'models/session.dart';
 import 'strength.dart';
@@ -88,15 +89,37 @@ double ratioAt(double pos, List<double> t) {
   return t[3] + (pos - 4) * (t[3] - t[2]);
 }
 
+/// The best estimated max of [name] from days logged as done without
+/// ticking sets, a past day from the diary or a gym day filled in later:
+/// their planned weight and reps count as what was lifted, the bottom of a
+/// rep range (8-10 is 8).
+double? plannedMax(Map<String, Session> plan, String name) {
+  double? best;
+  for (final s in plan.values) {
+    if (s.status != SessionStatus.done) continue;
+    for (final e in s.ex) {
+      if (e.name != name || e.logged.isNotEmpty) continue;
+      for (var j = 0; j < e.sets; j++) {
+        final est = e1rm(SetLog(kg: loadKg(e.loadFor(j)), reps: lowReps(e.repsFor(j))));
+        if (est != null && (best == null || est > best)) best = est;
+      }
+    }
+  }
+  return best;
+}
+
 /// The rank of [t]: the mean place of their best three lifts with strength
-/// standards, from a max set by hand or the best logged estimate. Unplaced
-/// (Bodyweight) without a bodyweight, sex or any such lift.
+/// standards, from a max set by hand, else the best of logged sets and days
+/// logged as done. Unplaced (Bodyweight) without a bodyweight, sex or any
+/// such lift.
 Rank rankOf(Trainee t, Map<String, Session> plan) {
   final lifts = <RankedLift>[];
   final bw = t.body.weightKg;
   if (bw != null && bw > 0 && t.body.sex != null) {
     for (final name in kStandardLifts) {
-      final max = maxFor(t, plan, name);
+      final set = maxFor(t, plan, name);
+      final planned = t.maxes[name] == null ? plannedMax(plan, name) : null;
+      final max = set == null || (planned != null && planned > set) ? planned : set;
       final s = standardsFor(name, t.body);
       if (max == null || max <= 0 || s == null) continue;
       lifts.add(RankedLift(name, max, placeOf(max / bw, s)));

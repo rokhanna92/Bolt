@@ -107,7 +107,13 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
       store.autoCloseStale();
       // Saves from before levels start counting where they stand.
       if (ref.read(boltProvider).settings.levelSeen == null) store.levelUp();
-      if (ref.read(boltProvider).settings.rankSeen == null) store.rankUp();
+      // A rank that rose since last time, from an update or a backup, gets
+      // its moment; a save from before ranks only remembers where it stands.
+      if (ref.read(boltProvider).settings.rankSeen == null) {
+        store.rankUp();
+      } else {
+        showRankUp();
+      }
       store.syncSessionReminders();
       store.syncBroadcasts();
       store.syncGymTimer();

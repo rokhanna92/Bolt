@@ -73,7 +73,7 @@ const kSrFemale = <String, String>{
   'Trainee': 'Klijentkinja',
   'Trainee · Coach {name}': 'Klijentkinja · trener {name}',
   'Feeling good. Enjoy the rest, you are set for the next session.': 'Osećaš se dobro. Uživaj u odmoru, spremna si za sledeći trening.',
-  'Your best three main lifts for your bodyweight: a max you set, or your best logged set.': 'Tvoje tri najbolje glavne vežbe u odnosu na telesnu težinu: maksimum koji si upisala ili najbolja upisana serija.',
+  'Your best three main lifts for your bodyweight: a max you set, or your best set, days logged as done included.': 'Tvoje tri najbolje glavne vežbe u odnosu na telesnu težinu: maksimum koji si upisala ili najbolja serija, uključujući dane upisane kao završene.',
   'Immortal': 'Besmrtnica',
   'Every set starts at what you did on that set last time. Tap + if you go heavier.': 'Svaka serija kreće od onoga što si uradila u toj seriji prošli put. Dodirni + ako ideš teže.',
 };

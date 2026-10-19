@@ -8,6 +8,7 @@ import '../../core/units.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/people.dart';
 import '../../data/rank.dart';
+import '../../data/strength.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
@@ -82,7 +83,12 @@ class RankCard extends StatelessWidget {
                       ),
                     )
                   else if (!r.placed)
-                    Text(tx('Log a main lift to get placed'), style: BoltText.a(11, color: BoltColors.muted)),
+                    Text(
+                      t.body.weightKg == null || t.body.sex == null
+                          ? tx('Add your bodyweight and sex to get placed')
+                          : tx('Log a main lift to get placed'),
+                      style: BoltText.a(11, color: BoltColors.muted),
+                    ),
                 ],
               ),
             ),
@@ -184,14 +190,26 @@ class RankScreen extends ConsumerWidget {
                 if (hint != null) store.toast(hint);
               },
             )
+          else if (t.body.weightKg == null || t.body.sex == null)
+            NeonButton(label: tx('Edit profile'), height: 52, onTap: () => context.push('/edit-profile'))
           else
             NeonButton(label: tx('Set your main lifts'), height: 52, onTap: () => context.push('/progress')),
+          if (!r.placed) ...[
+            const SizedBox(height: 12),
+            Text(
+              tx('Lifts that count: {lifts}.', {'lifts': kStandardLifts.map(tx).join(', ')}),
+              textAlign: TextAlign.center,
+              style: BoltText.a(12, color: BoltColors.muted3, height: 1.4),
+            ),
+          ],
           if (r.placed) ...[
             const SizedBox(height: 24),
             SectionTitle(tx('What counts')),
             const SizedBox(height: 4),
             Text(
-              tx('Your best three main lifts for your bodyweight: a max you set, or your best logged set.'),
+              tx(
+                'Your best three main lifts for your bodyweight: a max you set, or your best set, days logged as done included.',
+              ),
               style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
             ),
             const SizedBox(height: 8),

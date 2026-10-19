@@ -977,7 +977,7 @@ const kSrUi = <String, String>{
   'My Bolt rank': 'Moj Bolt rang',
   'Set your main lifts': 'Podesi glavne vežbe',
   'What counts': 'Šta se računa',
-  'Your best three main lifts for your bodyweight: a max you set, or your best logged set.': 'Tvoje tri najbolje glavne vežbe u odnosu na telesnu težinu: maksimum koji si upisao ili najbolja upisana serija.',
+  'Your best three main lifts for your bodyweight: a max you set, or your best set, days logged as done included.': 'Tvoje tri najbolje glavne vežbe u odnosu na telesnu težinu: maksimum koji si upisao ili najbolja serija, uključujući dane upisane kao završene.',
   'The ladder': 'Lestvica',
   'Everyone starts at Bodyweight. Plastic to Immortal have three divisions each; Olympia is the top. Levels count what you do, rank counts what you can lift.': 'Svi kreću od Sopstvene težine. Od Plastike do Besmrtnika svaki rang ima tri divizije; Olimpija je vrh. Nivoi broje šta radiš, rang broji koliko podižeš.',
   'ATHLETE LEVEL': 'NIVO SPORTISTE',
@@ -1049,4 +1049,6 @@ const kSrUi = <String, String>{
   'Feel it': 'Oseti to',
   'Steppers tick, sets land with a thud, records swell with confetti.': 'Dugmići kucnu, serije lupnu, rekordi zabruje uz konfete.',
   'Which plates go on each side of the bar.': 'Koji tegovi idu na svaku stranu šipke.',
+  'Add your bodyweight and sex to get placed': 'Dodaj telesnu težinu i pol da dobiješ rang',
+  'Lifts that count: {lifts}.': 'Računaju se: {lifts}.',
 };
