@@ -268,6 +268,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
           was: '${weightValue(pr.was, metric: metric)} $unit',
           title: tx(e.name),
           feel: Feel.record,
+          confetti: true,
           sub: pr.heavier
               ? tx('The heaviest you have ever lifted on it.')
               : tx('Your best set ever on it, by estimated max.'),
