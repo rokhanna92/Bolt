@@ -18,33 +18,77 @@ const _metal = <(Color, Color)>[
   (Color(0xFF4F6EF0), Color(0xFFCDB0FF)),
   (Color(0xFF8E1736), Color(0xFFFF5470)),
   (Color(0xFF7FB000), BoltColors.neon),
+  (Color(0xFF00E5FF), BoltColors.neon),
 ];
+
+/// Atlas shifts through neon green, electric cyan and magenta.
+const kAtlasNeon = [BoltColors.neon, Color(0xFF00F0FF), Color(0xFFFF2BD6), BoltColors.neon];
 
 /// The colour a tier is known by, for text next to its emblem.
 Color tierColor(int tier) => _metal[tier.clamp(0, _metal.length - 1)].$2;
 
 /// A rank's badge. The shape grows with the tier: a plate for Plastic to
-/// Iron, a hexagon for Steel to Gold, a cut gem for Platinum to Immortal and
-/// a star for Olympia, each with Bolt's lightning in the middle and one to
-/// three pips for the division. Bodyweight is an empty ring.
-class RankEmblem extends StatelessWidget {
+/// Iron, a hexagon for Steel to Gold, a cut gem for Platinum to Immortal, a
+/// star for Olympia and the sky's globe for Atlas, each with Bolt's
+/// lightning in the middle and one to three pips for the division.
+/// Bodyweight is an empty ring. A big Atlas emblem slowly turns its neon.
+class RankEmblem extends StatefulWidget {
   const RankEmblem({super.key, required this.step, this.size = 56});
 
   final int step;
   final double size;
 
   @override
+  State<RankEmblem> createState() => _RankEmblemState();
+}
+
+class _RankEmblemState extends State<RankEmblem> with SingleTickerProviderStateMixin {
+  AnimationController? _spin;
+
+  bool get _live => widget.step >= kAtlas && widget.size >= 100;
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(RankEmblem old) {
+    super.didUpdateWidget(old);
+    _sync();
+  }
+
+  void _sync() {
+    if (_live && _spin == null) {
+      _spin = AnimationController(vsync: this, duration: const Duration(seconds: 6))..repeat();
+    } else if (!_live && _spin != null) {
+      _spin!.dispose();
+      _spin = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _spin?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => SizedBox(
-    width: size,
-    height: size,
-    child: CustomPaint(painter: _EmblemPainter(step)),
+    width: widget.size,
+    height: widget.size,
+    child: CustomPaint(painter: _EmblemPainter(widget.step, _spin)),
   );
 }
 
 class _EmblemPainter extends CustomPainter {
-  _EmblemPainter(this.step);
+  _EmblemPainter(this.step, this.spin) : super(repaint: spin);
 
   final int step;
+
+  /// Turns Atlas's neon, 0 to 1; null stands still.
+  final Animation<double>? spin;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -54,6 +98,7 @@ class _EmblemPainter extends CustomPainter {
     final r = s * .38;
     final (dark, light) = _metal[tier];
 
+    if (tier == kTiers.length - 1) return _atlas(canvas, s, c, r);
     if (tier == 0) {
       canvas.drawCircle(
         c,
@@ -159,6 +204,56 @@ class _EmblemPainter extends CustomPainter {
     }
   }
 
+  /// Atlas holds up the sky: a neon globe with its meridians, a burst of
+  /// rays behind it and the lightning across it.
+  void _atlas(Canvas canvas, double s, Offset c, double r) {
+    final turn = (spin?.value ?? 0) * 2 * math.pi;
+    final sweep = SweepGradient(colors: kAtlasNeon, transform: GradientRotation(turn));
+    final box = Rect.fromCircle(center: c, radius: r * 1.3);
+    // Glow, then a 12-ray burst.
+    canvas.drawCircle(
+      c,
+      r * 1.15,
+      Paint()
+        ..shader = sweep.createShader(box)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, s * .1),
+    );
+    canvas.drawPath(_star(c, r * 1.28, r * .95, 12), Paint()..shader = sweep.createShader(box));
+    // The globe, dark inside so the lines glow.
+    canvas.drawCircle(c, r * .9, Paint()..color = BoltColors.ink);
+    final line = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = s * .022
+      ..shader = sweep.createShader(box);
+    canvas.drawCircle(c, r * .9, line..strokeWidth = s * .03);
+    line.strokeWidth = s * .018;
+    for (final k in [.35, .7]) {
+      canvas.drawOval(Rect.fromCenter(center: c, width: r * 1.8 * k, height: r * 1.8), line);
+    }
+    canvas.drawLine(Offset(c.dx, c.dy - r * .9), Offset(c.dx, c.dy + r * .9), line);
+    for (final y in [-.45, 0.0, .45]) {
+      final half = r * .9 * math.sqrt(1 - y * y);
+      canvas.drawLine(Offset(c.dx - half, c.dy + y * r * .9), Offset(c.dx + half, c.dy + y * r * .9), line);
+    }
+    final b = r * .55;
+    final bolt = Path()
+      ..moveTo(c.dx + b * .25, c.dy - b * 1.05)
+      ..lineTo(c.dx - b * .55, c.dy + b * .12)
+      ..lineTo(c.dx - b * .02, c.dy + b * .12)
+      ..lineTo(c.dx - b * .25, c.dy + b * 1.05)
+      ..lineTo(c.dx + b * .55, c.dy - b * .12)
+      ..lineTo(c.dx + b * .02, c.dy - b * .12)
+      ..close();
+    canvas.drawPath(bolt, Paint()..color = BoltColors.neon);
+    canvas.drawPath(
+      bolt,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = s * .015
+        ..color = BoltColors.ink,
+    );
+  }
+
   Path _poly(Offset c, double r, int n, double start) {
     final p = Path();
     for (var i = 0; i < n; i++) {
@@ -180,5 +275,5 @@ class _EmblemPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_EmblemPainter old) => old.step != step;
+  bool shouldRepaint(_EmblemPainter old) => old.step != step || old.spin != spin;
 }

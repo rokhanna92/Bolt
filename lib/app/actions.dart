@@ -101,8 +101,10 @@ Future<void> showRankUp() async {
         title: rankText(step),
         feel: Feel.record,
         confetti: true,
-        sub: next == null
-            ? tx('The top of the ladder.')
+        sub: step >= kAtlas
+            ? tx('Atlas. Maybe once in a thousand years. There is nothing above this.')
+            : next == null
+            ? tx('No single lift gets you there now: raise all three together.')
             : tx('Next: {rank} · +{kg} on {lift}', {
                 'rank': rankText(step + 1),
                 'kg': fmtWeight(next.$2, metric: d.settings.kg),

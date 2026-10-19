@@ -611,12 +611,22 @@ void ownerTests() {
       expect(rankName(r.step), 'Platinum I');
       expect(r.lifts.map((l) => l.name), ['Deadlift', 'Back Squat', 'Bench Press']);
       expect(nextStep(r, t.body), ('Back Squat', 17.5));
+      expect(nextOptions(r, t.body), [('Back Squat', 17.5), ('Bench Press', 17.5), ('Deadlift', 25.0)]);
+      // Past Elite on all three: the greatest lifters there have been.
+      t.maxes
+        ..['Bench Press'] = 208
+        ..['Back Squat'] = 248
+        ..['Deadlift'] = 312;
+      expect(rankName(rankOf(t, f.mine).step), 'Olympia');
+      expect(nextStep(rankOf(t, f.mine), t.body), isNull);
+      // World-record strength on all three at once.
       t.maxes
         ..['Bench Press'] = 400
         ..['Back Squat'] = 400
         ..['Deadlift'] = 400;
-      expect(rankName(rankOf(t, f.mine).step), 'Olympia');
-      expect(nextStep(rankOf(t, f.mine), t.body), isNull);
+      expect(rankName(rankOf(t, f.mine).step), 'Atlas');
+      expect(rankOf(t, f.mine).step, kAtlas);
+      expect(nextOptions(rankOf(t, f.mine), t.body), isEmpty);
     });
 
     test('days logged as done count toward the rank with their planned numbers', () {

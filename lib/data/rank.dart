@@ -10,7 +10,8 @@ import 'models/people.dart';
 import 'models/session.dart';
 import 'strength.dart';
 
-/// From the start to the top. Bodyweight and Olympia have no divisions.
+/// From the start to the top. Bodyweight, Olympia and Atlas have no
+/// divisions.
 const kTiers = [
   'Bodyweight',
   'Plastic',
@@ -23,13 +24,22 @@ const kTiers = [
   'Diamond',
   'Immortal',
   'Olympia',
+  'Atlas',
 ];
 
-/// Steps on the ladder: Bodyweight, Plastic I to Immortal III, Olympia.
-const kRankSteps = 1 + 27 + 1;
+/// Steps on the ladder: Bodyweight (0), Plastic I to Immortal III (1 to
+/// 27), Olympia and Atlas.
+const kOlympia = 28;
+const kAtlas = 29;
+
+/// Olympia is the greatest lifters there have been: every main lift well
+/// past Elite. Atlas, a titan, maybe once in a thousand years: two bands
+/// past Elite on all three, world-record strength in each at once.
+const kOlympiaScore = 5.0;
+const kAtlasScore = 6.0;
 
 /// One lift's place: 0 to 5 across Beginner, Novice, Intermediate, Advanced
-/// and Elite, and as wide again past Elite.
+/// and Elite, then up to 6 for a second band as wide past Elite.
 class RankedLift {
   const RankedLift(this.name, this.maxKg, this.pos);
 
@@ -41,7 +51,8 @@ class RankedLift {
 class Rank {
   const Rank({required this.step, required this.into, required this.lifts, required this.score});
 
-  /// 0 is Bodyweight, 1 to 27 Plastic I to Immortal III, 28 Olympia.
+  /// 0 is Bodyweight, 1 to 27 Plastic I to Immortal III, then [kOlympia]
+  /// and [kAtlas].
   final int step;
 
   /// How far into this step, 0 to 1: the bar to the next division.
@@ -50,7 +61,7 @@ class Rank {
   /// The lifts that count, best first (up to three).
   final List<RankedLift> lifts;
 
-  /// The mean place of [lifts], 0 to 5.
+  /// The mean place of [lifts], 0 to 6.
   final double score;
 
   bool get placed => lifts.isNotEmpty;
@@ -58,10 +69,25 @@ class Rank {
   String get name => rankName(step);
 }
 
-int tierOf(int step) => step == 0 ? 0 : (step >= kRankSteps - 1 ? kTiers.length - 1 : 1 + (step - 1) ~/ 3);
+int tierOf(int step) =>
+    step == 0 ? 0 : (step >= kOlympia ? kTiers.length - 1 - (kAtlas - step).clamp(0, 1) : 1 + (step - 1) ~/ 3);
 
-/// 1, 2 or 3 inside a tier; 0 for Bodyweight and Olympia.
-int divisionOf(int step) => step == 0 || step >= kRankSteps - 1 ? 0 : 1 + (step - 1) % 3;
+/// 1, 2 or 3 inside a tier; 0 for Bodyweight, Olympia and Atlas.
+int divisionOf(int step) => step == 0 || step >= kOlympia ? 0 : 1 + (step - 1) % 3;
+
+/// The step a place of [score] lands on.
+int stepOf(double score) => score >= kAtlasScore
+    ? kAtlas
+    : score >= kOlympiaScore
+    ? kOlympia
+    : 1 + (score / kOlympiaScore * 27).floor();
+
+/// The score where [step] starts.
+double scoreAt(int step) => step >= kAtlas
+    ? kAtlasScore
+    : step >= kOlympia
+    ? kOlympiaScore
+    : (step - 1) / 27 * kOlympiaScore;
 
 /// "Gold II", "Bodyweight", "Olympia". English; translate the tier with tx.
 String rankName(int step) {
@@ -76,7 +102,7 @@ double placeOf(double ratio, List<double> t) {
   for (var l = 1; l < 4; l++) {
     if (ratio < t[l]) return l + (ratio - t[l - 1]) / (t[l] - t[l - 1]);
   }
-  return math.min(5, 4 + (ratio - t[3]) / (t[3] - t[2]));
+  return math.min(kAtlasScore, 4 + (ratio - t[3]) / (t[3] - t[2]));
 }
 
 /// The max ratio that puts a lift at [pos]; the inverse of [placeOf].
@@ -129,27 +155,32 @@ Rank rankOf(Trainee t, Map<String, Session> plan) {
   final top = lifts.take(3).toList();
   if (top.isEmpty) return const Rank(step: 0, into: 0, lifts: [], score: 0);
   final score = top.fold(0.0, (a, l) => a + l.pos) / top.length;
-  if (score >= 5) return Rank(step: kRankSteps - 1, into: 1, lifts: top, score: score);
-  final x = score / 5 * 27;
-  return Rank(step: 1 + x.floor(), into: x - x.floor(), lifts: top, score: score);
+  final step = stepOf(score);
+  final into = step >= kAtlas ? 1.0 : ((score - scoreAt(step)) / (scoreAt(step + 1) - scoreAt(step))).clamp(0.0, 1.0);
+  return Rank(step: step, into: into, lifts: top, score: score);
 }
 
-/// The smallest gain on one counted lift that reaches the next division:
-/// the lift and the kilograms to add, rounded up to 2.5. Null at Olympia or
-/// unplaced.
-(String, double)? nextStep(Rank r, Body body) {
-  if (!r.placed || r.step >= kRankSteps - 1) return null;
+/// What reaches the next step from one counted lift alone: each lift and
+/// the kilograms to add (rounded up to 2.5), smallest first. Empty at
+/// Atlas, unplaced, or when no single lift can get there.
+List<(String, double)> nextOptions(Rank r, Body body) {
+  if (!r.placed || r.step >= kAtlas) return const [];
   final bw = body.weightKg!;
   final n = r.lifts.length;
-  // The score that starts the next step, a hair over so rounding lands in it.
-  final target = r.step >= kRankSteps - 2 ? 5.0 : (r.step / 27 * 5) + 1e-6;
-  (String, double)? best;
+  // A hair over the start of the next step so rounding lands inside it.
+  final target = scoreAt(r.step + 1) + 1e-6;
+  final out = <(String, double)>[];
   for (final l in r.lifts) {
     final pos = l.pos + (target - r.score) * n;
-    if (pos > 5 + 1e-9) continue;
+    if (pos > kAtlasScore + 1e-9) continue;
     final s = standardsFor(l.name, body)!;
     final kg = ((ratioAt(pos, s) * bw - l.maxKg) / 2.5).ceil() * 2.5;
-    if (best == null || kg < best.$2) best = (l.name, math.max(2.5, kg));
+    out.add((l.name, math.max(2.5, kg)));
   }
-  return best;
+  // Smallest first; a tie keeps the stronger lift first.
+  int at(String lift) => r.lifts.indexWhere((l) => l.name == lift);
+  return out..sort((a, b) => a.$2 != b.$2 ? a.$2.compareTo(b.$2) : at(a.$1).compareTo(at(b.$1)));
 }
+
+/// The smallest single-lift gain to the next step, or null.
+(String, double)? nextStep(Rank r, Body body) => nextOptions(r, body).firstOrNull;
