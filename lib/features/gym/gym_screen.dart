@@ -98,6 +98,24 @@ class GymScreen extends ConsumerWidget {
                 label: g == null ? tx('Check in without scanning') : tx('Check out without scanning'),
                 onTap: () => openScanner(context, ref, manual: true),
               ),
+              // A scan by mistake can be taken back for 10 minutes, until
+              // something else changes.
+              if (ref.read(boltProvider.notifier).canUndoScan) ...[
+                const SizedBox(height: 4),
+                Tap(
+                  onTap: () {
+                    final store = ref.read(boltProvider.notifier);
+                    if (store.undoScan() == null) store.toast(tx('Too late to undo that scan'));
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Text(
+                      g == null ? tx('Undo last check-out') : tx('Undo check-in'),
+                      style: BoltText.a(13, weight: 700, color: BoltColors.muted),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

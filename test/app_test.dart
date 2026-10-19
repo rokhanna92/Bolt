@@ -823,8 +823,8 @@ void main() {
     await tester.tap(find.byKey(const Key('scan-frame')));
     await settle(tester);
     expect(find.text('CHECKED IN'), findsOneWidget);
-    // The overlay closes itself after 1.8 s, leaving the gym screen.
-    await tester.pump(const Duration(seconds: 2));
+    // The overlay closes itself after 4 s, leaving the gym screen.
+    await tester.pump(const Duration(seconds: 4));
     await settle(tester);
     expect(find.byType(ScannerOverlay), findsNothing);
     expect(find.text('Scan to check out'), findsOneWidget);
@@ -841,7 +841,7 @@ void main() {
     await tapText(tester, 'Check in without scanning');
     expect(find.text('CHECKED IN'), findsOneWidget);
     expect(inGym(), isTrue);
-    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 4));
     await settle(tester);
     expect(find.byType(ScannerOverlay), findsNothing);
 
@@ -851,9 +851,41 @@ void main() {
     expect(find.text('CHECKED OUT'), findsOneWidget);
     expect(inGym(), isFalse);
     // A short visit explains itself, so the result stays up longer.
-    await tester.pump(const Duration(seconds: 5));
+    await tester.pump(const Duration(seconds: 6));
     await settle(tester);
     expect(find.text('Check in without scanning'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
+  testWidgets('a scan by mistake is undone from the result or the gym page', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    bool inGym() => c.read(boltProvider).gymIn[Account.ownerId] != null;
+    await tapTab(tester, 'Check in');
+    await tapText(tester, 'Check in without scanning');
+    expect(inGym(), isTrue);
+    await tapText(tester, 'Undo check-in');
+    expect(inGym(), isFalse);
+    expect(find.byType(ScannerOverlay), findsNothing);
+    expect(find.text('Check-in undone'), findsOneWidget);
+
+    // Checked in for real, out by mistake: back in from the gym page.
+    await tapText(tester, 'Check in without scanning');
+    await tester.pump(const Duration(seconds: 4));
+    await settle(tester);
+    await tapText(tester, 'Check out without scanning');
+    await tester.pump(const Duration(seconds: 6));
+    await settle(tester);
+    expect(inGym(), isFalse);
+    // The first visit unlocks a badge; its moment does not stop the undo.
+    while (find.text('BADGE UNLOCKED').evaluate().isNotEmpty) {
+      await tapText(tester, 'Tap to continue');
+    }
+    await tapText(tester, 'Undo last check-out');
+    expect(inGym(), isTrue);
+    expect(c.read(boltProvider).visits[Account.ownerId] ?? const [], isEmpty);
+    expect(find.text('Check out without scanning'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await unmount(tester);
   });

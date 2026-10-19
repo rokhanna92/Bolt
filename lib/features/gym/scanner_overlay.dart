@@ -75,9 +75,18 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
     final res = ref.read(boltProvider.notifier).scan();
     setState(() => _done = res);
     if (!widget.manual) _camera.stop();
-    // A finished day stays up longer so the message can be read; a tap
-    // closes it sooner.
-    _closeTimer = Timer(Duration(milliseconds: res.detail == null ? 1800 : 4500), _close);
+    // Up long enough to read it, or to undo a mistake; a tap closes it
+    // sooner.
+    _closeTimer = Timer(Duration(milliseconds: res.detail == null ? 4000 : 6000), _close);
+  }
+
+  /// A scan by mistake: everything goes back to how it was before it.
+  void _undo() {
+    _closeTimer?.cancel();
+    if (!mounted) return;
+    Haptics.play(Feel.off);
+    ref.read(boltProvider.notifier).undoScan();
+    Navigator.of(context).pop();
   }
 
   void _close() {
@@ -283,6 +292,18 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
                 child: Text(r.detail!, textAlign: TextAlign.center, style: BoltText.a(14, weight: 600, height: 1.45)),
               ),
             ],
+            const SizedBox(height: 28),
+            SizedBox(
+              width: 220,
+              child: OutlineButton(
+                label: r.checkIn ? tx('Undo check-in') : tx('Undo check-out'),
+                height: 46,
+                color: BoltColors.text,
+                borderColor: BoltColors.line,
+                weight: 700,
+                onTap: _undo,
+              ),
+            ),
           ],
         ),
       ),

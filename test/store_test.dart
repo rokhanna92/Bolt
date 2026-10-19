@@ -159,6 +159,36 @@ void main() {
   });
 
   group('check-in', () {
+    test('a mistaken scan is undone in full until something else changes', () {
+      final f = Fresh(wed)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-14');
+      f.store.scan();
+      expect(f.store.canUndoScan, isTrue);
+      expect(f.store.undoScan(), isTrue);
+      expect(f.data.gymIn, isEmpty);
+      expect(f.store.undoScan(), isNull);
+
+      // A real visit, then a check-out by mistake that finished the day.
+      f.store.scan();
+      f.clock = wed.add(const Duration(minutes: 40));
+      f.store.scan();
+      final t = f.data.trainees.single;
+      expect((f.mine['2026-10-14']!.status, t.stats.sessions, t.stats.workouts), (SessionStatus.done, 1, 1));
+      expect(f.store.undoScan(), isFalse);
+      final back = f.data.trainees.single;
+      expect(f.data.gymIn[Account.ownerId], isNotNull);
+      expect(f.data.visits[Account.ownerId] ?? const [], isEmpty);
+      expect((f.mine['2026-10-14']!.status, back.stats.sessions, back.stats.workouts), (SessionStatus.approved, 0, 0));
+
+      // Anything else after the scan keeps it, and so does time.
+      f.store.scan();
+      f.store.dismissHint('x');
+      expect(f.store.canUndoScan, isFalse);
+      f.store.scan();
+      f.clock = f.clock.add(const Duration(minutes: 11));
+      expect(f.store.undoScan(), isNull);
+    });
+
     test('the same scan checks in then out and counts the visit', () {
       final h = Harness()..as(Role.trainee, 't1');
       expect(h.store.scan().head, 'Checked in');

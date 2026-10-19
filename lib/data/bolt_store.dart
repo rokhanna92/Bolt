@@ -157,7 +157,17 @@ class BoltStore extends Notifier<BoltData> {
 
   BoltNotifications get _notify => ref.read(notificationsProvider);
 
-  void _commit() {
+  /// Everything as it was just before the last scan, to undo a mistaken
+  /// check-in or check-out. Any other change clears it, so an undo never
+  /// throws away work done after the scan.
+  String? _beforeScan;
+  bool _scanWasIn = false;
+  DateTime? _scanAt;
+
+  /// [keepUndo] for changes a scan sets off by itself, like a level or rank
+  /// being celebrated.
+  void _commit({bool keepUndo = false}) {
+    if (!keepUndo) _beforeScan = null;
     appFemale = _ownerFemale(state);
     ref.notifyListeners();
     ref.read(repositoryProvider).scheduleSave(state);
@@ -403,6 +413,13 @@ class BoltStore extends Notifier<BoltData> {
     final id = state.account!.id;
     final g = state.gymIn[id];
     final n = now;
+    final before = jsonEncode(state.toJson());
+    void armUndo() {
+      _beforeScan = before;
+      _scanWasIn = g == null;
+      _scanAt = n;
+    }
+
     if (g == null) {
       final since = hm(n);
       state.gymIn[id] = GymIn(at: n.millisecondsSinceEpoch, base: 0, since: since);
@@ -417,6 +434,7 @@ class BoltStore extends Notifier<BoltData> {
         );
       }
       _commit();
+      armUndo();
       syncSessionReminders();
       final s = plan(id)[dk(n)];
       final planned = s != null && s.status != SessionStatus.draft && s.status != SessionStatus.done;
@@ -431,10 +449,11 @@ class BoltStore extends Notifier<BoltData> {
     }
     final mins = math.max(1, g.elapsedMinutes(n).round());
     final t = trOrNull(id);
-    final before = t?.stats.copy();
+    final stats = t?.stats.copy();
     final res = _closeVisit(id, g, mins, auto: false);
     final day = t == null ? null : _finishDay(t, res.$1.date, mins);
     _commit();
+    armUndo();
     syncSessionReminders();
     return ScanOutcome(
       head: day == null ? tx('Checked out') : tx('Day done'),
@@ -443,8 +462,41 @@ class BoltStore extends Notifier<BoltData> {
       detail:
           day ??
           (mins < minGymMins ? tx('Under {n} minutes, so it only counts as gym time.', {'n': minGymMins}) : null),
-      unlocked: before == null ? res.$2 : newlyUnlocked(before, t!.stats),
+      unlocked: stats == null ? res.$2 : newlyUnlocked(stats, t!.stats),
     );
+  }
+
+  /// Whether the last scan can still be undone: nothing else changed since,
+  /// and it was in the last 10 minutes.
+  bool get canUndoScan => _beforeScan != null && _scanAt != null && now.difference(_scanAt!).inMinutes < 10;
+
+  /// Puts everything back as it was before the last scan: the visit, the
+  /// day it finished, stats and badges. Returns whether it undid a check-in,
+  /// or null when there is nothing to undo.
+  bool? undoScan() {
+    final before = _beforeScan;
+    if (before == null || !canUndoScan) return null;
+    final wasIn = _scanWasIn;
+    _beforeScan = null;
+    state = BoltData.fromJson(jsonDecode(before) as Map<String, dynamic>);
+    appFemale = _ownerFemale(state);
+    ref.read(repositoryProvider).scheduleSave(state);
+    final g = state.gymIn[state.account?.id];
+    if (g == null) {
+      _notify.cancelCheckout();
+    } else if (state.settings.checkout) {
+      _notify.scheduleCheckout(
+        Reminder(
+          at: g.checkInTime().add(Duration(minutes: state.settings.board.times.checkout)),
+          title: tx('Still at the gym?'),
+          body: tx('Checked in at {time}. Scan the plaque on your way out.', {'time': g.since}),
+        ),
+      );
+    }
+    syncGymTimer();
+    syncSessionReminders();
+    _toast(wasIn ? tx('Check-in undone') : tx('Check-out undone'));
+    return wasIn;
   }
 
   /// Visits shorter than this count as gym time but do not finish the day,
@@ -997,7 +1049,7 @@ class BoltStore extends Notifier<BoltData> {
     final seen = state.settings.levelSeen;
     if (seen != null && l <= seen) return null;
     state.settings.levelSeen = l;
-    _commit();
+    _commit(keepUndo: true);
     return seen == null ? null : l;
   }
 
@@ -1010,7 +1062,7 @@ class BoltStore extends Notifier<BoltData> {
     final seen = state.settings.rankSeen;
     if (seen != null && step <= seen) return null;
     state.settings.rankSeen = step;
-    _commit();
+    _commit(keepUndo: true);
     return seen == null ? null : step;
   }
 

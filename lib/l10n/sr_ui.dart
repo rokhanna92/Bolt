@@ -1051,4 +1051,10 @@ const kSrUi = <String, String>{
   'Which plates go on each side of the bar.': 'Koji tegovi idu na svaku stranu šipke.',
   'Add your bodyweight and sex to get placed': 'Dodaj telesnu težinu i pol da dobiješ rang',
   'Lifts that count: {lifts}.': 'Računaju se: {lifts}.',
+  'Check-in undone': 'Prijava poništena',
+  'Check-out undone': 'Odjava poništena',
+  'Undo check-in': 'Poništi prijavu',
+  'Undo check-out': 'Poništi odjavu',
+  'Too late to undo that scan': 'Prekasno je za poništavanje',
+  'Undo last check-out': 'Poništi poslednju odjavu',
 };
