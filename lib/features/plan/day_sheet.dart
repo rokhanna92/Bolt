@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/actions.dart';
 import '../../app/router.dart';
+import '../../app/share.dart';
 import '../../app/ui_state.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
@@ -149,6 +150,26 @@ class DaySheet extends ConsumerWidget {
               },
             ),
           ],
+          const SizedBox(height: 10),
+          OutlineButton(
+            label: tx('Delete workout'),
+            color: BoltColors.warn,
+            borderColor: BoltColors.line,
+            weight: 700,
+            onTap: () async {
+              final ok = await confirmSheet(
+                context,
+                title: tx('Delete this workout?'),
+                body: tx(
+                  'It comes off your log with its sets, records and XP. The day is free again. Gym visits stay.',
+                ),
+                confirm: tx('Delete workout'),
+              );
+              if (!ok || !context.mounted) return;
+              close();
+              store.deleteDone(dayKey);
+            },
+          ),
         ],
         const SizedBox(height: 16),
         if (s.status == SessionStatus.pending) ...[

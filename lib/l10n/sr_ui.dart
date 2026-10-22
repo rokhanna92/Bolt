@@ -1102,6 +1102,11 @@ const kSrUi = <String, String>{
   'The sets you ticked are not saved. The workout goes back to START, ready to begin again.':
       'Serije koje si označio se ne čuvaju. Trening se vraća na KRENI, spreman da počne ponovo.',
   'Workout discarded, nothing was saved': 'Trening odbačen, ništa nije sačuvano',
+  'Delete workout': 'Obriši trening',
+  'Delete this workout?': 'Obrisati ovaj trening?',
+  'It comes off your log with its sets, records and XP. The day is free again. Gym visits stay.':
+      'Briše se iz dnevnika sa serijama, rekordima i XP-om. Dan je ponovo slobodan. Dolasci u teretanu ostaju.',
+  'Workout deleted': 'Trening obrisan',
   'Workout page with START': 'Stranica treninga sa KRENI',
   'Open today\'s workout: every exercise with its weights and a big START. Warm-up first, then set by set.':
       'Otvori današnji trening: sve vežbe sa težinama i veliko KRENI. Prvo zagrevanje, pa serija po serija.',

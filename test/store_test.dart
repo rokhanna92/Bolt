@@ -166,6 +166,38 @@ void main() {
     });
   });
 
+  group('delete a done workout', () {
+    test('takes the day and everything logging it counted back off', () {
+      final f = Fresh(wed)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-14');
+      final before = jsonEncode(f.data.trainees.single.stats.toJson());
+
+      // One set ticked, then finished.
+      f.store.startWorkout('2026-10-14');
+      final s = f.mine['2026-10-14']!;
+      f.store.logSet(s.ex.first.id, 0, SetLog(kg: 60, reps: 8));
+      f.store.finish();
+      expect(f.data.trainees.single.stats.workouts, 1);
+      f.store.deleteDone('2026-10-14');
+      expect(f.mine['2026-10-14'], isNull);
+      expect(jsonEncode(f.data.trainees.single.stats.toJson()), before);
+
+      // Every set ticked counts as a full workout, and comes off too.
+      f.store.addFromRotation(Account.ownerId, '2026-10-14');
+      f.store.startWorkout('2026-10-14');
+      for (final e in f.mine['2026-10-14']!.ex) {
+        for (var j = 0; j < e.sets; j++) {
+          f.store.logSet(e.id, j, SetLog(kg: 50, reps: 10));
+        }
+      }
+      f.store.finish();
+      expect(f.data.trainees.single.stats.full, 1);
+      f.store.deleteDone('2026-10-14');
+      expect(jsonEncode(f.data.trainees.single.stats.toJson()), before);
+      expect(f.toast, 'Workout deleted');
+    });
+  });
+
   group('readiness', () {
     // Sleep quality, energy, soreness, half hours of sleep, mood, grip and
     // sore groups.

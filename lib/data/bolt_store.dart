@@ -748,6 +748,60 @@ class BoltStore extends Notifier<BoltData> {
     _toast(tx('Workout discarded, nothing was saved'));
   }
 
+  /// Deletes done day [k]'s workout: the session goes and so do the
+  /// counters logging it added (workout, sets, a full workout, weekend,
+  /// custom-built, muscles, records, a perfect week it alone made), so XP
+  /// drops with them. Rank, challenges and the logbook follow the plan by
+  /// themselves. Gym visits and the diary count stay.
+  void deleteDone(String k) {
+    final t = tr(state.account!.id);
+    final p = plan(t.id);
+    final s = p[k];
+    if (s == null || s.status != SessionStatus.done) return;
+    p.remove(k);
+    final st = t.stats;
+    int down(int v, int by) => math.max(0, v - by);
+    // The log starts "done/total sets" as it was when the day was logged.
+    final m = RegExp(r'^(\d+)/(\d+) sets').firstMatch(s.log ?? '');
+    final sets = m == null ? 0 : int.parse(m[1]!);
+    final ticked = s.ex.fold(0, (a, e) => a + e.logged.length);
+    st
+      ..workouts = down(st.workouts, 1)
+      ..sets = down(st.sets, sets)
+      ..prs = down(st.prs, s.prs.length);
+    if (sets > 0 && ticked == sets && m![1] == m[2]) st.full = down(st.full, 1);
+    if (pk(k).weekday >= DateTime.saturday) st.weekend = down(st.weekend, 1);
+    if (s.ex.isNotEmpty) {
+      if (s.tpl == mixTpl || (state.tpls[s.tpl]?.custom ?? false)) st.built = down(st.built, 1);
+      for (final g in sessionGroups(s)) {
+        final n = (st.muscles[g] ?? 0) - 1;
+        n > 0 ? st.muscles[g] = n : st.muscles.remove(g);
+      }
+      final kind = s.title.trim().toLowerCase();
+      if (!p.values.any((o) => o.status == SessionStatus.done && o.title.trim().toLowerCase() == kind)) {
+        st.kinds.remove(kind);
+      }
+    }
+    // The last perfect week goes too when nothing done is left in it; the
+    // streak steps back to the perfect week before, across away weeks.
+    final wk = monday(pk(k));
+    if (st.lastPerfectWeek == dk(wk) &&
+        ![for (var i = 0; i < 7; i++) p[dk(addDays(wk, i))]].any((o) => o?.status == SessionStatus.done)) {
+      if (st.bestStreak == st.streak) st.bestStreak = down(st.bestStreak, 1);
+      st
+        ..perfect = down(st.perfect, 1)
+        ..streak = down(st.streak, 1);
+      var m = addDays(wk, -7);
+      while (st.away.contains(dk(m))) {
+        m = addDays(m, -7);
+      }
+      st.lastPerfectWeek = st.streak > 0 ? dk(m) : null;
+    }
+    _commit();
+    syncSessionReminders();
+    _toast(tx('Workout deleted'));
+  }
+
   /// Logs the workout and returns badges it unlocked.
   List<String> finish() {
     final w = state.workout;

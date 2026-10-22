@@ -510,6 +510,29 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a done workout is deleted from its day', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    final store = c.read(boltProvider.notifier);
+    store.startWorkout('2026-10-14');
+    final s = c.read(boltProvider).plans[Account.ownerId]!['2026-10-14']!;
+    store.logSet(s.ex.first.id, 0, SetLog(kg: 60, reps: 8));
+    store.finish();
+    await settle(tester);
+    expect(c.read(boltProvider).trainees.single.stats.workouts, 1);
+    await tapTab(tester, 'Plan');
+    await tapText(tester, '14');
+    await tapText(tester, 'Delete workout');
+    expect(find.text('Delete this workout?'), findsOneWidget);
+    await tester.tap(find.text('Delete workout').last);
+    await settle(tester);
+    expect(c.read(boltProvider).plans[Account.ownerId]!['2026-10-14'], isNull);
+    expect(c.read(boltProvider).trainees.single.stats.workouts, 0);
+    expect(find.text('Delete this workout?'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
   testWidgets('sets start from last time and gym floor mode logs with steppers', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
