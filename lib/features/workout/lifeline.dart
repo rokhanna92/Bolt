@@ -117,23 +117,54 @@ class _LifelinePainter extends CustomPainter {
   final int? popped;
   final Animation<double> flash;
 
-  /// Adds slot [k]'s beat at [amp] to [path], up to [upTo] of the way.
-  void _trace(Path path, Size size, int k, double amp, {double upTo = 1}) {
-    final w = size.width / beats.length;
+  /// Where slot [k] starts and how wide it is. The set you are on gets a
+  /// third of the line, so its live beat reads at a glance; the others
+  /// share the rest.
+  (double, double) _slot(Size size, int k) {
+    final live = at != null && beats[at!] == null && beats.length > 1;
+    if (!live) return (k * size.width / beats.length, size.width / beats.length);
+    final wide = size.width / 3;
+    final w = (size.width - wide) / (beats.length - 1);
+    if (k < at!) return (k * w, w);
+    if (k == at) return (k * w, wide);
+    return (wide + (k - 1) * w, w);
+  }
+
+  /// Adds slot [k]'s beat at [amp] to [path].
+  void _trace(Path path, Size size, int k, double amp) {
+    final (x0, w) = _slot(size, k);
     final base = size.height * .72;
     final h = size.height * .64 * amp;
-    final x0 = k * w;
     path.moveTo(x0, base);
-    for (var p = 1; p < _beat.length; p++) {
-      final (u, v) = _beat[p];
-      if (u > upTo) {
-        final (pu, pv) = _beat[p - 1];
-        final t = (upTo - pu) / (u - pu);
-        path.lineTo(x0 + upTo * w, base - (pv + (v - pv) * t) * h);
-        return;
-      }
+    for (final (u, v) in _beat.skip(1)) {
       path.lineTo(x0 + u * w, base - v * h);
     }
+  }
+
+  /// The height of [n] beats in a row at [u], from 0 to 1 across them.
+  static double _wave(double u, int n) {
+    final x = (u * n) % 1;
+    for (var p = 1; p < _beat.length; p++) {
+      final (bu, bv) = _beat[p];
+      if (x <= bu) {
+        final (pu, pv) = _beat[p - 1];
+        return pv + (bv - pv) * (x - pu) / (bu - pu);
+      }
+    }
+    return 0;
+  }
+
+  /// The live window's trace from [from] to [to] (0 to 1 across it), as a
+  /// monitor draws it: two beats per sweep.
+  Path _live(double x0, double w, double base, double h, double from, double to) {
+    final path = Path();
+    final steps = math.max(2, ((to - from) * w / 1.5).ceil());
+    for (var s = 0; s <= steps; s++) {
+      final u = from + (to - from) * s / steps;
+      final pt = Offset(x0 + u * w, base - _wave(u, 2) * h);
+      s == 0 ? path.moveTo(pt.dx, pt.dy) : path.lineTo(pt.dx, pt.dy);
+    }
+    return path;
   }
 
   @override
@@ -183,16 +214,20 @@ class _LifelinePainter extends CustomPainter {
       amp = .12 + .68 * (1 - left);
       color = Color.lerp(BoltColors.text, BoltColors.neon, 1 - left)!;
     }
-    final live = Path();
-    _trace(live, size, k, amp, upTo: sweep.value);
+    final (x0, w) = _slot(size, k);
+    final base = size.height * .72;
+    final h = size.height * .64 * amp;
+    final u = sweep.value;
+    // The last sweep fades out behind a small gap ahead of the head.
+    const gap = .1;
+    if (u + gap < 1) {
+      canvas.drawPath(_live(x0, w, base, h, u + gap, 1), line..color = color.withValues(alpha: .3));
+    }
+    final live = _live(x0, w, base, h, 0, u);
     canvas.drawPath(live, glow..color = color.withValues(alpha: .35));
     canvas.drawPath(live, line..color = color);
     // The head of the trace, a glowing dot.
-    final metrics = live.computeMetrics().toList();
-    if (metrics.isEmpty) return;
-    final last = metrics.last;
-    final head = last.getTangentForOffset(last.length)?.position;
-    if (head == null) return;
+    final head = Offset(x0 + u * w, base - _wave(u, 2) * h);
     canvas.drawCircle(
       head,
       6,
