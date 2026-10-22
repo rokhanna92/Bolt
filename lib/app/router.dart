@@ -32,14 +32,13 @@ import '../features/today/today_screen.dart';
 import '../features/workout/summary_screen.dart';
 import '../features/workout/workout_screen.dart';
 import '../features/workouts/split_editor_screen.dart';
-import '../widgets/common.dart';
 import 'shell.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
-// The Library (/workouts), editor, plaque, Learn guide (/guide) and settings
-// are shared: solo users and trainees plan for themselves too.
-const _traineeOnly = {'today', 'plan', 'gym', 'learn', 'badges', 'me', 'workout', 'wrap', 'history', 'rank'};
+// The editor, plaque, Atlas (/guide) and settings are shared: solo users and
+// trainees plan for themselves too. Their Library is the /workouts tab.
+const _traineeOnly = {'today', 'plan', 'gym', 'workouts', 'badges', 'me', 'workout', 'wrap', 'history', 'rank'};
 const _coachOnly = {'roster', 'schedule', 'profile', 'trainee', 'calendar'};
 
 /// Pushed screens: fade in and rise 10 px (350 ms, easeOut).
@@ -109,7 +108,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [GoRoute(path: '/gym', pageBuilder: (c, s) => _tab(s, const GymScreen()))],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: '/learn', pageBuilder: (c, s) => _tab(s, const LearnScreen()))],
+            routes: [GoRoute(path: '/workouts', pageBuilder: (c, s) => _tab(s, const LibraryScreen()))],
           ),
           StatefulShellBranch(
             routes: [GoRoute(path: '/me', pageBuilder: (c, s) => _tab(s, const MeScreen()))],
@@ -211,7 +210,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/guide',
         parentNavigatorKey: rootNavigatorKey,
-        pageBuilder: (c, s) => _enter(s, const LearnScreen(pushed: true)),
+        pageBuilder: (c, s) => _enter(s, const LearnScreen()),
       ),
       GoRoute(
         path: '/badges',
@@ -222,12 +221,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/settings',
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) => _enter(s, const SettingsScreen()),
-      ),
-      // The Library for people who train: coaches have it as a tab instead.
-      GoRoute(
-        path: '/workouts',
-        parentNavigatorKey: rootNavigatorKey,
-        pageBuilder: (c, s) => _enter(s, const BoltPage(child: LibraryScreen())),
       ),
       GoRoute(
         path: '/plates',

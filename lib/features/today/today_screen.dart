@@ -1185,7 +1185,7 @@ class _NewCard extends ConsumerWidget {
             Tap(
               onTap: route == null
                   ? null
-                  : () => route.startsWith('/plan') || route == '/gym' || route == '/learn'
+                  : () => route.startsWith('/plan') || route == '/gym' || route == '/workouts'
                         ? context.go(route)
                         : context.push(route),
               child: Container(

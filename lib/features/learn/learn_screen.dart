@@ -43,13 +43,9 @@ const _suppFilters = <(String, Set<String>)>[
 ];
 
 /// Workout reasoning, training styles, muscles, exercise form, supplements
-/// and the basics. A tab for people who train; coaches open it from their
-/// Library.
+/// and the basics. Opened from Me or the Library.
 class LearnScreen extends ConsumerWidget {
-  const LearnScreen({super.key, this.pushed = false});
-
-  /// Opened over another screen, so it has a back button.
-  final bool pushed;
+  const LearnScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -65,7 +61,8 @@ class LearnScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              if (pushed) ...[BackBox(onTap: () => context.pop()), const SizedBox(width: 12)],
+              BackBox(onTap: () => context.pop()),
+              const SizedBox(width: 12),
               Kicker(tx('ATLAS')),
             ],
           ),

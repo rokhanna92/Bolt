@@ -30,7 +30,7 @@ class BoltShell extends ConsumerWidget {
         ? [
             NavItem(label: tx('Today'), icon: 'barbell'),
             NavItem(label: tx('Plan'), icon: 'calendar'),
-            NavItem(label: tx('Atlas'), icon: 'book'),
+            NavItem(label: tx('Workouts'), icon: 'plate'),
             NavItem(label: tx('Me'), initials: initials(name)),
           ]
         : [
@@ -39,7 +39,7 @@ class BoltShell extends ConsumerWidget {
             NavItem(label: tx('Library'), icon: 'plate', pillWidth: 56),
             NavItem(label: tx('Profile'), initials: initials(name), pillWidth: 56),
           ];
-    // Trainee branches: today, plan, gym, learn, me. Coach branches: roster,
+    // Trainee branches: today, plan, gym, workouts, me. Coach branches: roster,
     // schedule, library, profile, calendar. The gym and the calendar have no
     // tab of their own; the centre button opens them.
     final branchOf = trainee ? const [0, 1, 3, 4] : const [0, 1, 2, 3];

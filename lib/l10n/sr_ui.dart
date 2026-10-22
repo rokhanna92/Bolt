@@ -1096,6 +1096,7 @@ const kSrUi = <String, String>{
       'Spremnost {n}: danas lakše, jedna serija manje po vežbi.',
   'Workout put back': 'Trening vraćen',
   'NEW IN BOLT 1.24': 'NOVO U BOLTU 1.24',
+  'Training styles, muscles, form, moving more and supplements': 'Stilovi treninga, mišići, tehnika, više kretanja i suplementi',
   'Workout page with START': 'Stranica treninga sa KRENI',
   'Open today\'s workout: every exercise with its weights and a big START. Warm-up first, then set by set.':
       'Otvori današnji trening: sve vežbe sa težinama i veliko KRENI. Prvo zagrevanje, pa serija po serija.',

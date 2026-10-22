@@ -123,10 +123,10 @@ class MeScreen extends ConsumerWidget {
         ],
         const SizedBox(height: 24),
         _LinkCard(
-          icon: 'plate',
-          title: tx('Workouts'),
-          sub: tx('Templates and splits used when you plan or auto-fill'),
-          onTap: () => context.push('/workouts'),
+          icon: 'book',
+          title: tx('Atlas'),
+          sub: tx('Training styles, muscles, form, moving more and supplements'),
+          onTap: () => context.push('/guide'),
         ),
         const SizedBox(height: 8),
         _LinkCard(

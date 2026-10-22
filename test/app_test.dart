@@ -195,7 +195,7 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('Learn has its own tab, badges sit on Today', (tester) async {
+  testWidgets('Atlas opens from Me, badges sit on Today', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     expect(find.text('ACHIEVEMENTS'), findsOneWidget);
@@ -206,13 +206,18 @@ void main() {
     await tester.tap(find.text('‹'));
     await settle(tester);
 
-    await tapTab(tester, 'Atlas');
+    await tapTab(tester, 'Me');
+    await tapText(tester, 'Atlas');
     expect(find.text('Train smarter'), findsOneWidget);
     await tapText(tester, 'Move');
     expect(find.text('Walking'), findsOneWidget);
     expect(find.textContaining('Every extra 1,000 steps a day'), findsOneWidget);
     expect(find.text('Supplements'), findsOneWidget);
-    expect(find.text('‹'), findsNothing);
+    // Opening the Move tab scrolled the back button away.
+    await tester.drag(find.byType(ListView).first, const Offset(0, 800));
+    await settle(tester);
+    await back(tester);
+    expect(find.text('Training solo'), findsOneWidget);
     await unmount(tester);
   });
 
@@ -355,24 +360,20 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('solo users open the workout library from Me', (tester) async {
+  testWidgets('the workout library is a tab for solo users', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
-    await tapTab(tester, 'Me');
-    await tapText(tester, 'Workouts');
+    await tapTab(tester, 'Workouts');
     expect(find.text('LIBRARY'), findsOneWidget);
+    expect(find.byType(BackBox), findsNothing);
     expect(tester.takeException(), isNull);
-    await tester.tap(find.text('‹'));
-    await settle(tester);
-    expect(find.text('Training solo'), findsOneWidget);
     await unmount(tester);
   });
 
   testWidgets('a changed workout gets kg, max reps and goes to the top of the library', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
-    await tapTab(tester, 'Me');
-    await tapText(tester, 'Workouts');
+    await tapTab(tester, 'Workouts');
     await tapText(tester, 'Push');
     expect(find.text('VS YOUR STANDARD'), findsOneWidget);
     final bench = c.read(boltProvider).tpls['push']!.ex.first;
@@ -404,8 +405,7 @@ void main() {
     await settle(tester);
     expect(find.text('▲ 11% above your standard'), findsOneWidget);
     await tapText(tester, 'Done');
-    await tapTab(tester, 'Me');
-    await tapText(tester, 'Workouts');
+    await tapTab(tester, 'Workouts');
     await tapText(tester, 'Push');
     await tapText(tester, '+11%');
     expect(find.text('80 kg × 5 · standard 70 kg × 6'), findsOneWidget);
@@ -647,8 +647,7 @@ void main() {
   testWidgets('exercises move up and down and explain themselves in the editor', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
-    await tapTab(tester, 'Me');
-    await tapText(tester, 'Workouts');
+    await tapTab(tester, 'Workouts');
     await tapText(tester, 'Push');
     List<String> names() => c.read(boltProvider).tpls['push']!.ex.map((e) => e.name).toList();
     expect(names().take(2), ['Bench Press', 'Overhead Press']);

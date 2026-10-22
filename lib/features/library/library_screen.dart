@@ -48,17 +48,7 @@ class LibraryScreen extends ConsumerWidget {
     ];
     return ScreenScroll(
       children: [
-        // A tab for coaches; pushed from Me for everyone else.
-        if (coach)
-          Kicker(tx('LIBRARY'))
-        else
-          Row(
-            children: [
-              BackBox(onTap: () => context.pop()),
-              const SizedBox(width: 12),
-              Kicker(tx('LIBRARY')),
-            ],
-          ),
+        Kicker(tx('LIBRARY')),
         const SizedBox(height: 4),
         Text(tx('Workouts'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
         const SizedBox(height: 6),
