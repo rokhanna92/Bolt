@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivity
@@ -27,7 +28,8 @@ import java.io.File
  * "bolt/rest" starts and stops the rest countdown service (RestTimerService)
  * and previews its sounds; the service reports +15, Skip and the end back.
  *
- * "bolt/screen" keeps the screen on while a workout is open ("keepOn").
+ * "bolt/screen" keeps the screen on while a workout is open ("keepOn") and,
+ * when asked ("volumeKey"), turns volume down into "volumeDown" calls.
  *
  * And "bolt/backup": Android's own pickers to save a backup file anywhere
  * ("save") and to pick one to restore ("open"). Null means cancelled.
@@ -37,6 +39,17 @@ class MainActivity : FlutterActivity() {
     private var shortcuts: MethodChannel? = null
     private var pending: MethodChannel.Result? = null
     private var pendingText: String? = null
+    private var screen: MethodChannel? = null
+    private var volumeKey = false
+
+    /** Volume down goes to the workout page before Flutter or the volume sees it. */
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (volumeKey && event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) screen?.invokeMethod("volumeDown", null)
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -77,16 +90,23 @@ class MainActivity : FlutterActivity() {
             }
         }
         RestTimerService.listener = { what, end -> runOnUiThread { rest.invokeMethod(what, end) } }
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/screen").setMethodCallHandler { call, result ->
-            if (call.method == "keepOn") {
-                if (call.arguments as Boolean) {
-                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                } else {
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        screen = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/screen").apply {
+            setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "keepOn" -> {
+                        if (call.arguments as Boolean) {
+                            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        } else {
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        }
+                        result.success(null)
+                    }
+                    "volumeKey" -> {
+                        volumeKey = call.arguments as Boolean
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
                 }
-                result.success(null)
-            } else {
-                result.notImplemented()
             }
         }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/widget").setMethodCallHandler { call, result ->

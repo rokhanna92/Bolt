@@ -166,6 +166,12 @@ class SettingsScreen extends ConsumerWidget {
             toggle: s.countdown,
             onTap: () => store.toggleSetting('countdown'),
           ),
+          _Row(
+            tx('Volume down logs a set'),
+            sub: tx('During a workout, press volume down instead of the big button'),
+            toggle: s.volumeLog,
+            onTap: () => store.toggleSetting('volumeLog'),
+          ),
         ],
       ),
       (

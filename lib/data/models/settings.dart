@@ -17,6 +17,7 @@ class AppSettings {
     this.floor = false,
     this.restSound = 'chime',
     this.countdown = true,
+    this.volumeLog = true,
     this.rankSeen,
     Board? board,
     List<String>? hintsSeen,
@@ -69,6 +70,9 @@ class AppSettings {
   /// Ticks (and blips, with a sound on) in the last 3 seconds of a rest.
   bool countdown;
 
+  /// Volume down does the big button's job in gym floor mode.
+  bool volumeLog;
+
   /// Highest rank step already celebrated.
   int? rankSeen;
 
@@ -92,6 +96,7 @@ class AppSettings {
     'floor': floor,
     'restSound': restSound,
     'countdown': countdown,
+    'volumeLog': volumeLog,
     'rankSeen': rankSeen,
     'board': board.toJson(),
   };
@@ -113,6 +118,7 @@ class AppSettings {
     floor: j['floor'] as bool? ?? false,
     restSound: j['restSound'] as String? ?? 'chime',
     countdown: j['countdown'] as bool? ?? true,
+    volumeLog: j['volumeLog'] as bool? ?? true,
     rankSeen: j['rankSeen'] as int?,
     board: Board.fromJson(j['board']),
   );

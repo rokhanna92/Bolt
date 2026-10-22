@@ -393,6 +393,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
           onSkip: _skip,
           onFinish: _finish,
           onWork: _onWork,
+          volumeLog: d.settings.volumeLog,
           header: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

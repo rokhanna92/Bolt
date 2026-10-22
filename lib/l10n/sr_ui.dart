@@ -1071,4 +1071,11 @@ const kSrUi = <String, String>{
   'warm-up ~{n} min': 'zagrevanje ~{n} min',
   'Last: {sets}': 'Prošli put: {sets}',
   'Warm-up done': 'Zagrevanje završeno',
+  'Volume down logs a set': 'Utišavanje beleži seriju',
+  'During a workout, press volume down instead of the big button':
+      'Tokom treninga pritisni dugme za utišavanje umesto velikog dugmeta',
+  'or press volume down': 'ili pritisni utišavanje',
+  'DONE ~{time}': 'KRAJ ~{time}',
+  'NEXT · SET {n} OF {total}': 'SLEDEĆE · SERIJA {n} OD {total}',
+  'Tap to see the set': 'Dodirni da vidiš seriju',
 };

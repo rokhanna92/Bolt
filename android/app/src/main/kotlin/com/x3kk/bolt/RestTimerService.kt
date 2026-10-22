@@ -25,8 +25,9 @@ import kotlin.math.max
  * Update, the status bar chip and lock screen card that Samsung shows in
  * its Now Bar.
  *
- * The last 3 seconds tick (haptic and, if chosen, a blip in the headphones)
- * and the end plays the end cue with a strong vibration felt in a pocket.
+ * Ten seconds before the end of a rest two pulses say "get set", the last 3
+ * seconds tick (haptic and, if chosen, a blip in the headphones) and the end
+ * plays the end cue with a strong vibration felt in a pocket.
  * The app hears about +15, Skip and the end through [listener].
  *
  * A timed set (a plank) uses the same countdown without the buttons.
@@ -165,6 +166,10 @@ class RestTimerService : Service() {
         wake = getSystemService(PowerManager::class.java)
             ?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "bolt:rest")
             ?.apply { acquire(max(0, left) + 10_000) }
+        val soon = left - 10_000
+        if (rest && haptics && totalMs > 20_000 && soon > 0) {
+            main.postDelayed({ BoltHaptics.vibrate(this, "soon") }, soon)
+        }
         if (countdown) {
             for (s in 3 downTo 1) {
                 val at = left - s * 1000

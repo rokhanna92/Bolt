@@ -76,7 +76,7 @@ object BoltHaptics {
     fun vibrate(context: Context, name: String) {
         val v = vibrator(context) ?: return
         if (!v.hasVibrator()) return
-        val alarm = name == "warn" || name == "done"
+        val alarm = name == "warn" || name == "done" || name == "soon"
         val effect = when (name) {
             // A set ticked off: a solid click with a low thud, like a racked plate.
             "set" -> composed(v, p(CLICK, 1f), p(LOW_TICK, .6f, 30))
@@ -94,6 +94,8 @@ object BoltHaptics {
                 p(CLICK, .85f, 90),
                 p(CLICK, 1f, 90),
             ) ?: wave(v, longArrayOf(0, 25, 80, 25, 70, 25, 70, 45), intArrayOf(0, 120, 0, 180, 0, 220, 0, 255))
+            // Ten seconds of rest left: two firm pulses, time to get set.
+            "soon" -> wave(v, longArrayOf(0, 60, 140, 60), intArrayOf(0, 210, 0, 210))
             // Each of the last 3 seconds of a rest.
             "warn" -> wave(v, longArrayOf(0, 40), intArrayOf(0, 200))
             // Rest over: three strong pulses that get through a pocket.

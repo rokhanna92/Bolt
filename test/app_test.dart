@@ -131,6 +131,16 @@ Future<void> tapTab(WidgetTester tester, String label) async {
   await settle(tester);
 }
 
+/// The phone's volume down key, as Android sends it during a workout.
+Future<void> volumeDown(WidgetTester tester) async {
+  await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+    'bolt/screen',
+    const StandardMethodCodec().encodeMethodCall(const MethodCall('volumeDown')),
+    (_) {},
+  );
+  await settle(tester);
+}
+
 /// The page's own back button.
 Future<void> back(WidgetTester tester) async {
   await tester.tap(find.byType(BackBox).first);
@@ -445,8 +455,23 @@ void main() {
     expect(find.textContaining('SET 1 OF'), findsOneWidget);
     await tapText(tester, 'Done · set 1');
     expect(c.read(boltProvider).workout!.isDone(s.ex.first.id, 0), isTrue);
-    expect(find.text('REST'), findsOneWidget);
     expect(find.text('1 / ${s.totalSets} SETS'), findsOneWidget);
+
+    // The rest goes dark with the countdown and the next set; a tap shows
+    // the set itself with the same countdown.
+    expect(find.byKey(const ValueKey('rest-screen')), findsOneWidget);
+    expect(find.text('REST'), findsOneWidget);
+    expect(find.textContaining('NEXT · SET'), findsOneWidget);
+    await tapText(tester, 'Tap to see the set');
+    expect(find.byKey(const ValueKey('rest-screen')), findsNothing);
+    expect(find.text('REST'), findsOneWidget);
+    await tapText(tester, 'Skip');
+
+    // Volume down logs the next set without looking at the phone.
+    await volumeDown(tester);
+    final w = c.read(boltProvider).workout!;
+    expect(s.ex.fold(0, (a, e) => a + List.generate(e.sets, (j) => w.isDone(e.id, j)).where((x) => x).length), 2);
+    expect(find.byKey(const ValueKey('rest-screen')), findsOneWidget);
     expect(tester.takeException(), isNull);
     await unmount(tester);
   });
@@ -487,6 +512,10 @@ void main() {
     expect(find.text('85'), findsOneWidget);
     await tapText(tester, 'Done · set 2');
     expect((log(1).kg, log(1).reps), (85.0, 5));
+    // 85 kg beats last time's best, so its record moment comes first.
+    expect(find.text('NEW PR'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+    await tapText(tester, 'Tap to continue');
     expect(find.text('REST'), findsOneWidget);
     await tapText(tester, 'Skip');
 

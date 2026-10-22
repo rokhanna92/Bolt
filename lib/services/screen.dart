@@ -10,4 +10,19 @@ abstract final class Screen {
       await _channel.invokeMethod<void>('keepOn', on);
     } catch (_) {}
   }
+
+  /// Volume down calls [onPress] instead of turning the volume down; null
+  /// gives the key back to the volume.
+  static Future<void> volumeKey(VoidCallback? onPress) async {
+    _channel.setMethodCallHandler(
+      onPress == null
+          ? null
+          : (call) async {
+              if (call.method == 'volumeDown') onPress();
+            },
+    );
+    try {
+      await _channel.invokeMethod<void>('volumeKey', onPress != null);
+    } catch (_) {}
+  }
 }

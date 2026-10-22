@@ -13,6 +13,7 @@ import '../../data/models/exercise.dart';
 import '../../data/plates.dart';
 import '../../data/seed/learn.dart';
 import '../../services/haptics.dart';
+import '../../services/screen.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
@@ -74,11 +75,15 @@ class FloorView extends StatefulWidget {
     required this.onFinish,
     required this.onWork,
     required this.header,
+    required this.volumeLog,
   });
 
   final List<Exercise> ex;
   final ActiveWorkout workout;
   final bool metric;
+
+  /// Volume down does the big button's job.
+  final bool volumeLog;
 
   /// Shown before the first set: minutes and steps of the warm-up, and the
   /// ramp-up sets of the first big lift.
@@ -120,16 +125,54 @@ class _FloorViewState extends State<FloorView> {
   /// Nothing done yet: the warm-up comes first, until "Warm-up done".
   late bool _warming = !widget.workout.done.values.any((d) => d.contains(true));
 
+  /// The set is showing during a rest instead of the dark rest screen.
+  bool _peek = false;
+
   @override
   void initState() {
     super.initState();
     _go(_nextUndone(null));
+    if (widget.volumeLog) Screen.volumeKey(_press);
+  }
+
+  @override
+  void didUpdateWidget(FloorView old) {
+    super.didUpdateWidget(old);
+    if (old.restEnd == null && widget.restEnd != null) _peek = false;
+    if (old.volumeLog != widget.volumeLog) Screen.volumeKey(widget.volumeLog ? _press : null);
   }
 
   @override
   void dispose() {
     _work?.cancel();
+    if (widget.volumeLog) Screen.volumeKey(null);
     super.dispose();
+  }
+
+  /// The big button's job, from volume down: warm-up done, start or end a
+  /// timed set, or log the set. Never under a sheet or a moment, and never
+  /// on a set already done.
+  void _press() {
+    final at = _at;
+    if (!mounted || at == null || !(ModalRoute.of(context)?.isCurrent ?? false)) return;
+    final (i, j) = at;
+    final secs = targetSecs(widget.ex[i].repsFor(j));
+    if (_warming) {
+      _endWarmUp();
+    } else if (_workEnd != null) {
+      _stopWork(log: true);
+    } else if (_done(i, j)) {
+      return;
+    } else if (secs != null) {
+      _startWork(secs);
+    } else {
+      _log();
+    }
+  }
+
+  void _endWarmUp() {
+    Haptics.play(Feel.tap);
+    setState(() => _warming = false);
   }
 
   bool _done(int i, int j) => widget.workout.isDone(widget.ex[i].id, j);
@@ -276,15 +319,7 @@ class _FloorViewState extends State<FloorView> {
           ),
         ),
         const SizedBox(height: 14),
-        NeonButton(
-          label: tx('Warm-up done'),
-          height: 68,
-          fontSize: 18,
-          onTap: () {
-            Haptics.play(Feel.tap);
-            setState(() => _warming = false);
-          },
-        ),
+        NeonButton(label: tx('Warm-up done'), height: 68, fontSize: 18, onTap: _endWarmUp),
       ],
     );
   }
@@ -547,79 +582,178 @@ class _FloorViewState extends State<FloorView> {
       );
     }
 
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(20, insets.top + 16, 20, 40 + insets.bottom),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          widget.header,
-          const SizedBox(height: 12),
-          Lifeline(
-            beats: beats,
-            at: at == null ? null : flow.indexOf(at),
-            restEnd: widget.restEnd,
-            restTotal: widget.restTotal,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '$doneCount / $tot ${tx('SETS')}',
-            textAlign: TextAlign.right,
-            style: BoltText.m(11, weight: 700, color: BoltColors.muted),
-          ),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-            alignment: Alignment.topCenter,
-            child: widget.restEnd == null
-                ? const SizedBox(width: double.infinity, height: 16)
-                : Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    child: Column(
-                      children: [
-                        FloorRing(
-                          end: widget.restEnd!,
-                          total: widget.restTotal,
-                          label: tx('REST'),
-                          color: BoltColors.text,
-                          actions: [
-                            Expanded(
-                              child: _RestKey(label: '−15', onTap: () => widget.onRestAdd(-15)),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _RestKey(label: '+15', onTap: () => widget.onRestAdd(15)),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: NeonButton(label: tx('Skip'), height: 56, onTap: widget.onSkip),
-                            ),
+    // When the workout should be over, at the pace so far.
+    String? finish;
+    final started = widget.workout.started;
+    if (started != null && doneCount >= 2 && !all) {
+      final now = DateTime.now();
+      final perSet = (now.millisecondsSinceEpoch - started) / doneCount;
+      finish = hm(now.add(Duration(milliseconds: (perSet * (tot - doneCount)).round())));
+    }
+    final lifeAt = at == null ? null : flow.indexOf(at);
+    final resting = widget.restEnd != null && !_peek;
+
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(20, insets.top + 16, 20, 40 + insets.bottom),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              widget.header,
+              const SizedBox(height: 12),
+              Lifeline(beats: beats, at: lifeAt, restEnd: widget.restEnd, restTotal: widget.restTotal),
+              const SizedBox(height: 4),
+              Text(
+                [
+                  '$doneCount / $tot ${tx('SETS')}',
+                  if (finish != null) tx('DONE ~{time}', {'time': finish}),
+                ].join(' · '),
+                textAlign: TextAlign.right,
+                style: BoltText.m(11, weight: 700, color: BoltColors.muted),
+              ),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+                alignment: Alignment.topCenter,
+                child: widget.restEnd == null || resting
+                    ? const SizedBox(width: double.infinity, height: 16)
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        child: Column(
+                          children: [
+                            _ring(),
+                            if (widget.restNext.isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                widget.restNext,
+                                textAlign: TextAlign.center,
+                                style: BoltText.a(13, weight: 700, color: BoltColors.muted),
+                              ),
+                            ],
                           ],
                         ),
-                        if (widget.restNext.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                            widget.restNext,
-                            textAlign: TextAlign.center,
-                            style: BoltText.a(13, weight: 700, color: BoltColors.muted),
+                      ),
+              ),
+              body,
+              if (widget.volumeLog && at != null && !all) ...[
+                const SizedBox(height: 8),
+                Text(
+                  tx('or press volume down'),
+                  textAlign: TextAlign.center,
+                  style: BoltText.m(11, color: BoltColors.muted3),
+                ),
+              ],
+              const SizedBox(height: 18),
+              if (all)
+                NeonButton(label: tx('Finish workout'), height: 60, onTap: widget.onFinish)
+              else
+                OutlineButton(
+                  label: '${tx('Finish workout')} · $doneCount/$tot',
+                  color: BoltColors.text,
+                  borderColor: BoltColors.line,
+                  weight: 700,
+                  onTap: widget.onFinish,
+                ),
+            ],
+          ),
+        ),
+        Positioned.fill(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
+            child: resting ? _restScreen(beats, lifeAt) : const SizedBox.shrink(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// The rest countdown with −15, +15 and Skip.
+  Widget _ring() => FloorRing(
+    end: widget.restEnd!,
+    total: widget.restTotal,
+    label: tx('REST'),
+    color: BoltColors.text,
+    actions: [
+      Expanded(
+        child: _RestKey(label: '−15', onTap: () => widget.onRestAdd(-15)),
+      ),
+      const SizedBox(width: 10),
+      Expanded(
+        child: _RestKey(label: '+15', onTap: () => widget.onRestAdd(15)),
+      ),
+      const SizedBox(width: 10),
+      Expanded(
+        child: NeonButton(label: tx('Skip'), height: 56, onTap: widget.onSkip),
+      ),
+    ],
+  );
+
+  /// A rest, dark and calm: the lifeline, a big countdown and the next set
+  /// with its weight, readable from a bench. A tap shows the set itself.
+  Widget _restScreen(List<double?> beats, int? lifeAt) {
+    final insets = MediaQuery.paddingOf(context);
+    final next = _at;
+    final e = next == null ? null : widget.ex[next.$1];
+    return GestureDetector(
+      key: const ValueKey('rest-screen'),
+      behavior: HitTestBehavior.opaque,
+      onTap: () => setState(() => _peek = true),
+      child: ColoredBox(
+        color: BoltColors.scannerBg,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, insets.top + 20, 20, 16 + insets.bottom),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Lifeline(beats: beats, at: lifeAt, restEnd: widget.restEnd, restTotal: widget.restTotal),
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _ring(),
+                        if (next != null && e != null && !_done(next.$1, next.$2)) ...[
+                          const SizedBox(height: 28),
+                          Center(
+                            child: Kicker(
+                              tx('NEXT · SET {n} OF {total}', {'n': next.$2 + 1, 'total': e.sets}),
+                              size: 10,
+                            ),
                           ),
+                          const SizedBox(height: 6),
+                          Text(
+                            tx(e.name),
+                            textAlign: TextAlign.center,
+                            style: BoltText.a(22, weight: 900, height: 1.1),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            [
+                              if (_kg != null)
+                                '${weightValue(_kg, metric: widget.metric)} ${weightUnit(widget.metric)}',
+                              if (_reps != null) '× $_reps',
+                            ].join(' '),
+                            textAlign: TextAlign.center,
+                            style: BoltText.a(30, weight: 900, color: BoltColors.neon),
+                          ),
+                          if (kBarbellLifts.contains(e.name) && _kg != null) _plates(_kg!),
                         ],
                       ],
                     ),
                   ),
+                ),
+              ),
+              Text(
+                tx('Tap to see the set'),
+                textAlign: TextAlign.center,
+                style: BoltText.m(11, color: BoltColors.muted3),
+              ),
+            ],
           ),
-          body,
-          const SizedBox(height: 18),
-          if (all)
-            NeonButton(label: tx('Finish workout'), height: 60, onTap: widget.onFinish)
-          else
-            OutlineButton(
-              label: '${tx('Finish workout')} · $doneCount/$tot',
-              color: BoltColors.text,
-              borderColor: BoltColors.line,
-              weight: 700,
-              onTap: widget.onFinish,
-            ),
-        ],
+        ),
       ),
     );
   }

@@ -1897,6 +1897,8 @@ class BoltStore extends Notifier<BoltData> {
         s.floor = !s.floor;
       case 'countdown':
         s.countdown = !s.countdown;
+      case 'volumeLog':
+        s.volumeLog = !s.volumeLog;
       case 'haptics':
         s.haptics = !s.haptics;
         Haptics.enabled = s.haptics;
