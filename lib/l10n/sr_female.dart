@@ -77,4 +77,5 @@ const kSrFemale = <String, String>{
   'Immortal': 'Besmrtnica',
   'Every set starts at what you did on that set last time. Tap + if you go heavier.': 'Svaka serija kreće od onoga što si uradila u toj seriji prošli put. Dodirni + ako ideš teže.',
   'Done with a set? Press volume down, no need to touch the screen.': 'Završila si seriju? Pritisni utišavanje, ne moraš da diraš ekran.',
+  'The sets you ticked are not saved. The workout goes back to START, ready to begin again.': 'Serije koje si označila se ne čuvaju. Trening se vraća na KRENI, spreman da počne ponovo.',
 };

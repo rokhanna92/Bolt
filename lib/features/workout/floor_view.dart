@@ -75,6 +75,7 @@ class FloorView extends StatefulWidget {
     required this.onFinish,
     required this.onWork,
     required this.header,
+    required this.onDiscard,
     required this.volumeLog,
   });
 
@@ -108,6 +109,9 @@ class FloorView extends StatefulWidget {
 
   /// Back button, mode switch and progress, shared with the list.
   final Widget header;
+
+  /// Throws the workout away, after asking.
+  final VoidCallback onDiscard;
 
   @override
   State<FloorView> createState() => _FloorViewState();
@@ -655,6 +659,7 @@ class _FloorViewState extends State<FloorView> {
                   weight: 700,
                   onTap: widget.onFinish,
                 ),
+              DiscardLink(onTap: widget.onDiscard),
             ],
           ),
         ),
@@ -757,6 +762,25 @@ class _FloorViewState extends State<FloorView> {
       ),
     );
   }
+}
+
+/// "Discard workout" under the Finish button, for a START pressed by
+/// mistake.
+class DiscardLink extends StatelessWidget {
+  const DiscardLink({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Tap(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Text(tx('Discard workout'), style: BoltText.a(13, weight: 700, color: BoltColors.muted)),
+      ),
+    ),
+  );
 }
 
 class _RestKey extends StatelessWidget {

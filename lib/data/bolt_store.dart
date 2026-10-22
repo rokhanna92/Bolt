@@ -739,6 +739,15 @@ class BoltStore extends Notifier<BoltData> {
     _toast(tx('Swapped to {name}', {'name': tx(name)}));
   }
 
+  /// Throws the workout in progress away without logging anything, so it
+  /// can start again from START.
+  void discardWorkout() {
+    if (state.workout == null) return;
+    state.workout = null;
+    _commit();
+    _toast(tx('Workout discarded, nothing was saved'));
+  }
+
   /// Logs the workout and returns badges it unlocked.
   List<String> finish() {
     final w = state.workout;

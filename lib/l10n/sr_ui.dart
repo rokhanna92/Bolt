@@ -1097,6 +1097,11 @@ const kSrUi = <String, String>{
   'Workout put back': 'Trening vraćen',
   'NEW IN BOLT 1.24': 'NOVO U BOLTU 1.24',
   'Training styles, muscles, form, moving more and supplements': 'Stilovi treninga, mišići, tehnika, više kretanja i suplementi',
+  'Discard workout': 'Odbaci trening',
+  'Discard this workout?': 'Odbaciti ovaj trening?',
+  'The sets you ticked are not saved. The workout goes back to START, ready to begin again.':
+      'Serije koje si označio se ne čuvaju. Trening se vraća na KRENI, spreman da počne ponovo.',
+  'Workout discarded, nothing was saved': 'Trening odbačen, ništa nije sačuvano',
   'Workout page with START': 'Stranica treninga sa KRENI',
   'Open today\'s workout: every exercise with its weights and a big START. Warm-up first, then set by set.':
       'Otvori današnji trening: sve vežbe sa težinama i veliko KRENI. Prvo zagrevanje, pa serija po serija.',

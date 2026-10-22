@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/actions.dart';
 import '../../app/router.dart';
+import '../../app/share.dart';
 import '../../app/tick.dart';
 import '../../core/format.dart';
 import '../../core/units.dart';
@@ -290,6 +291,23 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     );
   }
 
+  /// START pressed by mistake: once confirmed, the workout goes back to its
+  /// START page with nothing logged.
+  Future<void> _discard() async {
+    final ok = await confirmSheet(
+      context,
+      title: tx('Discard this workout?'),
+      body: tx('The sets you ticked are not saved. The workout goes back to START, ready to begin again.'),
+      confirm: tx('Discard workout'),
+    );
+    if (!ok || !mounted) return;
+    Haptics.play(Feel.off);
+    _ticker?.cancel();
+    _rest.stop();
+    setState(() => _restEnd = null);
+    ref.read(boltProvider.notifier).discardWorkout();
+  }
+
   void _finish() {
     Haptics.play(Feel.success);
     final unlocked = ref.read(boltProvider.notifier).finish();
@@ -393,6 +411,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
           onSkip: _skip,
           onFinish: _finish,
           onWork: _onWork,
+          onDiscard: _discard,
           volumeLog: d.settings.volumeLog,
           header: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -481,6 +500,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                   label: done == tot && tot > 0 ? tx('Finish workout') : '${tx('Finish workout')} · $done/$tot',
                   onTap: _finish,
                 ),
+                DiscardLink(onTap: _discard),
               ],
             ),
           ),

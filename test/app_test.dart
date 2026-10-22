@@ -488,6 +488,28 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a workout started by mistake is discarded back to START', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapText(tester, 'Open workout');
+    await tapText(tester, 'START');
+    await tapText(tester, 'Warm-up done');
+    await tapText(tester, 'Done · set 1');
+    await tapText(tester, 'Tap to see the set');
+    await tapText(tester, 'Discard workout');
+    expect(find.text('Discard this workout?'), findsOneWidget);
+    await tester.tap(find.text('Discard workout').last);
+    await settle(tester);
+    expect(c.read(boltProvider).workout, isNull);
+    expect(find.text('START'), findsOneWidget);
+    expect(find.text('REST'), findsNothing);
+    final s = c.read(boltProvider).plans[Account.ownerId]!['2026-10-14']!;
+    expect(s.status, isNot(SessionStatus.done));
+    expect(s.ex.every((e) => e.logged.isEmpty), isTrue);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
   testWidgets('sets start from last time and gym floor mode logs with steppers', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
