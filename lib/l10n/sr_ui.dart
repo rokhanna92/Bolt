@@ -1078,4 +1078,39 @@ const kSrUi = <String, String>{
   'DONE ~{time}': 'KRAJ ~{time}',
   'NEXT · SET {n} OF {total}': 'SLEDEĆE · SERIJA {n} OD {total}',
   'Tap to see the set': 'Dodirni da vidiš seriju',
+  'Mood': 'Raspoloženje',
+  'Down': 'Loše',
+  'Good': 'Dobro',
+  'Grip': 'Stisak',
+  'Score': 'Ocena',
+  'HOURS OF SLEEP': 'SATI SNA',
+  'WHERE?': 'GDE?',
+  'GRIP CHECK': 'PROVERA STISKA',
+  'Make a fist and squeeze as hard as you can. How strong does it feel?':
+      'Stisni pesnicu najjače što možeš. Koliko jako se oseća?',
+  'Save check-in': 'Sačuvaj',
+  'Undo, I train as planned': 'Poništi, treniram po planu',
+  'Hurt somewhere? Flag it and Bolt swaps those exercises →': 'Nešto te boli? Označi i Bolt menja te vežbe →',
+  'Readiness {n}: rest today. {workout} moved to {day}.': 'Spremnost {n}: danas odmor. {workout} pomeren na {day}.',
+  'Readiness {n}: today is lighter, one set less per exercise.':
+      'Spremnost {n}: danas lakše, jedna serija manje po vežbi.',
+  'Workout put back': 'Trening vraćen',
+  'NEW IN BOLT 1.24': 'NOVO U BOLTU 1.24',
+  'Workout page with START': 'Stranica treninga sa KRENI',
+  'Open today\'s workout: every exercise with its weights and a big START. Warm-up first, then set by set.':
+      'Otvori današnji trening: sve vežbe sa težinama i veliko KRENI. Prvo zagrevanje, pa serija po serija.',
+  'Lifeline': 'Linija života',
+  'Your session as a heartbeat: every set a spike, the set you are on traced live.':
+      'Trening kao otkucaji srca: svaka serija jedan otkucaj, trenutna se iscrtava uživo.',
+  'Rest without looking': 'Odmor bez gledanja',
+  'The rest goes dark with a big countdown and your next set. Two buzzes at 10 seconds, a sound at 0. The screen stays on.':
+      'Odmor se zatamni uz veliko odbrojavanje i sledeću seriju. Dve vibracije na 10 sekundi, zvuk na 0. Ekran ostaje upaljen.',
+  'Done with a set? Press volume down, no need to touch the screen.':
+      'Završio si seriju? Pritisni utišavanje, ne moraš da diraš ekran.',
+  'Scan opens your workout': 'Skeniranje otvara trening',
+  'Check in at the plaque and today\'s workout is ready to start.':
+      'Prijavi se na pločici i današnji trening je spreman za početak.',
+  'Readiness score': 'Ocena spremnosti',
+  'Sleep hours, mood, soreness and a grip check make a score. A low one makes today lighter or a rest day, with an undo.':
+      'Sati sna, raspoloženje, upala mišića i provera stiska daju ocenu. Niska ocena olakšava današnji trening ili ga pretvara u odmor, uz poništavanje.',
 };

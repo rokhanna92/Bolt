@@ -20,6 +20,7 @@ import 'level.dart';
 import 'lifts.dart';
 import 'programs.dart';
 import 'rank.dart';
+import 'readiness.dart';
 import 'repositories/bolt_repository.dart';
 import 'rules.dart';
 import 'seed/content.dart';
@@ -172,6 +173,8 @@ class BoltStore extends Notifier<BoltData> {
   /// being celebrated.
   void _commit({bool keepUndo = false}) {
     if (!keepUndo) _beforeScan = null;
+    _beforeAuto = null;
+    autoDone = null;
     appFemale = _ownerFemale(state);
     ref.notifyListeners();
     ref.read(repositoryProvider).scheduleSave(state);
@@ -1117,14 +1120,98 @@ class BoltStore extends Notifier<BoltData> {
     return _isCoach ? planMessage(tid) : null;
   }
 
-  /// Today's readiness check-in: sleep, energy and soreness, 1 to 3 each.
-  /// Only the last 60 days are kept.
-  void setReadiness(List<int> r) {
+  /// Today's check-in [answers] (see readiness.dart), scored against your
+  /// grip over the last two weeks, today's muscles, days trained in a row
+  /// and injury flags. A very low score turns today into a rest day and
+  /// moves the workout to the next free day; a low one makes it lighter.
+  /// Either can be undone until anything else changes. Only the last 60
+  /// days are kept.
+  void setReadiness(List<int> answers) {
     final t = tr(state.account!.id);
-    t.readiness[today] = r;
+    final p = plan(t.id);
+    final s = p[today];
+    final from = dk(addDays(now, -14));
+    var streak = 0;
+    while (p[dk(addDays(now, -(streak + 1)))]?.status == SessionStatus.done) {
+      streak++;
+    }
+    final score = readinessScore(
+      answers,
+      today: s == null ? const {} : sessionGroups(s),
+      grips: [
+        for (final e in t.readiness.entries)
+          if (e.key != today && e.key.compareTo(from) >= 0 && e.value.length > kGrip) e.value[kGrip],
+      ],
+      streak: streak,
+      injured: s != null && s.ex.any((e) => isFlagged(t, e)),
+    );
+    t.readiness[today] = [...answers, score];
     final cut = dk(addDays(now, -60));
     t.readiness.removeWhere((k, _) => k.compareTo(cut) < 0);
+
+    // Only a confirmed workout that has not started can change.
+    final open =
+        s != null &&
+        (s.status == SessionStatus.approved || s.status == SessionStatus.moved) &&
+        s.ex.isNotEmpty &&
+        state.workout?.key != today;
+    final to = open && score < kRestBelow ? _freeDayAfter(today) : null;
+    final lighter = open && to == null && score < kLighterBelow && s.note != lighterNote;
+    final before = to != null || lighter ? jsonEncode(state.toJson()) : null;
+    String? done;
+    if (to != null) {
+      p[to] = p.remove(today)!
+        ..status = s!.byCoach ? SessionStatus.moved : s.status
+        ..from = s.byCoach ? (s.from ?? today) : null;
+      t.stats.rest.add(today);
+      done = tx('Readiness {n}: rest today. {workout} moved to {day}.', {
+        'n': score,
+        'workout': tx(s.title),
+        'day': fmtDay(to),
+      });
+    } else if (lighter) {
+      for (final e in s.ex) {
+        e.sets = math.max(1, e.sets - 1);
+      }
+      if (s.note.isEmpty) s.note = lighterNote;
+      done = tx('Readiness {n}: today is lighter, one set less per exercise.', {'n': score});
+    }
     _commit();
+    if (done != null) {
+      _beforeAuto = before;
+      autoDone = done;
+      _toast(done);
+      syncSessionReminders();
+    }
+  }
+
+  /// The first day after [k] within a week with nothing planned and not
+  /// marked rest.
+  String? _freeDayAfter(String k) {
+    final p = plan(state.account!.id);
+    final rest = tr(state.account!.id).stats.rest;
+    for (var i = 1; i <= 7; i++) {
+      final d = dk(addDays(pk(k), i));
+      if (p[d] == null && !rest.contains(d)) return d;
+    }
+    return null;
+  }
+
+  /// What the last check-in changed by itself, while it can be undone.
+  String? autoDone;
+  String? _beforeAuto;
+
+  bool get canUndoReadiness => _beforeAuto != null;
+
+  /// Puts today's workout back as it was before the check-in changed it.
+  /// The check-in stays.
+  void undoReadiness() {
+    final before = _beforeAuto;
+    if (before == null) return;
+    state = BoltData.fromJson(jsonDecode(before) as Map<String, dynamic>);
+    _commit();
+    syncSessionReminders();
+    _toast(tx('Workout put back'));
   }
 
   /// Takes a set off every exercise on day [k] for a low-readiness day.

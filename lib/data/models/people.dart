@@ -1,4 +1,5 @@
 import '../../core/format.dart';
+import '../readiness.dart';
 
 /// One day's weigh-in and tape measurements, stored metric.
 class BodyEntry {
@@ -505,8 +506,10 @@ Map<String, (double, String)> liftGoalsFromJson(Object? j) => (j as Map<String, 
 Map<String, List<int>> readinessFromJson(Object? j) =>
     (j as Map<String, dynamic>? ?? {}).map((k, v) => MapEntry(k, [for (final x in v as List) x as int]));
 
-/// A readiness check-in summed up: `ready` (8-9), `normal` (6-7) or `low`.
+/// A readiness check-in summed up: `ready`, `normal` or `low`. By its score
+/// (70+, 50+), or for the old three questions by their sum (8-9, 6-7).
 String readinessLevel(List<int> r) {
+  if (r.length > kScore) return r[kScore] >= 70 ? 'ready' : (r[kScore] >= kLighterBelow ? 'normal' : 'low');
   final sum = r.fold(0, (a, b) => a + b);
   return sum >= 8 ? 'ready' : (sum >= 6 ? 'normal' : 'low');
 }

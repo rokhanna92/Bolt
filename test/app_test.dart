@@ -265,16 +265,25 @@ void main() {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     final store = c.read(boltProvider.notifier);
-    store.dismissHint('new:1.23');
+    store.dismissHint('new:1.24');
     if (c.read(boltProvider).plans[Account.ownerId]!['2026-10-14'] != null) {
       store.removeDay(Account.ownerId, '2026-10-14');
     }
     await settle(tester);
     await tapText(tester, 'Mark as rest day');
+    await tapText(tester, '+');
     await tapText(tester, 'Bad');
     await tapText(tester, 'Low');
+    await tapText(tester, 'Down');
     await tapText(tester, 'Very sore');
+    await tapText(tester, 'Legs');
+    // Nothing is saved until every question has an answer.
+    await tapText(tester, 'Save check-in');
+    expect(c.read(boltProvider).trainees.single.readiness, isEmpty);
+    await tapText(tester, '30%');
+    await tapText(tester, 'Save check-in');
     expect(find.text('Low today, so resting is the right call. Sleep well and eat well.'), findsOneWidget);
+    expect(find.text('20'), findsOneWidget);
     expect(find.text('Make today lighter'), findsNothing);
     expect(find.textContaining('Take it lighter'), findsNothing);
 
@@ -283,7 +292,10 @@ void main() {
     await tapText(tester, '14');
     expect(find.text('REST DAY'), findsOneWidget);
     expect(find.text('CHECK-IN · LOW'), findsOneWidget);
-    expect(find.text('Sleep: Bad · Energy: Low · Soreness: Very sore'), findsOneWidget);
+    expect(
+      find.text('Sleep: 8 h, Bad · Energy: Low · Mood: Down · Soreness: Very sore (Legs) · Grip: 30% · Score: 20'),
+      findsOneWidget,
+    );
     await unmount(tester);
   });
 
@@ -294,8 +306,8 @@ void main() {
     expect(find.text('Atlas'), findsNothing);
     expect(find.text('LVL 1'), findsOneWidget);
     expect(find.text('RECOVERY'), findsOneWidget);
-    expect(find.text('NEW IN BOLT 1.23'), findsOneWidget);
-    expect(find.text('Gym floor mode'), findsOneWidget);
+    expect(find.text('NEW IN BOLT 1.24'), findsOneWidget);
+    expect(find.text('Workout page with START'), findsOneWidget);
     await tapText(tester, 'Progress →');
     await tapText(tester, '+ Start a season');
     await tapText(tester, '4');

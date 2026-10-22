@@ -20,6 +20,7 @@ import 'package:bolt/data/models/template.dart';
 import 'package:bolt/data/models/visit.dart';
 import 'package:bolt/data/plates.dart';
 import 'package:bolt/data/rank.dart';
+import 'package:bolt/data/readiness.dart';
 import 'package:bolt/data/rules.dart';
 import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
@@ -162,6 +163,70 @@ void main() {
       final json = jsonEncode(h.data.toJson());
       final back = BoltData.fromJson(jsonDecode(json) as Map<String, dynamic>);
       expect(jsonEncode(back.toJson()), json);
+    });
+  });
+
+  group('readiness', () {
+    // Sleep quality, energy, soreness, half hours of sleep, mood, grip and
+    // sore groups.
+    const great = [3, 3, 3, 16, 3, 9, 0];
+    const wrecked = [1, 1, 1, 9, 1, 3, 0];
+    int score(List<int> a, {Set<String> today = const {}, List<int> grips = const []}) =>
+        readinessScore(a, today: today, grips: grips, streak: 0, injured: false);
+
+    Fresh planned() {
+      final f = Fresh(wed)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-14');
+      return f;
+    }
+
+    test('the score weighs sleep, energy, mood, soreness and grip', () {
+      expect(score(great), 100);
+      expect(score(wrecked), 0);
+      expect(readinessScore(great, today: const {}, grips: const [], streak: 5, injured: true), 75);
+      // Grip is judged against your own usual squeeze.
+      const mid = [2, 2, 2, 14, 2, 7, 0];
+      expect(score(mid, grips: [7, 7, 7]), greaterThan(score(mid, grips: [9, 9, 9])));
+      // Sore legs count on leg day, not on chest day.
+      final legs = [3, 3, 2, 16, 3, 9, 1 << kSoreGroups.indexOf('legs')];
+      expect(score(legs, today: {'legs'}), score(legs, today: {'chest'}) - 8);
+    });
+
+    test('a very low score rests today and moves the workout, until undone', () {
+      final f = planned();
+      final title = f.mine['2026-10-14']!.title;
+      final before = f.mine.keys.toSet();
+      f.store.setReadiness(wrecked);
+      expect(f.data.trainees.single.readiness['2026-10-14'], [...wrecked, 0]);
+      expect(f.mine['2026-10-14'], isNull);
+      expect(f.data.trainees.single.stats.rest, contains('2026-10-14'));
+      final added = f.mine.keys.toSet().difference(before);
+      expect(added, hasLength(1));
+      expect(f.mine[added.single]!.title, title);
+      expect(f.store.autoDone, contains('rest today'));
+
+      f.store.undoReadiness();
+      expect(f.mine['2026-10-14']!.title, title);
+      expect(f.mine.keys.toSet(), before);
+      expect(f.data.trainees.single.stats.rest, isNot(contains('2026-10-14')));
+      // The check-in itself stays.
+      expect(readinessLevel(f.data.trainees.single.readiness['2026-10-14']!), 'low');
+      expect(f.store.canUndoReadiness, isFalse);
+    });
+
+    test('a low score makes the workout lighter, a good one leaves it', () {
+      final f = planned();
+      final sets = [for (final e in f.mine['2026-10-14']!.ex) e.sets];
+      f.store.setReadiness(const [2, 2, 2, 14, 2, 6, 0]);
+      final s = f.mine['2026-10-14']!;
+      expect([for (final e in s.ex) e.sets], [for (final n in sets) n > 1 ? n - 1 : 1]);
+      expect(s.note, lighterNote);
+
+      final g = planned();
+      g.store.setReadiness(great);
+      expect([for (final e in g.mine['2026-10-14']!.ex) e.sets], sets);
+      expect(g.store.canUndoReadiness, isFalse);
+      expect(readinessLevel(g.data.trainees.single.readiness['2026-10-14']!), 'ready');
     });
   });
 

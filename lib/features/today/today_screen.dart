@@ -1134,28 +1134,31 @@ class _HeroCard extends ConsumerWidget {
   }
 }
 
-const _newId = 'new:1.23';
+const _newId = 'new:1.24';
 
-/// What 1.23 added and where to find it, until closed.
+/// What 1.24 added and where to find it, until closed.
 class _NewCard extends ConsumerWidget {
   const _NewCard();
 
   static const _items = <(String, String, String?)>[
     (
-      'Gym floor mode',
-      'In a workout, tap GYM FLOOR: one set at a time, big weight and reps steppers, a big rest ring and the plates for the bar.',
+      'Workout page with START',
+      'Open today\'s workout: every exercise with its weights and a big START. Warm-up first, then set by set.',
       null,
     ),
-    ('Last time, filled in', 'Every set starts at what you did on that set last time. Tap + if you go heavier.', null),
+    ('Lifeline', 'Your session as a heartbeat: every set a spike, the set you are on traced live.', null),
     (
-      'Rest on the lock screen',
-      'The rest counts down on the lock screen with −15, +15 and Skip, a chime in your headphones and a buzz in your pocket.',
-      '/settings',
+      'Rest without looking',
+      'The rest goes dark with a big countdown and your next set. Two buzzes at 10 seconds, a sound at 0. The screen stays on.',
+      null,
     ),
-    ('Your rank', 'From Bodyweight to Olympia, by what you lift for your bodyweight. Share it.', '/rank'),
-    ('Logbook', 'Every workout set by set, with your latest records.', '/history'),
-    ('Plate calculator', 'Which plates go on each side of the bar.', '/plates'),
-    ('Feel it', 'Steppers tick, sets land with a thud, records swell with confetti.', '/settings'),
+    ('Volume down logs a set', 'Done with a set? Press volume down, no need to touch the screen.', '/settings'),
+    ('Scan opens your workout', 'Check in at the plaque and today\'s workout is ready to start.', null),
+    (
+      'Readiness score',
+      'Sleep hours, mood, soreness and a grip check make a score. A low one makes today lighter or a rest day, with an undo.',
+      null,
+    ),
   ];
 
   @override
@@ -1171,7 +1174,7 @@ class _NewCard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Kicker(tx('NEW IN BOLT 1.23'), color: BoltColors.neon)),
+              Expanded(child: Kicker(tx('NEW IN BOLT 1.24'), color: BoltColors.neon)),
               Tap(
                 onTap: () => store.dismissHint(_newId),
                 child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),
