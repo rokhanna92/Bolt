@@ -73,10 +73,14 @@ class ScanOutcome {
     this.hype,
     this.detail,
     this.unlocked = const [],
+    this.workout,
   });
 
   /// The scan checked in (rather than out).
   final bool checkIn;
+
+  /// Today's workout to open after checking in, ready to start.
+  final String? workout;
 
   final String head;
   final String sub;
@@ -445,6 +449,7 @@ class BoltStore extends Notifier<BoltData> {
             ? tx('{time} · today: {workout}', {'time': since, 'workout': tx(s.title)})
             : tx('{time} · have a good session', {'time': since}),
         hype: _pick(_inHype),
+        workout: s != null && (s.status == SessionStatus.approved || s.status == SessionStatus.moved) ? dk(n) : null,
       );
     }
     final mins = math.max(1, g.elapsedMinutes(n).round());

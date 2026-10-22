@@ -94,6 +94,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
     final res = _done;
     if (!mounted || res == null) return;
     Navigator.of(context).pop();
+    if (res.workout != null) openWorkout(res.workout!);
     showUnlocks(res.unlocked);
     if (widget.fromShortcut && res.checkIn) AppShortcuts.toBackground();
   }

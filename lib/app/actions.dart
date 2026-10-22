@@ -55,8 +55,7 @@ void openShortcut(String what) {
       context.go('/today');
       // Nothing to start (rest day, waiting for OK, done): Today shows why.
       if (s != null && (s.status == SessionStatus.approved || s.status == SessionStatus.moved)) {
-        store.startWorkout(k);
-        WidgetsBinding.instance.addPostFrameCallback((_) => rootNavigatorKey.currentContext?.push('/workout/$k'));
+        WidgetsBinding.instance.addPostFrameCallback((_) => openWorkout(k));
       }
     case 'gym':
       context.go('/gym');
@@ -129,10 +128,9 @@ void showExerciseSheet(String name) =>
 
 void showInjurySheet(String tid) => showBoltSheet<void>(_root.context, (_) => InjurySheet(tid: tid));
 
-void startWorkout(BuildContext context, WidgetRef ref, String k) {
-  ref.read(boltProvider.notifier).startWorkout(k);
-  context.push('/workout/$k');
-}
+/// Day [k]'s workout page: its exercises and weights with a big START, or
+/// the sets when it is already going.
+void openWorkout(String k) => _root.context.push('/workout/$k');
 
 ProviderContainer get _container => ProviderScope.containerOf(_root.context, listen: false);
 BoltStore get _store => _container.read(boltProvider.notifier);

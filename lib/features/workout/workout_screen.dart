@@ -19,8 +19,10 @@ import '../../data/models/people.dart';
 import '../../data/rules.dart';
 import '../../data/seed/learn.dart';
 import '../../data/seed/templates.dart';
+import '../../data/warmup.dart';
 import '../../services/haptics.dart';
 import '../../services/rest_timer.dart';
+import '../../services/screen.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -35,6 +37,7 @@ import '../../widgets/swap_sheet.dart';
 import '../../widgets/tap.dart';
 import '../plan/day_sheet.dart';
 import 'floor_view.dart';
+import 'ready_view.dart';
 import '../today/today_screen.dart' show clockText;
 
 class WorkoutScreen extends ConsumerStatefulWidget {
@@ -81,6 +84,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   @override
   void initState() {
     super.initState();
+    Screen.keepOn(true);
     // −15, +15 and Skip pressed on the lock screen.
     _lockScreen = _rest.changes.listen((end) {
       if (!mounted || _restEnd == null) return;
@@ -102,7 +106,16 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     _ticker?.cancel();
     _lockScreen?.cancel();
     _rest.stop();
+    Screen.keepOn(false);
     super.dispose();
+  }
+
+  /// START: the workout begins in gym floor mode, warm-up first.
+  void _begin() {
+    Haptics.play(Feel.success);
+    final store = ref.read(boltProvider.notifier);
+    if (!ref.read(boltProvider).settings.floor) store.toggleSetting('floor');
+    store.startWorkout(widget.dayKey);
   }
 
   /// Counts down to [end] on the lock screen too, with the cues from
@@ -294,10 +307,33 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     final t = store.trOrNull(d.account?.id ?? '');
     final s = t == null ? null : store.plan(t.id)[widget.dayKey];
     final w = d.workout;
-    if (t == null || s == null || w == null || w.key != widget.dayKey) {
-      return const BoltPage(child: SizedBox.expand());
-    }
+    if (t == null || s == null) return const BoltPage(child: SizedBox.expand());
     final coachName = store.coachNameOf(t);
+    final note = s.note.isEmpty
+        ? null
+        : CoachNote(ini: initials(s.byCoach ? (coachName ?? tx('Coach')) : t.name), note: tx(s.note));
+    if (w == null || w.key != widget.dayKey) {
+      final plan = store.plan(t.id);
+      final blank = ActiveWorkout(key: widget.dayKey);
+      LiftHint? hint(int i) => hintFor(plan, s.ex[i], widget.dayKey);
+      return BoltPage(
+        child: ReadyView(
+          session: s,
+          metric: d.settings.kg,
+          top: Row(
+            children: [
+              BackBox(onTap: () => context.pop()),
+              const SizedBox(width: 12),
+              Expanded(child: Kicker(tx('SESSION · {day}', {'day': fmtDay(widget.dayKey).toUpperCase()}))),
+            ],
+          ),
+          first: (i) => _prefill(s.ex[i], 0, blank, hint(i), percentKg(t, plan, s.ex[i])),
+          hint: hint,
+          note: note,
+          onStart: _begin,
+        ),
+      );
+    }
     var tot = 0, done = 0;
     for (final e in s.ex) {
       for (var i = 0; i < e.sets; i++) {
@@ -335,11 +371,18 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     if (floor) {
       final plan = store.plan(t.id);
       LiftHint? hint(int i) => hintFor(plan, s.ex[i], widget.dayKey);
+      final first = warmupFor(s.ex);
       return BoltPage(
         child: FloorView(
           ex: s.ex,
           workout: w,
           metric: d.settings.kg,
+          warmup: warmupPlan(s),
+          ramp: first == null
+              ? const []
+              : warmups(
+                  percentKg(t, plan, first) ?? hintFor(plan, first, widget.dayKey)?.nextKg ?? loadKg(first.load) ?? 0,
+                ),
           prefill: (i, j) => _prefill(s.ex[i], j, w, hint(i), percentKg(t, plan, s.ex[i])),
           hint: hint,
           restEnd: _restEnd,
@@ -356,8 +399,6 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
               top,
               const SizedBox(height: 12),
               Text(tx(s.title).toUpperCase(), style: BoltText.a(22, weight: 900, width: 112, color: BoltColors.neon)),
-              const SizedBox(height: 10),
-              _Progress(done: done, tot: tot),
             ],
           ),
         ),
@@ -408,10 +449,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                     metric: d.settings.kg,
                   ),
                 ],
-                if (s.note.isNotEmpty) ...[
-                  const SizedBox(height: 14),
-                  CoachNote(ini: initials(s.byCoach ? (coachName ?? tx('Coach')) : t.name), note: tx(s.note)),
-                ],
+                if (note != null) ...[const SizedBox(height: 14), note],
                 const SizedBox(height: 16),
                 for (var i = 0; i < s.ex.length; i++) ...[
                   if (i > 0) const SizedBox(height: 10),

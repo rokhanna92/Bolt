@@ -107,6 +107,13 @@ void main() {
       expect(unitLoad('70 kg', kg: true), '70 kg');
     });
 
+    test('auto rest is a minute for small muscles, 2-3 for big lifts', () {
+      Exercise ex(String name) => Exercise(id: name, name: name, sets: 3, reps: '10', load: '');
+      expect(restFor(ex('Triceps Pushdown'), auto: true, fixed: 90), 60);
+      expect(restFor(ex('Bench Press'), auto: true, fixed: 90), 120);
+      expect(restFor(ex('Deadlift'), auto: true, fixed: 90), 180);
+    });
+
     test('picker lists every template exercise once, sorted', () {
       final names = kAllExercises.map((e) => e.name).toList();
       expect(names.toSet().length, names.length);

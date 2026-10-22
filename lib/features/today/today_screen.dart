@@ -73,7 +73,7 @@ class TodayScreen extends ConsumerWidget {
 
     void train() {
       if (tp != null) {
-        tp.status == SessionStatus.pending ? openPlanDay(context, ref, today) : startWorkout(context, ref, today);
+        tp.status == SessionStatus.pending ? openPlanDay(context, ref, today) : openWorkout(today);
       } else if (store.addFromRotation(t.id, today)) {
         openPlanDay(context, ref, today);
       }
@@ -1102,14 +1102,13 @@ class _HeroCard extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: NeonButton(
-                        label: tx('Start workout'),
+                        label: tx('Open workout'),
                         height: 50,
                         radius: 14,
                         color: ink,
                         textColor: BoltColors.neon,
-                        onTap: () => s.status == SessionStatus.pending
-                            ? openPlanDay(context, ref, today)
-                            : startWorkout(context, ref, today),
+                        onTap: () =>
+                            s.status == SessionStatus.pending ? openPlanDay(context, ref, today) : openWorkout(today),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -1148,7 +1147,11 @@ class _NewCard extends ConsumerWidget {
       null,
     ),
     ('Last time, filled in', 'Every set starts at what you did on that set last time. Tap + if you go heavier.', null),
-    ('Rest on the lock screen', 'The rest counts down on the lock screen with −15, +15 and Skip, a chime in your headphones and a buzz in your pocket.', '/settings'),
+    (
+      'Rest on the lock screen',
+      'The rest counts down on the lock screen with −15, +15 and Skip, a chime in your headphones and a buzz in your pocket.',
+      '/settings',
+    ),
     ('Your rank', 'From Bodyweight to Olympia, by what you lift for your bodyweight. Share it.', '/rank'),
     ('Logbook', 'Every workout set by set, with your latest records.', '/history'),
     ('Plate calculator', 'Which plates go on each side of the bar.', '/plates'),

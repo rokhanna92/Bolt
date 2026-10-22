@@ -311,7 +311,7 @@ const kSrUi = <String, String>{
   'Add exercises': 'Dodaj vežbe',
   'Accept': 'Prihvati',
   'Can’t make it · pick another day': 'Ne mogu · izaberi drugi dan',
-  'Start workout': 'Počni trening',
+  'Open workout': 'Otvori trening',
   'Log as done': 'Upiši kao završeno',
   'Move to another day': 'Pomeri na drugi dan',
   'PLAN': 'PLAN',
@@ -1067,4 +1067,8 @@ const kSrUi = <String, String>{
   'Undo check-out': 'Poništi odjavu',
   'Too late to undo that scan': 'Prekasno je za poništavanje',
   'Undo last check-out': 'Poništi poslednju odjavu',
+  'START': 'KRENI',
+  'warm-up ~{n} min': 'zagrevanje ~{n} min',
+  'Last: {sets}': 'Prošli put: {sets}',
+  'Warm-up done': 'Zagrevanje završeno',
 };

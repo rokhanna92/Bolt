@@ -20,6 +20,7 @@ import '../../widgets/common.dart';
 import '../../widgets/fields.dart';
 import '../../widgets/plate_bar.dart';
 import '../../widgets/tap.dart';
+import 'lifeline.dart';
 
 /// The order sets are done in: an exercise set by set, a superset round by
 /// round (A1, B1, A2, B2).
@@ -60,6 +61,8 @@ class FloorView extends StatefulWidget {
     required this.ex,
     required this.workout,
     required this.metric,
+    required this.warmup,
+    required this.ramp,
     required this.prefill,
     required this.hint,
     required this.restEnd,
@@ -76,6 +79,11 @@ class FloorView extends StatefulWidget {
   final List<Exercise> ex;
   final ActiveWorkout workout;
   final bool metric;
+
+  /// Shown before the first set: minutes and steps of the warm-up, and the
+  /// ramp-up sets of the first big lift.
+  final (int, List<String>) warmup;
+  final List<SetLog> ramp;
 
   /// What set j of exercise i starts from.
   final SetLog Function(int i, int j) prefill;
@@ -108,6 +116,9 @@ class _FloorViewState extends State<FloorView> {
   DateTime? _workEnd;
   int _workTotal = 0;
   Timer? _work;
+
+  /// Nothing done yet: the warm-up comes first, until "Warm-up done".
+  late bool _warming = !widget.workout.done.values.any((d) => d.contains(true));
 
   @override
   void initState() {
@@ -234,6 +245,50 @@ class _FloorViewState extends State<FloorView> {
     if (v != null && mounted) onSave(v);
   }
 
+  /// The warm-up before the first set, then one tap on to set 1.
+  Widget _warmUp() {
+    final (mins, steps) = widget.warmup;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        BoltBox(
+          color: BoltColors.surface1,
+          stroke: const Stroke(BoltColors.lineSoft),
+          radius: 24,
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Kicker(tx('WARM-UP · ~{n} MIN', {'n': mins}), size: 11, weight: 700, color: BoltColors.neon),
+              for (final step in steps) ...[
+                const SizedBox(height: 10),
+                Text(step, style: BoltText.a(14, weight: 600, height: 1.35)),
+              ],
+              if (widget.ramp.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  '${widget.ramp.map((x) => '${weightValue(x.kg, metric: widget.metric)}×${x.reps}').join('  ·  ')} '
+                  '${weightUnit(widget.metric)}',
+                  style: BoltText.m(13, weight: 700, color: BoltColors.neon),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        NeonButton(
+          label: tx('Warm-up done'),
+          height: 68,
+          fontSize: 18,
+          onTap: () {
+            Haptics.play(Feel.tap);
+            setState(() => _warming = false);
+          },
+        ),
+      ],
+    );
+  }
+
   /// The plates for [kg] under the weight, live as it steps. Tap for the
   /// full calculator.
   Widget _plates(double kg) {
@@ -275,10 +330,20 @@ class _FloorViewState extends State<FloorView> {
       }
     }
     final all = tot > 0 && doneCount == tot;
+    final flow = setFlow(widget.ex);
+    SetLog? logAt(int i, int j) => widget.workout.log(widget.ex[i].id, j);
+    double work(SetLog? l) => (l?.kg ?? 0) * (l?.reps ?? 1);
+    final heaviest = flow.fold(0.0, (a, x) => math.max(a, work(logAt(x.$1, x.$2))));
+    final beats = <double?>[
+      for (final (i, j) in flow)
+        if (!_done(i, j)) null else if (heaviest == 0 || logAt(i, j)?.kg == null) .6 else work(logAt(i, j)) / heaviest,
+    ];
 
     Widget body;
     if (at == null) {
       body = const SizedBox.shrink();
+    } else if (_warming) {
+      body = _warmUp();
     } else {
       final (i, j) = at;
       final e = widget.ex[i];
@@ -488,6 +553,19 @@ class _FloorViewState extends State<FloorView> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           widget.header,
+          const SizedBox(height: 12),
+          Lifeline(
+            beats: beats,
+            at: at == null ? null : flow.indexOf(at),
+            restEnd: widget.restEnd,
+            restTotal: widget.restTotal,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$doneCount / $tot ${tx('SETS')}',
+            textAlign: TextAlign.right,
+            style: BoltText.m(11, weight: 700, color: BoltColors.muted),
+          ),
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOut,

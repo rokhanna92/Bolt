@@ -481,14 +481,14 @@ void toggleSuperset(List<Exercise> ex, int i) {
 
 /// Rest after a set of [e] in seconds: its own setting, else by type when
 /// [auto] (3 min for big lower-body and back lifts, 2 for other compounds,
-/// 75 s for isolation, 60 for cardio and mobility), else [fixed].
+/// 1 for isolation, cardio and mobility), else [fixed].
 int restFor(Exercise e, {required bool auto, required int fixed}) {
   if (e.rest != null) return e.rest!;
   final x = kExerciseByName[e.name];
   if (!auto || x == null) return fixed;
   if (x.muscle == 'cardio' || x.muscle == 'mobility') return 60;
   if (x.compound && const {'quads', 'hamstrings', 'glutes', 'back'}.contains(x.muscle)) return 180;
-  return x.compound ? 120 : 75;
+  return x.compound ? 120 : 60;
 }
 
 /// A percentage load like `80%` as a fraction, else null.

@@ -12,6 +12,7 @@ import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/features/gym/scanner_overlay.dart';
 import 'package:bolt/features/updates/update_sheet.dart';
+import 'package:bolt/features/workout/lifeline.dart';
 import 'package:bolt/services/coach_directory.dart';
 import 'package:bolt/services/notice_board.dart';
 import 'package:bolt/services/updater.dart';
@@ -127,6 +128,12 @@ Future<void> tapText(WidgetTester tester, String text) async {
 /// label screen readers hear.
 Future<void> tapTab(WidgetTester tester, String label) async {
   await tester.tap(find.byWidgetPredicate((w) => w is Semantics && w.properties.label == label).first);
+  await settle(tester);
+}
+
+/// The page's own back button.
+Future<void> back(WidgetTester tester) async {
+  await tester.tap(find.byType(BackBox).first);
   await settle(tester);
 }
 
@@ -419,6 +426,31 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('today\'s workout opens ready, then START, warm-up and set by set', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapText(tester, 'Open workout');
+    // Nothing starts until START: the page lists the exercises first.
+    expect(find.text('START'), findsOneWidget);
+    expect(c.read(boltProvider).workout, isNull);
+    final s = c.read(boltProvider).plans[Account.ownerId]!['2026-10-14']!;
+    expect(find.text(s.ex.first.name), findsOneWidget);
+
+    await tapText(tester, 'START');
+    expect(c.read(boltProvider).workout?.key, '2026-10-14');
+    expect(c.read(boltProvider).settings.floor, isTrue);
+    expect(find.byType(Lifeline), findsOneWidget);
+    expect(find.textContaining('WARM-UP'), findsOneWidget);
+    await tapText(tester, 'Warm-up done');
+    expect(find.textContaining('SET 1 OF'), findsOneWidget);
+    await tapText(tester, 'Done · set 1');
+    expect(c.read(boltProvider).workout!.isDone(s.ex.first.id, 0), isTrue);
+    expect(find.text('REST'), findsOneWidget);
+    expect(find.text('1 / ${s.totalSets} SETS'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
   testWidgets('sets start from last time and gym floor mode logs with steppers', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
@@ -507,6 +539,7 @@ void main() {
     store.startWorkout('2026-10-14');
     c.read(routerProvider).push('/workout/2026-10-14');
     await settle(tester);
+    await tapText(tester, 'Warm-up done');
     await tester.tap(find.text('+').first);
     await tester.pump();
     await tapText(tester, 'Done · set 1');
@@ -555,6 +588,7 @@ void main() {
     await settle(tester);
     final s = c.read(boltProvider).plans[Account.ownerId]!['2026-10-14']!;
     final climber = s.ex.firstWhere((e) => e.name == 'Mountain Climber');
+    await tapText(tester, 'Warm-up done');
     // To the mountain climbers: burpees and swings come first.
     await tapText(tester, '›');
     await tapText(tester, '›');
@@ -823,10 +857,13 @@ void main() {
     await tester.tap(find.byKey(const Key('scan-frame')));
     await settle(tester);
     expect(find.text('CHECKED IN'), findsOneWidget);
-    // The overlay closes itself after 4 s, leaving the gym screen.
+    // The overlay closes itself after 4 s and today's workout opens, ready
+    // to start; back from it is the gym screen.
     await tester.pump(const Duration(seconds: 4));
     await settle(tester);
     expect(find.byType(ScannerOverlay), findsNothing);
+    expect(find.text('START'), findsOneWidget);
+    await back(tester);
     expect(find.text('Scan to check out'), findsOneWidget);
     await unmount(tester);
   });
@@ -844,6 +881,7 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
     await settle(tester);
     expect(find.byType(ScannerOverlay), findsNothing);
+    await back(tester);
 
     // From the gym page: straight to the result, no camera.
     await tapText(tester, 'Check out without scanning');
@@ -874,6 +912,7 @@ void main() {
     await tapText(tester, 'Check in without scanning');
     await tester.pump(const Duration(seconds: 4));
     await settle(tester);
+    await back(tester);
     await tapText(tester, 'Check out without scanning');
     await tester.pump(const Duration(seconds: 6));
     await settle(tester);

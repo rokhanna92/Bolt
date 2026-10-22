@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.view.WindowManager
 import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -25,6 +26,8 @@ import java.io.File
  *
  * "bolt/rest" starts and stops the rest countdown service (RestTimerService)
  * and previews its sounds; the service reports +15, Skip and the end back.
+ *
+ * "bolt/screen" keeps the screen on while a workout is open ("keepOn").
  *
  * And "bolt/backup": Android's own pickers to save a backup file anywhere
  * ("save") and to pick one to restore ("open"). Null means cancelled.
@@ -74,6 +77,18 @@ class MainActivity : FlutterActivity() {
             }
         }
         RestTimerService.listener = { what, end -> runOnUiThread { rest.invokeMethod(what, end) } }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/screen").setMethodCallHandler { call, result ->
+            if (call.method == "keepOn") {
+                if (call.arguments as Boolean) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+                result.success(null)
+            } else {
+                result.notImplemented()
+            }
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/widget").setMethodCallHandler { call, result ->
             if (call.method == "update") {
                 @Suppress("UNCHECKED_CAST")

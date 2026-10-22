@@ -166,12 +166,12 @@ class DaySheet extends ConsumerWidget {
         ],
         if (dayKey == today && (s.status == SessionStatus.approved || s.status == SessionStatus.moved))
           NeonButton(
-            label: tx('Start workout'),
+            label: tx('Open workout'),
             height: 52,
             scale: 1,
             onTap: () {
               close();
-              startWorkout(rootNavigatorKey.currentContext!, ref, dayKey);
+              openWorkout(dayKey);
             },
           ),
         if (logPast)
