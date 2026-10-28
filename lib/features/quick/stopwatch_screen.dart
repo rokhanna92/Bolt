@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
-import '../../data/bolt_store.dart' show clockProvider;
+import '../../data/bolt_store.dart' show boltProvider, clockProvider;
 import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -96,6 +96,8 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
   Widget build(BuildContext context) {
     final w = ref.watch(watchProvider);
     final running = w.running;
+    final face = ref.watch(boltProvider.select((d) => d.settings.watchFace));
+    final dial = face != 'digital';
     return BoltPage(
       child: ScreenScroll(
         top: 16,
@@ -108,53 +110,27 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
               Kicker(tx('STOPWATCH')),
             ],
           ),
+          const SizedBox(height: 14),
+          _faceSwitch(face),
           const SizedBox(height: 18),
           LayoutBuilder(
             builder: (context, box) {
               final d = math.min(box.maxWidth, 360.0);
               return Center(
-                child: SizedBox(
-                  width: d,
-                  height: d,
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: RepaintBoundary(
-                          child: CustomPaint(
-                            painter: _ChronoPainter(_total, _lap, running: running, showLap: w.laps.isNotEmpty),
-                          ),
-                        ),
-                      ),
-                      // Tap targets over the crown and the pusher the painter
-                      // draws, so the case itself works the way it looks.
-                      Positioned(
-                        left: d * .5 - d * .09,
-                        top: 0,
-                        width: d * .18,
-                        height: d * .16,
-                        child: Tap(onTap: _crown, child: const SizedBox.expand()),
-                      ),
-                      Positioned(
-                        left: d * .09,
-                        top: d * .12,
-                        width: d * .16,
-                        height: d * .16,
-                        child: Tap(onTap: _pusher, child: const SizedBox.expand()),
-                      ),
-                    ],
-                  ),
-                ),
+                child: SizedBox(width: d, height: d, child: dial ? _dialFace(d, w, running) : _ringFace(w, running)),
               );
             },
           ),
-          const SizedBox(height: 20),
-          Center(
-            child: ValueListenableBuilder<Duration>(
-              valueListenable: _total,
-              builder: (context, e, _) =>
-                  Text(fmtWatch(e), style: BoltText.m(40, weight: 700, color: BoltColors.text, spacing: -.02)),
+          if (dial) ...[
+            const SizedBox(height: 20),
+            Center(
+              child: ValueListenableBuilder<Duration>(
+                valueListenable: _total,
+                builder: (context, e, _) =>
+                    Text(fmtWatch(e), style: BoltText.m(40, weight: 700, color: BoltColors.text, spacing: -.02)),
+              ),
             ),
-          ),
+          ],
           if (w.laps.isNotEmpty) ...[
             const SizedBox(height: 2),
             Center(
@@ -198,6 +174,95 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
           ],
         ],
       ),
+    );
+  }
+
+  /// Two faces for the same watch: the mechanical chronograph, or a big
+  /// counter inside a sweeping ring. The choice sticks between sessions.
+  Widget _faceSwitch(String face) {
+    Widget pill(String id, String label) {
+      final on = (id == 'digital') == (face == 'digital');
+      return Expanded(
+        child: Tap(
+          onTap: () => ref.read(boltProvider.notifier).setWatchFace(id),
+          child: BoltBox(
+            color: on ? BoltColors.neon : BoltColors.surface2,
+            stroke: Stroke(on ? BoltColors.neon : BoltColors.line),
+            radius: BoltRadii.pill,
+            height: 38,
+            alignment: Alignment.center,
+            child: Kicker(label, size: 11, weight: 700, color: on ? BoltColors.ink : BoltColors.textSoft),
+          ),
+        ),
+      );
+    }
+
+    return Row(children: [pill('dial', tx('DIAL')), const SizedBox(width: 8), pill('digital', tx('DIGITAL'))]);
+  }
+
+  /// The chronograph, with its crown and pusher live where they are drawn.
+  Widget _dialFace(double d, Watch w, bool running) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: RepaintBoundary(
+            child: CustomPaint(
+              painter: _ChronoPainter(_total, _lap, running: running, showLap: w.laps.isNotEmpty),
+            ),
+          ),
+        ),
+        // Tap targets over the crown and the pusher the painter draws, so
+        // the case itself works the way it looks.
+        Positioned(
+          left: d * .5 - d * .09,
+          top: 0,
+          width: d * .18,
+          height: d * .16,
+          child: Tap(onTap: _crown, child: const SizedBox.expand()),
+        ),
+        Positioned(
+          left: d * .09,
+          top: d * .12,
+          width: d * .16,
+          height: d * .16,
+          child: Tap(onTap: _pusher, child: const SizedBox.expand()),
+        ),
+      ],
+    );
+  }
+
+  /// Big counter inside a ring that sweeps the minute, with a quieter inner
+  /// ring for the lap. The time is a real text, not painted, so it keeps
+  /// the app's figures.
+  Widget _ringFace(Watch w, bool running) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Positioned.fill(
+          child: RepaintBoundary(
+            child: CustomPaint(
+              painter: _RingPainter(_total, _lap, running: running, showLap: w.laps.isNotEmpty),
+            ),
+          ),
+        ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ValueListenableBuilder<Duration>(
+              valueListenable: _total,
+              builder: (context, e, _) =>
+                  Text(fmtWatch(e), style: BoltText.m(44, weight: 700, color: BoltColors.text, spacing: -.03)),
+            ),
+            const SizedBox(height: 6),
+            Kicker(
+              running ? tx('RUNNING') : (w.idle ? tx('READY') : tx('STOPPED')),
+              size: 11,
+              weight: 700,
+              color: running ? BoltColors.neon : BoltColors.muted,
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -276,6 +341,89 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
       ),
     );
   }
+}
+
+/// The digital face: a track of sixty ticks, a neon arc sweeping the
+/// minute, and a thinner inner arc for the lap in progress.
+class _RingPainter extends CustomPainter {
+  _RingPainter(this.total, this.lap, {required this.running, required this.showLap})
+    : super(repaint: Listenable.merge([total, lap]));
+
+  final ValueNotifier<Duration> total;
+  final ValueNotifier<Duration> lap;
+  final bool running;
+  final bool showLap;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = Offset(size.width / 2, size.height / 2);
+    final r = size.width * .42;
+    final w = r * .085;
+
+    for (var i = 0; i < 60; i++) {
+      final a = -math.pi / 2 + i * math.pi / 30;
+      final dir = Offset(math.cos(a), math.sin(a));
+      final five = i % 5 == 0;
+      canvas.drawLine(
+        c + dir * (r * 1.10),
+        c + dir * (r * (five ? 1.20 : 1.16)),
+        Paint()
+          ..color = five ? BoltColors.muted2 : BoltColors.lineFaint
+          ..strokeWidth = (five ? r * .018 : r * .009)
+          ..strokeCap = StrokeCap.round,
+      );
+    }
+
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..color = BoltColors.surface2
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = w,
+    );
+
+    final box = Rect.fromCircle(center: c, radius: r);
+    final secs = total.value.inMilliseconds / 1000.0 % 60;
+    if (secs > 0) {
+      final sweep = secs / 60 * 2 * math.pi;
+      final arc = Paint()
+        ..color = BoltColors.neon
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = w
+        ..strokeCap = StrokeCap.round;
+      canvas.drawArc(
+        box,
+        -math.pi / 2,
+        sweep,
+        false,
+        Paint.from(arc)
+          ..color = BoltColors.neon.withValues(alpha: running ? .35 : .18)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .06),
+      );
+      canvas.drawArc(box, -math.pi / 2, sweep, false, arc);
+    }
+
+    if (showLap) {
+      final ls = lap.value.inMilliseconds / 1000.0 % 60;
+      if (ls > 0) {
+        canvas.drawArc(
+          Rect.fromCircle(center: c, radius: r * .80),
+          -math.pi / 2,
+          ls / 60 * 2 * math.pi,
+          false,
+          Paint()
+            ..color = BoltColors.textSoft.withValues(alpha: .7)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = w * .42
+            ..strokeCap = StrokeCap.round,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) => old.running != running || old.showLap != showLap;
 }
 
 class _ChronoPainter extends CustomPainter {

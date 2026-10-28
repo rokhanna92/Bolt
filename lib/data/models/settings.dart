@@ -35,6 +35,7 @@ class AppSettings {
     this.volumeLog = true,
     this.rankSeen,
     this.keyGen = 0,
+    this.watchFace = 'dial',
     Board? board,
     List<String>? hintsSeen,
     List<int>? coachKeysOn,
@@ -96,6 +97,10 @@ class AppSettings {
   /// Highest rank step already celebrated.
   int? rankSeen;
 
+  /// Which stopwatch face is on: `dial` (the chronograph) or `digital`
+  /// (big counter inside a sweeping ring).
+  String watchFace;
+
   /// The key generation this phone last got through. Below `kKeyGen` the app
   /// asks for a key again before it opens.
   int keyGen;
@@ -130,6 +135,7 @@ class AppSettings {
     'volumeLog': volumeLog,
     'rankSeen': rankSeen,
     'keyGen': keyGen,
+    'watchFace': watchFace,
     'coachKeysOn': coachKeysOn,
     'keyLog': [for (final e in keyLog) e.toJson()],
     'board': board.toJson(),
@@ -155,6 +161,7 @@ class AppSettings {
     volumeLog: j['volumeLog'] as bool? ?? true,
     rankSeen: j['rankSeen'] as int?,
     keyGen: j['keyGen'] as int? ?? 0,
+    watchFace: j['watchFace'] as String? ?? 'dial',
     coachKeysOn: [for (final x in j['coachKeysOn'] as List? ?? const []) x as int],
     keyLog: [for (final x in j['keyLog'] as List? ?? const []) KeyEntry.fromJson(x as Map<String, dynamic>)],
     board: Board.fromJson(j['board']),

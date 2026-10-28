@@ -1175,4 +1175,8 @@ const kSrUi = <String, String>{
   'QUICKEST': 'NAJBRŽI',
   'SLOWEST': 'NAJSPORIJI',
   'Still running': 'Još radi',
+  'DIAL': 'BROJČANIK',
+  'DIGITAL': 'DIGITALNI',
+  'RUNNING': 'RADI',
+  'STOPPED': 'ZAUSTAVLJENO',
 };

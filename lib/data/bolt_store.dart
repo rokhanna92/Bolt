@@ -2097,6 +2097,12 @@ class BoltStore extends Notifier<BoltData> {
     _commit();
   }
 
+  /// Which stopwatch face the phone shows, kept between sessions.
+  void setWatchFace(String face) {
+    state.settings.watchFace = face;
+    _commit();
+  }
+
   void toggleUnits() {
     state.settings.kg = !state.settings.kg;
     _commit();

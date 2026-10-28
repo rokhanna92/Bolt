@@ -103,29 +103,33 @@ const _body = <Offset>[
 ];
 
 const _front = <_Part>[
+  // The upper traps run from the neck out to the shoulder and are as much
+  // a front muscle as a back one, so they are shaded on both figures. Drawn
+  // first, which lets the delt and the pec sit over them where they meet.
+  ('traps', [Offset(50, 23), Offset(57, 25), Offset(65, 32), Offset(63, 36.5), Offset(56, 33), Offset(50, 30)], true),
   (
     'shoulders',
     [
-      Offset(61, 30),
-      Offset(68, 31),
-      Offset(72.5, 38),
+      Offset(62, 32),
+      Offset(68, 33),
+      Offset(72.5, 39),
       Offset(72.5, 46),
       Offset(67, 48),
-      Offset(62.5, 42.5),
-      Offset(61, 35.5),
+      Offset(63, 43.5),
+      Offset(62, 37),
     ],
     true,
   ),
   (
     'chest',
     [
-      Offset(51, 31),
-      Offset(60, 30),
-      Offset(66, 34),
-      Offset(66.5, 42),
-      Offset(61.5, 47),
-      Offset(52.5, 46),
-      Offset(51, 38),
+      Offset(51, 34),
+      Offset(60, 33),
+      Offset(66, 36),
+      Offset(66.5, 43),
+      Offset(61.5, 47.5),
+      Offset(52.5, 46.5),
+      Offset(51, 40),
     ],
     true,
   ),

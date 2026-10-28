@@ -923,6 +923,29 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the stopwatch has two faces and remembers which', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapTab(tester, 'Check in');
+    await tapText(tester, 'Stopwatch');
+    // The chronograph is the one out of the box.
+    expect(find.text('READY'), findsNothing);
+    await tapText(tester, 'DIGITAL');
+    expect(find.text('READY'), findsOneWidget);
+    expect(c.read(boltProvider).settings.watchFace, 'digital');
+
+    // Still the digital one on the way back in.
+    await back(tester);
+    await tapTab(tester, 'Check in');
+    await tapText(tester, 'Stopwatch');
+    expect(find.text('READY'), findsOneWidget);
+    await tapText(tester, 'DIAL');
+    expect(find.text('READY'), findsNothing);
+    expect(c.read(boltProvider).settings.watchFace, 'dial');
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
   testWidgets('a fast cardio workout starts on today without a plan', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
