@@ -53,41 +53,238 @@ class MuscleMap extends StatelessWidget {
   }
 }
 
-/// A region of one muscle: an oval or rounded box in a 100 × 165 figure.
-typedef _Part = (String muscle, double l, double t, double r, double b, bool oval);
+/// One muscle belly, as the outline points of its shape in a 100 × 165
+/// figure. [mirror] draws the same shape again on the other side of the
+/// body; centre muscles like the abs and traps do not.
+typedef _Part = (String muscle, List<Offset> pts, bool mirror);
+
+/// The body itself, from the top of the head down the right side to the
+/// crotch. The left side is this mirrored, so the figure cannot come out
+/// lopsided.
+const _body = <Offset>[
+  Offset(50, 2),
+  Offset(56.5, 4.5),
+  Offset(58, 13),
+  Offset(55, 20.5),
+  Offset(54, 25),
+  Offset(60, 27.5),
+  Offset(68, 30.5),
+  Offset(72.5, 37),
+  Offset(74.5, 47),
+  Offset(74.5, 57),
+  Offset(73.5, 65.5),
+  Offset(76.5, 74),
+  Offset(77, 83),
+  Offset(78.5, 91),
+  Offset(74, 94.5),
+  Offset(70, 90),
+  Offset(69, 82.5),
+  Offset(67.5, 74),
+  Offset(65.5, 65.5),
+  Offset(64.5, 56),
+  Offset(64, 46.5),
+  Offset(62, 56),
+  Offset(59.5, 66),
+  Offset(62.5, 74),
+  Offset(64.5, 84),
+  Offset(64, 96),
+  Offset(62, 110),
+  Offset(60, 120),
+  Offset(61.5, 132),
+  Offset(58.5, 146),
+  Offset(57.5, 153.5),
+  Offset(62, 160),
+  Offset(52.5, 161),
+  Offset(52, 152),
+  Offset(53, 138),
+  Offset(52, 124),
+  Offset(51, 108),
+  Offset(50.5, 92),
+];
 
 const _front = <_Part>[
-  ('shoulders', 25, 29, 37, 41, true),
-  ('shoulders', 63, 29, 75, 41, true),
-  ('chest', 37, 30, 49.5, 46, false),
-  ('chest', 50.5, 30, 63, 46, false),
-  ('biceps', 24, 42, 33, 59, true),
-  ('biceps', 67, 42, 76, 59, true),
-  ('forearms', 20, 61, 29, 81, true),
-  ('forearms', 71, 61, 80, 81, true),
-  ('abs', 42, 48, 58, 72, false),
-  ('quads', 37, 80, 49, 119, true),
-  ('quads', 51, 80, 63, 119, true),
-  ('calves', 38.5, 125, 47, 152, true),
-  ('calves', 53, 125, 61.5, 152, true),
+  (
+    'shoulders',
+    [
+      Offset(61, 30),
+      Offset(68, 31),
+      Offset(72.5, 38),
+      Offset(72.5, 46),
+      Offset(67, 48),
+      Offset(62.5, 42.5),
+      Offset(61, 35.5),
+    ],
+    true,
+  ),
+  (
+    'chest',
+    [
+      Offset(51, 31),
+      Offset(60, 30),
+      Offset(66, 34),
+      Offset(66.5, 42),
+      Offset(61.5, 47),
+      Offset(52.5, 46),
+      Offset(51, 38),
+    ],
+    true,
+  ),
+  (
+    'biceps',
+    [Offset(66, 49), Offset(71.5, 50.5), Offset(73.5, 58), Offset(71.5, 65), Offset(67, 64), Offset(65, 56)],
+    true,
+  ),
+  (
+    'forearms',
+    [
+      Offset(67, 67.5),
+      Offset(73.5, 69.5),
+      Offset(76, 77),
+      Offset(76, 84),
+      Offset(71, 85),
+      Offset(68, 77),
+      Offset(67, 71.5),
+    ],
+    true,
+  ),
+  (
+    'abs',
+    [
+      Offset(44, 49),
+      Offset(56, 49),
+      Offset(58, 58),
+      Offset(57.5, 68),
+      Offset(54, 76),
+      Offset(50, 78),
+      Offset(46, 76),
+      Offset(42.5, 68),
+      Offset(42, 58),
+    ],
+    false,
+  ),
+  (
+    'quads',
+    [
+      Offset(52, 88),
+      Offset(62, 90),
+      Offset(63.5, 100),
+      Offset(62.5, 110),
+      Offset(58.5, 119),
+      Offset(54, 119),
+      Offset(51, 106),
+      Offset(51, 95),
+    ],
+    true,
+  ),
+  (
+    'calves',
+    [Offset(53, 126), Offset(59.5, 128), Offset(61.5, 137), Offset(59.5, 147), Offset(55, 148), Offset(53, 136)],
+    true,
+  ),
 ];
 
 const _back = <_Part>[
-  ('traps', 38, 23, 62, 36, true),
-  ('shoulders', 25, 29, 37, 41, true),
-  ('shoulders', 63, 29, 75, 41, true),
-  ('back', 36, 37, 49.5, 64, false),
-  ('back', 50.5, 37, 64, 64, false),
-  ('triceps', 24, 42, 33, 59, true),
-  ('triceps', 67, 42, 76, 59, true),
-  ('forearms', 20, 61, 29, 81, true),
-  ('forearms', 71, 61, 80, 81, true),
-  ('glutes', 38, 70, 49.5, 88, true),
-  ('glutes', 50.5, 70, 62, 88, true),
-  ('hamstrings', 37.5, 90, 49, 121, true),
-  ('hamstrings', 51, 90, 62.5, 121, true),
-  ('calves', 38.5, 125, 47, 152, true),
-  ('calves', 53, 125, 61.5, 152, true),
+  (
+    'traps',
+    [
+      Offset(50, 24),
+      Offset(58, 27),
+      Offset(63.5, 34),
+      Offset(61.5, 43),
+      Offset(54, 48),
+      Offset(50, 49),
+      Offset(46, 48),
+      Offset(38.5, 43),
+      Offset(36.5, 34),
+      Offset(42, 27),
+    ],
+    false,
+  ),
+  (
+    'shoulders',
+    [
+      Offset(61, 30),
+      Offset(68, 31),
+      Offset(72.5, 38),
+      Offset(72.5, 46),
+      Offset(67, 48),
+      Offset(62.5, 42.5),
+      Offset(61, 35.5),
+    ],
+    true,
+  ),
+  (
+    'back',
+    [
+      Offset(52, 41),
+      Offset(63, 43),
+      Offset(66.5, 50),
+      Offset(64.5, 59),
+      Offset(58, 66),
+      Offset(52, 65),
+      Offset(51, 52),
+    ],
+    true,
+  ),
+  (
+    'triceps',
+    [Offset(65, 48.5), Offset(71, 49.5), Offset(73.5, 57), Offset(71.5, 65), Offset(66.5, 64), Offset(64, 55)],
+    true,
+  ),
+  (
+    'forearms',
+    [
+      Offset(67, 67.5),
+      Offset(73.5, 69.5),
+      Offset(76, 77),
+      Offset(76, 84),
+      Offset(71, 85),
+      Offset(68, 77),
+      Offset(67, 71.5),
+    ],
+    true,
+  ),
+  (
+    'glutes',
+    [Offset(51, 70), Offset(61, 71), Offset(64.5, 78), Offset(62.5, 86), Offset(55, 88), Offset(51, 80)],
+    true,
+  ),
+  (
+    'hamstrings',
+    [
+      Offset(52, 90),
+      Offset(62, 92),
+      Offset(63.5, 102),
+      Offset(61.5, 113),
+      Offset(57, 119),
+      Offset(52, 112),
+      Offset(51, 99),
+    ],
+    true,
+  ),
+  (
+    'calves',
+    [Offset(53, 125), Offset(60, 127), Offset(62.5, 137), Offset(59.5, 148), Offset(55, 148), Offset(52.5, 136)],
+    true,
+  ),
+];
+
+/// Lines scored into the shading so a belly reads as muscle and not as a
+/// blob: the ab segments, the line between the pecs, and so on.
+const _frontLines = <List<Offset>>[
+  [Offset(50, 50), Offset(50, 77)],
+  [Offset(44, 57), Offset(56, 57)],
+  [Offset(43.5, 65), Offset(56.5, 65)],
+  [Offset(45, 72), Offset(55, 72)],
+  [Offset(56, 96), Offset(58, 112)],
+  [Offset(44, 96), Offset(42, 112)],
+];
+
+const _backLines = <List<Offset>>[
+  [Offset(50, 28), Offset(50, 48)],
+  [Offset(50, 72), Offset(50, 87)],
+  [Offset(56.5, 130), Offset(57, 142)],
+  [Offset(43.5, 130), Offset(43, 142)],
 ];
 
 class _MapPainter extends CustomPainter {
@@ -108,45 +305,68 @@ class _MapPainter extends CustomPainter {
     return Color.lerp(const Color(0x40C6FF1A), BoltColors.neon, (n / lo).clamp(0.0, 1.0))!;
   }
 
-  void _figure(Canvas canvas, double s, double dx, List<_Part> parts) {
-    Rect r(double l, double t, double rr, double b) => Rect.fromLTRB(dx + l * s, t * s, dx + rr * s, b * s);
-    final base = Paint()..color = BoltColors.lineSoft;
-    // Head, neck, hips, hands, knees and feet: the parts that are not shaded.
-    canvas
-      ..drawOval(r(42, 4, 58, 22), base)
-      ..drawRect(r(46, 20, 54, 27), base)
-      ..drawRRect(RRect.fromRectAndRadius(r(38, 70, 62, 82), Radius.circular(4 * s)), base)
-      ..drawOval(r(19, 82, 28, 92), base)
-      ..drawOval(r(72, 82, 81, 92), base)
-      ..drawOval(r(39, 118, 47, 126), base)
-      ..drawOval(r(53, 118, 61, 126), base)
-      ..drawOval(r(37, 152, 47, 160), base)
-      ..drawOval(r(53, 152, 63, 160), base);
+  /// A closed curve through [p] (Catmull-Rom as cubics), so a handful of
+  /// outline points come out as an organic shape rather than a polygon.
+  Path _smooth(List<Offset> p) {
+    final path = Path();
+    final n = p.length;
+    if (n < 3) return path;
+    path.moveTo(p[0].dx, p[0].dy);
+    for (var i = 0; i < n; i++) {
+      final p0 = p[(i - 1 + n) % n];
+      final p1 = p[i];
+      final p2 = p[(i + 1) % n];
+      final p3 = p[(i + 2) % n];
+      final c1 = p1 + (p2 - p0) / 6.4;
+      final c2 = p2 - (p3 - p1) / 6.4;
+      path.cubicTo(c1.dx, c1.dy, c2.dx, c2.dy, p2.dx, p2.dy);
+    }
+    return path..close();
+  }
+
+  void _figure(Canvas canvas, double s, double dx, List<_Part> parts, List<List<Offset>> lines) {
+    Offset at(Offset o) => Offset(dx + o.dx * s, o.dy * s);
+    Offset flip(Offset o) => Offset(dx + (100 - o.dx) * s, o.dy * s);
+
+    // The body under the shading: head, limbs and the parts no set trains.
+    final half = [for (final o in _body) at(o)];
+    final whole = [...half, for (final o in _body.reversed.skip(1).take(_body.length - 2)) flip(o)];
+    canvas.drawPath(_smooth(whole), Paint()..color = BoltColors.lineSoft);
+
     final edge = Paint()
-      ..color = BoltColors.surface1
+      ..color = BoltColors.ink.withValues(alpha: .85)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2;
-    for (final (m, l, t, rr, b, oval) in parts) {
+      ..strokeWidth = 0.9 * s
+      ..strokeJoin = StrokeJoin.round;
+    for (final (m, pts, mirror) in parts) {
       final fill = Paint()..color = _shade(m);
-      final box = r(l, t, rr, b);
-      if (oval) {
+      for (final side in [at, if (mirror) flip]) {
+        final path = _smooth([for (final o in pts) side(o)]);
         canvas
-          ..drawOval(box, fill)
-          ..drawOval(box, edge);
-      } else {
-        final rrect = RRect.fromRectAndRadius(box, Radius.circular(5 * s));
-        canvas
-          ..drawRRect(rrect, fill)
-          ..drawRRect(rrect, edge);
+          ..drawPath(path, fill)
+          ..drawPath(path, edge);
       }
+    }
+
+    final score = Paint()
+      ..color = BoltColors.ink.withValues(alpha: .6)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8 * s
+      ..strokeCap = StrokeCap.round;
+    for (final line in lines) {
+      final path = Path()..moveTo(at(line.first).dx, at(line.first).dy);
+      for (final o in line.skip(1)) {
+        path.lineTo(at(o).dx, at(o).dy);
+      }
+      canvas.drawPath(path, score);
     }
   }
 
   @override
   void paint(Canvas canvas, Size size) {
     final s = size.width / 200;
-    _figure(canvas, s, 0, _front);
-    _figure(canvas, s, 100 * s, _back);
+    _figure(canvas, s, 0, _front, _frontLines);
+    _figure(canvas, s, 100 * s, _back, _backLines);
   }
 
   @override
