@@ -165,6 +165,13 @@ Future<void> openScanner(WidgetTester tester) async {
   await tapText(tester, 'Scan QR');
 }
 
+/// Turns the stopwatch over to its other face. There is no button for it:
+/// you swipe across the watch.
+Future<void> swipeFace(WidgetTester tester) async {
+  await tester.drag(find.byKey(const Key('watch-face')), const Offset(-220, 0));
+  await settle(tester);
+}
+
 /// Goes through onboarding as [role] with [name]. Coaches enter [code].
 Future<void> onboard(WidgetTester tester, String role, String name, {String? weight, String code = '11111'}) async {
   expect(find.text('HOW DO YOU TRAIN?'), findsOneWidget);
@@ -928,9 +935,10 @@ void main() {
     await onboard(tester, 'On my own', 'Dani');
     await tapTab(tester, 'Check in');
     await tapText(tester, 'Stopwatch');
-    // The chronograph is the one out of the box.
+    // The chronograph is the one out of the box; nothing on screen says the
+    // other face is there, a sideways swipe across the watch turns it over.
     expect(find.text('READY'), findsNothing);
-    await tapText(tester, 'DIGITAL');
+    await swipeFace(tester);
     expect(find.text('READY'), findsOneWidget);
     expect(c.read(boltProvider).settings.watchFace, 'digital');
 
@@ -939,7 +947,7 @@ void main() {
     await tapTab(tester, 'Check in');
     await tapText(tester, 'Stopwatch');
     expect(find.text('READY'), findsOneWidget);
-    await tapText(tester, 'DIAL');
+    await swipeFace(tester);
     expect(find.text('READY'), findsNothing);
     expect(c.read(boltProvider).settings.watchFace, 'dial');
     expect(tester.takeException(), isNull);

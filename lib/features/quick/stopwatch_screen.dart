@@ -110,14 +110,28 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
               Kicker(tx('STOPWATCH')),
             ],
           ),
-          const SizedBox(height: 14),
-          _faceSwitch(face),
-          const SizedBox(height: 18),
+          const SizedBox(height: 22),
           LayoutBuilder(
             builder: (context, box) {
               final d = math.min(box.maxWidth, 360.0);
               return Center(
-                child: SizedBox(width: d, height: d, child: dial ? _dialFace(d, w, running) : _ringFace(w, running)),
+                child: GestureDetector(
+                  key: const Key('watch-face'),
+                  // Swipe the watch sideways for the other face. Nothing says
+                  // so on screen: finding it is half the fun.
+                  onHorizontalDragEnd: (_) => _turnOver(dial),
+                  child: SizedBox(
+                    width: d,
+                    height: d,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 260),
+                      child: SizedBox.expand(
+                        key: ValueKey(dial),
+                        child: dial ? _dialFace(d, w, running) : _ringFace(w, running),
+                      ),
+                    ),
+                  ),
+                ),
               );
             },
           ),
@@ -143,7 +157,7 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
               ),
             ),
           ],
-          const SizedBox(height: 18),
+          const SizedBox(height: 30),
           Row(
             children: [
               Expanded(
@@ -178,26 +192,11 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
   }
 
   /// Two faces for the same watch: the mechanical chronograph, or a big
-  /// counter inside a sweeping ring. The choice sticks between sessions.
-  Widget _faceSwitch(String face) {
-    Widget pill(String id, String label) {
-      final on = (id == 'digital') == (face == 'digital');
-      return Expanded(
-        child: Tap(
-          onTap: () => ref.read(boltProvider.notifier).setWatchFace(id),
-          child: BoltBox(
-            color: on ? BoltColors.neon : BoltColors.surface2,
-            stroke: Stroke(on ? BoltColors.neon : BoltColors.line),
-            radius: BoltRadii.pill,
-            height: 38,
-            alignment: Alignment.center,
-            child: Kicker(label, size: 11, weight: 700, color: on ? BoltColors.ink : BoltColors.textSoft),
-          ),
-        ),
-      );
-    }
-
-    return Row(children: [pill('dial', tx('DIAL')), const SizedBox(width: 8), pill('digital', tx('DIGITAL'))]);
+  /// counter inside a sweeping ring. Swiping the watch sideways turns it
+  /// over, and the side it lands on sticks between sessions.
+  void _turnOver(bool dial) {
+    Haptics.play(Feel.tick);
+    ref.read(boltProvider.notifier).setWatchFace(dial ? 'digital' : 'dial');
   }
 
   /// The chronograph, with its crown and pusher live where they are drawn.
