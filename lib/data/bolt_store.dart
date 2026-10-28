@@ -255,6 +255,9 @@ class BoltStore extends Notifier<BoltData> {
     }
     state.settings.gymName = p.gym?.trim() ?? '';
     state.account = Account(role, Account.ownerId, admin: admin);
+    // Onboarding is the key gate for a new phone: coaches typed their code a
+    // step ago, and nobody is asked for it twice on the way in.
+    state.settings.keyGen = kKeyGen;
     state.settings.levelSeen = 1;
     // Everyone starts at Bodyweight, so the first placement is celebrated.
     state.settings.rankSeen = 0;

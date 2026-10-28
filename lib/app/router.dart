@@ -13,6 +13,7 @@ import '../features/coach_schedule/schedule_screen.dart';
 import '../features/coach_trainee/trainee_detail_screen.dart';
 import '../features/editor/editor_screen.dart';
 import '../features/gym/gym_screen.dart';
+import '../features/key/key_screen.dart';
 import '../features/learn/learn_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/library/library_screen.dart';
@@ -63,9 +64,12 @@ Page<void> _enter(GoRouterState state, Widget child) => CustomTransitionPage<voi
 Page<void> _tab(GoRouterState state, Widget child) => NoTransitionPage<void>(key: state.pageKey, child: child);
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final auth = ValueNotifier<Account?>(ref.read(boltProvider).account);
-  ref.listen(boltProvider.select((d) => (d.account?.role, d.account?.id)), (_, _) {
-    auth.value = ref.read(boltProvider).account;
+  // Bumped whenever the owner, their role or the key gate changes, so the
+  // redirect below runs again. The data itself is mutated in place, so a
+  // counter is what changes, not the account object.
+  final auth = ValueNotifier<int>(0);
+  ref.listen(boltProvider.select((d) => (d.account?.role, d.account?.id, d.settings.keyGen)), (_, _) {
+    auth.value++;
   });
   ref.onDispose(auth.dispose);
 
@@ -74,9 +78,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     refreshListenable: auth,
     redirect: (context, state) {
-      final a = auth.value;
+      final a = ref.read(boltProvider).account;
       final loc = state.matchedLocation;
       if (a == null) return loc == '/welcome' ? null : '/welcome';
+      if (ref.read(boltProvider.notifier).needsKey) return loc == '/key' ? null : '/key';
+      if (loc == '/key') return a.isTrainee ? '/today' : '/roster';
       final home = a.isTrainee ? '/today' : '/roster';
       if (loc == '/' || loc == '/welcome') return home;
       final seg = state.uri.pathSegments.isEmpty ? '' : state.uri.pathSegments.first;
@@ -87,6 +93,14 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/', redirect: (_, _) => '/welcome'),
+      GoRoute(
+        path: '/key',
+        pageBuilder: (context, state) => CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: const KeyScreen(),
+          transitionsBuilder: (context, a, s, child) => FadeTransition(opacity: a, child: child),
+        ),
+      ),
       GoRoute(
         path: '/welcome',
         pageBuilder: (context, state) => CustomTransitionPage<void>(
