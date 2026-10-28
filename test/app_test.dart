@@ -96,6 +96,7 @@ Future<ProviderContainer> pumpApp(
             _ => null,
           },
         ),
+        coachSlotProvider.overrideWithValue((c) => c == '11111' ? 0 : null),
       ],
       child: const BoltApp(),
     ),
@@ -792,6 +793,52 @@ void main() {
     // Trainees and solo users skip the code.
     await tapText(tester, 'With a coach');
     expect(find.text('About you'), findsOneWidget);
+    await unmount(tester);
+  });
+
+  /// Onboards a solo user, then hands back their data with the key gate set
+  /// back, which is what an update that raises the generation looks like.
+  Future<BoltData> afterUpdate(WidgetTester tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani Kovač');
+    final data = c.read(boltProvider)..settings.keyGen = 0;
+    await unmount(tester);
+    return data;
+  }
+
+  testWidgets('an update asks for the key again and the admin key opens it', (tester) async {
+    final c = await pumpApp(tester, data: await afterUpdate(tester));
+    expect(find.text('Type your key'), findsOneWidget);
+    expect(find.text('Hey Dani'), findsNothing);
+    await typeInto(tester, '5 or 6 digits', '99999');
+    await tapText(tester, 'Open Bolt');
+    expect(find.text('That key does not open Bolt. Check it and try again.'), findsOneWidget);
+    await typeInto(tester, '5 or 6 digits', '222222');
+    await tapText(tester, 'Open Bolt');
+    // Straight back in, with the training data still there.
+    expect(find.text('Hey Dani'), findsOneWidget);
+    final log = c.read(boltProvider).settings.keyLog;
+    expect([for (final e in log) '${e.name}:${e.how}'], ['Unknown:wrong', 'Admin:ok']);
+    await unmount(tester);
+  });
+
+  testWidgets('a coach key waits until the owner switches it on', (tester) async {
+    final data = await afterUpdate(tester);
+    final c = await pumpApp(tester, data: data);
+    await typeInto(tester, '5 or 6 digits', '11111');
+    await tapText(tester, 'Open Bolt');
+    expect(find.text('Not switched on yet'), findsOneWidget);
+    expect(find.text('Hey Dani'), findsNothing);
+    expect(c.read(boltProvider).settings.keyLog.last.how, 'pending');
+    await unmount(tester);
+
+    // The owner switches that key on; the same code now opens the app.
+    data.settings.keyGen = 0;
+    data.settings.coachKeysOn.add(0);
+    await pumpApp(tester, data: data);
+    await typeInto(tester, '5 or 6 digits', '11111');
+    await tapText(tester, 'Open Bolt');
+    expect(find.text('Hey Dani'), findsOneWidget);
     await unmount(tester);
   });
 

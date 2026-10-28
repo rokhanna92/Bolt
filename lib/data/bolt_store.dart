@@ -2071,13 +2071,18 @@ class BoltStore extends Notifier<BoltData> {
   KeyResult enterKey(String code) {
     final s = state.settings;
     final license = ref.read(licenseProvider)(code);
-    final slot = coachSlot(code);
+    final slot = ref.read(coachSlotProvider)(code);
     final how = switch (license) {
       null => KeyResult.wrong,
-      License.coach when !s.coachKeysOn.contains(slot) => KeyResult.pending,
+      License.coach when slot == null || !s.coachKeysOn.contains(slot) => KeyResult.pending,
       _ => KeyResult.ok,
     };
-    s.keyLog.add(KeyEntry(name: keyName(code) ?? 'Unknown', at: now, how: how.name));
+    final name = slot != null
+        ? 'Coach ${slot + 1}'
+        : license == License.admin
+        ? 'Admin'
+        : 'Unknown';
+    s.keyLog.add(KeyEntry(name: name, at: now, how: how.name));
     if (s.keyLog.length > 60) s.keyLog.removeRange(0, s.keyLog.length - 60);
     if (how == KeyResult.ok) s.keyGen = kKeyGen;
     _commit();

@@ -54,12 +54,8 @@ int? coachSlot(String code) {
   return i < 0 ? null : i;
 }
 
-/// 'Coach 3', 'Admin', or null for a code that unlocks nothing.
-String? keyName(String code) {
-  final slot = coachSlot(code);
-  if (slot != null) return 'Coach ${slot + 1}';
-  return checkLicense(code) == License.admin ? 'Admin' : null;
-}
+/// Which coach key a code is. Overridden in tests.
+final coachSlotProvider = Provider<int? Function(String)>((ref) => coachSlot);
 
 /// Checks codes in onboarding. Overridden in tests.
 final licenseProvider = Provider<License? Function(String)>((ref) => checkLicense);
