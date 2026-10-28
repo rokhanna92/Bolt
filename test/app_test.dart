@@ -158,6 +158,12 @@ Future<void> loadFont(String family, String path) async {
   await (FontLoader(family)..addFont(Future.value(bytes))).load();
 }
 
+/// The centre button opens the quick screen; the scanner is one tap on.
+Future<void> openScanner(WidgetTester tester) async {
+  await tapTab(tester, 'Check in');
+  await tapText(tester, 'Scan QR');
+}
+
 /// Goes through onboarding as [role] with [name]. Coaches enter [code].
 Future<void> onboard(WidgetTester tester, String role, String name, {String? weight, String code = '11111'}) async {
   expect(find.text('HOW DO YOU TRAIN?'), findsOneWidget);
@@ -842,6 +848,48 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the centre button opens the quick screen, and the stopwatch laps', (tester) async {
+    await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapTab(tester, 'Check in');
+    expect(find.text('What now?'), findsOneWidget);
+    for (final t in ['Check in', 'Scan QR', 'Fast workout', 'Cardio', 'Weights', 'Stopwatch']) {
+      expect(find.text(t), findsWidgets, reason: t);
+    }
+    await tapText(tester, 'Stopwatch');
+    expect(find.text('Start'), findsOneWidget);
+    expect(find.text('LAPS'), findsNothing);
+
+    await tapText(tester, 'Start');
+    expect(find.text('Stop'), findsOneWidget);
+    await tapText(tester, 'Lap');
+    await tapText(tester, 'Lap');
+    expect(find.text('LAPS'), findsOneWidget);
+    expect(find.text('01'), findsOneWidget);
+    expect(find.text('02'), findsOneWidget);
+
+    // Stopped it holds the time; the pusher then puts it back to zero.
+    await tapText(tester, 'Stop');
+    expect(find.text('Reset'), findsOneWidget);
+    await tapText(tester, 'Reset');
+    expect(find.text('LAPS'), findsNothing);
+    expect(find.text('00:00.00'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
+  testWidgets('a fast cardio workout starts on today without a plan', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapTab(tester, 'Check in');
+    await tapText(tester, 'Cardio');
+    await tester.pump(const Duration(milliseconds: 600));
+    final today = c.read(boltProvider.notifier).today;
+    expect(c.read(boltProvider.notifier).plan(Account.ownerId)[today]?.code, isNotNull);
+    expect(find.text('START'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('the admin key switches between every role', (tester) async {
     final c = await pumpApp(tester);
     await tapText(tester, 'I coach people');
@@ -983,7 +1031,7 @@ void main() {
   testWidgets('scan button checks in from the frame', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
-    await tapTab(tester, 'Check in');
+    await openScanner(tester);
     expect(find.text('Scan to check in'), findsWidgets);
     // Tapping the frame simulates a scan.
     await tester.tap(find.byKey(const Key('scan-frame')));
@@ -1006,7 +1054,7 @@ void main() {
     bool inGym() => c.read(boltProvider).gymIn[Account.ownerId] != null;
 
     // From the scanner, when the plaque or camera is not there.
-    await tapTab(tester, 'Check in');
+    await openScanner(tester);
     await tapText(tester, 'Check in without scanning');
     expect(find.text('CHECKED IN'), findsOneWidget);
     expect(inGym(), isTrue);
@@ -1032,7 +1080,7 @@ void main() {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     bool inGym() => c.read(boltProvider).gymIn[Account.ownerId] != null;
-    await tapTab(tester, 'Check in');
+    await openScanner(tester);
     await tapText(tester, 'Check in without scanning');
     expect(inGym(), isTrue);
     await tapText(tester, 'Undo check-in');

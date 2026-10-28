@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +9,7 @@ import '../data/bolt_store.dart';
 import '../core/units.dart';
 import '../data/level.dart';
 import '../data/rank.dart';
+import '../data/rules.dart';
 import '../data/models/bolt_data.dart';
 import '../data/models/session.dart';
 import '../features/badges/unlock_overlay.dart';
@@ -35,6 +38,22 @@ void openScanner(BuildContext context, WidgetRef ref, {bool fromShortcut = false
     context.go('/gym');
   }
   _root.push(ScannerRoute(fromShortcut: fromShortcut, manual: manual));
+}
+
+/// The quick screen's fast workout: an engine day built on the spot for
+/// cardio, the muscle builder for weights. Either lands on today and opens.
+Future<void> startFastWorkout({required bool cardio}) async {
+  final store = _store;
+  final k = store.today;
+  if (cardio) {
+    final ex = workoutForMuscles(const ['cardio'], math.Random());
+    await showUnlocks(store.useMuscles(Account.ownerId, k, const ['cardio'], ex));
+  } else {
+    final b = await _buildFromMuscles();
+    if (b == null) return;
+    await showUnlocks(store.useMuscles(Account.ownerId, k, b.muscles, b.ex, save: b.save));
+  }
+  openWorkout(k);
 }
 
 /// The app icon's long-press shortcuts: scan the plaque, today's workout or

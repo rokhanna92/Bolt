@@ -27,6 +27,8 @@ import '../features/plaque/plaque_screen.dart';
 import '../features/plates/plate_screen.dart';
 import '../features/profile/edit_profile_screen.dart';
 import '../features/profile/me_screen.dart';
+import '../features/quick/quick_screen.dart';
+import '../features/quick/stopwatch_screen.dart';
 import '../features/rank/rank_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/today/today_screen.dart';
@@ -245,6 +247,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/plaque',
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) => _enter(s, const PlaqueScreen()),
+      ),
+      GoRoute(
+        path: '/quick',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const QuickScreen()),
+      ),
+      GoRoute(
+        path: '/stopwatch',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const StopwatchScreen()),
       ),
       GoRoute(
         path: '/edit-profile',

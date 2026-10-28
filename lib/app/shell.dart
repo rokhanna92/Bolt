@@ -8,7 +8,6 @@ import '../data/models/bolt_data.dart';
 import '../services/haptics.dart';
 import '../widgets/bolt_nav_bar.dart';
 import '../widgets/common.dart';
-import 'actions.dart';
 
 /// Tab scaffold for one role: the active tab plus the bottom nav. Tabs keep
 /// their state; switching replays the screen-enter fade.
@@ -65,7 +64,7 @@ class BoltShell extends ConsumerWidget {
                 if (branchOf[i] != shell.currentIndex) Haptics.play(Feel.tick);
                 shell.goBranch(branchOf[i], initialLocation: branchOf[i] == shell.currentIndex);
               },
-              onScan: trainee ? () => openScanner(context, ref) : () => shell.goBranch(centre),
+              onScan: trainee ? () => context.push('/quick') : () => shell.goBranch(centre),
             ),
           ),
         ],
