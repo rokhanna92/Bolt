@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
+import '../../data/licenses.dart';
 import '../../data/models/board.dart';
 import '../../services/haptics.dart';
 import '../../services/notice_board.dart';
@@ -338,6 +339,118 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             clip: true,
             child: row(tx('GitHub token'), _token == null ? tx('Not set') : tx('On this phone'), _askToken),
           ),
+          const SizedBox(height: 28),
+          Text(tx('Keys'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+          const SizedBox(height: 6),
+          Text(
+            tx(
+              'A coach key opens Bolt only once you switch it on here. Until then that phone sees a screen saying its key is waiting for you.',
+            ),
+            style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
+          ),
+          const SizedBox(height: 22),
+          Kicker(tx('COACH KEYS'), size: 10),
+          const SizedBox(height: 8),
+          _keySwitches(),
+          const SizedBox(height: 22),
+          Kicker(tx('KEY LOG'), size: 10),
+          const SizedBox(height: 8),
+          _keyLog(),
+        ],
+      ),
+    );
+  }
+
+  /// The owner's five coach keys, numbered as on their own list.
+  Widget _keySwitches() {
+    final on = ref.watch(boltProvider).settings.coachKeysOn;
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(BoltColors.lineSoft),
+      radius: 18,
+      clip: true,
+      child: Column(
+        children: [
+          for (var i = 0; i < kCoachKeys; i++)
+            Tap(
+              onTap: () => ref.read(boltProvider.notifier).toggleCoachKey(i),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: BoltColors.divider)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(tx('Coach {n}', {'n': i + 1}), style: BoltText.a(14, weight: 700)),
+                          const SizedBox(height: 2),
+                          Text(
+                            on.contains(i) ? tx('Opens Bolt') : tx('Waiting for you'),
+                            style: BoltText.a(12, color: on.contains(i) ? BoltColors.neon : BoltColors.muted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    BoltSwitch(on: on.contains(i)),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Every go at the key screen, newest first: who, when, how it went.
+  Widget _keyLog() {
+    final log = ref.watch(boltProvider).settings.keyLog;
+    if (log.isEmpty) {
+      return Text(
+        tx('Nothing yet. Every go at the key screen shows up here, refused ones included.'),
+        style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
+      );
+    }
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(BoltColors.lineSoft),
+      radius: 18,
+      clip: true,
+      child: Column(
+        children: [
+          for (final e in log.reversed)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: BoltColors.divider)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(child: Text(tx(e.name), style: BoltText.a(14, weight: 700))),
+                  Text('${dayMonth(e.at)} · ${hm(e.at)}', style: BoltText.m(12, color: BoltColors.muted)),
+                  const SizedBox(width: 10),
+                  Text(
+                    switch (e.how) {
+                      'ok' => tx('opened'),
+                      'pending' => tx('waiting'),
+                      _ => tx('refused'),
+                    },
+                    style: BoltText.m(
+                      12,
+                      weight: 700,
+                      color: switch (e.how) {
+                        'ok' => BoltColors.neon,
+                        'pending' => BoltColors.muted2,
+                        _ => BoltColors.warn,
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
