@@ -46,7 +46,7 @@ class QuickScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: _Tile(
-                  icon: 'check',
+                  glyph: const BoltIcon('plate', size: 22, color: BoltColors.neon),
                   title: tx('Check in'),
                   sub: tx('No scan'),
                   onTap: () => _leave(context, (root) => openScanner(root, ref, manual: true)),
@@ -55,7 +55,7 @@ class QuickScreen extends ConsumerWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _Tile(
-                  icon: 'scan',
+                  glyph: const BoltIcon('scan_line', size: 22, color: BoltColors.neon),
                   title: tx('Scan QR'),
                   sub: tx('Gym plaque'),
                   onTap: () => _leave(context, (root) => openScanner(root, ref)),
@@ -67,7 +67,7 @@ class QuickScreen extends ConsumerWidget {
           _FastWorkout(onPick: (cardio) => _leave(context, (_) => startFastWorkout(cardio: cardio))),
           const SizedBox(height: 10),
           _Tile(
-            icon: 'schedule',
+            glyph: const _WatchGlyph(),
             title: tx('Stopwatch'),
             sub: tx('Laps, splits, no workout attached'),
             wide: true,
@@ -80,9 +80,9 @@ class QuickScreen extends ConsumerWidget {
 }
 
 class _Tile extends StatelessWidget {
-  const _Tile({required this.icon, required this.title, required this.sub, required this.onTap, this.wide = false});
+  const _Tile({required this.glyph, required this.title, required this.sub, required this.onTap, this.wide = false});
 
-  final String icon;
+  final Widget glyph;
   final String title;
   final String sub;
   final VoidCallback onTap;
@@ -91,7 +91,7 @@ class _Tile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final body = [
-      BoltIcon(icon, size: 22, color: BoltColors.neon),
+      glyph,
       SizedBox(height: wide ? 0 : 14, width: wide ? 14 : 0),
       Expanded(
         flex: wide ? 1 : 0,
@@ -119,6 +119,34 @@ class _Tile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A small chronograph face with its crown, so the stopwatch tile does not
+/// have to borrow the calendar icon.
+class _WatchGlyph extends StatelessWidget {
+  const _WatchGlyph();
+
+  @override
+  Widget build(BuildContext context) => CustomPaint(size: const Size.square(24), painter: _WatchGlyphPainter());
+}
+
+class _WatchGlyphPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size s) {
+    final c = Offset(s.width / 2, s.height * .60);
+    final r = s.width * .36;
+    final p = Paint()
+      ..color = BoltColors.neon
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = s.width * .10
+      ..strokeCap = StrokeCap.round;
+    canvas.drawCircle(c, r, p);
+    canvas.drawLine(c + Offset(0, -r * 1.25), c + Offset(0, -r * 1.75), p);
+    canvas.drawLine(c, c + Offset(r * .40, -r * .40), p);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
 }
 
 /// Start training now: an engine day or weights, picked right on the tile.

@@ -229,6 +229,8 @@ class _ChronoPainter extends CustomPainter {
     _dial(canvas, c, r);
     _track(canvas, c, r);
     _subdial(canvas, c, r);
+    // Maker's name, where a dial carries it.
+    _text(canvas, 'BOLT', c + Offset(0, r * .40), r * .085, BoltColors.muted3, weight: 700);
     _hands(canvas, c, r);
   }
 
@@ -314,8 +316,9 @@ class _ChronoPainter extends CustomPainter {
   /// The 30-minute totalizer at 12, where a chronograph counts the minutes
   /// its sweep hand has already been round.
   void _subdial(Canvas canvas, Offset c, double r) {
-    final sc = c + Offset(0, -r * .40);
-    final sr = r * .24;
+    // Tucked in far enough that the 60 at the top of the track clears it.
+    final sc = c + Offset(0, -r * .35);
+    final sr = r * .19;
     canvas.drawCircle(sc, sr, Paint()..color = _dialEdge.withValues(alpha: .55));
     canvas.drawCircle(
       sc,
@@ -365,7 +368,7 @@ class _ChronoPainter extends CustomPainter {
     final dir = Offset(math.cos(a), math.sin(a));
     final side = Offset(-dir.dy, dir.dx);
     final tip = c + dir * (r * .88);
-    final tail = c - dir * (r * .20);
+    final tail = c - dir * (r * .27);
     final w = r * .018;
 
     final hand = Path()
@@ -384,8 +387,8 @@ class _ChronoPainter extends CustomPainter {
     );
     canvas.drawPath(hand, Paint()..color = BoltColors.neon);
     // Counterweight ring on the tail, as on a real chronograph hand.
-    canvas.drawCircle(tail + dir * (r * .055), r * .042, Paint()..color = BoltColors.neon);
-    canvas.drawCircle(tail + dir * (r * .055), r * .018, Paint()..color = _dialEdge);
+    canvas.drawCircle(tail + dir * (r * .07), r * .05, Paint()..color = BoltColors.neon);
+    canvas.drawCircle(tail + dir * (r * .07), r * .022, Paint()..color = _dialEdge);
 
     canvas.drawCircle(c, r * .055, Paint()..color = BoltColors.neon);
     canvas.drawCircle(c, r * .022, Paint()..color = _dialEdge);
