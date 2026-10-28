@@ -2,15 +2,18 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
+import '../../data/bolt_store.dart' show clockProvider;
 import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
+import 'watch.dart';
 
 /// Case and dial colours. Olive-tinted steel so the chronograph sits in the
 /// Bolt palette instead of next to it.
@@ -29,60 +32,70 @@ String fmtWatch(Duration e) {
 /// A mechanical chronograph, drawn rather than animated from images: sweep
 /// seconds hand, 30-minute totalizer, crown for start and stop, side pusher
 /// for laps and reset.
-class StopwatchScreen extends StatefulWidget {
+class StopwatchScreen extends ConsumerStatefulWidget {
   const StopwatchScreen({super.key});
 
   @override
-  State<StopwatchScreen> createState() => _StopwatchScreenState();
+  ConsumerState<StopwatchScreen> createState() => _StopwatchScreenState();
 }
 
-class _StopwatchScreenState extends State<StopwatchScreen> with SingleTickerProviderStateMixin {
-  final _watch = Stopwatch();
-  final _elapsed = ValueNotifier<Duration>(Duration.zero);
-  final _laps = <Duration>[];
-  late final Ticker _ticker = createTicker((_) => _elapsed.value = _watch.elapsed);
+class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTickerProviderStateMixin {
+  /// Total elapsed and the lap in progress, held outside the widget tree so
+  /// a running watch repaints the dial and the readouts and nothing else.
+  final _total = ValueNotifier<Duration>(Duration.zero);
+  final _lap = ValueNotifier<Duration>(Duration.zero);
+  late final Ticker _ticker = createTicker((_) => _sync());
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+    if (ref.read(watchProvider).running) _ticker.start();
+  }
 
   @override
   void dispose() {
     _ticker.dispose();
-    _elapsed.dispose();
+    _total.dispose();
+    _lap.dispose();
     super.dispose();
+  }
+
+  void _sync() {
+    final w = ref.read(watchProvider);
+    final now = ref.read(clockProvider)();
+    _total.value = w.at(now);
+    _lap.value = w.lapAt(now);
+  }
+
+  /// Frames are burned only while the watch actually runs.
+  void _follow() {
+    final running = ref.read(watchProvider).running;
+    if (running && !_ticker.isActive) _ticker.start();
+    if (!running && _ticker.isActive) _ticker.stop();
+    _sync();
   }
 
   /// The crown: runs and stops. The hands hold where they are when stopped.
   void _crown() {
     Haptics.play(Feel.success);
-    setState(() {
-      if (_watch.isRunning) {
-        _watch.stop();
-        _ticker.stop();
-      } else {
-        _watch.start();
-        _ticker.start();
-      }
-    });
-    _elapsed.value = _watch.elapsed;
+    ref.read(watchProvider.notifier).startStop();
+    _follow();
   }
 
   /// The side pusher: a lap while it runs, back to zero once it is stopped.
   void _pusher() {
-    if (_watch.isRunning) {
-      Haptics.play(Feel.tick);
-      setState(() => _laps.add(_watch.elapsed));
-      return;
-    }
-    if (_watch.elapsed == Duration.zero && _laps.isEmpty) return;
-    Haptics.play(Feel.error);
-    setState(() {
-      _watch.reset();
-      _laps.clear();
-    });
-    _elapsed.value = Duration.zero;
+    final w = ref.read(watchProvider);
+    if (w.idle) return;
+    Haptics.play(w.running ? Feel.tick : Feel.error);
+    ref.read(watchProvider.notifier).lapOrReset();
+    _follow();
   }
 
   @override
   Widget build(BuildContext context) {
-    final running = _watch.isRunning;
+    final w = ref.watch(watchProvider);
+    final running = w.running;
     return BoltPage(
       child: ScreenScroll(
         top: 16,
@@ -107,7 +120,9 @@ class _StopwatchScreenState extends State<StopwatchScreen> with SingleTickerProv
                     children: [
                       Positioned.fill(
                         child: RepaintBoundary(
-                          child: CustomPaint(painter: _ChronoPainter(_elapsed, running: running)),
+                          child: CustomPaint(
+                            painter: _ChronoPainter(_total, _lap, running: running, showLap: w.laps.isNotEmpty),
+                          ),
                         ),
                       ),
                       // Tap targets over the crown and the pusher the painter
@@ -135,17 +150,29 @@ class _StopwatchScreenState extends State<StopwatchScreen> with SingleTickerProv
           const SizedBox(height: 20),
           Center(
             child: ValueListenableBuilder<Duration>(
-              valueListenable: _elapsed,
+              valueListenable: _total,
               builder: (context, e, _) =>
                   Text(fmtWatch(e), style: BoltText.m(40, weight: 700, color: BoltColors.text, spacing: -.02)),
             ),
           ),
+          if (w.laps.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Center(
+              child: ValueListenableBuilder<Duration>(
+                valueListenable: _lap,
+                builder: (context, e, _) => Text(
+                  tx('Lap {n} · {time}', {'n': '${w.laps.length + 1}', 'time': fmtWatch(e)}),
+                  style: BoltText.m(14, weight: 700, color: BoltColors.muted),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 18),
           Row(
             children: [
               Expanded(
                 child: NeonButton(
-                  label: running ? tx('Stop') : (_watch.elapsed == Duration.zero ? tx('Start') : tx('Resume')),
+                  label: running ? tx('Stop') : (w.idle ? tx('Start') : tx('Resume')),
                   color: running ? BoltColors.warn : BoltColors.neon,
                   textColor: BoltColors.ink,
                   onTap: _crown,
@@ -155,7 +182,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> with SingleTickerProv
               Expanded(
                 child: OutlineButton(
                   label: running ? tx('Lap') : tx('Reset'),
-                  color: BoltColors.text,
+                  color: w.idle ? BoltColors.muted3 : BoltColors.text,
                   borderColor: BoltColors.line,
                   weight: 700,
                   onTap: _pusher,
@@ -163,26 +190,66 @@ class _StopwatchScreenState extends State<StopwatchScreen> with SingleTickerProv
               ),
             ],
           ),
-          if (_laps.isNotEmpty) ...[
+          if (running || w.laps.isNotEmpty) ...[
             const SizedBox(height: 22),
             Kicker(tx('LAPS'), size: 10),
             const SizedBox(height: 8),
-            BoltBox(
-              color: BoltColors.surface1,
-              stroke: const Stroke(BoltColors.lineSoft),
-              radius: 18,
-              clip: true,
-              child: Column(children: [for (var i = _laps.length - 1; i >= 0; i--) _lapRow(i)]),
-            ),
+            _lapList(w),
           ],
         ],
       ),
     );
   }
 
-  Widget _lapRow(int i) {
-    final split = i == 0 ? _laps[0] : _laps[i] - _laps[i - 1];
-    final best = _laps.length > 1 && split == _bestSplit;
+  /// The lap in progress on top, then the finished ones newest first. Once
+  /// there are three to compare, the quickest and the slowest are called
+  /// out; before that there is nothing meaningful to rank.
+  Widget _lapList(Watch w) {
+    final splits = w.splits;
+    final fast = splits.isEmpty ? null : splits.reduce((a, b) => a < b ? a : b);
+    final slow = splits.isEmpty ? null : splits.reduce((a, b) => a > b ? a : b);
+    final rank = splits.length >= 3 && fast != slow;
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(BoltColors.lineSoft),
+      radius: 18,
+      clip: true,
+      child: Column(
+        children: [
+          if (w.running)
+            ValueListenableBuilder<Duration>(
+              valueListenable: _lap,
+              builder: (context, lap, _) => ValueListenableBuilder<Duration>(
+                valueListenable: _total,
+                builder: (context, total, _) => _lapRow(w.laps.length + 1, lap, total, live: true),
+              ),
+            ),
+          for (var i = splits.length - 1; i >= 0; i--)
+            _lapRow(
+              i + 1,
+              splits[i],
+              w.laps[i],
+              tag: !rank
+                  ? null
+                  : splits[i] == fast
+                  ? tx('QUICKEST')
+                  : splits[i] == slow
+                  ? tx('SLOWEST')
+                  : null,
+              accent: !rank
+                  ? null
+                  : splits[i] == fast
+                  ? BoltColors.neon
+                  : splits[i] == slow
+                  ? BoltColors.warn
+                  : null,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _lapRow(int n, Duration split, Duration total, {String? tag, Color? accent, bool live = false}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
@@ -190,34 +257,37 @@ class _StopwatchScreenState extends State<StopwatchScreen> with SingleTickerProv
       ),
       child: Row(
         children: [
-          SizedBox(width: 44, child: Kicker('${i + 1}'.padLeft(2, '0'), size: 11, color: BoltColors.muted2)),
+          SizedBox(
+            width: 44,
+            child: Kicker('$n'.padLeft(2, '0'), size: 11, color: live ? BoltColors.neon : BoltColors.muted2),
+          ),
           Expanded(
             child: Text(
               fmtWatch(split),
-              style: BoltText.m(15, weight: 700, color: best ? BoltColors.neon : BoltColors.text),
+              style: BoltText.m(15, weight: 700, color: accent ?? (live ? BoltColors.textSoft : BoltColors.text)),
             ),
           ),
-          Text(fmtWatch(_laps[i]), style: BoltText.m(13, color: BoltColors.muted)),
+          if (tag != null && accent != null) ...[
+            Text(tag, style: BoltText.m(9, weight: 700, color: accent, spacing: .12)),
+            const SizedBox(width: 10),
+          ],
+          Text(fmtWatch(total), style: BoltText.m(13, color: BoltColors.muted)),
         ],
       ),
     );
   }
-
-  Duration get _bestSplit {
-    var best = _laps[0];
-    for (var i = 1; i < _laps.length; i++) {
-      final s = _laps[i] - _laps[i - 1];
-      if (s < best) best = s;
-    }
-    return best;
-  }
 }
 
 class _ChronoPainter extends CustomPainter {
-  _ChronoPainter(this.elapsed, {required this.running}) : super(repaint: elapsed);
+  _ChronoPainter(this.total, this.lap, {required this.running, required this.showLap})
+    : super(repaint: Listenable.merge([total, lap]));
 
-  final ValueNotifier<Duration> elapsed;
+  final ValueNotifier<Duration> total;
+  final ValueNotifier<Duration> lap;
   final bool running;
+
+  /// A second, quieter hand for the lap in progress, once laps are running.
+  final bool showLap;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -346,7 +416,7 @@ class _ChronoPainter extends CustomPainter {
       _text(canvas, '$m', sc + dir * (sr * .46), sr * .34, BoltColors.muted);
     }
 
-    final mins = elapsed.value.inSeconds / 60.0;
+    final mins = total.value.inSeconds / 60.0;
     final a = -math.pi / 2 + (mins % 30) * math.pi / 15;
     final dir = Offset(math.cos(a), math.sin(a));
     canvas.drawLine(
@@ -363,7 +433,22 @@ class _ChronoPainter extends CustomPainter {
   /// The sweep hand: long, counterweighted, and glowing a little the way
   /// lume does. It is the only neon on the dial, so the eye goes to it.
   void _hands(Canvas canvas, Offset c, double r) {
-    final secs = elapsed.value.inMilliseconds / 1000.0;
+    // The lap hand sits under the sweep hand and is deliberately plain, so
+    // the eye still goes to the total first.
+    if (showLap) {
+      final la = -math.pi / 2 + (lap.value.inMilliseconds / 1000.0 % 60) * math.pi / 30;
+      final ldir = Offset(math.cos(la), math.sin(la));
+      canvas.drawLine(
+        c - ldir * (r * .12),
+        c + ldir * (r * .72),
+        Paint()
+          ..color = BoltColors.textSoft.withValues(alpha: .75)
+          ..strokeWidth = r * .022
+          ..strokeCap = StrokeCap.round,
+      );
+    }
+
+    final secs = total.value.inMilliseconds / 1000.0;
     final a = -math.pi / 2 + (secs % 60) * math.pi / 30;
     final dir = Offset(math.cos(a), math.sin(a));
     final side = Offset(-dir.dy, dir.dx);
@@ -406,5 +491,5 @@ class _ChronoPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ChronoPainter old) => old.running != running;
+  bool shouldRepaint(_ChronoPainter old) => old.running != running || old.showLap != showLap;
 }

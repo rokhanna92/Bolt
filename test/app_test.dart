@@ -76,6 +76,7 @@ Future<ProviderContainer> pumpApp(
   Updater? updater,
   List<ListedCoach>? coaches = const [],
   FakeBoard? board,
+  DateTime Function()? clock,
 }) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 2.75;
@@ -83,7 +84,7 @@ Future<ProviderContainer> pumpApp(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        clockProvider.overrideWithValue(() => wed),
+        clockProvider.overrideWithValue(clock ?? () => wed),
         initialDataProvider.overrideWithValue(data ?? freshData()),
         updaterProvider.overrideWithValue(updater ?? FakeUpdater(const UpToDate())),
         coachDirectoryProvider.overrideWithValue(FakeDirectory(coaches)),
@@ -871,6 +872,50 @@ void main() {
     // Stopped it holds the time; the pusher then puts it back to zero.
     await tapText(tester, 'Stop');
     expect(find.text('Reset'), findsOneWidget);
+    await tapText(tester, 'Reset');
+    expect(find.text('LAPS'), findsNothing);
+    expect(find.text('00:00.00'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
+  testWidgets('the stopwatch laps, ranks them and keeps running when you leave', (tester) async {
+    var now = wed;
+    await pumpApp(tester, clock: () => now);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapTab(tester, 'Check in');
+    await tapText(tester, 'Stopwatch');
+    await tapText(tester, 'Start');
+
+    // Three laps of 5, 9 and 7 seconds.
+    for (final secs in [5, 9, 7]) {
+      now = now.add(Duration(seconds: secs));
+      await tapText(tester, 'Lap');
+    }
+    // Lap 1's split and its total are both 5 s, so that one shows twice.
+    expect(find.text('00:05.00'), findsNWidgets(2));
+    expect(find.text('00:09.00'), findsOneWidget);
+    expect(find.text('00:07.00'), findsOneWidget);
+    expect(find.text('00:14.00'), findsOneWidget);
+    // 21 s is the total, lap 3's total and the fresh lap 4's total at once.
+    expect(find.text('00:21.00'), findsWidgets);
+    // Only once there are three to compare does ranking mean anything.
+    expect(find.text('QUICKEST'), findsOneWidget);
+    expect(find.text('SLOWEST'), findsOneWidget);
+    // The lap in progress sits on top of the finished ones.
+    expect(find.text('04'), findsOneWidget);
+
+    // Leaving the screen does not stop it: the quick screen says so, and
+    // the laps are still there on the way back.
+    await back(tester);
+    await tapTab(tester, 'Check in');
+    expect(find.text('Still running'), findsOneWidget);
+    now = now.add(const Duration(seconds: 3));
+    await tapText(tester, 'Stopwatch');
+    expect(find.text('00:24.00'), findsWidgets);
+    expect(find.text('QUICKEST'), findsOneWidget);
+
+    await tapText(tester, 'Stop');
     await tapText(tester, 'Reset');
     expect(find.text('LAPS'), findsNothing);
     expect(find.text('00:00.00'), findsOneWidget);

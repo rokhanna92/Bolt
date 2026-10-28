@@ -1171,4 +1171,8 @@ const kSrUi = <String, String>{
   'opened': 'ušao',
   'waiting': 'čeka',
   'refused': 'odbijen',
+  'Lap {n} · {time}': 'Krug {n} · {time}',
+  'QUICKEST': 'NAJBRŽI',
+  'SLOWEST': 'NAJSPORIJI',
+  'Still running': 'Još radi',
 };

@@ -10,6 +10,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
+import 'watch.dart';
 
 /// The centre button's hub: check in by hand or by QR, start a workout on the
 /// spot, or run the stopwatch. One tap from the nav bar to any of them.
@@ -69,7 +70,9 @@ class QuickScreen extends ConsumerWidget {
           _Tile(
             glyph: const _WatchGlyph(),
             title: tx('Stopwatch'),
-            sub: tx('Laps, splits, no workout attached'),
+            // It keeps running once started, so say so where you left it.
+            sub: ref.watch(watchProvider).running ? tx('Still running') : tx('Laps, splits, no workout attached'),
+            subColor: ref.watch(watchProvider).running ? BoltColors.neon : null,
             wide: true,
             onTap: () => _leave(context, (root) => root.push('/stopwatch')),
           ),
@@ -80,12 +83,20 @@ class QuickScreen extends ConsumerWidget {
 }
 
 class _Tile extends StatelessWidget {
-  const _Tile({required this.glyph, required this.title, required this.sub, required this.onTap, this.wide = false});
+  const _Tile({
+    required this.glyph,
+    required this.title,
+    required this.sub,
+    required this.onTap,
+    this.subColor,
+    this.wide = false,
+  });
 
   final Widget glyph;
   final String title;
   final String sub;
   final VoidCallback onTap;
+  final Color? subColor;
   final bool wide;
 
   @override
@@ -100,7 +111,7 @@ class _Tile extends StatelessWidget {
           children: [
             Text(title, style: BoltText.a(17, weight: 800)),
             const SizedBox(height: 2),
-            Text(sub, style: BoltText.a(12, color: BoltColors.muted)),
+            Text(sub, style: BoltText.a(12, color: subColor ?? BoltColors.muted)),
           ],
         ),
       ),
