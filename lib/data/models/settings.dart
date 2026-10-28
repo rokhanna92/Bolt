@@ -1,5 +1,20 @@
 import 'board.dart';
 
+/// One go at the key screen: which key, when, and how it went (`in`,
+/// `pending` for a coach key the owner has not switched on, or `bad`).
+class KeyEntry {
+  KeyEntry({required this.name, required this.at, required this.how});
+
+  final String name;
+  final DateTime at;
+  final String how;
+
+  Map<String, dynamic> toJson() => {'name': name, 'at': at.toIso8601String(), 'how': how};
+
+  factory KeyEntry.fromJson(Map<String, dynamic> j) =>
+      KeyEntry(name: j['name'] as String? ?? '', at: DateTime.parse(j['at'] as String), how: j['how'] as String? ?? '');
+}
+
 class AppSettings {
   AppSettings({
     this.remind = true,
@@ -19,9 +34,14 @@ class AppSettings {
     this.countdown = true,
     this.volumeLog = true,
     this.rankSeen,
+    this.keyGen = 0,
     Board? board,
     List<String>? hintsSeen,
+    List<int>? coachKeysOn,
+    List<KeyEntry>? keyLog,
   }) : hintsSeen = hintsSeen ?? [],
+       coachKeysOn = coachKeysOn ?? [],
+       keyLog = keyLog ?? [],
        board = board ?? Board();
 
   /// Session reminders, 2 hours before a planned session.
@@ -76,6 +96,17 @@ class AppSettings {
   /// Highest rank step already celebrated.
   int? rankSeen;
 
+  /// The key generation this phone last got through. Below `kKeyGen` the app
+  /// asks for a key again before it opens.
+  int keyGen;
+
+  /// Coach keys the owner has switched on, numbered as in `licenses.dart`. A
+  /// coach key that is not in here is recognised but waits for activation.
+  final List<int> coachKeysOn;
+
+  /// Every go at the key screen, oldest first, trimmed to the last 60.
+  final List<KeyEntry> keyLog;
+
   /// The owner's reminder times and pushes, as last read from notices.json.
   Board board;
 
@@ -98,6 +129,9 @@ class AppSettings {
     'countdown': countdown,
     'volumeLog': volumeLog,
     'rankSeen': rankSeen,
+    'keyGen': keyGen,
+    'coachKeysOn': coachKeysOn,
+    'keyLog': [for (final e in keyLog) e.toJson()],
     'board': board.toJson(),
   };
 
@@ -120,6 +154,9 @@ class AppSettings {
     countdown: j['countdown'] as bool? ?? true,
     volumeLog: j['volumeLog'] as bool? ?? true,
     rankSeen: j['rankSeen'] as int?,
+    keyGen: j['keyGen'] as int? ?? 0,
+    coachKeysOn: [for (final x in j['coachKeysOn'] as List? ?? const []) x as int],
+    keyLog: [for (final x in j['keyLog'] as List? ?? const []) KeyEntry.fromJson(x as Map<String, dynamic>)],
     board: Board.fromJson(j['board']),
   );
 }

@@ -14,9 +14,11 @@ import 'models/custom_split.dart';
 import 'models/exercise.dart';
 import 'models/people.dart';
 import 'models/session.dart';
+import 'models/settings.dart';
 import 'models/template.dart';
 import 'models/visit.dart';
 import 'level.dart';
+import 'licenses.dart';
 import 'lifts.dart';
 import 'programs.dart';
 import 'rank.dart';
@@ -2055,6 +2057,36 @@ class BoltStore extends Notifier<BoltData> {
     }
     _commit();
     if (key == 'remind' || key == 'brief') syncSessionReminders();
+  }
+
+  /// True while this phone has to enter its key before the app opens.
+  bool get needsKey => state.account != null && state.settings.keyGen < kKeyGen;
+
+  /// A key typed on the key screen. Admin keys and switched-on coach keys
+  /// open the app; a coach key the owner has not switched on yet waits.
+  /// Every go is logged for the owner, wrong ones included.
+  KeyResult enterKey(String code) {
+    final s = state.settings;
+    final license = ref.read(licenseProvider)(code);
+    final slot = coachSlot(code);
+    final how = switch (license) {
+      null => KeyResult.wrong,
+      License.coach when !s.coachKeysOn.contains(slot) => KeyResult.pending,
+      _ => KeyResult.ok,
+    };
+    s.keyLog.add(KeyEntry(name: keyName(code) ?? 'Unknown', at: now, how: how.name));
+    if (s.keyLog.length > 60) s.keyLog.removeRange(0, s.keyLog.length - 60);
+    if (how == KeyResult.ok) s.keyGen = kKeyGen;
+    _commit();
+    return how;
+  }
+
+  /// Owner's switch for coach key [slot]: on lets that key into the app, off
+  /// leaves it waiting.
+  void toggleCoachKey(int slot) {
+    final on = state.settings.coachKeysOn;
+    on.contains(slot) ? on.remove(slot) : on.add(slot);
+    _commit();
   }
 
   void toggleUnits() {
