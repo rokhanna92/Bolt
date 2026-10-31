@@ -246,14 +246,16 @@ class RestTimerService : Service() {
         val done = ((totalMs - left).toDouble() / totalMs).coerceIn(0.0, 1.0)
         val b = if (Build.VERSION.SDK_INT >= 26) Notification.Builder(this, CHANNEL) else @Suppress("DEPRECATION") Notification.Builder(this)
         b.setSmallIcon(R.drawable.ic_stat_bolt)
-            .setContentTitle(title)
+            // The countdown is drawn into the title rather than left to
+            // setUsesChronometer(), which Android butts straight against the
+            // title with no gap ("Rest01:17"). This service already rebuilds
+            // the notification every second, so it costs nothing to own it.
+            .setContentTitle("$title · ${clock(left)}")
             .setContentText(body)
             .setColor(0xFFC6FF1A.toInt())
             .setOngoing(true)
             .setOnlyAlertOnce(true)
-            .setShowWhen(true)
-            .setWhen(end)
-            .setUsesChronometer(true)
+            .setShowWhen(false)
             .setCategory(Notification.CATEGORY_STOPWATCH)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setContentIntent(
@@ -264,7 +266,6 @@ class RestTimerService : Service() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 ),
             )
-        if (Build.VERSION.SDK_INT >= 24) b.setChronometerCountDown(true)
         if (rest) {
             b.addAction(Notification.Action.Builder(null, minus, action(ADD, -15, 1)).build())
             b.addAction(Notification.Action.Builder(null, plus, action(ADD, 15, 2)).build())
