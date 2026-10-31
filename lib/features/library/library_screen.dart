@@ -86,7 +86,7 @@ class LibraryScreen extends ConsumerWidget {
           child: Tap(
             onTap: () => context.push('/guide'),
             child: Text(
-              tx('Learn: styles, muscles, form & supplements →'),
+              tx('Atlas: styles, muscles, form & supplements →'),
               style: BoltText.a(13, weight: 700, color: BoltColors.neon),
             ),
           ),

@@ -444,7 +444,11 @@ class CheckIns extends StatelessWidget {
           if (recent.isEmpty) ...[
             const SizedBox(height: 10),
             Text(
-              tx('Answer the three questions on Today and every day shows up here.'),
+              // An older check-in still names its day in the strip above,
+              // so say why the last two weeks are empty.
+              readiness.isEmpty
+                  ? tx('Answer the three questions on Today and every day shows up here.')
+                  : tx('None in the last two weeks. Answer the questions on Today and the days show up here.'),
               style: BoltText.a(12, color: BoltColors.muted, height: 1.35),
             ),
           ] else

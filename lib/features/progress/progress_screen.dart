@@ -63,18 +63,20 @@ class ProgressScreen extends ConsumerWidget {
             const SizedBox(height: 14),
             Text(tx('Your training'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
             const SizedBox(height: 12),
+            // Two rows that open pages, alike, the month in neon.
             Tap(
               onTap: () => context.push('/wrap'),
               child: BoltBox(
-                color: BoltColors.neon,
+                color: BoltColors.surface1,
+                stroke: const Stroke(BoltColors.neon, 1.5),
                 radius: 14,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(tx('Your month in Bolt'), style: BoltText.a(14, weight: 800, color: BoltColors.ink)),
+                      child: Text(tx('Your month in Bolt'), style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
                     ),
-                    Text('→', style: BoltText.a(16, weight: 800, color: BoltColors.ink)),
+                    const Chevron(size: 16),
                   ],
                 ),
               ),
@@ -108,30 +110,45 @@ class ProgressScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 10),
-            if (store.currentSeason() case final s?)
-              SeasonCard(s: s, plan: plan, today: dk(now))
-            else
-              OutlineButton(
-                label: tx('+ Start a season'),
-                height: 48,
-                radius: 14,
-                onTap: () => showBoltSheet<void>(context, (_) => const SeasonSheet()),
-              ),
-            const SizedBox(height: 16),
-            if (c != null)
+            if (store.currentSeason() case final s?) ...[
+              SeasonCard(s: s, plan: plan, today: dk(now)),
+              const SizedBox(height: 10),
+            ],
+            if (c != null) ...[
               ChallengeCard(
                 c: c,
                 progress: challengeProgress(c, plan, visits),
                 now: now,
                 onTap: solo ? () => showBoltSheet<void>(context, (_) => ChallengeSheet(tid: t.id)) : null,
-              )
-            else if (solo)
-              OutlineButton(
-                label: tx('+ Set a challenge'),
-                height: 48,
-                radius: 14,
-                onTap: () => showBoltSheet<void>(context, (_) => ChallengeSheet(tid: t.id)),
               ),
+              const SizedBox(height: 10),
+            ],
+            // What can still be started, side by side rather than stacked.
+            Row(
+              children: [
+                if (store.currentSeason() == null)
+                  Expanded(
+                    child: OutlineButton(
+                      label: tx('+ Start a season'),
+                      height: 46,
+                      radius: 14,
+                      fontSize: 13,
+                      onTap: () => showBoltSheet<void>(context, (_) => const SeasonSheet()),
+                    ),
+                  ),
+                if (store.currentSeason() == null && c == null && solo) const SizedBox(width: 8),
+                if (c == null && solo)
+                  Expanded(
+                    child: OutlineButton(
+                      label: tx('+ Set a challenge'),
+                      height: 46,
+                      radius: 14,
+                      fontSize: 13,
+                      onTap: () => showBoltSheet<void>(context, (_) => ChallengeSheet(tid: t.id)),
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 22),
             SectionTitle(tx('Last week')),
             const SizedBox(height: 10),
@@ -144,7 +161,8 @@ class ProgressScreen extends ConsumerWidget {
               style: BoltText.a(12, color: BoltColors.muted),
             ),
             const SizedBox(height: 10),
-            RecoveryCard(plan: plan, today: dk(now), big: true),
+            // Full size once there is something to show.
+            RecoveryCard(plan: plan, today: dk(now), big: lastTrained(plan, dk(now)).isNotEmpty),
             const SizedBox(height: 24),
             SectionTitle(tx('Check-ins')),
             const SizedBox(height: 4),
@@ -158,17 +176,20 @@ class ProgressScreen extends ConsumerWidget {
             SectionTitle(tx('Muscle volume this week')),
             const SizedBox(height: 4),
             Text(
-              tx('Hard sets per muscle in finished workouts, against the weekly range from Learn.'),
+              tx('Hard sets per muscle in finished workouts, against the weekly range from Atlas.'),
               style: BoltText.a(12, color: BoltColors.muted),
             ),
-            const SizedBox(height: 10),
-            BoltBox(
-              color: BoltColors.surface1,
-              stroke: const Stroke(BoltColors.lineSoft),
-              radius: 18,
-              padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
-              child: MuscleMap(sets: muscleSets(plan, dk(ws), dk(addDays(ws, 7)))),
-            ),
+            // An empty map says nothing the zero bars below do not.
+            if (muscleSets(plan, dk(ws), dk(addDays(ws, 7))).values.any((v) => v > 0)) ...[
+              const SizedBox(height: 10),
+              BoltBox(
+                color: BoltColors.surface1,
+                stroke: const Stroke(BoltColors.lineSoft),
+                radius: 18,
+                padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
+                child: MuscleMap(sets: muscleSets(plan, dk(ws), dk(addDays(ws, 7)))),
+              ),
+            ],
             const SizedBox(height: 8),
             _Volume(sets: muscleSets(plan, dk(ws), dk(addDays(ws, 7)))),
             if (t.liftGoals.isNotEmpty) ...[
@@ -248,7 +269,7 @@ class RecapTiles extends StatelessWidget {
         StatRow(
           children: [
             tile('${r.done}/${r.planned}', tx('WORKOUTS')),
-            tile(r.gymMins == 0 ? '-' : totalTime(r.gymMins), tx('GYM TIME')),
+            tile(totalTime(r.gymMins), tx('GYM TIME')),
             tile('${r.sets}', tx('SETS')),
           ],
         ),
