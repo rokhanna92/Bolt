@@ -104,6 +104,8 @@ List<CalCell> buildCalendar({
       stroke = const Stroke.dotted(BoltColors.neon, 1.5);
       lab = BoltColors.neon;
     }
+    // An empty today shows its number in neon, as well as the dot.
+    if (p == null && k == today && inM) num = BoltColors.neon;
     final ds = dots[k] ?? const <SessionStatus>[];
     if (ds.isNotEmpty && inM && !past) num = BoltColors.text;
     if (moveFrom != null && p == null && !past && inM) bg = const Color(0x17C6FF1A);
@@ -228,14 +230,19 @@ class CalendarGrid extends StatelessWidget {
                     ],
                   ),
                 ),
+                // Today's dot sits centred above the number, clear of the
+                // rounded corner.
                 if (c.today)
                   Positioned(
-                    top: 4,
-                    right: 5,
-                    child: Container(
-                      width: 5,
-                      height: 5,
-                      decoration: BoxDecoration(color: c.todayColor, shape: BoxShape.circle),
+                    top: 5,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(color: c.todayColor, shape: BoxShape.circle),
+                      ),
                     ),
                   ),
               ],
@@ -347,20 +354,37 @@ class Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: gap,
-      runSpacing: gap,
-      children: [
-        for (final l in items)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              BoltBox(width: 12, height: 12, borderBox: true, radius: 4, color: l.bg, stroke: l.stroke),
-              const SizedBox(width: 6),
-              Text(tx(l.label), style: BoltText.a(11, color: BoltColors.muted)),
-            ],
-          ),
-      ],
+    // Even columns, so no item is left alone on a second line.
+    return LayoutBuilder(
+      builder: (context, box) {
+        final cols = box.maxWidth >= 480 ? 3 : 2;
+        final w = (box.maxWidth - gap * (cols - 1)) / cols;
+        return Wrap(
+          spacing: gap,
+          runSpacing: 8,
+          children: [
+            for (final l in items)
+              SizedBox(
+                width: w,
+                child: Row(
+                  children: [
+                    // Big enough that dotted, dashed and solid edges read apart.
+                    BoltBox(width: 16, height: 16, borderBox: true, radius: 5, color: l.bg, stroke: l.stroke),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        tx(l.label),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: BoltText.a(12, color: BoltColors.muted),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

@@ -310,10 +310,16 @@ class _QuietAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Tap(
     onTap: onTap,
-    child: SizedBox(
-      height: 42,
-      child: Center(
-        child: Text(label, style: BoltText.a(13, weight: 700, color: color)),
+    child: Container(
+      height: 44,
+      // Clear of the divider between the two, even in longer Serbian.
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      alignment: Alignment.center,
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: BoltText.a(13, weight: 700, color: color),
       ),
     ),
   );

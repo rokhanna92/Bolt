@@ -34,8 +34,17 @@ class PlanScreen extends ConsumerWidget {
     final plan = store.plan(t.id);
     final today = store.today;
     final moving = moveFrom == null ? null : plan[moveFrom];
-    final up = plan.keys.where((k) => k.compareTo(today) >= 0 && plan[k]!.status != SessionStatus.draft).toList()
-      ..sort();
+    // Done days are behind you, today's included.
+    final up =
+        plan.keys
+            .where(
+              (k) =>
+                  k.compareTo(today) >= 0 &&
+                  plan[k]!.status != SessionStatus.draft &&
+                  plan[k]!.status != SessionStatus.done,
+            )
+            .toList()
+          ..sort();
     final cells = buildCalendar(
       month: month,
       plan: plan,
@@ -182,33 +191,30 @@ class PlanScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
+          // Three equal pills: they open sheets, and a trailing "…" read
+          // like text cut short.
           Row(
             children: [
-              Tap(
-                onTap: () => showBoltSheet<void>(context, (_) => DeloadSheet(tid: t.id)),
-                child: Text(tx('Deload week…'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
-              ),
-              const SizedBox(width: 16),
-              Tap(
-                onTap: () => showBoltSheet<void>(context, (_) => const AwaySheet()),
-                child: Text(
-                  t.stats.away.contains(dk(store.mon0)) ? tx('Away this week') : tx('Away…'),
-                  style: BoltText.a(13, weight: 700, color: BoltColors.neon),
+              Expanded(
+                child: _PlanPill(
+                  label: tx('Deload week'),
+                  onTap: () => showBoltSheet<void>(context, (_) => DeloadSheet(tid: t.id)),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 6),
               Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Tap(
-                    onTap: () => showBoltSheet<void>(context, (_) => ProgramSheet(tid: t.id), maxHeight: .92),
-                    child: Text(
-                      programWeekText(store, t.id) ?? tx('Programs…'),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: BoltText.a(13, weight: 700, color: BoltColors.neon),
-                    ),
-                  ),
+                child: _PlanPill(
+                  label: t.stats.away.contains(dk(store.mon0)) ? tx('Away this week') : tx('Away'),
+                  on: t.stats.away.contains(dk(store.mon0)),
+                  onTap: () => showBoltSheet<void>(context, (_) => const AwaySheet()),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: _PlanPill(
+                  label: programWeekText(store, t.id) ?? tx('Programs'),
+                  on: programWeekText(store, t.id) != null,
+                  onTap: () => showBoltSheet<void>(context, (_) => ProgramSheet(tid: t.id), maxHeight: .92),
                 ),
               ),
             ],
@@ -275,6 +281,37 @@ class _UpRow extends StatelessWidget {
             const SizedBox(width: 12),
             StatusPill(status: session.status, label: traineeLabel(session.status)),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A small outlined pill that opens a planning sheet; neon while it is on.
+class _PlanPill extends StatelessWidget {
+  const _PlanPill({required this.label, required this.onTap, this.on = false});
+
+  final String label;
+  final VoidCallback onTap;
+  final bool on;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tap(
+      onTap: onTap,
+      scale: .96,
+      child: BoltBox(
+        height: 40,
+        radius: BoltRadii.pill,
+        stroke: Stroke(on ? BoltColors.neon : BoltColors.line, on ? 1.5 : 1),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        alignment: Alignment.center,
+        borderBox: true,
+        child: Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: BoltText.a(13, weight: 700, color: on ? BoltColors.neon : BoltColors.textSoft),
         ),
       ),
     );

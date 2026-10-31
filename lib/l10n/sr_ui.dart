@@ -788,6 +788,7 @@ const kSrUi = <String, String>{
   'AWAY': 'ODSUSTVO',
   'Clear': 'Obriši',
   'Away this week': 'Odsutan ove nedelje',
+  'Away': 'Odsustvo',
   'Away…': 'Odsustvo…',
   'Away this week. Your streak is safe, train if you feel like it.': 'Odsutan si ove nedelje. Niz je bezbedan, treniraj ako ti se da.',
   'Your best gym times': 'Tvoja najbolja vremena u teretani',
