@@ -62,10 +62,14 @@ class _ToastLayerState extends ConsumerState<ToastLayer> {
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: const [BoxShadow(color: Color(0x80000000), blurRadius: 30, offset: Offset(0, 10))],
                       ),
-                      child: Text(
-                        t.text,
-                        textAlign: TextAlign.center,
-                        style: BoltText.a(13, weight: 700, color: BoltColors.ink),
+                      // Read out as it appears, for screen readers.
+                      child: Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          t.text,
+                          textAlign: TextAlign.center,
+                          style: BoltText.a(13, weight: 700, color: BoltColors.ink),
+                        ),
                       ),
                     ),
                   ),

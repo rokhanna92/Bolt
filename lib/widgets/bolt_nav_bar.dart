@@ -143,7 +143,7 @@ class BoltNavBar extends ConsumerWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: c, width: 1.8),
                     ),
-                    child: Text(it.initials!, style: BoltText.a(8, weight: 900, color: c, height: 1)),
+                    child: Text(it.initials!, style: BoltText.a(10, weight: 900, color: c, height: 1)),
                   )
                 : BoltIcon(it.icon!, color: c),
           ),

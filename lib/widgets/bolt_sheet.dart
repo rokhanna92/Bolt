@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+
 import '../theme/tokens.dart';
 
 /// Modal bottom sheet styled like the prototype: slides up 350 ms on
@@ -22,7 +24,7 @@ class BoltSheetRoute<T> extends PopupRoute<T> {
   bool get barrierDismissible => true;
 
   @override
-  String get barrierLabel => 'Close';
+  String get barrierLabel => tx('Close');
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 350);
