@@ -86,12 +86,7 @@ class _KeyScreenState extends ConsumerState<KeyScreen> {
           Text(_error!, style: BoltText.a(13, weight: 600, color: BoltColors.warn)),
         ],
         const SizedBox(height: 22),
-        NeonButton(
-          label: tx('Open Bolt'),
-          color: ok ? BoltColors.neon : BoltColors.line,
-          textColor: ok ? BoltColors.ink : BoltColors.muted,
-          onTap: ok ? _enter : null,
-        ),
+        NeonButton(label: tx('Open Bolt'), onTap: ok ? _enter : null),
       ],
     );
   }

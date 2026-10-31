@@ -213,11 +213,7 @@ class _ReadinessCardState extends ConsumerState<ReadinessCard> {
           ],
         ),
         const SizedBox(height: 14),
-        AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
-          opacity: _complete ? 1 : .35,
-          child: NeonButton(label: tx('Save check-in'), height: 48, onTap: _complete ? _save : null),
-        ),
+        NeonButton(label: tx('Save check-in'), height: 48, onTap: _complete ? _save : null),
       ],
     );
   }

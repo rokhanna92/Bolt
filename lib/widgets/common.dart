@@ -295,19 +295,29 @@ class NeonButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // No onTap means it cannot be pressed yet: grey, so it never looks ready.
+    final on = onTap != null;
     return Tap(
       onTap: onTap,
-      scale: scale,
-      child: BoltBox(
+      scale: on ? scale : 1,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         height: height,
-        radius: radius,
-        color: color,
         alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(color: on ? color : BoltColors.line, borderRadius: BorderRadius.circular(radius)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (leading != null) ...[leading!, const SizedBox(width: 10)],
-            Text(label, style: BoltText.a(fontSize, weight: 800, color: textColor)),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: BoltText.a(fontSize, weight: 800, color: on ? textColor : BoltColors.muted),
+              ),
+            ),
           ],
         ),
       ),
@@ -349,8 +359,11 @@ class OutlineButton extends StatelessWidget {
         radius: radius,
         stroke: Stroke(borderColor ?? color, borderWidth),
         alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Text(
           label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: BoltText.a(fontSize, weight: weight, color: color),
         ),
       ),
