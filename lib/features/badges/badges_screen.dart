@@ -34,6 +34,7 @@ class BadgesScreen extends ConsumerWidget {
 
     return BoltPage(
       child: ScreenScroll(
+        top: 16,
         bottom: 40,
         children: [
           Row(

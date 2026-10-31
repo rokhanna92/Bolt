@@ -57,7 +57,7 @@ class LearnScreen extends ConsumerWidget {
     return BoltPage(
       // Built lazily: the exercise tab alone holds every exercise.
       child: ListView(
-        padding: EdgeInsets.fromLTRB(20, insets.top + 20, 20, 92 + insets.bottom),
+        padding: EdgeInsets.fromLTRB(20, insets.top + 16, 20, 92 + insets.bottom),
         children: [
           Row(
             children: [
