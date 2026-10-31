@@ -12,6 +12,7 @@ import '../data/seed/templates.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
 import 'box.dart';
+import 'common.dart';
 import 'swap_sheet.dart';
 import 'tap.dart';
 
@@ -55,8 +56,9 @@ class ExerciseRows extends ConsumerWidget {
     final t = trainee;
     final shown = t == null ? store.unit(e.load) : loadText(t, store.plan(t.id), e, metric: store.metric);
     final load = e.load.isNotEmpty && e.load != '—' ? ' · $shown' : '';
+    final how = onHow != null && kHow.containsKey(e.name);
     return Container(
-      padding: EdgeInsets.symmetric(vertical: compact ? 9 : 10),
+      padding: EdgeInsets.symmetric(vertical: compact ? 4 : 5),
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: BoltColors.divider)),
       ),
@@ -71,39 +73,37 @@ class ExerciseRows extends ConsumerWidget {
                 child: Text(pad(i + 1), style: BoltText.m(11, color: BoltColors.muted3)),
               ),
               const SizedBox(width: 10),
+              // Sets and weight sit under the name, so the buttons on the
+              // right stay in one column whatever the numbers are.
               Expanded(
                 child: Tap(
-                  onTap: onHow != null && kHow.containsKey(e.name) ? () => onHow!(e.name) : null,
-                  child: Text(tx(e.name), style: BoltText.a(compact ? 14 : 15, weight: 700)),
-                ),
-              ),
-              if (onHow != null && kHow.containsKey(e.name)) ...[
-                const SizedBox(width: 10),
-                Tap(
-                  onTap: () => onHow!(e.name),
-                  child: BoltBox(
-                    width: 24,
-                    height: 24,
-                    circle: true,
-                    stroke: const Stroke(BoltColors.line),
-                    alignment: Alignment.center,
-                    child: Text(tx('i'), style: BoltText.a(11, weight: 800, color: BoltColors.neon, height: 1)),
+                  onTap: how ? () => onHow!(e.name) : null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(tx(e.name), style: BoltText.a(compact ? 14 : 15, weight: 700)),
+                      const SizedBox(height: 2),
+                      Text('${e.sets} × ${e.reps}$load', style: BoltText.m(11, color: BoltColors.muted)),
+                    ],
                   ),
                 ),
-              ],
-              if (swapAny && swapOptions(e, t).isNotEmpty) ...[
-                const SizedBox(width: 8),
-                SwapIcon(onTap: () => showSwapSheet(context, e, t), size: 24),
-              ],
-              const SizedBox(width: 10),
-              Text('${e.sets} × ${e.reps}$load', style: BoltText.m(11, color: BoltColors.muted)),
+              ),
+              if (onHow != null)
+                how ? InfoIcon(onTap: () => onHow!(e.name)) : const SizedBox(width: CircleIconButton.hit),
+              if (swapAny)
+                swapOptions(e, t).isNotEmpty
+                    ? SwapIcon(onTap: () => showSwapSheet(context, e, t))
+                    : const SizedBox(width: CircleIconButton.hit),
             ],
           ),
           if (e.perSet)
             Padding(
               padding: const EdgeInsets.only(left: 26, top: 4),
               child: Text(
-                [for (var j = 0; j < e.sets; j++) [store.unit(e.loadFor(j)), e.repsFor(j)].where((x) => x.isNotEmpty).join(' × ')].join('  ·  '),
+                [
+                  for (var j = 0; j < e.sets; j++)
+                    [store.unit(e.loadFor(j)), e.repsFor(j)].where((x) => x.isNotEmpty).join(' × '),
+                ].join('  ·  '),
                 style: BoltText.m(10, color: BoltColors.neon),
               ),
             ),

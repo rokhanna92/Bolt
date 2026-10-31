@@ -433,7 +433,7 @@ class _FloorViewState extends State<FloorView> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('⇄', style: BoltText.a(13, weight: 800, color: BoltColors.neon, height: 1)),
+                      const BoltIcon('swap', size: 15, color: BoltColors.neon),
                       const SizedBox(width: 7),
                       Text(tx('Swap exercise'), style: BoltText.a(13, weight: 700, color: BoltColors.textSoft)),
                     ],

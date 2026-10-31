@@ -619,26 +619,16 @@ class _ExerciseCard extends ConsumerWidget {
                   child: Text(tx(e.name), style: BoltText.a(16, weight: 800)),
                 ),
               ),
-              if (kHow.containsKey(e.name)) ...[
-                const SizedBox(width: 10),
-                Tap(
-                  onTap: () => showExerciseSheet(e.name),
-                  child: BoltBox(
-                    width: 28,
-                    height: 28,
-                    circle: true,
-                    stroke: const Stroke(BoltColors.line),
-                    alignment: Alignment.center,
-                    child: Text(tx('i'), style: BoltText.a(13, weight: 800, color: BoltColors.neon, height: 1)),
-                  ),
-                ),
-              ],
-              if (canSwapNow(e, workout, trainee)) ...[
-                const SizedBox(width: 8),
-                SwapIcon(onTap: () => showSwapSheet(context, e, trainee)),
-              ],
               const SizedBox(width: 10),
               Text(load, style: BoltText.m(12, color: BoltColors.muted)),
+              // Fixed slots, so the buttons line up down the list even once
+              // an exercise can no longer be swapped.
+              kHow.containsKey(e.name)
+                  ? InfoIcon(onTap: () => showExerciseSheet(e.name))
+                  : const SizedBox(width: CircleIconButton.hit),
+              canSwapNow(e, workout, trainee)
+                  ? SwapIcon(onTap: () => showSwapSheet(context, e, trainee))
+                  : const SizedBox(width: CircleIconButton.hit),
             ],
           ),
           if (h != null) ...[

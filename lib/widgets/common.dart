@@ -464,6 +464,62 @@ class _PulseDotState extends State<PulseDot> with SingleTickerProviderStateMixin
   }
 }
 
+/// A small outlined circle (how-to "i", swap) inside a 44 px hit area, so
+/// rows of them line up and stay easy to hit.
+class CircleIconButton extends StatelessWidget {
+  const CircleIconButton({super.key, required this.onTap, required this.child, this.size = 28, this.label});
+
+  static const hit = 44.0;
+
+  final VoidCallback onTap;
+  final Widget child;
+  final double size;
+
+  /// Read out to screen readers.
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: label,
+      child: Tap(
+        onTap: onTap,
+        child: SizedBox(
+          width: hit,
+          height: hit,
+          child: Center(
+            child: BoltBox(
+              width: size,
+              height: size,
+              circle: true,
+              borderBox: true,
+              stroke: const Stroke(BoltColors.line),
+              alignment: Alignment.center,
+              child: child,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The neon "i" that opens an exercise's how-to.
+class InfoIcon extends StatelessWidget {
+  const InfoIcon({super.key, required this.onTap, this.size = 28});
+
+  final VoidCallback onTap;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => CircleIconButton(
+    onTap: onTap,
+    size: size,
+    label: tx('How to'),
+    child: Text('i', style: BoltText.a(size * .46, weight: 800, color: BoltColors.neon, height: 1)),
+  );
+}
+
 /// Mono "›" chevron in neon.
 class Chevron extends StatelessWidget {
   const Chevron({super.key, this.size = 20});

@@ -82,7 +82,7 @@ class SwapSheet extends ConsumerWidget {
   }
 }
 
-/// Small "⇄" button that opens the swap picker.
+/// Small swap button that opens the swap picker.
 class SwapIcon extends StatelessWidget {
   const SwapIcon({super.key, required this.onTap, this.size = 28});
 
@@ -90,19 +90,10 @@ class SwapIcon extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) {
-    return Tap(
-      onTap: onTap,
-      child: Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: BoltColors.line),
-        ),
-        child: Text('⇄', style: BoltText.a(size * .45, weight: 800, color: BoltColors.neon, height: 1)),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => CircleIconButton(
+    onTap: onTap,
+    size: size,
+    label: tx('Swap exercise'),
+    child: BoltIcon('swap', size: size * .52, color: BoltColors.neon),
+  );
 }

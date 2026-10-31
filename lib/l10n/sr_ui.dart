@@ -1179,4 +1179,5 @@ const kSrUi = <String, String>{
   'RUNNING': 'RADI',
   'STOPPED': 'ZAUSTAVLJENO',
   'Swap exercise': 'Zameni vežbu',
+  'How to': 'Kako se radi',
 };
