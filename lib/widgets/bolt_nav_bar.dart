@@ -9,10 +9,13 @@ import 'common.dart';
 import 'tap.dart';
 
 class NavItem {
-  const NavItem({required this.label, this.icon, this.initials, this.pillWidth = 52});
+  const NavItem({required this.label, this.icon, this.initials, this.pillWidth = 52, this.dot = false});
 
   final String label;
   final String? icon;
+
+  /// A neon dot on the icon: something new waits there (a Bolt update).
+  final bool dot;
 
   /// Shown in a small ring instead of an icon (Me / Profile).
   final String? initials;
@@ -121,6 +124,7 @@ class BoltNavBar extends ConsumerWidget {
     final c = on ? BoltColors.neon : BoltColors.muted;
     return Semantics(
       label: it.label,
+      hint: it.dot ? tx('New version') : null,
       selected: on,
       child: Tap(
         onTap: () => onTap(i),
@@ -134,18 +138,37 @@ class BoltNavBar extends ConsumerWidget {
               color: on ? const Color(0x24C6FF1A) : const Color(0x00C6FF1A),
               borderRadius: BorderRadius.circular(99),
             ),
-            child: it.initials != null
-                ? Container(
-                    width: 25.6,
-                    height: 25.6,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: c, width: 1.8),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                it.initials != null
+                    ? Container(
+                        width: 25.6,
+                        height: 25.6,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: c, width: 1.8),
+                        ),
+                        child: Text(it.initials!, style: BoltText.a(10, weight: 900, color: c, height: 1)),
+                      )
+                    : BoltIcon(it.icon!, color: c),
+                if (it.dot)
+                  Positioned(
+                    top: -3,
+                    right: -4,
+                    child: Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(
+                        color: BoltColors.neon,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: BoltColors.ink, width: 2),
+                      ),
                     ),
-                    child: Text(it.initials!, style: BoltText.a(10, weight: 900, color: c, height: 1)),
-                  )
-                : BoltIcon(it.icon!, color: c),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

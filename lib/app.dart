@@ -11,6 +11,7 @@ import 'data/level.dart';
 import 'data/models/session.dart';
 import 'data/rules.dart';
 import 'features/progress/recovery_card.dart' show readyMuscles;
+import 'features/updates/update_sheet.dart' show newReleaseProvider;
 import 'services/home_widget.dart';
 import 'services/notice_board.dart';
 import 'services/shortcuts.dart';
@@ -118,6 +119,7 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
       store.syncBroadcasts();
       store.syncGymTimer();
       _refreshBoard();
+      ref.read(newReleaseProvider.notifier).refresh();
       AppShortcuts.listen(openShortcut);
       _pushWidget();
     });
@@ -144,6 +146,7 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
     } else if (state == AppLifecycleState.resumed) {
       ref.read(boltProvider.notifier).autoCloseStale();
       _refreshBoard();
+      ref.read(newReleaseProvider.notifier).refresh();
     }
   }
 

@@ -17,6 +17,36 @@ final updaterProvider = Provider<Updater>((ref) => Updater());
 
 final installedProvider = FutureProvider<Installed>((ref) => ref.read(updaterProvider).installed());
 
+/// A newer Bolt on GitHub, found when Bolt opens or comes back, or null.
+/// It lights the dot on Me, the card on Today and the Update button.
+final newReleaseProvider = NotifierProvider<NewRelease, Release?>(NewRelease.new);
+
+class NewRelease extends Notifier<Release?> {
+  DateTime? _at;
+
+  @override
+  Release? build() => null;
+
+  /// Asks GitHub at most every 6 hours; a failed check keeps what was known.
+  Future<void> refresh() async {
+    final last = _at;
+    if (last != null && DateTime.now().difference(last).inHours < 6) return;
+    _at = DateTime.now();
+    set(await ref.read(updaterProvider).check());
+  }
+
+  void set(CheckResult r) {
+    switch (r) {
+      case UpdateFound(:final release):
+        state = release;
+      case UpToDate():
+        state = null;
+      case CheckFailed():
+        break;
+    }
+  }
+}
+
 /// "App" section on the profile: the installed version and the update button.
 class UpdateCard extends ConsumerWidget {
   const UpdateCard({super.key});
@@ -24,6 +54,7 @@ class UpdateCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final installed = ref.watch(installedProvider).value;
+    final fresh = ref.watch(newReleaseProvider);
     void open() => showBoltSheet<void>(context, (_) => const UpdateSheet());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -46,26 +77,83 @@ class UpdateCard extends ConsumerWidget {
                       Text(installed?.label ?? tx('Bolt'), style: BoltText.a(15, weight: 800)),
                       const SizedBox(height: 2),
                       Text(
-                        tx('Get the newest version without reinstalling'),
-                        style: BoltText.a(12, color: BoltColors.muted),
+                        fresh == null
+                            ? tx('Get the newest version without reinstalling')
+                            : tx('{version} is ready to install', {'version': 'Bolt ${fresh.version}'}),
+                        style: BoltText.a(12, color: fresh == null ? BoltColors.muted : BoltColors.neon),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Outlined: whether there is a new version is only known
-                // once the sheet has checked.
+                // Neon Update once a newer version is known, an outlined
+                // Check until then.
                 BoltBox(
                   radius: 12,
+                  color: fresh == null ? null : BoltColors.neon,
                   stroke: const Stroke(BoltColors.neon, 1.5),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  child: Text(tx('Check'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
+                  child: Text(
+                    fresh == null ? tx('Check') : tx('Update'),
+                    style: BoltText.a(13, weight: 800, color: fresh == null ? BoltColors.neon : BoltColors.ink),
+                  ),
                 ),
               ],
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+/// On Today while a newer Bolt is out: what it is and one tap to the update
+/// sheet. ✕ hides it for that version; the dot on Me stays until updated.
+class NewVersionCard extends ConsumerWidget {
+  const NewVersionCard({super.key, required this.release, required this.onClose});
+
+  final Release release;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(Color(0x73C6FF1A)),
+      radius: 18,
+      padding: const EdgeInsets.fromLTRB(16, 4, 4, 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Kicker(tx('NEW VERSION'), color: BoltColors.neon, weight: 700),
+                  const SizedBox(height: 4),
+                  Text(tx('Bolt {version} is out', {'version': release.version}), style: BoltText.a(16, weight: 800)),
+                  const SizedBox(height: 2),
+                  Text(tx('Your data stays on this phone.'), style: BoltText.a(12, color: BoltColors.muted)),
+                  const SizedBox(height: 12),
+                  Tap(
+                    onTap: () => showBoltSheet<void>(context, (_) => const UpdateSheet()),
+                    scale: .96,
+                    child: BoltBox(
+                      radius: 12,
+                      stroke: const Stroke(BoltColors.neon, 1.5),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      child: Text(tx('Update'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Tap(onTap: onClose, child: const CloseGlyph()),
+        ],
+      ),
     );
   }
 }
@@ -112,6 +200,7 @@ class _UpdateSheetState extends ConsumerState<UpdateSheet> with WidgetsBindingOb
     setState(() => _step = _Step.checking);
     final r = await _updater.check();
     if (!mounted) return;
+    ref.read(newReleaseProvider.notifier).set(r);
     setState(() {
       switch (r) {
         case UpToDate():

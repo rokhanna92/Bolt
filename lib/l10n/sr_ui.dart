@@ -1187,4 +1187,8 @@ const kSrUi = <String, String>{
   'Go back': 'Nazad',
   'Close': 'Zatvori',
   'Check': 'Proveri',
+  '{version} is ready to install': '{version} je spreman za instalaciju',
+  'Bolt {version} is out': 'Stigao je Bolt {version}',
+  'New version': 'Nova verzija',
+  'Your data stays on this phone.': 'Tvoji podaci ostaju na ovom telefonu.',
 };

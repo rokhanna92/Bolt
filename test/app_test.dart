@@ -1301,13 +1301,45 @@ void main() {
       ),
     );
     await onboard(tester, 'On my own', 'Dani');
+    // Found when Bolt opened: a card on Today and a dot on Me.
+    expect(find.text('Bolt 1.3.0 is out'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate((w) => w is Semantics && w.properties.label == 'Me' && w.properties.hint == 'New version'),
+      findsOneWidget,
+    );
     await tapTab(tester, 'Me');
     expect(find.text('ADMIN · VIEW AS'), findsNothing);
     expect(find.text('Bolt 1.2.0'), findsOneWidget);
-    await tapText(tester, 'Check');
+    expect(find.text('Bolt 1.3.0 is ready to install'), findsOneWidget);
+    await tapText(tester, 'Update');
     expect(find.text('BOLT 1.3.0'), findsOneWidget);
     expect(find.text('• Faster'), findsOneWidget);
     expect(find.text('Download and install'), findsOneWidget);
+    await unmount(tester);
+  });
+
+  testWidgets('the new version card closes for that version', (tester) async {
+    await pumpApp(
+      tester,
+      updater: FakeUpdater(
+        const UpdateFound(
+          Release(title: 'BOLT 1.3.0', version: '1.3.0', build: 4, notes: '', apkUrl: 'u', apkBytes: 1),
+        ),
+      ),
+    );
+    await onboard(tester, 'On my own', 'Dani');
+    expect(find.text('Bolt 1.3.0 is out'), findsOneWidget);
+    await tester.tap(find.descendant(of: find.byType(NewVersionCard), matching: find.byType(CloseGlyph)));
+    await settle(tester);
+    expect(find.text('Bolt 1.3.0 is out'), findsNothing);
+    await unmount(tester);
+  });
+
+  testWidgets('no dot or card when Bolt is up to date', (tester) async {
+    await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    expect(find.textContaining('is out'), findsNothing);
+    expect(find.byWidgetPredicate((w) => w is Semantics && w.properties.hint == 'New version'), findsNothing);
     await unmount(tester);
   });
 }

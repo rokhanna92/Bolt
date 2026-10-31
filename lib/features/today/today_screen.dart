@@ -36,6 +36,7 @@ import '../plan/free_day_sheet.dart';
 import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
 import '../sharing/import_sheet.dart';
 import '../rank/rank_screen.dart' show RankCard;
+import '../updates/update_sheet.dart' show NewVersionCard, newReleaseProvider;
 import 'level_card.dart';
 import 'readiness_card.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -193,6 +194,10 @@ class TodayScreen extends ConsumerWidget {
         if (_cheers(plan, d.settings.hintsSeen, today) case final c when c.isNotEmpty) ...[
           const SizedBox(height: 18),
           _CheerCard(keys: c, plan: plan, coach: coachName),
+        ],
+        if (ref.watch(newReleaseProvider) case final r? when !d.settings.hintsSeen.contains('update:${r.version}')) ...[
+          const SizedBox(height: 18),
+          NewVersionCard(release: r, onClose: () => store.dismissHint('update:${r.version}')),
         ],
         if (!d.settings.hintsSeen.contains(_newId)) ...[const SizedBox(height: 18), const _NewCard()],
         if (tp?.status != SessionStatus.done && d.workout?.key != today) ...[

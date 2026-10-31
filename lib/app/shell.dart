@@ -8,6 +8,7 @@ import '../data/models/bolt_data.dart';
 import '../services/haptics.dart';
 import '../widgets/bolt_nav_bar.dart';
 import '../widgets/common.dart';
+import '../features/updates/update_sheet.dart' show newReleaseProvider;
 
 /// Tab scaffold for one role: the active tab plus the bottom nav. Tabs keep
 /// their state; switching replays the screen-enter fade.
@@ -22,6 +23,7 @@ class BoltShell extends ConsumerWidget {
     final d = ref.watch(boltProvider);
     final id = d.account?.id ?? '';
     final trainee = role == Role.trainee;
+    final fresh = ref.watch(newReleaseProvider) != null;
     final name = trainee
         ? (ref.read(boltProvider.notifier).trOrNull(id)?.name ?? '')
         : ref.read(boltProvider.notifier).co(id).name;
@@ -30,13 +32,13 @@ class BoltShell extends ConsumerWidget {
             NavItem(label: tx('Today'), icon: 'barbell'),
             NavItem(label: tx('Plan'), icon: 'calendar'),
             NavItem(label: tx('Workouts'), icon: 'plate'),
-            NavItem(label: tx('Me'), initials: initials(name)),
+            NavItem(label: tx('Me'), initials: initials(name), dot: fresh),
           ]
         : [
             NavItem(label: tx('Trainees'), icon: 'group', pillWidth: 56),
             NavItem(label: tx('Schedule'), icon: 'schedule'),
             NavItem(label: tx('Library'), icon: 'plate', pillWidth: 56),
-            NavItem(label: tx('Profile'), initials: initials(name), pillWidth: 56),
+            NavItem(label: tx('Profile'), initials: initials(name), pillWidth: 56, dot: fresh),
           ];
     // Trainee branches: today, plan, gym, workouts, me. Coach branches: roster,
     // schedule, library, profile, calendar. The gym and the calendar have no
