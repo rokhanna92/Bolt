@@ -15,11 +15,15 @@ import 'motion.dart';
 import 'tap.dart';
 
 /// Page root: ink background, light status bar, Material ancestor for text.
+/// Content that scrolls up passes under [StatusScrim], not under the clock.
 class BoltPage extends StatelessWidget {
-  const BoltPage({super.key, required this.child, this.color = BoltColors.ink});
+  const BoltPage({super.key, required this.child, this.color = BoltColors.ink, this.scrim = true});
 
   final Widget child;
   final Color color;
+
+  /// False for pages that place their own [StatusScrim].
+  final bool scrim;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +33,50 @@ class BoltPage extends StatelessWidget {
         systemNavigationBarColor: Colors.transparent,
         systemNavigationBarContrastEnforced: false,
       ),
-      child: Material(color: color, child: child),
+      child: Material(
+        color: color,
+        child: scrim
+            ? Stack(
+                children: [
+                  Positioned.fill(child: child),
+                  StatusScrim(color: color),
+                ],
+              )
+            : child,
+      ),
+    );
+  }
+}
+
+/// The page color behind the status bar, fading out just below it.
+class StatusScrim extends StatelessWidget {
+  const StatusScrim({super.key, this.color = BoltColors.ink});
+
+  final Color color;
+
+  static const _fade = 14.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.paddingOf(context).top;
+    if (top == 0) return const SizedBox.shrink();
+    return Positioned(
+      left: 0,
+      right: 0,
+      top: 0,
+      height: top + _fade,
+      child: IgnorePointer(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [0, top / (top + _fade), 1],
+              colors: [color, color, color.withValues(alpha: 0)],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

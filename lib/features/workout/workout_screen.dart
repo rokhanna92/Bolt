@@ -391,6 +391,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
       LiftHint? hint(int i) => hintFor(plan, s.ex[i], widget.dayKey);
       final first = warmupFor(s.ex);
       return BoltPage(
+        scrim: false,
         child: FloorView(
           ex: s.ex,
           workout: w,

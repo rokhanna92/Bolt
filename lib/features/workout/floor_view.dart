@@ -692,6 +692,8 @@ class _FloorViewState extends State<FloorView> {
             ],
           ),
         ),
+        // Under the rest screen, which is dark to the top.
+        const StatusScrim(),
         Positioned.fill(
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 350),
