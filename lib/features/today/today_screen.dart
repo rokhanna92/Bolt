@@ -70,6 +70,9 @@ class TodayScreen extends ConsumerWidget {
     final noteBy = tp != null && tp.byCoach ? (coachName ?? tx('Coach')) : t.name;
     final off = daysOff(plan, d.visits[t.id] ?? const [], t.stats.rest, now);
     final rested = t.stats.rest.contains(today);
+    // The days-off nudge leads on its own: a rest-day card under it would
+    // say the opposite.
+    final nudge = off >= 3 && g == null && !t.stats.away.contains(dk(monday(now)));
 
     void train() {
       if (tp != null) {
@@ -130,9 +133,9 @@ class TodayScreen extends ConsumerWidget {
             ),
           ),
         ],
-        if (off >= 3 && g == null && !t.stats.away.contains(dk(monday(now)))) ...[
+        if (nudge) ...[
           const SizedBox(height: 18),
-          _OffCard(days: off, ready: readyMuscles(plan, today), onGo: train),
+          _OffCard(days: off, ready: readyMuscles(plan, today), onGo: tp == null ? train : null),
         ],
         if (t.stats.away.contains(dk(monday(now)))) ...[
           const SizedBox(height: 18),
@@ -177,7 +180,7 @@ class TodayScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           _WarmupCard(session: tp, today: today),
         ],
-        if (tp == null) ...[
+        if (tp == null && !nudge) ...[
           const SizedBox(height: 18),
           _RestHero(plan: plan, today: today, next: nextText, off: off, rested: rested, onTrain: train),
         ],
@@ -659,7 +662,8 @@ class _RestHero extends ConsumerWidget {
         borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
-            Positioned(right: -70, top: -70, child: ring(220, 3, .22)),
+            // Decoration stays in the corner, clear of the text.
+            Positioned(right: -130, top: -130, child: ring(220, 3, .22)),
             Positioned(right: 4, top: 4, child: ring(84, 2, .4)),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
@@ -753,11 +757,35 @@ class _OffCard extends StatelessWidget {
 
   /// Muscles fully recovered and waiting.
   final List<String> ready;
-  final VoidCallback onGo;
+
+  /// Null when today's workout card sits below with its own button: then
+  /// this is a slim reminder, so there is one thing to tap.
+  final VoidCallback? onGo;
 
   @override
   Widget build(BuildContext context) {
     final kicker = tx('{days} OFF', {'days': plural(days, 'day').toUpperCase()});
+    final go = onGo;
+    if (go == null) {
+      final c = days >= 4 ? BoltColors.warn : BoltColors.neon;
+      return BoltBox(
+        color: BoltColors.surface1,
+        stroke: Stroke(c, 1.5),
+        radius: 16,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Kicker(kicker, color: c, weight: 700),
+            const SizedBox(height: 4),
+            Text(
+              tx('Recovery is done. Time to move before the habit slips.'),
+              style: BoltText.a(14, weight: 700, height: 1.3),
+            ),
+          ],
+        ),
+      );
+    }
     if (days >= 5) {
       const ink = BoltColors.ink;
       return BoltBox(
@@ -798,7 +826,7 @@ class _OffCard extends StatelessWidget {
               radius: 14,
               color: ink,
               textColor: BoltColors.warn,
-              onTap: onGo,
+              onTap: go,
             ),
           ],
         ),
@@ -830,7 +858,7 @@ class _OffCard extends StatelessWidget {
           ],
           const SizedBox(height: 12),
           Tap(
-            onTap: onGo,
+            onTap: go,
             scale: .96,
             child: BoltBox(
               color: c,
@@ -1231,16 +1259,10 @@ class _StartCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final coach = coachName == null ? tx('your coach') : firstName(coachName!);
-    Widget small(String label, VoidCallback onTap, {bool filled = true}) => Tap(
-      onTap: onTap,
-      scale: .96,
-      child: BoltBox(
-        color: filled ? BoltColors.neon : null,
-        stroke: filled ? Stroke.none : const Stroke(BoltColors.neon),
-        radius: 12,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        child: Text(label, style: BoltText.a(13, weight: 800, color: filled ? BoltColors.ink : BoltColors.neon)),
-      ),
+    // Outlined: the card above (today, rest day or days off) owns the one
+    // neon button.
+    Widget button(String label, VoidCallback onTap) => Expanded(
+      child: OutlineButton(label: label, height: 46, radius: 12, fontSize: 13, onTap: onTap),
     );
     return BoltBox(
       stroke: const Stroke.dashed(BoltColors.neon, 1.5),
@@ -1258,16 +1280,13 @@ class _StartCard extends ConsumerWidget {
             style: BoltText.a(13, color: BoltColors.muted, height: 1.4),
           ),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          Row(
             children: [
-              if (withCoach) small(tx('Import plan'), () => showBoltSheet<void>(context, (_) => const ImportSheet())),
-              small(
-                withCoach ? tx('Plan it myself') : tx('Plan my weeks'),
-                () => openPlanDay(context, ref, null),
-                filled: !withCoach,
-              ),
+              if (withCoach) ...[
+                button(tx('Import plan'), () => showBoltSheet<void>(context, (_) => const ImportSheet())),
+                const SizedBox(width: 8),
+              ],
+              button(withCoach ? tx('Plan it myself') : tx('Plan my weeks'), () => openPlanDay(context, ref, null)),
             ],
           ),
         ],

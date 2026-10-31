@@ -275,7 +275,16 @@ void main() {
     expect(widget['off_2026-10-13'], isNull);
     expect(widget['kicker'], '5 DAYS OFF');
     expect(widget['footer'] as String, startsWith('LVL 2 · '));
+    // Today's workout card has the button, so the nudge above it is slim.
+    expect(find.text('Recovery is done. Time to move before the habit slips.'), findsOneWidget);
+    expect(find.text('ENOUGH REST.'), findsNothing);
+    // With nothing planned today the nudge leads, and no rest-day card argues.
+    if (c.read(boltProvider).plans[Account.ownerId]!['2026-10-14'] != null) {
+      store.removeDay(Account.ownerId, '2026-10-14');
+    }
+    await settle(tester);
     expect(find.text('ENOUGH REST.'), findsOneWidget);
+    expect(find.text('REST DAY'), findsNothing);
     expect(find.text('DAYS OFF'), findsOneWidget);
 
     await tapText(tester, '18');
