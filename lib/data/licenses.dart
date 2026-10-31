@@ -26,7 +26,7 @@ const kCoachKeys = 5;
 
 /// Which key generation the app is on. Raising it sends every phone back to
 /// the key screen on the next launch, with its training data untouched.
-const kKeyGen = 1;
+const kKeyGen = 2;
 
 /// 64-bit FNV-1a of the code behind a fixed prefix.
 int licenseHash(String code) {

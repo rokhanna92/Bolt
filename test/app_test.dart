@@ -940,6 +940,10 @@ void main() {
     expect(find.text('Hey Dani'), findsOneWidget);
     final log = c.read(boltProvider).settings.keyLog;
     expect([for (final e in log) '${e.name}:${e.how}'], ['Unknown:wrong', 'Admin:ok']);
+    // The admin key makes the phone an admin: every role, ADMIN in Settings.
+    expect(c.read(boltProvider).account!.admin, isTrue);
+    expect(c.read(boltProvider.notifier).switchRoles, [Role.coach, Role.trainee, Role.solo]);
+    expect(c.read(boltProvider).coaches.single.name, 'Dani Kovač');
     await unmount(tester);
   });
 

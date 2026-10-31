@@ -2067,7 +2067,8 @@ class BoltStore extends Notifier<BoltData> {
 
   /// A key typed on the key screen. Admin keys and switched-on coach keys
   /// open the app; a coach key the owner has not switched on yet waits.
-  /// Every go is logged for the owner, wrong ones included.
+  /// The admin key also makes this phone an admin. Every go is logged for
+  /// the owner, wrong ones included.
   KeyResult enterKey(String code) {
     final s = state.settings;
     final license = ref.read(licenseProvider)(code);
@@ -2085,8 +2086,38 @@ class BoltStore extends Notifier<BoltData> {
     s.keyLog.add(KeyEntry(name: name, at: now, how: how.name));
     if (s.keyLog.length > 60) s.keyLog.removeRange(0, s.keyLog.length - 60);
     if (how == KeyResult.ok) s.keyGen = kKeyGen;
+    if (how == KeyResult.ok && license == License.admin) _makeAdmin();
     _commit();
     return how;
+  }
+
+  /// Turns the owner into an admin, keeping the role they are in: an admin
+  /// needs a coach and a trainee record, so the missing one is made from
+  /// the other, like onboarding does for an admin.
+  void _makeAdmin() {
+    final a = state.account;
+    if (a == null || a.admin) return;
+    final t = trOrNull(Account.ownerId);
+    final c = coOrNull(Account.ownerId);
+    if (c == null && t != null) {
+      state.coaches.add(Coach(id: Account.ownerId, name: t.name, role: 'Coach', body: t.body.clone()));
+    }
+    if (t == null && c != null) {
+      state.trainees.add(
+        Trainee(
+          id: Account.ownerId,
+          name: c.name,
+          coach: '',
+          goal: 'General fitness',
+          split: 'ppl',
+          since: _sinceLabel,
+          injuries: [],
+          stats: TraineeStats(),
+          body: c.body.clone(),
+        ),
+      );
+    }
+    state.account = Account(a.role, a.id, admin: true);
   }
 
   /// Owner's switch for coach key [slot]: on lets that key into the app, off
