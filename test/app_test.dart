@@ -453,6 +453,24 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a workout finished early is not measured against the standard', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    final store = c.read(boltProvider.notifier);
+    store.addFromRotation(Account.ownerId, '2026-10-12');
+    store.setTemplate(Account.ownerId, '2026-10-12', 'push');
+    store.logPast('2026-10-12');
+    final s = c.read(boltProvider).plans[Account.ownerId]!['2026-10-12']!;
+    s.ex.first.logged.add(SetLog(kg: 80, reps: 5));
+    s.log = '1/${s.totalSets} sets';
+    c.read(routerProvider).push('/summary/2026-10-12');
+    await settle(tester);
+    expect(find.textContaining('your standard'), findsNothing);
+    expect(find.text('Make this my standard'), findsNothing);
+    expect(find.text('400 kg'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('a ticked set starts a rest that can grow, be skipped or run out', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

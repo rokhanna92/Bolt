@@ -62,6 +62,12 @@ class Session {
 
   int get totalSets => ex.fold(0, (a, e) => a + e.sets);
 
+  /// Logged with every planned set, from the log's "done/total sets" start.
+  bool get whole {
+    final m = RegExp(r'^(\d+)/(\d+) sets').firstMatch(log ?? '');
+    return m != null && m[1] == m[2];
+  }
+
   Map<String, dynamic> toJson() => {
     'tpl': tpl,
     'title': title,

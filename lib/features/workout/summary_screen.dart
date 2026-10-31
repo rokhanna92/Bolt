@@ -89,7 +89,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     }
 
     final tpl = d.tpls[s.tpl];
-    final std = tpl == null ? null : overallPct(vsStandard(tpl, s));
+    // Only a whole workout measures up to the standard: a few sets would
+    // read as "above" and could replace it.
+    final std = tpl == null || !s.whole ? null : overallPct(vsStandard(tpl, s));
 
     Widget stat(String v, String l) => Expanded(
       child: Column(
@@ -146,9 +148,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                         stat(
                           volume == 0
                               ? '-'
-                              : metric
+                              : metric && volume >= 1000
                               ? '${(volume / 1000).toStringAsFixed(1)} t'
-                              : '${(volume * 2.20462).round()} lb',
+                              : volumeText(volume, metric: metric),
                           tx('LIFTED'),
                         ),
                       ],
@@ -206,22 +208,27 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
               ),
             ),
             const SizedBox(height: 18),
-            NeonButton(label: tx('Share'), height: 52, scale: 1, onTap: () => _share(title)),
+            // Done leads; the card above is already neon, so a neon Share
+            // under it would blur into it.
+            NeonButton(label: tx('Done'), height: 52, onTap: () => context.pop()),
             const SizedBox(height: 8),
-            if (std != null) ...[
-              OutlineButton(
-                label: tx('Make this my standard'),
-                weight: 700,
-                onTap: () => store.setStandard(s.tpl, widget.dayKey),
-              ),
-              const SizedBox(height: 8),
-            ],
-            OutlineButton(
-              label: tx('Done'),
-              color: BoltColors.text,
-              borderColor: BoltColors.line,
-              weight: 700,
-              onTap: () => context.pop(),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlineButton(label: tx('Share'), weight: 700, onTap: () => _share(title)),
+                ),
+                if (std != null) ...[
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlineButton(
+                      label: tx('Make this my standard'),
+                      fontSize: 13,
+                      weight: 700,
+                      onTap: () => store.setStandard(s.tpl, widget.dayKey),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
