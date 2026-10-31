@@ -350,8 +350,8 @@ void main() {
     expect(find.text('Log as done'), findsOneWidget);
     expect(find.text('Edit exercises'), findsOneWidget);
     await tapText(tester, 'Log as done');
-    expect(find.text('BADGE UNLOCKED'), findsOneWidget);
-    while (find.text('BADGE UNLOCKED').evaluate().isNotEmpty) {
+    expect(find.textContaining('UNLOCKED'), findsOneWidget);
+    while (find.textContaining('UNLOCKED').evaluate().isNotEmpty) {
       await tapText(tester, 'Tap to continue');
     }
     // A full logged day is enough for level 2.
@@ -1208,7 +1208,7 @@ void main() {
     await settle(tester);
     expect(inGym(), isFalse);
     // The first visit unlocks a badge; its moment does not stop the undo.
-    while (find.text('BADGE UNLOCKED').evaluate().isNotEmpty) {
+    while (find.textContaining('UNLOCKED').evaluate().isNotEmpty) {
       await tapText(tester, 'Tap to continue');
     }
     await tapText(tester, 'Undo last check-out');

@@ -94,6 +94,7 @@ const kSrUi = <String, String>{
   'Next: {what}': 'Sledeće: {what}',
   'BADGE UNLOCKED': 'BEDŽ OTKLJUČAN',
   'Tap to continue': 'Dodirni za nastavak',
+  '{badges} UNLOCKED': '{badges} OTKLJUČANO',
   'CALENDAR': 'KALENDAR',
   'CONFIRMED': 'POTVRĐENO',
   'OPEN': 'OTVORENO',

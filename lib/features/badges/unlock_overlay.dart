@@ -8,19 +8,97 @@ import '../../data/seed/badges.dart';
 import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/badge_medal.dart';
 import '../../widgets/motion.dart';
 
-/// "Badge unlocked" overlay; tap anywhere to continue.
+/// "Badge unlocked" overlay; tap anywhere to continue. Several badges from
+/// one action share one screen instead of a tap each.
 class UnlockRoute extends PageRouteBuilder<void> {
-  UnlockRoute(String id)
+  UnlockRoute(List<String> ids)
     : super(
         opaque: false,
         barrierDismissible: false,
         transitionDuration: const Duration(milliseconds: 300),
         reverseTransitionDuration: const Duration(milliseconds: 200),
-        pageBuilder: (context, a, s) => UnlockOverlay(badge: kBadges.firstWhere((b) => b.id == id)),
+        pageBuilder: (context, a, s) {
+          final badges = [for (final id in ids) kBadges.firstWhere((b) => b.id == id)];
+          return badges.length == 1 ? UnlockOverlay(badge: badges.single) : UnlockManyOverlay(badges: badges);
+        },
         transitionsBuilder: (context, a, s, child) => FadeTransition(opacity: a, child: child),
       );
+}
+
+/// Two or more badges at once: each medal with its name, rising in turn.
+class UnlockManyOverlay extends StatefulWidget {
+  const UnlockManyOverlay({super.key, required this.badges});
+
+  final List<BadgeDef> badges;
+
+  @override
+  State<UnlockManyOverlay> createState() => _UnlockManyOverlayState();
+}
+
+class _UnlockManyOverlayState extends State<UnlockManyOverlay> {
+  @override
+  void initState() {
+    super.initState();
+    Haptics.play(Feel.success);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final b = widget.badges;
+    return Material(
+      color: const Color(0xEB050605),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => Navigator.of(context).pop(),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(30),
+            child: Column(
+              children: [
+                Text(
+                  tx('{badges} UNLOCKED', {'badges': plural(b.length, 'badge').toUpperCase()}),
+                  style: BoltText.m(11, spacing: .16, color: BoltColors.neon),
+                ),
+                const SizedBox(height: 22),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 18,
+                  children: [
+                    for (var i = 0; i < b.length; i++)
+                      FadeSlideIn(
+                        delay: Duration(milliseconds: 80 * math.min(i, 8)),
+                        child: SizedBox(
+                          width: 100,
+                          child: Column(
+                            children: [
+                              BadgeMedal(badge: b[i], on: true),
+                              const SizedBox(height: 8),
+                              Text(
+                                tx(b[i].name),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: BoltText.a(13, weight: 800),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 28),
+                Text(tx('Tap to continue'), style: BoltText.a(12, color: BoltColors.muted3)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class UnlockOverlay extends StatefulWidget {
@@ -110,16 +188,24 @@ class _UnlockOverlayState extends State<UnlockOverlay> with SingleTickerProvider
                           ),
                         ),
                       ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            b.big,
-                            style: BoltText.a(42, weight: 900, width: 115, color: BoltColors.neon, height: 1),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(b.unit, style: BoltText.m(10, spacing: .14, color: BoltColors.textSoft)),
-                        ],
+                      Padding(
+                        // Inside the inner ring, so words like "WKND" shrink instead of wrapping.
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                tx(b.big),
+                                maxLines: 1,
+                                style: BoltText.a(42, weight: 900, width: 115, color: BoltColors.neon, height: 1),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(tx(b.unit), style: BoltText.m(10, spacing: .14, color: BoltColors.textSoft)),
+                          ],
+                        ),
                       ),
                     ],
                   ),

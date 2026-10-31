@@ -40,4 +40,5 @@ const kSrNouns = <String, List<String>>{
   'arm day': ['dan za ruke', 'dana za ruke', 'dana za ruke'],
   'core day': ['dan za trbuh', 'dana za trbuh', 'dana za trbuh'],
   'cardio day': ['kardio dan', 'kardio dana', 'kardio dana'],
+  'badge': ['bedž', 'bedža', 'bedževa'],
 };

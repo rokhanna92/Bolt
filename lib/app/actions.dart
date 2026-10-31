@@ -81,12 +81,9 @@ void openShortcut(String what) {
   }
 }
 
-/// Badge unlock overlays, one after another, then a new level if there is
-/// one.
+/// Badge unlocks on one overlay, then a new level if there is one.
 Future<void> showUnlocks(List<String> ids) async {
-  for (final id in ids) {
-    await _root.push(UnlockRoute(id));
-  }
+  if (ids.isNotEmpty) await _root.push(UnlockRoute(ids));
   final l = _store.levelUp();
   if (l != null) await _root.push(MomentRoute(levelMoment(l)));
   await showRankUp();
