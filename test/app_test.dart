@@ -211,6 +211,17 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('Android back on another tab returns to Today', (tester) async {
+    await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapTab(tester, 'Me');
+    expect(find.text('Training solo'), findsOneWidget);
+    await tester.binding.handlePopRoute();
+    await settle(tester);
+    expect(find.text('Hey Dani'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('Atlas opens from Me, badges sit on Today', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

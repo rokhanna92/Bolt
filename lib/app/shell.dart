@@ -44,30 +44,37 @@ class BoltShell extends ConsumerWidget {
     final branchOf = trainee ? const [0, 1, 3, 4] : const [0, 1, 2, 3];
     final centre = trainee ? 2 : 4;
     final active = branchOf.indexOf(shell.currentIndex);
-    return BoltPage(
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: _TabFade(index: shell.currentIndex, child: shell),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: BoltNavBar(
-              items: items,
-              active: active,
-              scanActive: shell.currentIndex == centre,
-              centerIcon: trainee ? 'scan' : 'calendar',
-              centerLabel: trainee ? null : tx('Calendar'),
-              onTap: (i) {
-                if (branchOf[i] != shell.currentIndex) Haptics.play(Feel.tick);
-                shell.goBranch(branchOf[i], initialLocation: branchOf[i] == shell.currentIndex);
-              },
-              onScan: trainee ? () => context.push('/quick') : () => shell.goBranch(centre),
+    // Back on another tab goes to the first one; only there does it leave Bolt.
+    return PopScope(
+      canPop: shell.currentIndex == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) shell.goBranch(0);
+      },
+      child: BoltPage(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: _TabFade(index: shell.currentIndex, child: shell),
             ),
-          ),
-        ],
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: BoltNavBar(
+                items: items,
+                active: active,
+                scanActive: shell.currentIndex == centre,
+                centerIcon: trainee ? 'scan' : 'calendar',
+                centerLabel: trainee ? null : tx('Calendar'),
+                onTap: (i) {
+                  if (branchOf[i] != shell.currentIndex) Haptics.play(Feel.tick);
+                  shell.goBranch(branchOf[i], initialLocation: branchOf[i] == shell.currentIndex);
+                },
+                onScan: trainee ? () => context.push('/quick') : () => shell.goBranch(centre),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
