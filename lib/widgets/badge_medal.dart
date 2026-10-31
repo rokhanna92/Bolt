@@ -151,7 +151,9 @@ class BadgeMedal extends StatelessWidget {
               ),
             ),
           ),
-          _labels(p, 24, .12, topGap: 6),
+          // Inside the inner ring, so longer words shrink instead of
+          // touching the rim.
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 13), child: _labels(p, 24, .12, topGap: 6)),
         ],
       ),
     );
@@ -193,7 +195,11 @@ class BadgeMedal extends StatelessWidget {
       height: 86,
       child: CustomPaint(
         painter: _HexPainter(p),
-        child: Center(child: _labels(p, 21, .1)),
+        child: Center(
+          // The hexagon narrows at the top and bottom, so words keep clear
+          // of its slanted sides.
+          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _labels(p, 21, .1)),
+        ),
       ),
     );
   }
