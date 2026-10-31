@@ -36,7 +36,8 @@ class MedalPalette {
         ring: BoltColors.lineFaint,
         hub: BoltColors.surface2,
         ink: BoltColors.muted2,
-        ink2: BoltColors.muted4,
+        // The small unit line ("SESSIONS") stays readable on a locked medal.
+        ink2: BoltColors.muted3,
       );
     }
     return switch (shape) {

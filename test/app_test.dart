@@ -14,6 +14,7 @@ import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/features/gym/scanner_overlay.dart';
 import 'package:bolt/features/updates/update_sheet.dart';
 import 'package:bolt/features/workout/lifeline.dart';
+import 'package:bolt/l10n/l10n.dart' show compareNames;
 import 'package:bolt/services/coach_directory.dart';
 import 'package:bolt/services/notice_board.dart';
 import 'package:bolt/services/updater.dart';
@@ -230,6 +231,23 @@ void main() {
     await tester.binding.handlePopRoute();
     await settle(tester);
     expect(find.text('Hey Dani'), findsOneWidget);
+    await unmount(tester);
+  });
+
+  testWidgets('achievements list the ones you have first, then A to Z', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    c.read(boltProvider).trainees.single.stats.sessions = 1;
+    c.read(routerProvider).push('/badges');
+    await settle(tester);
+    double x(String name) => tester.getTopLeft(find.text(name).last).dx;
+    double y(String name) => tester.getTopLeft(find.text(name).last).dy;
+    // Gym sessions: First Rep is earned, so it leads; then 25 Club, Century...
+    expect(y('First Rep'), lessThanOrEqualTo(y('25 Club')));
+    expect(x('First Rep'), lessThan(x('25 Club')));
+    expect(y('25 Club'), lessThan(y('Warming Up')));
+    expect(compareNames('Čelik', 'Cilj'), greaterThan(0));
+    expect(compareNames('Čelik', 'Dan'), lessThan(0));
     await unmount(tester);
   });
 

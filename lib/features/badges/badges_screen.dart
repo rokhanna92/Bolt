@@ -74,14 +74,20 @@ class BadgesScreen extends ConsumerWidget {
             ),
           ],
           for (final (key, title) in kBadgeSections)
-            if (kBadges.any((b) => b.key == key)) ..._section(title, _sorted(key), stats, on, pct),
+            if (kBadges.any((b) => b.key == key)) ..._section(title, _sorted(key, on), stats, on, pct),
         ],
       ),
     );
   }
 
-  /// Badges on one counter, smallest goal first.
-  List<BadgeDef> _sorted(String key) => kBadges.where((b) => b.key == key).toList()..sort((a, b) => a.goal - b.goal);
+  /// Badges on one counter: the ones you have first, then the rest, each
+  /// group in alphabetical order by name.
+  List<BadgeDef> _sorted(String key, bool Function(BadgeDef) on) =>
+      kBadges.where((b) => b.key == key).toList()..sort((a, b) {
+        final (x, y) = (on(a), on(b));
+        if (x != y) return x ? -1 : 1;
+        return compareNames(tx(a.name), tx(b.name));
+      });
 
   List<Widget> _section(
     String title,

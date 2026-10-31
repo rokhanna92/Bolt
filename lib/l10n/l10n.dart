@@ -57,6 +57,18 @@ String plural(int n, String w) {
   return '$n $w${n == 1 ? '' : 's'}';
 }
 
+/// Alphabetical order for names on screen, ignoring case, with Serbian
+/// letters where the alphabet puts them: c č ć d đ ... s š ... z ž.
+int compareNames(String a, String b) => _nameKey(a).compareTo(_nameKey(b));
+
+String _nameKey(String s) => s
+    .toLowerCase()
+    .replaceAll('č', 'c{')
+    .replaceAll('ć', 'c|')
+    .replaceAll('đ', 'd{')
+    .replaceAll('š', 's{')
+    .replaceAll('ž', 'z{');
+
 /// A first name for addressing someone, in Serbian the vocative: Danijel →
 /// Danijele, Miloš → Milošu, Petar → Petre, Vuk → Vuče, Milica → Milice.
 /// Names ending in another vowel (Marko, Ana, Luka) stay as they are, and
