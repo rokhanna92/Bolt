@@ -285,7 +285,7 @@ void main() {
     await settle(tester);
     expect(find.text('ENOUGH REST.'), findsOneWidget);
     expect(find.text('REST DAY'), findsNothing);
-    expect(find.text('DAYS OFF'), findsOneWidget);
+    expect(find.text('OFF IN A ROW'), findsOneWidget);
 
     await tapText(tester, '18');
     await tapText(tester, 'Mark as rest day');

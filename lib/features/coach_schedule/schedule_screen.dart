@@ -98,9 +98,7 @@ class ScheduleScreen extends ConsumerWidget {
 
     return ScreenScroll(
       children: [
-        Kicker(
-          '${tx('SCHEDULE')} · ${dayMonth(wM)} - ${dayMonth(wE)}'.toUpperCase(),
-        ),
+        Kicker('${tx('SCHEDULE')} · ${dayMonth(wM)} - ${dayMonth(wE)}'.toUpperCase()),
         const SizedBox(height: 4),
         Row(
           children: [
@@ -113,9 +111,9 @@ class ScheduleScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         StatRow(
           children: [
-            StatTile(value: '$total', label: tx('SESSIONS'), valueSize: 26, gap: 0),
-            StatTile(value: '$ok', label: tx('CONFIRMED'), valueSize: 26, valueColor: BoltColors.neon, gap: 0),
-            StatTile(value: '$wait', label: tx('OPEN'), valueSize: 26, gap: 0),
+            StatTile(value: '$total', label: tx('SESSIONS'), valueSize: 26),
+            StatTile(value: '$ok', label: tx('CONFIRMED'), valueSize: 26, valueColor: BoltColors.neon),
+            StatTile(value: '$wait', label: tx('OPEN'), valueSize: 26),
           ],
         ),
         const SizedBox(height: 18),

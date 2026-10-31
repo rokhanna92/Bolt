@@ -122,21 +122,13 @@ class GymScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         StatRow(
           children: [
-            StatTile(
-              value: dur(cwMin),
-              label: tx('THIS WEEK'),
-              valueSize: 20,
-              valueWeight: 800,
-              labelFirst: true,
-              gap: 4,
-            ),
-            StatTile(value: '$cnt', label: tx('VISITS'), valueSize: 20, valueWeight: 800, labelFirst: true, gap: 4),
+            StatTile(value: dur(cwMin), label: tx('THIS WEEK'), valueSize: 20, valueWeight: 800, gap: 4),
+            StatTile(value: '$cnt', label: tx('VISITS'), valueSize: 20, valueWeight: 800),
             StatTile(
               value: cnt > 0 ? dur(cwMin / cnt) : '-',
               label: tx('AVG VISIT'),
               valueSize: 20,
               valueWeight: 800,
-              labelFirst: true,
               gap: 4,
             ),
           ],

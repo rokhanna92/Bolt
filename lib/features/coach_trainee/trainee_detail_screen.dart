@@ -279,7 +279,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 const SizedBox(height: 10),
                 StatRow(
                   children: [
-                    StatTile(value: '${x.stats.sessions}', label: tx('SESSIONS'), valueColor: BoltColors.neon),
+                    StatTile(value: '${x.stats.sessions}', label: tx('GYM VISITS'), valueColor: BoltColors.neon),
                     StatTile(value: '${x.stats.mins ~/ 60}', label: tx('HOURS')),
                     StatTile(value: '${currentStreak(x.stats, store.now)}', label: tx('WEEK STREAK')),
                   ],

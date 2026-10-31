@@ -78,7 +78,7 @@ class MeScreen extends ConsumerWidget {
         const SizedBox(height: 18),
         StatRow(
           children: [
-            StatTile(value: '${t.stats.sessions}', label: tx('SESSIONS'), valueColor: BoltColors.neon),
+            StatTile(value: '${t.stats.sessions}', label: tx('GYM VISITS'), valueColor: BoltColors.neon),
             StatTile(value: '${t.stats.mins ~/ 60}', label: tx('HOURS')),
             StatTile(value: '${currentStreak(t.stats, store.now)}', label: tx('WEEK STREAK')),
           ],

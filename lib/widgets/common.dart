@@ -549,7 +549,8 @@ class Chevron extends StatelessWidget {
   Widget build(BuildContext context) => Text('›', style: BoltText.a(size, color: BoltColors.neon, height: 1));
 }
 
-/// Three stat tiles in a row.
+/// Three stat tiles in a row, all as tall as the tallest, so a label that
+/// wraps does not leave the row jagged.
 class StatRow extends StatelessWidget {
   const StatRow({super.key, required this.children});
 
@@ -557,19 +558,22 @@ class StatRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (var i = 0; i < children.length; i++) ...[
-          if (i > 0) const SizedBox(width: 8),
-          Expanded(child: children[i]),
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Expanded(child: children[i]),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
 
-/// Stat tile: big number then a mono label (or label first with [labelFirst]).
+/// Stat tile: a mono label over the number, so the label reads as a heading
+/// and never as "1 SESSIONS". [labelFirst] false puts the number on top.
 class StatTile extends StatelessWidget {
   const StatTile({
     super.key,
@@ -578,8 +582,8 @@ class StatTile extends StatelessWidget {
     this.valueSize = 28,
     this.valueWeight = 900,
     this.valueColor = BoltColors.text,
-    this.labelFirst = false,
-    this.gap = 2,
+    this.labelFirst = true,
+    this.gap = 4,
   });
 
   final String value;

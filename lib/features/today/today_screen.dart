@@ -904,8 +904,6 @@ class _Numbers extends StatelessWidget {
       valueSize: 20,
       valueWeight: 800,
       valueColor: neon ? BoltColors.neon : (warn ? BoltColors.warn : BoltColors.text),
-      labelFirst: true,
-      gap: 4,
     );
     return Column(
       children: [
@@ -913,7 +911,7 @@ class _Numbers extends StatelessWidget {
           children: [
             tile('${stats.workouts}', tx('WORKOUTS'), neon: true),
             tile(totalTime(stats.mins), tx('GYM TIME')),
-            tile('${restDays(plan, visits, now)}', tx('REST DAYS')),
+            tile('${restDays(plan, visits, now)}', tx('TOTAL REST')),
           ],
         ),
         const SizedBox(height: 8),
@@ -921,7 +919,7 @@ class _Numbers extends StatelessWidget {
           children: [
             tile('$done/${week.length}', tx('THIS WEEK')),
             tile('${stats.sessions}', tx('GYM VISITS')),
-            tile('$off', tx('DAYS OFF'), warn: off >= 3),
+            tile('$off', tx('OFF IN A ROW'), warn: off >= 3),
           ],
         ),
       ],

@@ -92,9 +92,9 @@ class _CoachCalendarScreenState extends ConsumerState<CoachCalendarScreen> {
         const SizedBox(height: 16),
         StatRow(
           children: [
-            StatTile(value: '${inMonth.length}', label: tx('SESSIONS'), valueSize: 26, gap: 0),
-            StatTile(value: '$ok', label: tx('CONFIRMED'), valueSize: 26, valueColor: BoltColors.neon, gap: 0),
-            StatTile(value: '$open', label: tx('OPEN'), valueSize: 26, gap: 0),
+            StatTile(value: '${inMonth.length}', label: tx('SESSIONS'), valueSize: 26),
+            StatTile(value: '$ok', label: tx('CONFIRMED'), valueSize: 26, valueColor: BoltColors.neon),
+            StatTile(value: '$open', label: tx('OPEN'), valueSize: 26),
           ],
         ),
         const SizedBox(height: 18),

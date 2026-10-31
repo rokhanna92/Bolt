@@ -241,8 +241,7 @@ class RecapTiles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget tile(String v, String l) =>
-        StatTile(value: v, label: l, valueSize: 18, valueWeight: 800, labelFirst: true, gap: 4);
+    Widget tile(String v, String l) => StatTile(value: v, label: l, valueSize: 18, valueWeight: 800);
     final w = r.weightDelta;
     return Column(
       children: [

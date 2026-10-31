@@ -92,7 +92,6 @@ class LiftScreen extends ConsumerWidget {
                   valueSize: 18,
                   valueWeight: 800,
                   valueColor: BoltColors.neon,
-                  labelFirst: true,
                   gap: 4,
                 ),
                 StatTile(
@@ -100,17 +99,9 @@ class LiftScreen extends ConsumerWidget {
                   label: tx('HEAVIEST'),
                   valueSize: 18,
                   valueWeight: 800,
-                  labelFirst: true,
                   gap: 4,
                 ),
-                StatTile(
-                  value: '${days.length}',
-                  label: tx('WORKOUTS'),
-                  valueSize: 18,
-                  valueWeight: 800,
-                  labelFirst: true,
-                  gap: 4,
-                ),
+                StatTile(value: '${days.length}', label: tx('WORKOUTS'), valueSize: 18, valueWeight: 800, gap: 4),
               ],
             ),
             if (trend.length >= 2) ...[

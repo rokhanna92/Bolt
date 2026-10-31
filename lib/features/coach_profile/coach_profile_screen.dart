@@ -66,9 +66,9 @@ class CoachProfileScreen extends ConsumerWidget {
         const SizedBox(height: 18),
         StatRow(
           children: [
-            StatTile(value: '${my.length}', label: tx('TRAINEES'), valueColor: BoltColors.neon, gap: 0),
-            StatTile(value: '$planned', label: tx('THIS WEEK'), gap: 0),
-            StatTile(value: '$waiting', label: tx('WAITING'), gap: 0),
+            StatTile(value: '${my.length}', label: tx('TRAINEES'), valueColor: BoltColors.neon),
+            StatTile(value: '$planned', label: tx('THIS WEEK')),
+            StatTile(value: '$waiting', label: tx('WAITING')),
           ],
         ),
         const SizedBox(height: 24),
