@@ -69,33 +69,42 @@ class LearnScreen extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(tx('Train smarter'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
           const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            clipBehavior: Clip.none,
-            child: Row(
-              children: [
-                for (final (i, (k, l)) in _tabs.indexed) ...[
-                  if (i > 0) const SizedBox(width: 6),
-                  Tap(
-                    onTap: () => ref.read(learnTabProvider.notifier).set(k),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      height: 40,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: tab == k ? BoltColors.neon : const Color(0x00C6FF1A),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: tab == k ? BoltColors.neon : BoltColors.line),
-                      ),
-                      child: Text(
-                        tx(l),
-                        style: BoltText.a(13, weight: 800, color: tab == k ? BoltColors.ink : BoltColors.text),
+          // Fades at the right edge, so the strip reads as one that scrolls
+          // rather than a tab cut in half.
+          ShaderMask(
+            blendMode: BlendMode.dstIn,
+            shaderCallback: (r) => const LinearGradient(
+              colors: [Colors.white, Colors.white, Color(0x00FFFFFF)],
+              stops: [0, .9, 1],
+            ).createShader(r),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(right: 28),
+              child: Row(
+                children: [
+                  for (final (i, (k, l)) in _tabs.indexed) ...[
+                    if (i > 0) const SizedBox(width: 6),
+                    Tap(
+                      onTap: () => ref.read(learnTabProvider.notifier).set(k),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        height: 40,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: tab == k ? BoltColors.neon : const Color(0x00C6FF1A),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: tab == k ? BoltColors.neon : BoltColors.line),
+                        ),
+                        child: Text(
+                          tx(l),
+                          style: BoltText.a(13, weight: 800, color: tab == k ? BoltColors.ink : BoltColors.text),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
           const SizedBox(height: 12),
