@@ -1093,7 +1093,7 @@ void main() {
     // The session reminder moves to an hour before.
     await tapText(tester, 'Session reminder');
     await tapText(tester, '1 h');
-    expect(find.text('1 h before ›'), findsOneWidget);
+    expect(find.text('1 h before'), findsOneWidget);
 
     await tapText(tester, '+ New push');
     await tester.enterText(find.widgetWithText(TextField, 'Title').first, 'Gym closed Sunday');

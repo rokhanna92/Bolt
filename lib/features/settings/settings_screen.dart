@@ -219,7 +219,6 @@ class SettingsScreen extends ConsumerWidget {
         [
           _Row(tx('Edit profile'), value: '', onTap: () => context.push('/edit-profile')),
           _Row(tx('Privacy'), value: '', onTap: () => _privacy(context)),
-          _Row(tx('Reset app'), danger: true, onTap: () => _reset(context, ref)),
         ],
       ),
     ];
@@ -249,6 +248,16 @@ class SettingsScreen extends ConsumerWidget {
                 child: Column(children: [for (final r in rows) _row(r)]),
               ),
             ],
+            // Wiping the phone sits apart, so it is never tapped on the way
+            // to Privacy.
+            const SizedBox(height: 32),
+            BoltBox(
+              color: BoltColors.surface1,
+              stroke: const Stroke(Color(0x66FF7A45)),
+              radius: 18,
+              clip: true,
+              child: _row(_Row(tx('Reset app'), danger: true, onTap: () => _reset(context, ref))),
+            ),
           ],
         ),
       ),
@@ -294,11 +303,21 @@ class SettingsScreen extends ConsumerWidget {
               // Long gym names truncate instead of squeezing the label.
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 170),
-                child: Text(
-                  '${r.value} ›',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: BoltText.a(13, color: BoltColors.muted),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (r.value!.isNotEmpty)
+                      Flexible(
+                        child: Text(
+                          r.value!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: BoltText.a(13, color: BoltColors.muted),
+                        ),
+                      ),
+                    const SizedBox(width: 2),
+                    const Chevron(size: 18),
+                  ],
                 ),
               ),
             ],
