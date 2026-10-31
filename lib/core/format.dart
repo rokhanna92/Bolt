@@ -29,6 +29,18 @@ List<String> _inLang(List<String> en, List<String> sr) => isSerbian ? sr : en;
 /// Short day names, index 0 = Sunday (JS `getDay()`).
 List<String> get weekdays => _inLang(_weekdaysEn, _weekdaysSr);
 List<String> get monthsShort => _inLang(_monthsShortEn, _monthsShortSr);
+
+/// A saved "Oct 2026" (kept in the language of the day it was written) in
+/// today's language. Anything else comes back as it was.
+String monthYear(String saved) {
+  final p = saved.split(' ');
+  if (p.length != 2) return saved;
+  final m = p[0].toLowerCase();
+  var i = _monthsShortEn.indexWhere((x) => x.toLowerCase() == m);
+  if (i < 0) i = _monthsShortSr.indexOf(m);
+  return i < 0 ? saved : '${monthsShort[i]} ${p[1]}';
+}
+
 List<String> get monthsLong => _inLang(_monthsLongEn, _monthsLongSr);
 
 const _monthsLongEn = [

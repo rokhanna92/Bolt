@@ -53,11 +53,13 @@ class UpdateCard extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
+                // Outlined: whether there is a new version is only known
+                // once the sheet has checked.
                 BoltBox(
-                  color: BoltColors.neon,
                   radius: 12,
+                  stroke: const Stroke(BoltColors.neon, 1.5),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  child: Text(tx('Update'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                  child: Text(tx('Check'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
                 ),
               ],
             ),

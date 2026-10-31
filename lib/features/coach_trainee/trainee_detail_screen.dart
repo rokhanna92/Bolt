@@ -134,7 +134,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                           Text(x.name, style: BoltText.a(20, weight: 900, spacing: -.01)),
                           const SizedBox(height: 2),
                           Text(
-                            tx('{goal} · since {when}', {'goal': tx(x.goal), 'when': x.since}),
+                            tx('{goal} · since {when}', {'goal': tx(x.goal), 'when': monthYear(x.since)}),
                             style: BoltText.a(12, color: BoltColors.muted),
                           ),
                         ],

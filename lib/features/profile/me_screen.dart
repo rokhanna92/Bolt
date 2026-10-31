@@ -65,7 +65,7 @@ class MeScreen extends ConsumerWidget {
             for (final c in [
               tx(t.goal),
               tx(splitOf(d, t.split).name),
-              tx('Since {when}', {'when': t.since}),
+              tx('Since {when}', {'when': monthYear(t.since)}),
             ])
               BoltBox(
                 radius: 99,

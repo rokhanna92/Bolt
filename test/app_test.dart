@@ -1304,7 +1304,7 @@ void main() {
     await tapTab(tester, 'Me');
     expect(find.text('ADMIN · VIEW AS'), findsNothing);
     expect(find.text('Bolt 1.2.0'), findsOneWidget);
-    await tapText(tester, 'Update');
+    await tapText(tester, 'Check');
     expect(find.text('BOLT 1.3.0'), findsOneWidget);
     expect(find.text('• Faster'), findsOneWidget);
     expect(find.text('Download and install'), findsOneWidget);
