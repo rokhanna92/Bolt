@@ -502,10 +502,17 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                   ),
                 ],
                 const SizedBox(height: 18),
-                NeonButton(
-                  label: done == tot && tot > 0 ? tx('Finish workout') : '${tx('Finish workout')} · $done/$tot',
-                  onTap: _finish,
-                ),
+                // Neon once every set is in, like the gym floor view.
+                if (done == tot && tot > 0)
+                  NeonButton(label: tx('Finish workout'), onTap: _finish)
+                else
+                  OutlineButton(
+                    label: '${tx('Finish workout')} · $done/$tot',
+                    color: BoltColors.text,
+                    borderColor: BoltColors.line,
+                    weight: 700,
+                    onTap: _finish,
+                  ),
                 DiscardLink(onTap: _discard),
               ],
             ),

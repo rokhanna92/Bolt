@@ -330,8 +330,6 @@ class _FloorViewState extends State<FloorView> {
             ],
           ),
         ),
-        const SizedBox(height: 14),
-        NeonButton(label: tx('Warm-up done'), height: 68, fontSize: 18, onTap: _endWarmUp),
       ],
     );
   }
@@ -626,71 +624,103 @@ class _FloorViewState extends State<FloorView> {
     final lifeAt = at == null ? null : flow.indexOf(at);
     final resting = widget.restEnd != null && !_peek;
 
+    // Under whichever button logs: the set's, or the warm-up's.
+    final Widget volumeHint = widget.volumeLog && at != null && !all
+        ? Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              tx('or press volume down'),
+              textAlign: TextAlign.center,
+              style: BoltText.m(11, color: BoltColors.muted3),
+            ),
+          )
+        : const SizedBox.shrink();
+
     return Stack(
       children: [
-        SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(20, insets.top + 16, 20, 40 + insets.bottom),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              widget.header,
-              const SizedBox(height: 12),
-              Lifeline(beats: beats, at: lifeAt, restEnd: widget.restEnd, restTotal: widget.restTotal),
-              const SizedBox(height: 4),
-              Text(
-                [
-                  '$doneCount / $tot ${tx('SETS')}',
-                  if (finish != null) tx('DONE ~{time}', {'time': finish}),
-                ].join(' · '),
-                textAlign: TextAlign.right,
-                style: BoltText.m(11, weight: 700, color: BoltColors.muted),
-              ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-                alignment: Alignment.topCenter,
-                child: widget.restEnd == null || resting
-                    ? const SizedBox(width: double.infinity, height: 16)
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        child: Column(
-                          children: [
-                            _ring(),
-                            if (widget.restNext.isNotEmpty) ...[
-                              const SizedBox(height: 12),
-                              Text(
-                                widget.restNext,
-                                textAlign: TextAlign.center,
-                                style: BoltText.a(13, weight: 700, color: BoltColors.muted),
-                              ),
-                            ],
-                          ],
+        // The page is at least a screen tall and its two halves sit apart:
+        // the set on top, the button for it low under the thumb, Finish and
+        // Discard well clear of it.
+        LayoutBuilder(
+          builder: (context, box) {
+            final padTop = insets.top + 16, padBottom = 40 + insets.bottom;
+            return SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(20, padTop, 20, padBottom),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: math.max(0, box.maxHeight - padTop - padBottom)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        widget.header,
+                        const SizedBox(height: 12),
+                        Lifeline(beats: beats, at: lifeAt, restEnd: widget.restEnd, restTotal: widget.restTotal),
+                        const SizedBox(height: 4),
+                        Text(
+                          [
+                            '$doneCount / $tot ${tx('SETS')}',
+                            if (finish != null) tx('DONE ~{time}', {'time': finish}),
+                          ].join(' · '),
+                          textAlign: TextAlign.right,
+                          style: BoltText.m(11, weight: 700, color: BoltColors.muted),
                         ),
-                      ),
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOut,
+                          alignment: Alignment.topCenter,
+                          child: widget.restEnd == null || resting
+                              ? const SizedBox(width: double.infinity, height: 16)
+                              : Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 18),
+                                  child: Column(
+                                    children: [
+                                      _ring(),
+                                      if (widget.restNext.isNotEmpty) ...[
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          widget.restNext,
+                                          textAlign: TextAlign.center,
+                                          style: BoltText.a(13, weight: 700, color: BoltColors.muted),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                        ),
+                        body,
+                        if (!_warming) volumeHint,
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (_warming && at != null) ...[
+                          const SizedBox(height: 14),
+                          NeonButton(label: tx('Warm-up done'), height: 68, fontSize: 18, onTap: _endWarmUp),
+                        ],
+                        if (_warming && at != null) volumeHint,
+                        const SizedBox(height: 28),
+                        if (all)
+                          NeonButton(label: tx('Finish workout'), height: 60, onTap: widget.onFinish)
+                        else
+                          OutlineButton(
+                            label: '${tx('Finish workout')} · $doneCount/$tot',
+                            color: BoltColors.text,
+                            borderColor: BoltColors.line,
+                            weight: 700,
+                            onTap: widget.onFinish,
+                          ),
+                        DiscardLink(onTap: widget.onDiscard),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              body,
-              if (widget.volumeLog && at != null && !all) ...[
-                const SizedBox(height: 8),
-                Text(
-                  tx('or press volume down'),
-                  textAlign: TextAlign.center,
-                  style: BoltText.m(11, color: BoltColors.muted3),
-                ),
-              ],
-              const SizedBox(height: 18),
-              if (all)
-                NeonButton(label: tx('Finish workout'), height: 60, onTap: widget.onFinish)
-              else
-                OutlineButton(
-                  label: '${tx('Finish workout')} · $doneCount/$tot',
-                  color: BoltColors.text,
-                  borderColor: BoltColors.line,
-                  weight: 700,
-                  onTap: widget.onFinish,
-                ),
-              DiscardLink(onTap: widget.onDiscard),
-            ],
-          ),
+            );
+          },
         ),
         // Under the rest screen, which is dark to the top.
         const StatusScrim(),
