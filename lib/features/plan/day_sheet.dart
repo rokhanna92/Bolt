@@ -43,6 +43,7 @@ class DaySheet extends ConsumerWidget {
     // A logged day you planned yourself, like a gym session saved by
     // scanning out, can still get what you trained.
     final fillIn = store.canFillIn(s);
+    final canMove = s.status != SessionStatus.done && s.status != SessionStatus.pending && dayKey.compareTo(today) >= 0;
     final sum = '${plural(s.ex.length, 'exercise')} · ${plural(s.totalSets, 'set')} · ~${s.mins} min'.toUpperCase();
     void close() => Navigator.of(context).pop();
 
@@ -205,60 +206,66 @@ class DaySheet extends ConsumerWidget {
               showUnlocks(store.logPast(dayKey));
             },
           ),
-        if (editable) ...[
-          if (dayKey == today || logPast) const SizedBox(height: 8),
+        // Starting the workout is the one thing that matters on this sheet.
+        // Everything under it only changes or clears the day, so it is half
+        // the height, and clearing the day is quieter still.
+        if (editable || canMove) ...[
+          if (dayKey == today || logPast) const SizedBox(height: 10),
+          Row(
+            children: [
+              if (editable)
+                Expanded(
+                  child: OutlineButton(
+                    label: tx('Edit exercises'),
+                    height: 44,
+                    fontSize: 13,
+                    onTap: () {
+                      close();
+                      rootNavigatorKey.currentContext!.push('/editor/day/${t.id}/$dayKey');
+                    },
+                  ),
+                ),
+              if (editable && canMove) const SizedBox(width: 8),
+              if (canMove)
+                Expanded(
+                  child: OutlineButton(
+                    label: tx('Move day'),
+                    height: 44,
+                    fontSize: 13,
+                    color: BoltColors.text,
+                    borderColor: BoltColors.line,
+                    weight: 700,
+                    onTap: move,
+                  ),
+                ),
+            ],
+          ),
+        ],
+        if (editable)
           Row(
             children: [
               Expanded(
-                child: OutlineButton(
-                  label: tx('Edit exercises'),
+                child: _QuietAction(
+                  label: tx('Rest day instead'),
                   onTap: () {
+                    store.toggleRest(dayKey);
                     close();
-                    rootNavigatorKey.currentContext!.push('/editor/day/${t.id}/$dayKey');
                   },
                 ),
               ),
-              const SizedBox(width: 8),
-              Tap(
-                onTap: () {
-                  store.removeDay(t.id, dayKey);
-                  close();
-                },
-                child: BoltBox(
-                  height: 52,
-                  radius: 16,
-                  stroke: const Stroke(BoltColors.line),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  alignment: Alignment.center,
-                  child: Text(tx('Remove'), style: BoltText.a(14, weight: 700, color: BoltColors.muted)),
+              Container(width: 1, height: 14, color: BoltColors.divider),
+              Expanded(
+                child: _QuietAction(
+                  label: tx('Remove'),
+                  color: BoltColors.warn,
+                  onTap: () {
+                    store.removeDay(t.id, dayKey);
+                    close();
+                  },
                 ),
               ),
             ],
           ),
-        ],
-        if (s.status != SessionStatus.done && s.status != SessionStatus.pending && dayKey.compareTo(today) >= 0) ...[
-          const SizedBox(height: 8),
-          OutlineButton(
-            label: tx('Move to another day'),
-            color: BoltColors.text,
-            borderColor: BoltColors.line,
-            weight: 700,
-            onTap: move,
-          ),
-        ],
-        if (editable) ...[
-          const SizedBox(height: 8),
-          OutlineButton(
-            label: tx('Rest day instead'),
-            color: BoltColors.text,
-            borderColor: BoltColors.line,
-            weight: 700,
-            onTap: () {
-              store.toggleRest(dayKey);
-              close();
-            },
-          ),
-        ],
       ],
     );
   }
@@ -289,4 +296,25 @@ class CoachNote extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A quiet text action. The ways to clear a day sit at the bottom of the
+/// sheet and should never pull the eye away from starting the workout.
+class _QuietAction extends StatelessWidget {
+  const _QuietAction({required this.label, required this.onTap, this.color = BoltColors.muted});
+
+  final String label;
+  final VoidCallback onTap;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Tap(
+    onTap: onTap,
+    child: SizedBox(
+      height: 42,
+      child: Center(
+        child: Text(label, style: BoltText.a(13, weight: 700, color: color)),
+      ),
+    ),
+  );
 }
