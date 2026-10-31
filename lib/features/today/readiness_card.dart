@@ -497,59 +497,33 @@ class _GripBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final v = value;
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: LayoutBuilder(
-            builder: (context, box) {
-              final track = box.maxWidth - _thumb;
-              void at(double x) => onChanged(((x - _thumb / 2) / track * 10).round().clamp(0, 10));
-              return GestureDetector(
-                key: const ValueKey('grip'),
-                behavior: HitTestBehavior.opaque,
-                onTapDown: (d) => at(d.localPosition.dx),
-                onHorizontalDragStart: (d) => at(d.localPosition.dx),
-                onHorizontalDragUpdate: (d) => at(d.localPosition.dx),
-                child: SizedBox(
-                  height: 44,
-                  child: Stack(
-                    alignment: Alignment.centerLeft,
-                    children: [
-                      Positioned(
-                        left: _thumb / 2,
-                        right: _thumb / 2,
-                        child: Container(
-                          height: 6,
-                          decoration: BoxDecoration(color: BoltColors.line, borderRadius: BorderRadius.circular(3)),
-                        ),
-                      ),
-                      if (v != null) ...[
-                        Positioned(
-                          left: _thumb / 2,
-                          width: track * v / 10,
-                          child: Container(
-                            height: 6,
-                            decoration: BoxDecoration(color: BoltColors.neon, borderRadius: BorderRadius.circular(3)),
-                          ),
-                        ),
-                        Positioned(
-                          left: track * v / 10,
-                          child: Container(
-                            width: _thumb,
-                            height: _thumb,
-                            decoration: const BoxDecoration(color: BoltColors.neon, shape: BoxShape.circle),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _bar(v),
+              // The ends of the scale, so an empty bar still reads as one
+              // to slide along.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: _thumb / 2 - 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('0%', style: BoltText.m(10, color: BoltColors.muted3)),
+                    Text('100%', style: BoltText.m(10, color: BoltColors.muted3)),
+                  ],
                 ),
-              );
-            },
+              ),
+            ],
           ),
         ),
         const SizedBox(width: 12),
-        SizedBox(
+        Container(
           width: 52,
+          height: 44,
+          alignment: Alignment.centerRight,
           child: Text(
             v == null ? '-' : '${v * 10}%',
             textAlign: TextAlign.right,
@@ -559,4 +533,52 @@ class _GripBar extends StatelessWidget {
       ],
     );
   }
+
+  Widget _bar(int? v) => LayoutBuilder(
+    builder: (context, box) {
+      final track = box.maxWidth - _thumb;
+      void at(double x) => onChanged(((x - _thumb / 2) / track * 10).round().clamp(0, 10));
+      return GestureDetector(
+        key: const ValueKey('grip'),
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (d) => at(d.localPosition.dx),
+        onHorizontalDragStart: (d) => at(d.localPosition.dx),
+        onHorizontalDragUpdate: (d) => at(d.localPosition.dx),
+        child: SizedBox(
+          height: 44,
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              Positioned(
+                left: _thumb / 2,
+                right: _thumb / 2,
+                child: Container(
+                  height: 6,
+                  decoration: BoxDecoration(color: BoltColors.line, borderRadius: BorderRadius.circular(3)),
+                ),
+              ),
+              if (v != null) ...[
+                Positioned(
+                  left: _thumb / 2,
+                  width: track * v / 10,
+                  child: Container(
+                    height: 6,
+                    decoration: BoxDecoration(color: BoltColors.neon, borderRadius: BorderRadius.circular(3)),
+                  ),
+                ),
+                Positioned(
+                  left: track * v / 10,
+                  child: Container(
+                    width: _thumb,
+                    height: _thumb,
+                    decoration: const BoxDecoration(color: BoltColors.neon, shape: BoxShape.circle),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
