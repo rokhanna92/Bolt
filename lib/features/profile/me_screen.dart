@@ -130,7 +130,7 @@ class MeScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         _LinkCard(
-          icon: 'barbell',
+          icon: 'chart',
           title: tx('Progress'),
           sub: tx('Lifts, records, muscle volume, last week and challenges'),
           onTap: () => context.push('/progress'),

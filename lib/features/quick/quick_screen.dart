@@ -47,7 +47,7 @@ class QuickScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: _Tile(
-                  glyph: const BoltIcon('plate', size: 22, color: BoltColors.neon),
+                  glyph: const BoltIcon('checkin', size: 22, color: BoltColors.neon),
                   title: tx('Check in'),
                   sub: tx('No scan'),
                   onTap: () => _leave(context, (root) => openScanner(root, ref, manual: true)),
@@ -123,10 +123,16 @@ class _Tile extends StatelessWidget {
         stroke: const Stroke(BoltColors.line),
         radius: BoltRadii.card,
         padding: const EdgeInsets.all(16),
-        height: wide ? null : 136,
+        height: wide ? null : 104,
+        // Square tiles: the icon at the top, the words at the bottom, no
+        // empty half.
         child: wide
             ? Row(children: body)
-            : Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: body),
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: body,
+              ),
       ),
     );
   }
@@ -192,7 +198,7 @@ class _FastWorkout extends StatelessWidget {
         children: [
           Row(
             children: [
-              const BoltIcon('barbell', size: 22, color: BoltColors.neon),
+              const BoltIcon('bolt', size: 22, color: BoltColors.neon),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
