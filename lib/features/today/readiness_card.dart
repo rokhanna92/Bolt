@@ -205,12 +205,12 @@ class _ReadinessCardState extends ConsumerState<ReadinessCard> {
           style: BoltText.a(12, color: BoltColors.muted, height: 1.35),
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (var g = 0; g <= 10; g++) pill('${g * 10}%', _a[kGrip] == g, () => setState(() => _a[kGrip] = g)),
-          ],
+        _GripBar(
+          value: _a[kGrip],
+          onChanged: (g) {
+            if (g != _a[kGrip]) Haptics.play(Feel.tick);
+            setState(() => _a[kGrip] = g);
+          },
         ),
         const SizedBox(height: 14),
         NeonButton(label: tx('Save check-in'), height: 48, onTap: _complete ? _save : null),
@@ -474,6 +474,85 @@ class CheckIns extends StatelessWidget {
             ],
         ],
       ),
+    );
+  }
+}
+
+/// Grip strength from 0 to 100 % in steps of 10: tap or slide along the bar.
+/// One line instead of eleven chips.
+class _GripBar extends StatelessWidget {
+  const _GripBar({required this.value, required this.onChanged});
+
+  /// 0 to 10, or null before it is answered.
+  final int? value;
+  final ValueChanged<int> onChanged;
+
+  static const _thumb = 24.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final v = value;
+    return Row(
+      children: [
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final track = box.maxWidth - _thumb;
+              void at(double x) => onChanged(((x - _thumb / 2) / track * 10).round().clamp(0, 10));
+              return GestureDetector(
+                key: const ValueKey('grip'),
+                behavior: HitTestBehavior.opaque,
+                onTapDown: (d) => at(d.localPosition.dx),
+                onHorizontalDragStart: (d) => at(d.localPosition.dx),
+                onHorizontalDragUpdate: (d) => at(d.localPosition.dx),
+                child: SizedBox(
+                  height: 44,
+                  child: Stack(
+                    alignment: Alignment.centerLeft,
+                    children: [
+                      Positioned(
+                        left: _thumb / 2,
+                        right: _thumb / 2,
+                        child: Container(
+                          height: 6,
+                          decoration: BoxDecoration(color: BoltColors.line, borderRadius: BorderRadius.circular(3)),
+                        ),
+                      ),
+                      if (v != null) ...[
+                        Positioned(
+                          left: _thumb / 2,
+                          width: track * v / 10,
+                          child: Container(
+                            height: 6,
+                            decoration: BoxDecoration(color: BoltColors.neon, borderRadius: BorderRadius.circular(3)),
+                          ),
+                        ),
+                        Positioned(
+                          left: track * v / 10,
+                          child: Container(
+                            width: _thumb,
+                            height: _thumb,
+                            decoration: const BoxDecoration(color: BoltColors.neon, shape: BoxShape.circle),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        SizedBox(
+          width: 52,
+          child: Text(
+            v == null ? '-' : '${v * 10}%',
+            textAlign: TextAlign.right,
+            style: BoltText.m(16, weight: 700, color: v == null ? BoltColors.muted3 : BoltColors.neon),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -143,16 +143,7 @@ class _MuscleBuilderSheetState extends State<MuscleBuilderSheet> {
                   const SizedBox(width: 6),
                   Expanded(child: Text(_ex[i].name, style: BoltText.a(14, weight: 700))),
                   Text('${_ex[i].sets} × ${_ex[i].reps}', style: BoltText.m(11, color: BoltColors.muted)),
-                  Tap(
-                    onTap: () => setState(() => _ex = [..._ex]..removeAt(i)),
-                    child: SizedBox(
-                      width: 32,
-                      height: 28,
-                      child: Center(
-                        child: Text('✕', style: BoltText.a(14, color: BoltColors.muted2)),
-                      ),
-                    ),
-                  ),
+                  Tap(onTap: () => setState(() => _ex = [..._ex]..removeAt(i)), child: const CloseGlyph()),
                 ],
               ),
             ),

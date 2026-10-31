@@ -116,7 +116,7 @@ class SeasonDoneCard extends ConsumerWidget {
               ),
               Tap(
                 onTap: () => store.dismissHint('season:${s.n}'),
-                child: Text('✕', style: BoltText.a(15, color: BoltColors.ink)),
+                child: const CloseGlyph(color: BoltColors.ink),
               ),
             ],
           ),

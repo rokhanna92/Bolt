@@ -83,10 +83,7 @@ class CycleCard extends ConsumerWidget {
                     Expanded(child: Text(tx('Started {day}', {'day': fmtDay(k)}), style: BoltText.a(13, weight: 600))),
                     Tap(
                       onTap: () => store.removePeriod(k),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text('✕', style: BoltText.a(14, color: BoltColors.muted2)),
-                      ),
+                      child: Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: const CloseGlyph()),
                     ),
                   ],
                 ),

@@ -234,10 +234,7 @@ class TodayScreen extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(child: Kicker(tx('LAST WEEK'), color: BoltColors.neon)),
-                      Tap(
-                        onTap: () => store.dismissRecap(dk(addDays(ws, -7))),
-                        child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),
-                      ),
+                      Tap(onTap: () => store.dismissRecap(dk(addDays(ws, -7))), child: const CloseGlyph()),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -514,10 +511,7 @@ class _CheerCard extends ConsumerWidget {
                   color: BoltColors.neon,
                 ),
               ),
-              Tap(
-                onTap: close,
-                child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),
-              ),
+              Tap(onTap: close, child: const CloseGlyph()),
             ],
           ),
           const SizedBox(height: 8),
@@ -566,10 +560,7 @@ class _WarmupCard extends ConsumerWidget {
               Expanded(
                 child: Kicker(tx('WARM-UP · ~{n} MIN', {'n': mins}), size: 9, spacing: .1, color: BoltColors.neon),
               ),
-              Tap(
-                onTap: () => ref.read(boltProvider.notifier).dismissHint('warm:$today'),
-                child: Text('✕', style: BoltText.a(14, color: BoltColors.muted2)),
-              ),
+              Tap(onTap: () => ref.read(boltProvider.notifier).dismissHint('warm:$today'), child: const CloseGlyph()),
             ],
           ),
           const SizedBox(height: 8),
@@ -1193,10 +1184,7 @@ class _NewCard extends ConsumerWidget {
           Row(
             children: [
               Expanded(child: Kicker(tx('NEW IN BOLT 1.24'), color: BoltColors.neon)),
-              Tap(
-                onTap: () => store.dismissHint(_newId),
-                child: Text('✕', style: BoltText.a(15, color: BoltColors.muted2)),
-              ),
+              Tap(onTap: () => store.dismissHint(_newId), child: const CloseGlyph()),
             ],
           ),
           for (final (title, line, route) in _items)
@@ -1228,11 +1216,6 @@ class _NewCard extends ConsumerWidget {
                 ),
               ),
             ),
-          const SizedBox(height: 10),
-          Tap(
-            onTap: () => store.dismissHint(_newId),
-            child: Text(tx('Got it'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
-          ),
         ],
       ),
     );
@@ -1334,16 +1317,7 @@ class _HintCard extends ConsumerWidget {
               ],
             ),
           ),
-          Tap(
-            onTap: () => store.dismissHint(h.id),
-            child: SizedBox(
-              width: 36,
-              height: 36,
-              child: Center(
-                child: Text('✕', style: BoltText.a(14, color: BoltColors.muted2)),
-              ),
-            ),
-          ),
+          Tap(onTap: () => store.dismissHint(h.id), child: const CloseGlyph()),
         ],
       ),
     );

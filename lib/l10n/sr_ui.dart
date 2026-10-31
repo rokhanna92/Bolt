@@ -1184,4 +1184,5 @@ const kSrUi = <String, String>{
   'Previous': 'Prethodno',
   'Next': 'Sledeće',
   'Go back': 'Nazad',
+  'Close': 'Zatvori',
 };

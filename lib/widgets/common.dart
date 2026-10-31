@@ -216,6 +216,7 @@ class SquareButton extends StatelessWidget {
           switch (i) {
             'back' => tx('Previous'),
             'chevron' => tx('Next'),
+            'close' => tx('Close'),
             _ => null,
           },
       child: Tap(
@@ -243,7 +244,8 @@ class BackBox extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => SquareButton(onTap: onTap, icon: 'back', size: 42, semanticLabel: tx('Go back'));
+  Widget build(BuildContext context) =>
+      SquareButton(onTap: onTap, icon: 'back', size: 42, semanticLabel: tx('Go back'));
 }
 
 /// Initials in a circle, filled neon or outlined.
@@ -559,6 +561,24 @@ class InfoIcon extends StatelessWidget {
     size: size,
     label: tx('How to'),
     child: Text('i', style: BoltText.a(size * .46, weight: 800, color: BoltColors.neon, height: 1)),
+  );
+}
+
+/// The ✕ that dismisses a card, with padding around it to make it easy to
+/// hit.
+class CloseGlyph extends StatelessWidget {
+  const CloseGlyph({super.key, this.color = BoltColors.muted2, this.size = 14});
+
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: tx('Close'),
+    child: Padding(
+      padding: const EdgeInsets.all(12),
+      child: BoltIcon('close', size: size, color: color),
+    ),
   );
 }
 

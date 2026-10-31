@@ -264,16 +264,7 @@ class MeasurementsScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      Tap(
-                        onTap: () => _delete(context, store, e.date),
-                        child: SizedBox(
-                          width: 36,
-                          height: 36,
-                          child: Center(
-                            child: Text('✕', style: BoltText.a(14, color: BoltColors.muted2)),
-                          ),
-                        ),
-                      ),
+                      Tap(onTap: () => _delete(context, store, e.date), child: const CloseGlyph()),
                     ],
                   ),
                 ),

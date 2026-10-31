@@ -119,7 +119,8 @@ class RankName extends StatelessWidget {
         size,
         weight: 900,
         width: 112,
-        color: tier == kTiers.length - 1 ? Colors.white : tierColor(tier),
+        // Bodyweight's grey reads as switched off, so its name is white.
+        color: tier == kTiers.length - 1 || tier == 0 ? Colors.white : tierColor(tier),
       ),
     );
     if (tier != kTiers.length - 1) return text;
@@ -382,7 +383,8 @@ class RankScreen extends ConsumerWidget {
                     SizedBox(
                       width: w,
                       child: Opacity(
-                        opacity: tier <= r.tier ? 1 : .45,
+                        // Ranks still ahead stay faint, so none looks earned.
+                        opacity: tier <= r.tier ? 1 : .3,
                         child: Column(
                           children: [
                             RankEmblem(step: _ladderStep(tier), size: 44),
@@ -395,7 +397,7 @@ class RankScreen extends ConsumerWidget {
                                 style: BoltText.a(
                                   11,
                                   weight: tier == r.tier ? 900 : 600,
-                                  color: tier == r.tier ? tierColor(tier) : BoltColors.textSoft,
+                                  color: tier == r.tier && tier > 0 ? tierColor(tier) : BoltColors.textSoft,
                                 ),
                               ),
                             ),

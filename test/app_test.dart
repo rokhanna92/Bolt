@@ -350,7 +350,12 @@ void main() {
     // Nothing is saved until every question has an answer.
     await tapText(tester, 'Save check-in');
     expect(c.read(boltProvider).trainees.single.readiness, isEmpty);
-    await tapText(tester, '30%');
+    await tester.ensureVisible(find.byKey(const ValueKey('grip')));
+    await settle(tester);
+    final grip = tester.getRect(find.byKey(const ValueKey('grip')));
+    await tester.tapAt(Offset(grip.left + 12 + (grip.width - 24) * .3, grip.center.dy));
+    await settle(tester);
+    expect(find.text('30%'), findsOneWidget);
     await tapText(tester, 'Save check-in');
     expect(find.text('Low today, so resting is the right call. Sleep well and eat well.'), findsOneWidget);
     expect(find.text('20'), findsOneWidget);
@@ -451,7 +456,7 @@ void main() {
     expect(bench.reps, 'max');
     await back(tester);
     expect(tester.getTopLeft(find.text('YOUR WORKOUTS')).dy, lessThan(tester.getTopLeft(find.text('CLASSIC')).dy));
-    await tapText(tester, '✕');
+    await tapLabel(tester, 'Close');
     expect(find.text('YOUR WORKOUTS'), findsNothing);
     expect(c.read(boltProvider).tpls['push']!.ex.first.load, '75 kg');
     expect(tester.takeException(), isNull);

@@ -182,17 +182,7 @@ class LibraryScreen extends ConsumerWidget {
               Positioned(
                 top: -4,
                 right: -4,
-                child: Tap(
-                  onTap: onRemove,
-                  child: SizedBox(
-                    width: 32,
-                    height: 28,
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: Text('✕', style: BoltText.a(13, color: BoltColors.muted2, height: 1)),
-                    ),
-                  ),
-                ),
+                child: Tap(onTap: onRemove, child: const CloseGlyph()),
               ),
           ],
         ),

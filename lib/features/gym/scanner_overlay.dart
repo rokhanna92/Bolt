@@ -137,7 +137,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
                       style: BoltText.a(18, weight: 800),
                     ),
                   ),
-                  SquareButton(onTap: () => Navigator.of(context).pop(), label: '✕', fontSize: 16),
+                  SquareButton(onTap: () => Navigator.of(context).pop(), icon: 'close'),
                 ],
               ),
             ),

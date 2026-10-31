@@ -255,13 +255,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                   final list = _store.editExercises(widget.target)..remove(e);
                   normalizeGroups(list);
                 }),
-                child: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Center(
-                    child: Text('✕', style: BoltText.a(16, color: BoltColors.muted2)),
-                  ),
-                ),
+                child: const CloseGlyph(),
               ),
             ],
           ),
