@@ -103,9 +103,9 @@ class ScheduleScreen extends ConsumerWidget {
         Row(
           children: [
             Expanded(child: Text(label, style: BoltText.a(30, weight: 900, width: 112, spacing: -.02))),
-            SquareButton(onTap: () => ref.read(scheduleWeekProvider.notifier).set(wk - 1), label: '‹'),
+            SquareButton(onTap: () => ref.read(scheduleWeekProvider.notifier).set(wk - 1), icon: 'back'),
             const SizedBox(width: 6),
-            SquareButton(onTap: () => ref.read(scheduleWeekProvider.notifier).set(wk + 1), label: '›'),
+            SquareButton(onTap: () => ref.read(scheduleWeekProvider.notifier).set(wk + 1), icon: 'chevron'),
           ],
         ),
         const SizedBox(height: 16),

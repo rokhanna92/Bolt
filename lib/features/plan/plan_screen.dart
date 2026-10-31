@@ -96,9 +96,9 @@ class PlanScreen extends ConsumerWidget {
               child: Text('${month.year}', style: BoltText.m(13, color: BoltColors.muted)),
             ),
             const Spacer(),
-            SquareButton(onTap: () => ref.read(planMonthProvider.notifier).shift(-1), label: '‹'),
+            SquareButton(onTap: () => ref.read(planMonthProvider.notifier).shift(-1), icon: 'back'),
             const SizedBox(width: 6),
-            SquareButton(onTap: () => ref.read(planMonthProvider.notifier).shift(1), label: '›'),
+            SquareButton(onTap: () => ref.read(planMonthProvider.notifier).shift(1), icon: 'chevron'),
           ],
         ),
         if (moving != null) ...[

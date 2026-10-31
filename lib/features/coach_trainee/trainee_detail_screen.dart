@@ -353,7 +353,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                     const Spacer(),
                     SquareButton(
                       onTap: () => setState(() => _month = DateTime(_month.year, _month.month - 1)),
-                      label: '‹',
+                      icon: 'back',
                       size: 36,
                       radius: 10,
                       fontSize: 16,
@@ -361,7 +361,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                     const SizedBox(width: 6),
                     SquareButton(
                       onTap: () => setState(() => _month = DateTime(_month.year, _month.month + 1)),
-                      label: '›',
+                      icon: 'chevron',
                       size: 36,
                       radius: 10,
                       fontSize: 16,

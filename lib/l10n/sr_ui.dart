@@ -1180,4 +1180,7 @@ const kSrUi = <String, String>{
   'STOPPED': 'ZAUSTAVLJENO',
   'Swap exercise': 'Zameni vežbu',
   'How to': 'Kako se radi',
+  'Previous': 'Prethodno',
+  'Next': 'Sledeće',
+  'Go back': 'Nazad',
 };

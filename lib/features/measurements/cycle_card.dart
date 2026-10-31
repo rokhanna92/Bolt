@@ -126,7 +126,7 @@ class _PeriodSheetState extends ConsumerState<_PeriodSheet> {
         const SizedBox(height: 16),
         Row(
           children: [
-            SquareButton(onTap: () => setState(() => _ago = (_ago + 1).clamp(0, 45)), label: '‹'),
+            SquareButton(onTap: () => setState(() => _ago = (_ago + 1).clamp(0, 45)), icon: 'back'),
             Expanded(
               child: Text(
                 _ago == 0 ? tx('Today') : (_ago == 1 ? tx('Yesterday') : fmtDay(dk(day))),
@@ -134,7 +134,7 @@ class _PeriodSheetState extends ConsumerState<_PeriodSheet> {
                 style: BoltText.a(18, weight: 800),
               ),
             ),
-            SquareButton(onTap: () => setState(() => _ago = (_ago - 1).clamp(0, 45)), label: '›'),
+            SquareButton(onTap: () => setState(() => _ago = (_ago - 1).clamp(0, 45)), icon: 'chevron'),
           ],
         ),
         const SizedBox(height: 16),

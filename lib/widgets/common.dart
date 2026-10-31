@@ -185,30 +185,53 @@ class SquareButton extends StatelessWidget {
     super.key,
     required this.onTap,
     this.label,
+    this.icon,
     this.child,
     this.size = 40,
     this.radius = 12,
     this.fontSize = 18,
+    this.semanticLabel,
   });
 
   final VoidCallback onTap;
   final String? label;
+
+  /// An icon from assets/icons ("back", "chevron"), drawn centred instead of
+  /// a text arrow, whose glyph sits off-centre.
+  final String? icon;
   final Widget? child;
   final double size;
   final double radius;
   final double fontSize;
 
+  /// Read out to screen readers; arrows default to Previous and Next.
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
-    return Tap(
-      onTap: onTap,
-      child: BoltBox(
-        width: size,
-        height: size,
-        radius: radius,
-        stroke: const Stroke(BoltColors.line),
-        alignment: Alignment.center,
-        child: child ?? Text(label ?? '', style: BoltText.a(fontSize, color: BoltColors.text, height: 1)),
+    final i = icon;
+    return Semantics(
+      label:
+          semanticLabel ??
+          switch (i) {
+            'back' => tx('Previous'),
+            'chevron' => tx('Next'),
+            _ => null,
+          },
+      child: Tap(
+        onTap: onTap,
+        child: BoltBox(
+          width: size,
+          height: size,
+          radius: radius,
+          stroke: const Stroke(BoltColors.line),
+          alignment: Alignment.center,
+          child:
+              child ??
+              (i != null
+                  ? BoltIcon(i, size: size * .5)
+                  : Text(label ?? '', style: BoltText.a(fontSize, color: BoltColors.text, height: 1))),
+        ),
       ),
     );
   }
@@ -220,7 +243,7 @@ class BackBox extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => SquareButton(onTap: onTap, label: '‹', size: 42, fontSize: 20);
+  Widget build(BuildContext context) => SquareButton(onTap: onTap, icon: 'back', size: 42, semanticLabel: tx('Go back'));
 }
 
 /// Initials in a circle, filled neon or outlined.
@@ -539,14 +562,14 @@ class InfoIcon extends StatelessWidget {
   );
 }
 
-/// Mono "›" chevron in neon.
+/// Neon chevron for rows that open something.
 class Chevron extends StatelessWidget {
   const Chevron({super.key, this.size = 20});
 
   final double size;
 
   @override
-  Widget build(BuildContext context) => Text('›', style: BoltText.a(size, color: BoltColors.neon, height: 1));
+  Widget build(BuildContext context) => BoltIcon('chevron', size: size * .8, color: BoltColors.neon);
 }
 
 /// Three stat tiles in a row, all as tall as the tallest, so a label that

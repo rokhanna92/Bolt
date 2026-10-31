@@ -145,8 +145,19 @@ Future<void> volumeDown(WidgetTester tester) async {
 }
 
 /// The page's own back button.
+/// Taps the first widget a screen reader would call [label], for buttons
+/// drawn as icons.
+Future<void> tapLabel(WidgetTester tester, String label) async {
+  final f = find.byWidgetPredicate((w) => w is Semantics && w.properties.label == label).first;
+  await tester.ensureVisible(f);
+  await tester.tap(f);
+  await settle(tester);
+}
+
 Future<void> back(WidgetTester tester) async {
-  await tester.tap(find.byType(BackBox).first);
+  final f = find.byType(BackBox).first;
+  await tester.ensureVisible(f);
+  await tester.tap(f);
   await settle(tester);
 }
 
@@ -230,7 +241,7 @@ void main() {
     expect(find.text('Next: First Rep'), findsOneWidget);
     await tapText(tester, 'ACHIEVEMENTS');
     expect(find.text('Trophy rack'), findsOneWidget);
-    await tester.tap(find.text('‹'));
+    await tester.tap(find.byType(BackBox).first);
     await settle(tester);
 
     await tapTab(tester, 'Me');
@@ -354,7 +365,7 @@ void main() {
     await tapText(tester, '4');
     await tapText(tester, 'Start season 1');
     expect(find.text('SEASON 1 · WEEK 1 OF 8'), findsOneWidget);
-    await tester.tap(find.text('‹'));
+    await tester.tap(find.byType(BackBox).first);
     await settle(tester);
     expect(find.text('SEASON 1 · WEEK 1 OF 8'), findsOneWidget);
     expect(find.text('SEASON 1'), findsOneWidget);
@@ -420,7 +431,7 @@ void main() {
     expect(tester.widget<TextField>(find.widgetWithText(TextField, '75 kg').first).controller!.text, '75 kg');
     await tapText(tester, 'Max reps');
     expect(bench.reps, 'max');
-    await tapText(tester, '‹');
+    await back(tester);
     expect(tester.getTopLeft(find.text('YOUR WORKOUTS')).dy, lessThan(tester.getTopLeft(find.text('CLASSIC')).dy));
     await tapText(tester, '✕');
     expect(find.text('YOUR WORKOUTS'), findsNothing);
@@ -763,8 +774,8 @@ void main() {
     final climber = s.ex.firstWhere((e) => e.name == 'Mountain Climber');
     await tapText(tester, 'Warm-up done');
     // To the mountain climbers: burpees and swings come first.
-    await tapText(tester, '›');
-    await tapText(tester, '›');
+    await tapLabel(tester, 'Next');
+    await tapLabel(tester, 'Next');
     expect(find.text('Mountain Climber'), findsOneWidget);
     await tapText(tester, 'Start 0:30');
     expect(find.text('GO'), findsOneWidget);
@@ -870,10 +881,10 @@ void main() {
     expect(find.text('About you'), findsOneWidget);
     expect(find.text('STEP 1 OF 2'), findsOneWidget);
     // Back from the profile step returns to the code, then to the roles.
-    await tester.tap(find.text('‹'));
+    await tester.tap(find.byType(BackBox).first);
     await settle(tester);
     expect(find.text('Your coach code'), findsOneWidget);
-    await tester.tap(find.text('‹'));
+    await tester.tap(find.byType(BackBox).first);
     await settle(tester);
     expect(find.text('HOW DO YOU TRAIN?'), findsOneWidget);
     // Trainees and solo users skip the code.
@@ -1148,11 +1159,11 @@ void main() {
     expect(find.text('Luka Horvat'), findsOneWidget);
     await tapText(tester, '15');
     expect(find.text('No sessions'), findsOneWidget);
-    await tapText(tester, '›');
+    await tapLabel(tester, 'Next');
     expect(find.text('November'), findsOneWidget);
     expect(find.text('SUN 1 NOV'), findsOneWidget);
 
-    await tapText(tester, '‹');
+    await tapLabel(tester, 'Previous');
     await tapText(tester, '14');
     await tapText(tester, 'Ana Marić');
     expect(find.text('Progress'), findsOneWidget);

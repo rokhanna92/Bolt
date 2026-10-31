@@ -392,17 +392,9 @@ class TodayScreen extends ConsumerWidget {
                       child: Row(
                         children: [
                           Expanded(child: Kicker(fmtDay(k).toUpperCase(), spacing: .06)),
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(text: '${tx(plan[k]!.title)} ', style: BoltText.a(14, weight: 700)),
-                                TextSpan(
-                                  text: '›',
-                                  style: BoltText.a(14, weight: 700, color: BoltColors.neon),
-                                ),
-                              ],
-                            ),
-                          ),
+                          Text(tx(plan[k]!.title), style: BoltText.a(14, weight: 700)),
+                          const SizedBox(width: 4),
+                          const Chevron(size: 18),
                         ],
                       ),
                     ),

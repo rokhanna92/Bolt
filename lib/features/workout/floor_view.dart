@@ -407,7 +407,7 @@ class _FloorViewState extends State<FloorView> {
           const SizedBox(height: 6),
           Row(
             children: [
-              SquareButton(onTap: () => _exercise(-1), label: '‹', size: 40),
+              SquareButton(onTap: () => _exercise(-1), icon: 'back', size: 40),
               const SizedBox(width: 10),
               Expanded(
                 child: Tap(
@@ -416,7 +416,7 @@ class _FloorViewState extends State<FloorView> {
                 ),
               ),
               const SizedBox(width: 10),
-              SquareButton(onTap: () => _exercise(1), label: '›', size: 40),
+              SquareButton(onTap: () => _exercise(1), icon: 'chevron', size: 40),
             ],
           ),
           if (widget.canSwap(i)) ...[
