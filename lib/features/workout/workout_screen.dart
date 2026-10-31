@@ -362,11 +362,14 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     final insets = MediaQuery.paddingOf(context);
     final lastK = lastSame(store.plan(t.id), s, widget.dayKey);
     final floor = d.settings.floor;
+    // The mode pill and the clock share this row, so the date stands alone
+    // and never wraps.
     final top = Row(
       children: [
         BackBox(onTap: () => context.pop()),
         const SizedBox(width: 12),
-        Expanded(child: Kicker(tx('SESSION · {day}', {'day': fmtDay(widget.dayKey).toUpperCase()}))),
+        Expanded(child: Kicker(fmtDay(widget.dayKey).toUpperCase(), maxLines: 1)),
+        const SizedBox(width: 8),
         Tap(
           onTap: () {
             Haptics.play(Feel.tap);

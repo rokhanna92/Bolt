@@ -148,6 +148,7 @@ class Kicker extends StatelessWidget {
     this.color = BoltColors.muted,
     this.spacing = .12,
     this.weight = 400,
+    this.maxLines,
   });
 
   final String text;
@@ -156,9 +157,14 @@ class Kicker extends StatelessWidget {
   final double spacing;
   final double weight;
 
+  /// Cuts the label with an ellipsis instead of wrapping when set.
+  final int? maxLines;
+
   @override
   Widget build(BuildContext context) => Text(
     text,
+    maxLines: maxLines,
+    overflow: maxLines == null ? null : TextOverflow.ellipsis,
     style: BoltText.m(size, color: color, spacing: spacing, weight: weight),
   );
 }
