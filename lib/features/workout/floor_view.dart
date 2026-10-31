@@ -66,6 +66,8 @@ class FloorView extends StatefulWidget {
     required this.ramp,
     required this.prefill,
     required this.hint,
+    required this.canSwap,
+    required this.onSwap,
     required this.restEnd,
     required this.restTotal,
     required this.restNext,
@@ -94,6 +96,12 @@ class FloorView extends StatefulWidget {
   /// What set j of exercise i starts from.
   final SetLog Function(int i, int j) prefill;
   final LiftHint? Function(int i) hint;
+
+  /// Swap exercise i for another that trains the same muscle, for when the
+  /// rack or the machine is taken. Only while it has no ticked sets and
+  /// there is something to swap it for.
+  final bool Function(int i) canSwap;
+  final void Function(int i) onSwap;
   final DateTime? restEnd;
   final int restTotal;
   final String restNext;
@@ -413,6 +421,27 @@ class _FloorViewState extends State<FloorView> {
               SquareButton(onTap: () => _exercise(1), label: '›', size: 40),
             ],
           ),
+          if (widget.canSwap(i)) ...[
+            const SizedBox(height: 8),
+            Center(
+              child: Tap(
+                onTap: () => widget.onSwap(i),
+                child: BoltBox(
+                  radius: BoltRadii.pill,
+                  stroke: const Stroke(BoltColors.line),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('⇄', style: BoltText.a(13, weight: 800, color: BoltColors.neon, height: 1)),
+                      const SizedBox(width: 7),
+                      Text(tx('Swap exercise'), style: BoltText.a(13, weight: 700, color: BoltColors.textSoft)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
           if (h != null) ...[
             const SizedBox(height: 8),
             Text(

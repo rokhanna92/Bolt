@@ -8,6 +8,7 @@ import 'package:bolt/data/models/board.dart';
 import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/models/exercise.dart';
 import 'package:bolt/data/models/session.dart';
+import 'package:bolt/data/rules.dart';
 import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/features/gym/scanner_overlay.dart';
@@ -499,6 +500,39 @@ void main() {
     final w = c.read(boltProvider).workout!;
     expect(s.ex.fold(0, (a, e) => a + List.generate(e.sets, (j) => w.isDone(e.id, j)).where((x) => x).length), 2);
     expect(find.byKey(const ValueKey('rest-screen')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
+  testWidgets('the rack is taken: swap the exercise from gym floor mode', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapText(tester, 'Open workout');
+    final s = c.read(boltProvider).plans[Account.ownerId]!['2026-10-14']!;
+    final first = s.ex.first;
+    final was = first.name;
+    await tapText(tester, 'START');
+    await tapText(tester, 'Warm-up done');
+
+    // On the set itself, one tap to the alternatives for the same muscle.
+    expect(find.text(was), findsOneWidget);
+    await tapText(tester, 'Swap exercise');
+    expect(find.text('Swap $was'), findsOneWidget);
+    final to = swapOptions(first, c.read(boltProvider.notifier).tr(Account.ownerId)).first.name;
+    await tapText(tester, to);
+
+    // The set carries on under the new name, warm-up not repeated.
+    expect(first.name, to);
+    expect(first.swapped, isTrue);
+    expect(first.orig, was);
+    expect(find.text(to), findsWidgets);
+    expect(find.textContaining('SET 1 OF'), findsOneWidget);
+
+    // Once a set is ticked the swap is gone: the log belongs to what was
+    // actually done.
+    await tapText(tester, 'Done · set 1');
+    await tapText(tester, 'Skip');
+    expect(find.text('Swap exercise'), findsNothing);
     expect(tester.takeException(), isNull);
     await unmount(tester);
   });

@@ -403,6 +403,8 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                 ),
           prefill: (i, j) => _prefill(s.ex[i], j, w, hint(i), percentKg(t, plan, s.ex[i])),
           hint: hint,
+          canSwap: (i) => canSwapNow(s.ex[i], w, t),
+          onSwap: (i) => showSwapSheet(context, s.ex[i], t),
           restEnd: _restEnd,
           restTotal: _restTotal,
           restNext: _restNext,
@@ -539,6 +541,12 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   }
 }
 
+/// Whether [e] can still be swapped during the workout. Once one of its
+/// sets is ticked the logged work belongs to the exercise actually done, so
+/// renaming it would make the log a lie.
+bool canSwapNow(Exercise e, ActiveWorkout w, Trainee? t) =>
+    !(w.done[e.id]?.contains(true) ?? false) && swapOptions(e, t).isNotEmpty;
+
 class _ExerciseCard extends ConsumerWidget {
   const _ExerciseCard({
     required this.index,
@@ -624,7 +632,7 @@ class _ExerciseCard extends ConsumerWidget {
                   ),
                 ),
               ],
-              if (!(workout.done[e.id]?.contains(true) ?? false) && swapOptions(e, trainee).isNotEmpty) ...[
+              if (canSwapNow(e, workout, trainee)) ...[
                 const SizedBox(width: 8),
                 SwapIcon(onTap: () => showSwapSheet(context, e, trainee)),
               ],
