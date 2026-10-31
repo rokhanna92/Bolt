@@ -1735,6 +1735,7 @@ const kSrContent = <String, String>{
   'Hips': 'Kukovi',
   'Arm': 'Nadlaktica',
   'Thigh': 'Butina',
+  'Calf': 'List',
   'Deload week: half the sets, about 10% lighter, stop 3 or more reps before failure.': 'Deload nedelja: upola manje serija, oko 10% lakše, stani 3 ili više ponavljanja pre otkaza.',
   'Walking': 'Hodanje',
   'Every day': 'Svaki dan',

@@ -49,6 +49,7 @@ class Body {
     'hips': 'Hips',
     'arm': 'Arm',
     'thigh': 'Thigh',
+    'calf': 'Calf',
     'neck': 'Neck',
   };
 
