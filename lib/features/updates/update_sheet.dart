@@ -28,11 +28,18 @@ class NewRelease extends Notifier<Release?> {
   Release? build() => null;
 
   /// Asks GitHub at most every 6 hours; a failed check keeps what was known.
+  /// Also keeps the daily check with Bolt closed going, in today's language.
   Future<void> refresh() async {
     final last = _at;
     if (last != null && DateTime.now().difference(last).inHours < 6) return;
     _at = DateTime.now();
-    set(await ref.read(updaterProvider).check());
+    final u = ref.read(updaterProvider);
+    u.watch(
+      title: tx('Bolt {version} is out'),
+      body: tx('Tap to update. Your data stays on this phone.'),
+      channel: tx('App updates'),
+    );
+    set(await u.check());
   }
 
   void set(CheckResult r) {

@@ -1191,4 +1191,6 @@ const kSrUi = <String, String>{
   'Bolt {version} is out': 'Stigao je Bolt {version}',
   'New version': 'Nova verzija',
   'Your data stays on this phone.': 'Tvoji podaci ostaju na ovom telefonu.',
+  'Tap to update. Your data stays on this phone.': 'Dodirni za ažuriranje. Tvoji podaci ostaju na ovom telefonu.',
+  'App updates': 'Ažuriranja aplikacije',
 };

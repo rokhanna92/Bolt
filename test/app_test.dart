@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bolt/app.dart';
+import 'package:bolt/app/actions.dart' show openShortcut;
 import 'package:bolt/app/router.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
@@ -1332,6 +1333,15 @@ void main() {
     await tester.tap(find.descendant(of: find.byType(NewVersionCard), matching: find.byType(CloseGlyph)));
     await settle(tester);
     expect(find.text('Bolt 1.3.0 is out'), findsNothing);
+    await unmount(tester);
+  });
+
+  testWidgets('tapping the new-version notification opens the update sheet', (tester) async {
+    await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    openShortcut('update');
+    await settle(tester);
+    expect(find.text('You are up to date'), findsOneWidget);
     await unmount(tester);
   });
 

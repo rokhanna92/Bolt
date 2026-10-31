@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 
-/// The app icon's long-press shortcuts (Android): `scan`, `workout`, `gym`.
+/// The app icon's long-press shortcuts (Android): `scan`, `workout`, `gym`;
+/// and `update` from the new-version notification.
 abstract final class AppShortcuts {
   static const _channel = MethodChannel('bolt/shortcuts');
 

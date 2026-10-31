@@ -17,6 +17,7 @@ import java.io.File
  * Answers the "bolt/updates" channel: whether Bolt may install packages, the
  * settings screen to allow it, and handing a downloaded APK to the installer.
  * Android never installs silently; the installer always asks the user.
+ * "watch" starts the daily check for a new version (UpdateCheckJob).
  *
  * Also "bolt/shortcuts": the app icon's long-press shortcuts arrive as a
  * "shortcut" extra, at launch ("initial") or while running ("open").
@@ -152,6 +153,11 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/updates")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
+                    "watch" -> {
+                        @Suppress("UNCHECKED_CAST")
+                        UpdateCheckJob.watch(this, call.arguments as Map<String, Any?>)
+                        result.success(true)
+                    }
                     "canInstall" -> result.success(canInstall())
                     "openInstallSettings" -> result.success(openInstallSettings())
                     "install" -> {

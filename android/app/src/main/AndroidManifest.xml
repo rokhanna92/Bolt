@@ -67,6 +67,11 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Rest timer between gym sets, with sound and vibration cues"/>
         </service>
+        <!-- Daily check for a new Bolt release with Bolt closed, see UpdateCheckJob. -->
+        <service
+            android:name=".UpdateCheckJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
         <!-- flutter_local_notifications ships no receivers in its own manifest,
              so they are declared here. Without these, scheduled reminders are
              accepted by the plugin and then silently never fire. -->

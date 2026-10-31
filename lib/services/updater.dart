@@ -216,6 +216,12 @@ class Updater {
     }
   }
 
+  /// Starts Android's daily check for a new version while Bolt is closed
+  /// (UpdateCheckJob) and gives it the notification texts in the app
+  /// language. Safe to call on every start.
+  Future<bool> watch({required String title, required String body, required String channel}) =>
+      _ask('watch', {'title': title, 'body': body, 'channel': channel});
+
   Future<bool> canInstall() => _ask('canInstall');
 
   Future<bool> openInstallSettings() => _ask('openInstallSettings');

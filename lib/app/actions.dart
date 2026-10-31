@@ -18,6 +18,7 @@ import '../features/learn/exercise_sheet.dart';
 import '../features/plan/day_sheet.dart';
 import '../features/profile/injury_sheet.dart';
 import '../features/rank/rank_screen.dart';
+import '../features/updates/update_sheet.dart';
 import '../features/workouts/muscle_builder.dart';
 import '../features/workouts/split_sheet.dart';
 import '../features/workouts/workout_picker.dart';
@@ -57,10 +58,16 @@ Future<void> startFastWorkout({required bool cardio}) async {
 }
 
 /// The app icon's long-press shortcuts: scan the plaque, today's workout or
-/// gym time. Ignored before onboarding and on coach screens.
+/// gym time. Ignored before onboarding and on coach screens. Also "update"
+/// from the new-version notification, which opens the update sheet.
 void openShortcut(String what) {
   final context = rootNavigatorKey.currentContext;
   final a = _container.read(boltProvider).account;
+  // The new-version notification, for every role.
+  if (what == 'update') {
+    if (context != null && a != null) showBoltSheet<void>(context, (_) => const UpdateSheet());
+    return;
+  }
   if (context == null || a == null || !a.isTrainee) return;
   _container.read(moveFromProvider.notifier).set(null);
   switch (what) {
