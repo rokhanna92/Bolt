@@ -1144,6 +1144,21 @@ const kExercises = <ExInfo>[
     avoid: 'Leaning back as the set gets hard',
   ),
   ExInfo(
+    'Straight-bar Cable Curl',
+    'biceps',
+    3,
+    '10-12',
+    '25 kg',
+    works: 'Biceps, forearms',
+    cues: [
+      'Clip a straight bar to a low pulley and stand close',
+      'Underhand grip at shoulder width, elbows at the sides',
+      'Curl the bar to the upper chest and squeeze',
+      'Constant tension on the way down',
+    ],
+    avoid: 'Leaning back as the set gets hard',
+  ),
+  ExInfo(
     'Spider Curl',
     'biceps',
     3,
