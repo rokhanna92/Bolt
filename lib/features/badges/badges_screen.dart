@@ -29,7 +29,8 @@ class BadgesScreen extends ConsumerWidget {
     final stats = displayStats(t.stats, store.now);
     double pct(BadgeDef b) => badgeProgress(b, stats);
     bool on(BadgeDef b) => badgeEarned(b, stats);
-    final count = kBadges.where(on).length;
+    final earned = _sorted(kBadges.where(on));
+    final count = earned.length;
     final next = lockedByCloseness(stats).firstOrNull;
 
     return BoltPage(
@@ -53,8 +54,24 @@ class BadgesScreen extends ConsumerWidget {
               Text('$count / ${kBadges.length}', style: BoltText.m(14, weight: 700, color: BoltColors.neon)),
             ],
           ),
+          const SizedBox(height: 26),
+          _heading(tx('Achieved'), '$count', BoltColors.neon),
+          if (earned.isEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              tx('None yet. Train and they land here.'),
+              style: BoltText.a(13, color: BoltColors.muted, height: 1.4),
+            ),
+          ] else ...[
+            const SizedBox(height: 14),
+            ..._grid(earned, stats, on, pct),
+          ],
           if (next != null) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 26),
+            Container(height: 1, color: BoltColors.line),
+            const SizedBox(height: 26),
+            _heading(tx('Still to earn'), '${kBadges.length - count}', BoltColors.muted),
+            const SizedBox(height: 14),
             BoltBox(
               color: BoltColors.surface1,
               stroke: const Stroke(BoltColors.lineSoft),
@@ -75,36 +92,57 @@ class BadgesScreen extends ConsumerWidget {
             ),
           ],
           for (final (key, title) in kBadgeSections)
-            if (kBadges.any((b) => b.key == key)) ..._section(title, _sorted(key, on), stats, on, pct),
+            if (kBadges.any((b) => b.key == key && !on(b)))
+              ..._section(title, key, _sorted(kBadges.where((b) => b.key == key && !on(b))), stats, on, pct),
         ],
       ),
     );
   }
 
-  /// Badges on one counter: the ones you have first, then the rest, each
-  /// group in alphabetical order by name.
-  List<BadgeDef> _sorted(String key, bool Function(BadgeDef) on) =>
-      kBadges.where((b) => b.key == key).toList()..sort((a, b) {
-        final (x, y) = (on(a), on(b));
-        if (x != y) return x ? -1 : 1;
-        return compareNames(tx(a.name), tx(b.name));
-      });
+  /// [badges] in alphabetical order by name.
+  List<BadgeDef> _sorted(Iterable<BadgeDef> badges) =>
+      badges.toList()..sort((a, b) => compareNames(tx(a.name), tx(b.name)));
 
+  /// A big title with a count, marking off the earned badges from the rest.
+  Widget _heading(String title, String count, Color color) => Row(
+    crossAxisAlignment: CrossAxisAlignment.baseline,
+    textBaseline: TextBaseline.alphabetic,
+    children: [
+      Expanded(child: SectionTitle(title, size: 20)),
+      Text(count, style: BoltText.m(14, weight: 700, color: color)),
+    ],
+  );
+
+  /// The badges still to earn on one counter, with how many of its badges
+  /// are earned.
   List<Widget> _section(
     String title,
+    String key,
+    List<BadgeDef> locked,
+    TraineeStats stats,
+    bool Function(BadgeDef) on,
+    double Function(BadgeDef) pct,
+  ) {
+    final all = kBadges.where((b) => b.key == key);
+    return [
+      const SizedBox(height: 26),
+      Row(
+        children: [
+          Expanded(child: Kicker(tx(title).toUpperCase(), size: 10, spacing: .1)),
+          Text('${all.where(on).length} / ${all.length}', style: BoltText.m(10, color: BoltColors.muted)),
+        ],
+      ),
+      const SizedBox(height: 14),
+      ..._grid(locked, stats, on, pct),
+    ];
+  }
+
+  List<Widget> _grid(
     List<BadgeDef> list,
     TraineeStats stats,
     bool Function(BadgeDef) on,
     double Function(BadgeDef) pct,
   ) => [
-    const SizedBox(height: 26),
-    Row(
-      children: [
-        Expanded(child: Kicker(tx(title).toUpperCase(), size: 10, spacing: .1)),
-        Text('${list.where(on).length} / ${list.length}', style: BoltText.m(10, color: BoltColors.muted)),
-      ],
-    ),
-    const SizedBox(height: 14),
     for (var r = 0; r < list.length; r += 3) ...[
       if (r > 0) const SizedBox(height: 18),
       Row(
