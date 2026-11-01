@@ -11,10 +11,13 @@ import '../../data/seed/splits.dart';
 import '../../data/seed/templates.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/forms.dart';
 import '../../widgets/tap.dart';
+import '../sharing/import_sheet.dart';
+import '../workouts/workout_picker.dart';
 
 class LibraryScreen extends ConsumerWidget {
   const LibraryScreen({super.key});
@@ -76,6 +79,30 @@ class LibraryScreen extends ConsumerWidget {
                 radius: 12,
                 fontSize: 13,
                 onTap: () => context.push('/editor/tpl/${store.newTemplate()}'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: OutlineButton(
+                label: tx('Send workouts'),
+                height: 44,
+                radius: 12,
+                fontSize: 13,
+                onTap: () => showBoltSheet<void>(context, (_) => const SendWorkoutsSheet()),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlineButton(
+                label: tx('Import workouts'),
+                height: 44,
+                radius: 12,
+                fontSize: 13,
+                onTap: () => showBoltSheet<void>(context, (_) => const ImportSheet(workouts: true)),
               ),
             ),
           ],

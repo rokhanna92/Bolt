@@ -252,6 +252,61 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the trophy rack shows what you achieved first, then the rest', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapText(tester, 'ACHIEVEMENTS');
+    expect(find.text('None yet. Train and they land here.'), findsOneWidget);
+    await tester.tap(find.byType(BackBox).first);
+    await settle(tester);
+
+    final store = c.read(boltProvider.notifier);
+    store.edit(const TemplateTarget('push'), () => c.read(boltProvider).trainees.single.stats.sessions = 1);
+    await tapText(tester, 'ACHIEVEMENTS');
+    expect(find.text('None yet. Train and they land here.'), findsNothing);
+    double top(String text) => tester.getTopLeft(find.text(text)).dy;
+    expect(top('Achieved'), lessThan(top('First Rep')));
+    expect(top('First Rep'), lessThan(top('Still to earn')));
+    await unmount(tester);
+  });
+
+  testWidgets('workouts go out from the Workouts page and come back in', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapTab(tester, 'Workouts');
+
+    // On day one the page says what to do first.
+    await tapText(tester, 'Send workouts');
+    expect(find.textContaining('Nothing to send yet'), findsOneWidget);
+    await tester.binding.handlePopRoute();
+    await settle(tester);
+
+    final store = c.read(boltProvider.notifier);
+    final id = store.newTemplate();
+    await settle(tester);
+    await tapText(tester, 'Send workouts');
+    final send = tester.widget<NeonButton>(find.widgetWithText(NeonButton, 'Send'));
+    expect(send.onTap, isNull);
+    // The sheet sits over the same workout on the page.
+    await tester.tap(find.text('Custom 1').last);
+    await settle(tester);
+    expect(find.text('Send 1 workout'), findsOneWidget);
+    final msg = store.workoutsMessage([id]);
+    await tester.binding.handlePopRoute();
+    await settle(tester);
+
+    store.hideTemplate(id);
+    await settle(tester);
+    store.importText(msg);
+    await settle(tester);
+    expect(find.text('YOUR WORKOUTS'), findsOneWidget);
+    expect(find.text('Custom 1'), findsOneWidget);
+
+    await tapText(tester, 'Import workouts');
+    expect(find.textContaining('They land in Your workouts'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('Atlas opens from Me, badges sit on Today', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

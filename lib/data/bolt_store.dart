@@ -1835,8 +1835,64 @@ class BoltStore extends Notifier<BoltData> {
         '${tx('In Bolt open Trainees, then Import update. It reads this message from your clipboard.')}\n\n$code';
   }
 
-  /// Imports a plan (trainee) or an update (coach) from pasted text. Returns
-  /// an error to show, or null when it worked.
+  /// Workouts [ids] as a message for a friend with Bolt. The numbers go along,
+  /// the ids do not: the friend's phone gives each one its own.
+  String workoutsMessage(List<String> ids) {
+    final tpls = [for (final id in ids) state.tpls[id]!];
+    final code = ShareCode.encode({
+      'type': 'workouts',
+      'workouts': [
+        for (final t in tpls)
+          {
+            ...t.toJson(),
+            'ex': [for (final e in t.ex) e.copyWith(id: e.id).toJson()],
+          },
+      ],
+    });
+    return '${tx('Workouts for Bolt: {names}.', {'names': tpls.map((t) => tx(t.name)).join(', ')})}\n'
+        '${tx('In Bolt open Workouts, then Import workouts. It reads this message from your clipboard.')}\n\n$code';
+  }
+
+  /// What makes two workouts the same: the name and every planned number.
+  String _sameWorkout(WorkoutTemplate t) => jsonEncode([t.name, for (final e in t.ex) e.copyWith(id: '').toJson()]);
+
+  /// Adds a friend's workouts to Your workouts. One you already have is not
+  /// added twice, only brought back if you took it off the list.
+  void _importWorkouts(Map<String, dynamic> packet) {
+    var n = 0;
+    for (final j in packet['workouts'] as List) {
+      final w = WorkoutTemplate.fromJson(j as Map<String, dynamic>);
+      final have = state.tpls.values.where((t) => _sameWorkout(t) == _sameWorkout(w)).firstOrNull;
+      if (have != null) {
+        if (isOwnTemplate(have)) continue;
+        have
+          ..custom = true
+          ..hidden = false;
+      } else {
+        final id = _newTemplateId();
+        state.tpls[id] = WorkoutTemplate(
+          id: id,
+          name: w.name,
+          code: w.code,
+          focus: w.focus,
+          mins: w.mins,
+          ex: [for (final e in w.ex) e.copyWith(id: state.uid())],
+          custom: true,
+        );
+      }
+      n++;
+    }
+    _commit();
+    _toast(
+      n == 0
+          ? tx('You already have these workouts')
+          : tx('Added to your workouts: {what}', {'what': plural(n, 'workout')}),
+    );
+  }
+
+  /// Imports a plan (trainee), an update (coach) or a friend's workouts
+  /// (anyone) from pasted text. Returns an error to show, or null when it
+  /// worked.
   String? importText(String text) {
     final packet = ShareCode.decode(text);
     if (packet == null) {
@@ -1853,6 +1909,10 @@ class BoltStore extends Notifier<BoltData> {
     if (type == 'update') {
       if (!_isCoach) return tx('This is an update for a coach. Open it on their phone.');
       return _importUpdate(packet);
+    }
+    if (type == 'workouts') {
+      _importWorkouts(packet);
+      return null;
     }
     return tx('This code is from a newer Bolt. Update the app and try again.');
   }

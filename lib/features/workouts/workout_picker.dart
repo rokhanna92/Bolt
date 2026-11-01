@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/share.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/template.dart';
 import '../../data/seed/templates.dart';
+import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
@@ -130,6 +132,69 @@ class WorkoutPickerSheet extends ConsumerWidget {
     on: on,
     onTap: onTap,
   );
+}
+
+/// Your workouts to tick off and send to a friend with Bolt, as a message.
+class SendWorkoutsSheet extends ConsumerStatefulWidget {
+  const SendWorkoutsSheet({super.key});
+
+  @override
+  ConsumerState<SendWorkoutsSheet> createState() => _SendWorkoutsSheetState();
+}
+
+class _SendWorkoutsSheetState extends ConsumerState<SendWorkoutsSheet> {
+  final _picked = <String>{};
+
+  Future<void> _send() async {
+    final store = ref.read(boltProvider.notifier);
+    final msg = store.workoutsMessage(_picked.toList());
+    Navigator.of(context).pop();
+    final hint = await shareMessage(msg, subject: tx('Bolt workouts'));
+    if (hint != null) store.toast(hint);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tpls = ref.watch(boltProvider).tpls.values;
+    final list = [...tpls.where(isOwnTemplate), ...tpls.where((t) => t.custom && t.hidden)];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(tx('Send workouts'), style: BoltText.a(20, weight: 900)),
+        const SizedBox(height: 6),
+        Text(
+          list.isEmpty
+              ? tx('Nothing to send yet. Make a workout or change one, and it shows up here.')
+              : tx('Pick the ones to send. Your friend imports them on the Workouts page, weights and reps included.'),
+          style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
+        ),
+        const SizedBox(height: 14),
+        for (final t in list) ...[
+          _Row(
+            code: t.code,
+            name: tx(t.name),
+            focus: tx(t.focus),
+            meta: '${plural(t.ex.length, 'exercise')} · ${t.mins} min'.toUpperCase(),
+            on: _picked.contains(t.id),
+            onTap: () {
+              Haptics.play(Feel.tick);
+              setState(() => _picked.contains(t.id) ? _picked.remove(t.id) : _picked.add(t.id));
+            },
+          ),
+          const SizedBox(height: 6),
+        ],
+        if (list.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          NeonButton(
+            label: _picked.isEmpty ? tx('Send') : tx('Send {what}', {'what': plural(_picked.length, 'workout')}),
+            height: 52,
+            scale: 1,
+            onTap: _picked.isEmpty ? null : _send,
+          ),
+        ],
+      ],
+    );
+  }
 }
 
 class _Row extends StatelessWidget {

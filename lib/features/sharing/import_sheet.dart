@@ -11,9 +11,13 @@ import '../../theme/tokens.dart';
 import '../../widgets/common.dart';
 import '../../widgets/fields.dart';
 
-/// Paste a plan (trainee) or an update (coach) that arrived as a message.
+/// Paste a plan (trainee), an update (coach) or a friend's workouts that
+/// arrived as a message.
 class ImportSheet extends ConsumerStatefulWidget {
-  const ImportSheet({super.key});
+  const ImportSheet({super.key, this.workouts = false});
+
+  /// Opened from the Workouts page, so it asks for workouts.
+  final bool workouts;
 
   @override
   ConsumerState<ImportSheet> createState() => _ImportSheetState();
@@ -60,10 +64,19 @@ class _ImportSheetState extends ConsumerState<ImportSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(coach ? tx('Import update') : tx('Import plan'), style: BoltText.a(20, weight: 900)),
+        Text(
+          widget.workouts
+              ? tx('Import workouts')
+              : coach
+              ? tx('Import update')
+              : tx('Import plan'),
+          style: BoltText.a(20, weight: 900),
+        ),
         const SizedBox(height: 6),
         Text(
-          coach
+          widget.workouts
+              ? tx('Copy the message with the workouts, then paste it here. They land in Your workouts.')
+              : coach
               ? tx('Copy the update message your trainee sent you, then paste it here.')
               : tx('Copy the plan message your coach sent you, then paste it here.'),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),

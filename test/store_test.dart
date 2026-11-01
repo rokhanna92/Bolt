@@ -1157,6 +1157,63 @@ void ownerTests() {
       expect(ana.mine['2026-10-20']!.byCoach, isFalse);
     });
 
+    test('workouts sent to a friend land in Your workouts', () {
+      final me = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'));
+      final id = me.store.newTemplate();
+      me.store.edit(TemplateTarget(id), () {
+        me.data.tpls[id]!
+          ..name = 'Arm Day'
+          ..code = 'ARMS'
+          ..ex.add(
+            Exercise(
+              id: 'x1',
+              name: 'Straight-bar Cable Curl',
+              sets: 3,
+              reps: '10-12',
+              load: '25 kg',
+              logged: [SetLog(kg: 25, reps: 10)],
+              setLoads: ['', '30 kg'],
+            ),
+          );
+      });
+      me.store.edit(const TemplateTarget('push'), () => me.data.tpls['push']!.ex.first.load = '75 kg');
+      final msg = me.store.workoutsMessage([id, 'push']);
+      expect(msg, contains('Arm Day, Push'));
+
+      final friend = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Marko'));
+      friend.store.newTemplate();
+      expect(friend.store.importText(msg), isNull);
+      final own = friend.data.tpls.values.where(isOwnTemplate).toList();
+      expect(own.map((t) => t.name), ['Custom 1', 'Arm Day', 'Push']);
+      final arms = own[1];
+      final ex = arms.ex.single;
+      expect(arms.id, isNot(id));
+      expect(arms.code, 'ARMS');
+      expect(arms.custom, isTrue);
+      expect(ex.id, isNot('x1'));
+      expect((ex.name, ex.sets, ex.reps, ex.load), ('Straight-bar Cable Curl', 3, '10-12', '25 kg'));
+      expect(ex.loadFor(1), '30 kg');
+      expect(ex.logged, isEmpty);
+      // The friend's own Push is left alone.
+      expect(friend.data.tpls['push']!.ex.first.load, isNot('75 kg'));
+      expect(own[2].ex.first.load, '75 kg');
+
+      // The same message twice adds nothing; a removed one comes back.
+      final n = friend.data.tpls.length;
+      expect(friend.store.importText(msg), isNull);
+      expect(friend.data.tpls.length, n);
+      friend.store.hideTemplate(arms.id);
+      expect(friend.store.importText(msg), isNull);
+      expect(friend.data.tpls.length, n);
+      expect(isOwnTemplate(arms), isTrue);
+
+      // A coach can take them too, and a saved copy survives a reload.
+      final coach = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Sara'));
+      expect(coach.store.importText(msg), isNull);
+      expect(coach.data.tpls.values.where(isOwnTemplate).map((t) => t.name), ['Arm Day', 'Push']);
+      expect(WorkoutTemplate.fromJson(arms.toJson()).ex.single.name, 'Straight-bar Cable Curl');
+    });
+
     test('wrong codes explain themselves', () {
       final coach = Fresh()..store.createProfile(Role.coach, const ProfileInput(name: 'Marko'));
       final tid = coach.store.addTrainee(const ProfileInput(name: 'Ana'));
