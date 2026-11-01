@@ -482,8 +482,8 @@ class CheckIns extends StatelessWidget {
   }
 }
 
-/// Grip strength from 0 to 100 % in steps of 10: tap or slide along the bar.
-/// One line instead of eleven chips.
+/// Grip strength from 0 to 100 % in steps of 10: tap or slide along the bar,
+/// with a mark on every step. One line instead of eleven chips.
 class _GripBar extends StatelessWidget {
   const _GripBar({required this.value, required this.onChanged});
 
@@ -496,39 +496,26 @@ class _GripBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final v = value;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _bar(v),
-              // The ends of the scale, so an empty bar still reads as one
-              // to slide along.
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: _thumb / 2 - 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('0%', style: BoltText.m(10, color: BoltColors.muted3)),
-                    Text('100%', style: BoltText.m(10, color: BoltColors.muted3)),
-                  ],
+        _bar(v),
+        // The ends of the scale, so an empty bar still reads as one to slide
+        // along. Each sits centred under its end mark.
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            for (final l in ['0%', '100%'])
+              SizedBox(
+                width: _thumb,
+                child: Text(
+                  l,
+                  softWrap: false,
+                  textAlign: TextAlign.center,
+                  style: BoltText.m(10, color: BoltColors.muted3),
                 ),
               ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        Container(
-          width: 52,
-          height: 44,
-          alignment: Alignment.centerRight,
-          child: Text(
-            v == null ? '-' : '${v * 10}%',
-            textAlign: TextAlign.right,
-            style: BoltText.m(16, weight: 700, color: v == null ? BoltColors.muted3 : BoltColors.neon),
-          ),
+          ],
         ),
       ],
     );
@@ -566,6 +553,20 @@ class _GripBar extends StatelessWidget {
                     decoration: BoxDecoration(color: BoltColors.neon, borderRadius: BorderRadius.circular(3)),
                   ),
                 ),
+              ],
+              for (var i = 0; i <= 10; i++)
+                Positioned(
+                  left: _thumb / 2 + track * i / 10 - 1,
+                  child: Container(
+                    width: 2,
+                    height: i % 5 == 0 ? 20 : 14,
+                    decoration: BoxDecoration(
+                      color: v != null && i <= v ? BoltColors.neon : BoltColors.muted3,
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                  ),
+                ),
+              if (v != null)
                 Positioned(
                   left: track * v / 10,
                   child: Container(
@@ -574,7 +575,6 @@ class _GripBar extends StatelessWidget {
                     decoration: const BoxDecoration(color: BoltColors.neon, shape: BoxShape.circle),
                   ),
                 ),
-              ],
             ],
           ),
         ),

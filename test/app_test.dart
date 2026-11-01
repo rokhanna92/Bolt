@@ -356,7 +356,10 @@ void main() {
     final grip = tester.getRect(find.byKey(const ValueKey('grip')));
     await tester.tapAt(Offset(grip.left + 12 + (grip.width - 24) * .3, grip.center.dy));
     await settle(tester);
-    expect(find.text('30%'), findsOneWidget);
+    // The scale's ends stay; the chosen value has no readout of its own.
+    expect(find.text('0%'), findsOneWidget);
+    expect(find.text('100%'), findsOneWidget);
+    expect(find.text('30%'), findsNothing);
     await tapText(tester, 'Save check-in');
     expect(find.text('Low today, so resting is the right call. Sleep well and eat well.'), findsOneWidget);
     expect(find.text('20'), findsOneWidget);
