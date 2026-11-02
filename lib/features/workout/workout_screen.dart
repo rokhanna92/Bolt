@@ -23,7 +23,6 @@ import '../../data/seed/templates.dart';
 import '../../data/warmup.dart';
 import '../../services/haptics.dart';
 import '../../services/rest_timer.dart';
-import '../../services/screen.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -89,7 +88,6 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   @override
   void initState() {
     super.initState();
-    Screen.keepOn(true);
     // −15, +15 and Skip pressed on the lock screen.
     _lockScreen = _rest.changes.listen((end) {
       if (!mounted || _restEnd == null) return;
@@ -111,7 +109,6 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     _ticker?.cancel();
     _lockScreen?.cancel();
     _rest.stop();
-    Screen.keepOn(false);
     super.dispose();
   }
 

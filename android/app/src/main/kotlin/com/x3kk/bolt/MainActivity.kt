@@ -29,8 +29,8 @@ import java.io.File
  * "bolt/rest" starts and stops the rest countdown service (RestTimerService)
  * and previews its sounds; the service reports +15, Skip and the end back.
  *
- * "bolt/screen" keeps the screen on while a workout is open ("keepOn") and,
- * when asked ("volumeKey"), turns volume down into "volumeDown" calls.
+ * The screen stays on for as long as Bolt is open. "bolt/screen", when asked
+ * ("volumeKey"), turns volume down into "volumeDown" calls.
  *
  * And "bolt/backup": Android's own pickers to save a backup file anywhere
  * ("save") and to pick one to restore ("open"). Null means cancelled.
@@ -54,6 +54,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         shortcuts = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/shortcuts").apply {
             setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -94,14 +95,6 @@ class MainActivity : FlutterActivity() {
         screen = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bolt/screen").apply {
             setMethodCallHandler { call, result ->
                 when (call.method) {
-                    "keepOn" -> {
-                        if (call.arguments as Boolean) {
-                            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                        } else {
-                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                        }
-                        result.success(null)
-                    }
                     "volumeKey" -> {
                         volumeKey = call.arguments as Boolean
                         result.success(null)
