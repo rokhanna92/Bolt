@@ -491,6 +491,26 @@ int restFor(Exercise e, {required bool auto, required int fixed}) {
   return x.compound ? 120 : 60;
 }
 
+/// Seconds to get in position between the two exercises of a no-rest pair.
+const kGetReadySecs = 5;
+
+/// Rest after a set in a pair with an alternate: by muscle and kind as in
+/// [restFor] on auto, plus how heavy [log] was, read from its reps. A set of
+/// 5 or fewer gets a minute more, up to 8 half a minute more, and 15 or more
+/// 15 seconds less. An exercise's own rest setting wins.
+int pairRest(Exercise e, SetLog log) {
+  if (e.rest != null) return e.rest!;
+  final reps = log.reps ?? targetReps(e.reps);
+  final heavy = switch (reps) {
+    null => 0,
+    <= 5 => 60,
+    <= 8 => 30,
+    >= 15 => -15,
+    _ => 0,
+  };
+  return (restFor(e, auto: true, fixed: 60) + heavy).clamp(30, 240);
+}
+
 /// A percentage load like `80%` as a fraction, else null.
 double? percentLoad(String load) {
   final m = RegExp(r'^(\d+(?:\.\d+)?)\s?%$').firstMatch(load.trim());

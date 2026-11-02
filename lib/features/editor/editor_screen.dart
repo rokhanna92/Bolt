@@ -167,7 +167,10 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               const SizedBox(height: 8),
             ],
             Tap(
-              onTap: () => showBoltSheet<void>(context, (_) => _Picker(target: target), maxHeight: .78),
+              onTap: () async {
+                final a = await showBoltSheet<ExSeed>(context, (_) => const ExercisePicker(), maxHeight: .78);
+                if (a != null && mounted) _store.addExercise(target, a);
+              },
               child: BoltBox(
                 height: 48,
                 radius: 14,
@@ -599,17 +602,19 @@ class _StandardDay extends ConsumerWidget {
   }
 }
 
-/// Every exercise Bolt knows, grouped by muscle, with a muscle filter.
-class _Picker extends ConsumerStatefulWidget {
-  const _Picker({required this.target});
+/// Every exercise Bolt knows, grouped by muscle, with a muscle filter. Pops
+/// with the one picked.
+class ExercisePicker extends StatefulWidget {
+  const ExercisePicker({super.key, this.title});
 
-  final EditTarget target;
+  /// In place of "Add exercise".
+  final String? title;
 
   @override
-  ConsumerState<_Picker> createState() => _PickerState();
+  State<ExercisePicker> createState() => _ExercisePickerState();
 }
 
-class _PickerState extends ConsumerState<_Picker> {
+class _ExercisePickerState extends State<ExercisePicker> {
   String? _group;
 
   @override
@@ -631,7 +636,7 @@ class _PickerState extends ConsumerState<_Picker> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(tx('Add exercise'), style: BoltText.a(20, weight: 900)),
+        Text(widget.title ?? tx('Add exercise'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 10),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -645,12 +650,7 @@ class _PickerState extends ConsumerState<_Picker> {
           const SizedBox(height: 4),
           for (final a in kExercises.where((e) => e.muscle == g))
             Tap(
-              onTap: () {
-                ref
-                    .read(boltProvider.notifier)
-                    .addExercise(widget.target, ExSeed(a.name, a.sets, a.reps, a.load, a.area, a.alt));
-                Navigator.of(context).pop();
-              },
+              onTap: () => Navigator.of(context).pop(ExSeed(a.name, a.sets, a.reps, a.load, a.area, a.alt)),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: const BoxDecoration(

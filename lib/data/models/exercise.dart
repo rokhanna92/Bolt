@@ -31,6 +31,9 @@ class Exercise {
     this.drop = false,
     this.fullSets,
     this.rest,
+    this.alternate = false,
+    this.noRest,
+    this.joinAt = 0,
     List<SetLog>? logged,
     List<String>? setReps,
     List<String>? setLoads,
@@ -65,6 +68,17 @@ class Exercise {
 
   /// Rest after each set in seconds; null picks it from the exercise type.
   int? rest;
+
+  /// Added to this one day as an alternate, not part of the workout's plan.
+  bool alternate;
+
+  /// In a pair with an alternate: true is no rest between the two, only a few
+  /// seconds to get in position; false is a rest worked out per set. Null
+  /// when not paired.
+  bool? noRest;
+
+  /// Rounds of its superset already gone when this exercise joined it.
+  int joinAt;
 
   /// Sets done in a finished workout, in order.
   final List<SetLog> logged;
@@ -110,6 +124,9 @@ class Exercise {
     group: group,
     drop: drop,
     rest: rest,
+    alternate: alternate,
+    noRest: noRest,
+    joinAt: joinAt,
     setReps: [...setReps],
     setLoads: [...setLoads],
   );
@@ -128,6 +145,9 @@ class Exercise {
     'drop': drop,
     'fullSets': fullSets,
     'rest': rest,
+    if (alternate) 'alternate': true,
+    if (noRest != null) 'noRest': noRest,
+    if (joinAt > 0) 'joinAt': joinAt,
     if (logged.isNotEmpty) 'logged': logged.map((x) => x.toJson()).toList(),
     if (setReps.any((x) => x.isNotEmpty)) 'setReps': setReps,
     if (setLoads.any((x) => x.isNotEmpty)) 'setLoads': setLoads,
@@ -147,6 +167,9 @@ class Exercise {
     drop: j['drop'] as bool? ?? false,
     fullSets: j['fullSets'] as int?,
     rest: j['rest'] as int?,
+    alternate: j['alternate'] as bool? ?? false,
+    noRest: j['noRest'] as bool?,
+    joinAt: j['joinAt'] as int? ?? 0,
     logged: [for (final x in j['logged'] as List? ?? const []) SetLog.fromJson(x as Map<String, dynamic>)],
     setReps: [for (final x in j['setReps'] as List? ?? const []) x as String],
     setLoads: [for (final x in j['setLoads'] as List? ?? const []) x as String],

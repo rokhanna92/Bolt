@@ -744,10 +744,74 @@ class BoltStore extends Notifier<BoltData> {
     _toast(tx('Swapped to {name}', {'name': tx(name)}));
   }
 
+  /// Adds [a] to the bottom of day [k] as an alternate, for this day only.
+  void addAlternate(String k, ExSeed a) {
+    plan(state.account!.id)[k]?.ex.add(exerciseFromSeed(a, state.uid())..alternate = true);
+    _commit();
+    _toast(tx('{name} added', {'name': tx(a.name)}));
+  }
+
+  /// Moves alternate [i] of day [k] one place up ([by] -1) or down (+1),
+  /// past a whole superset rather than into it.
+  void moveAlternate(String k, int i, int by) {
+    final ex = plan(state.account!.id)[k]?.ex;
+    if (ex == null) return;
+    final e = ex.removeAt(i);
+    var to = by < 0 ? i - 1 : i + 1;
+    while (to > 0 && to < ex.length && ex[to - 1].group != null && ex[to - 1].group == ex[to].group) {
+      to += by;
+    }
+    ex.insert(to.clamp(0, ex.length), e);
+    normalizeGroups(ex);
+    _commit();
+  }
+
+  /// Takes alternate [e] off day [k]; an exercise paired with it goes back
+  /// to how it was planned.
+  void removeAlternate(String k, Exercise e) {
+    final ex = plan(state.account!.id)[k]?.ex;
+    if (ex == null) return;
+    for (final x in ex) {
+      if (e.group != null && x.group == e.group) x.noRest = null;
+    }
+    ex.remove(e);
+    normalizeGroups(ex);
+    _commit();
+    _toast(tx('{name} removed', {'name': tx(e.name)}));
+  }
+
+  /// Pairs [a] with exercise [i] of day [k]'s workout, right [first] or after
+  /// it, round by round for the sets [i] has left.
+  void pairAlternate(String k, int i, ExSeed a, {required bool first, required bool noRest}) {
+    final ex = plan(state.account!.id)[k]?.ex;
+    if (ex == null) return;
+    final cur = ex[i];
+    final done = [for (var j = 0; j < cur.sets; j++) j].where((j) => state.workout?.isDone(cur.id, j) ?? false).length;
+    final e = exerciseFromSeed(a, state.uid())
+      ..alternate = true
+      ..joinAt = cur.joinAt + done;
+    if (done < cur.sets) e.sets = cur.sets - done;
+    final g = cur.group ?? '_new';
+    cur.group = g;
+    e.group = g;
+    ex.insert(first ? i : i + 1, e);
+    normalizeGroups(ex);
+    for (final x in ex) {
+      if (x.group == e.group) x.noRest = noRest;
+    }
+    _commit();
+    _toast(tx('{name} added', {'name': tx(a.name)}));
+  }
+
   /// Throws the workout in progress away without logging anything, so it
   /// can start again from START.
   void discardWorkout() {
-    if (state.workout == null) return;
+    final w = state.workout;
+    if (w == null) return;
+    // Nothing is done any more, so a pair runs from its first round.
+    for (final e in plan(state.account!.id)[w.key]?.ex ?? const <Exercise>[]) {
+      e.joinAt = 0;
+    }
     state.workout = null;
     _commit();
     _toast(tx('Workout discarded, nothing was saved'));

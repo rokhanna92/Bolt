@@ -24,7 +24,7 @@ import '../../widgets/tap.dart';
 import 'lifeline.dart';
 
 /// The order sets are done in: an exercise set by set, a superset round by
-/// round (A1, B1, A2, B2).
+/// round (A1, B1, A2, B2). One that joined late starts in its round.
 List<(int, int)> setFlow(List<Exercise> ex) {
   final out = <(int, int)>[];
   var i = 0;
@@ -33,10 +33,11 @@ List<(int, int)> setFlow(List<Exercise> ex) {
     while (ex[i].group != null && k + 1 < ex.length && ex[k + 1].group == ex[i].group) {
       k++;
     }
-    final rounds = ex.sublist(i, k + 1).fold(0, (a, e) => math.max(a, e.sets));
+    final rounds = ex.sublist(i, k + 1).fold(0, (a, e) => math.max(a, e.joinAt + e.sets));
     for (var j = 0; j < rounds; j++) {
       for (var x = i; x <= k; x++) {
-        if (j < ex[x].sets) out.add((x, j));
+        final set = j - ex[x].joinAt;
+        if (set >= 0 && set < ex[x].sets) out.add((x, set));
       }
     }
     i = k + 1;
@@ -68,6 +69,8 @@ class FloorView extends StatefulWidget {
     required this.hint,
     required this.canSwap,
     required this.onSwap,
+    required this.onAlternate,
+    required this.restLabel,
     required this.restEnd,
     required this.restTotal,
     required this.restNext,
@@ -102,6 +105,13 @@ class FloorView extends StatefulWidget {
   /// there is something to swap it for.
   final bool Function(int i) canSwap;
   final void Function(int i) onSwap;
+
+  /// Pairs an alternate with exercise i: true when it goes first, false when
+  /// after, null when nothing was added.
+  final Future<bool?> Function(int i) onAlternate;
+
+  /// On the countdown: rest, or getting ready for the other exercise.
+  final String restLabel;
   final DateTime? restEnd;
   final int restTotal;
   final String restNext;
@@ -300,6 +310,30 @@ class _FloorViewState extends State<FloorView> {
     if (v != null && mounted) onSave(v);
   }
 
+  /// Adds an alternate to exercise [i]. Going first, it is the set to do now.
+  Future<void> _alternate(int i) async {
+    final first = await widget.onAlternate(i);
+    if (first == true && mounted) setState(() => _go((i, 0)));
+  }
+
+  /// A small pill by the exercise's name.
+  Widget _pill(Widget icon, String label, VoidCallback onTap) => Tap(
+    onTap: onTap,
+    child: BoltBox(
+      radius: BoltRadii.pill,
+      stroke: const Stroke(BoltColors.line),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          icon,
+          const SizedBox(width: 7),
+          Text(label, style: BoltText.a(13, weight: 700, color: BoltColors.textSoft)),
+        ],
+      ),
+    ),
+  );
+
   /// The warm-up before the first set, then one tap on to set 1.
   Widget _warmUp() {
     final (mins, steps) = widget.warmup;
@@ -398,7 +432,7 @@ class _FloorViewState extends State<FloorView> {
       final done = _done(i, j);
       final tags = [
         tx('EXERCISE {n} OF {total}', {'n': i + 1, 'total': widget.ex.length}),
-        if (e.group != null) tx('SUPERSET {g}', {'g': e.group}),
+        if (e.noRest != null) tx('ALTERNATE') else if (e.group != null) tx('SUPERSET {g}', {'g': e.group}),
       ];
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -419,27 +453,28 @@ class _FloorViewState extends State<FloorView> {
               SquareButton(onTap: () => _exercise(1), icon: 'chevron', size: 40),
             ],
           ),
-          if (widget.canSwap(i)) ...[
-            const SizedBox(height: 8),
-            Center(
-              child: Tap(
-                onTap: () => widget.onSwap(i),
-                child: BoltBox(
-                  radius: BoltRadii.pill,
-                  stroke: const Stroke(BoltColors.line),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const BoltIcon('swap', size: 15, color: BoltColors.neon),
-                      const SizedBox(width: 7),
-                      Text(tx('Swap exercise'), style: BoltText.a(13, weight: 700, color: BoltColors.textSoft)),
-                    ],
-                  ),
+          const SizedBox(height: 8),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (widget.canSwap(i))
+                _pill(
+                  const BoltIcon('swap', size: 15, color: BoltColors.neon),
+                  tx('Swap exercise'),
+                  () => widget.onSwap(i),
                 ),
+              _pill(
+                Transform.rotate(
+                  angle: math.pi / 4,
+                  child: const BoltIcon('close', size: 15, color: BoltColors.neon),
+                ),
+                tx('Alternate Exercise'),
+                () => _alternate(i),
               ),
-            ),
-          ],
+            ],
+          ),
           if (h != null) ...[
             const SizedBox(height: 8),
             Text(
@@ -738,7 +773,7 @@ class _FloorViewState extends State<FloorView> {
   Widget _ring() => FloorRing(
     end: widget.restEnd!,
     total: widget.restTotal,
-    label: tx('REST'),
+    label: widget.restLabel.toUpperCase(),
     color: BoltColors.text,
     actions: [
       Expanded(

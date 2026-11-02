@@ -36,6 +36,7 @@ import '../../widgets/moment_overlay.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/swap_sheet.dart';
 import '../../widgets/tap.dart';
+import '../editor/editor_screen.dart' show ExercisePicker;
 import '../plan/day_sheet.dart';
 import 'floor_view.dart';
 import 'ready_view.dart';
@@ -58,6 +59,9 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   late final RestTimer _rest = ref.read(restTimerProvider);
   StreamSubscription<DateTime?>? _lockScreen;
   String _restNext = '';
+
+  /// What the countdown is for: a rest, or getting ready in a no-rest pair.
+  String _restLabel = tx('Rest');
 
   /// Lifts that already had their record moment in this workout.
   final _celebrated = <String>{};
@@ -136,13 +140,14 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
   }
 
   /// Rest after a set; [next] says what comes after it, on the lock screen.
-  void _startRest(String next, int secs) {
+  void _startRest(String next, int secs, {String? label}) {
     setState(() {
+      _restLabel = label ?? tx('Rest');
       _restTotal = secs;
       _restEnd = DateTime.now().add(Duration(seconds: secs));
       _restNext = next;
     });
-    _countdown(_restEnd!, secs, tx('Rest'), next, rest: true);
+    _countdown(_restEnd!, secs, _restLabel, next, rest: true);
     _armRest();
   }
 
@@ -168,7 +173,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
       _restEnd = _restEnd!.add(Duration(seconds: s));
       _restTotal = math.max(1, _restTotal + s);
     });
-    _countdown(_restEnd!, _restTotal, tx('Rest'), _restNext, rest: true);
+    _countdown(_restEnd!, _restTotal, _restLabel, _restNext, rest: true);
     _armRest();
   }
 
@@ -250,7 +255,9 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     Haptics.play(Feel.set);
     _checkRace();
     final partnerNext = e.group != null && i + 1 < ex.length && ex[i + 1].group == e.group;
-    if (!again && !partnerNext) {
+    if (!again && e.group != null && e.noRest != null) {
+      _restInPair(ex, i, j, w, log);
+    } else if (!again && !partnerNext) {
       _startRest(_nextAfter(ex, i, j, w), restFor(e, auto: st.restAuto, fixed: st.restSecs));
     } else if (!again && _restEnd == null) {
       // A timed set's countdown ends with it when no rest follows.
@@ -261,6 +268,54 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
     } else {
       _celebrate(e, log);
     }
+  }
+
+  /// After a set of a pair with an alternate. No rest: a few seconds to get
+  /// to the other exercise, and the rest once the round is done, long enough
+  /// for the hardest of the two. Rest: worked out after every set.
+  void _restInPair(List<Exercise> ex, int i, int j, ActiveWorkout w, SetLog log) {
+    final e = ex[i];
+    final flow = setFlow(ex);
+    final next = flow.skip(flow.indexOf((i, j)) + 1).where((x) => !w.isDone(ex[x.$1].id, x.$2)).firstOrNull;
+    // The other exercise in this same round; a later round means it is over.
+    final partner =
+        next != null && next.$1 != i && ex[next.$1].group == e.group && ex[next.$1].joinAt + next.$2 == e.joinAt + j;
+    final what = next == null
+        ? tx('Last set done. Finish the workout.')
+        : ex[next.$1].group == e.group
+        ? tx('{name} · set {n}', {'name': tx(ex[next.$1].name), 'n': next.$2 + 1})
+        : tx('Next: {what}', {'what': tx(ex[next.$1].name)});
+    if (e.noRest! && partner) {
+      _startRest(what, kGetReadySecs, label: tx('Get ready'));
+    } else if (e.noRest!) {
+      final round = [
+        for (final x in ex)
+          if (x.group == e.group) pairRest(x, log),
+      ];
+      _startRest(what, round.reduce(math.max));
+    } else {
+      _startRest(what, pairRest(e, log));
+    }
+  }
+
+  /// Picks any exercise to pair with exercise [i], then asks whether it goes
+  /// first and whether there is rest between them. True when it goes first,
+  /// false when after, null when nothing was added.
+  Future<bool?> _alternate(int i, List<Exercise> ex) async {
+    final a = await showBoltSheet<ExSeed>(
+      context,
+      (_) => ExercisePicker(title: tx('Alternate Exercise')),
+      maxHeight: .78,
+    );
+    if (a == null || !mounted) return null;
+    final choice = await showBoltSheet<(bool, bool)>(
+      context,
+      (_) => _AlternateSheet(alternate: a.name, exercise: ex[i].name),
+    );
+    if (choice == null || !mounted) return null;
+    Haptics.play(Feel.tap);
+    ref.read(boltProvider.notifier).pairAlternate(widget.dayKey, i, a, first: choice.$1, noRest: choice.$2);
+    return choice.$1;
   }
 
   /// A record set gets its moment, once per lift and workout.
@@ -349,6 +404,19 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
           hint: hint,
           note: note,
           onStart: _begin,
+          onAlternate: () async {
+            final a = await showBoltSheet<ExSeed>(
+              context,
+              (_) => ExercisePicker(title: tx('Alternate Exercise')),
+              maxHeight: .78,
+            );
+            if (a != null) store.addAlternate(widget.dayKey, a);
+          },
+          onMove: (i, by) {
+            Haptics.play(Feel.tick);
+            store.moveAlternate(widget.dayKey, i, by);
+          },
+          onRemove: (i) => store.removeAlternate(widget.dayKey, s.ex[i]),
         ),
       );
     }
@@ -409,6 +477,8 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
           hint: hint,
           canSwap: (i) => canSwapNow(s.ex[i], w, t),
           onSwap: (i) => showSwapSheet(context, s.ex[i], t),
+          onAlternate: (i) => _alternate(i, s.ex),
+          restLabel: _restLabel,
           restEnd: _restEnd,
           restTotal: _restTotal,
           restNext: _restNext,
@@ -496,6 +566,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                         hint: hint,
                         warmups: warm,
                         partner: s.ex[i].group != null && i > 0 && s.ex[i - 1].group == s.ex[i].group,
+                        onAlternate: () => _alternate(i, s.ex),
                         onSet: (j) => _tick(s.ex, i, j, w, hint, pct),
                       );
                     },
@@ -558,6 +629,81 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
 bool canSwapNow(Exercise e, ActiveWorkout w, Trainee? t) =>
     !(w.done[e.id]?.contains(true) ?? false) && swapOptions(e, t).isNotEmpty;
 
+/// Two quick questions about a new alternate: first or after the exercise,
+/// then no rest or rest between them. Pops with (first, no rest).
+class _AlternateSheet extends StatefulWidget {
+  const _AlternateSheet({required this.alternate, required this.exercise});
+
+  final String alternate;
+  final String exercise;
+
+  @override
+  State<_AlternateSheet> createState() => _AlternateSheetState();
+}
+
+class _AlternateSheetState extends State<_AlternateSheet> {
+  bool? _first;
+
+  Widget _choice(String label, String sub, VoidCallback onTap) => Tap(
+    onTap: () {
+      Haptics.play(Feel.tick);
+      onTap();
+    },
+    scale: .98,
+    child: BoltBox(
+      color: BoltColors.surface2,
+      stroke: const Stroke(BoltColors.line),
+      radius: 16,
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: BoltText.a(16, weight: 800, color: BoltColors.neon)),
+          const SizedBox(height: 2),
+          Text(sub, style: BoltText.a(12, color: BoltColors.muted, height: 1.35)),
+        ],
+      ),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final alt = tx(widget.alternate), ex = tx(widget.exercise);
+    final first = _first;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          first == null ? tx('Do {alt} first or after {ex}?', {'alt': alt, 'ex': ex}) : tx('Rest between them?'),
+          style: BoltText.a(20, weight: 900),
+        ),
+        const SizedBox(height: 14),
+        if (first == null) ...[
+          _choice(tx('First'), tx('{alt}, then {ex}, every round', {'alt': alt, 'ex': ex}), () {
+            setState(() => _first = true);
+          }),
+          const SizedBox(height: 8),
+          _choice(tx('After'), tx('{ex}, then {alt}, every round', {'alt': alt, 'ex': ex}), () {
+            setState(() => _first = false);
+          }),
+        ] else ...[
+          _choice(
+            tx('No rest'),
+            tx('{n} seconds to get in position, then go', {'n': kGetReadySecs}),
+            () => Navigator.of(context).pop((first, true)),
+          ),
+          const SizedBox(height: 8),
+          _choice(
+            tx('Rest'),
+            tx('Worked out from the muscle and how heavy the set was'),
+            () => Navigator.of(context).pop((first, false)),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 class _ExerciseCard extends ConsumerWidget {
   const _ExerciseCard({
     required this.index,
@@ -569,6 +715,7 @@ class _ExerciseCard extends ConsumerWidget {
     required this.hint,
     required this.warmups,
     required this.partner,
+    required this.onAlternate,
     required this.onSet,
   });
 
@@ -583,6 +730,7 @@ class _ExerciseCard extends ConsumerWidget {
 
   /// Second exercise of a superset: done straight after the one above.
   final bool partner;
+  final VoidCallback onAlternate;
   final ValueChanged<int> onSet;
 
   String _kg(double kg) => weightValue(kg, metric: metric);
@@ -593,7 +741,9 @@ class _ExerciseCard extends ConsumerWidget {
     final f = isFlagged(trainee, e);
     final h = hint;
     final tags = [
-      if (e.group != null)
+      if (e.noRest != null)
+        tx('ALTERNATE')
+      else if (e.group != null)
         partner ? tx('SUPERSET {g} · NO REST BEFORE', {'g': e.group}) : tx('SUPERSET {g}', {'g': e.group}),
       if (e.drop) tx('DROP SET ON THE LAST SET'),
     ];
@@ -640,6 +790,19 @@ class _ExerciseCard extends ConsumerWidget {
                   ? SwapIcon(onTap: () => showSwapSheet(context, e, trainee))
                   : const SizedBox(width: CircleIconButton.hit),
             ],
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Tap(
+              onTap: onAlternate,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Text(
+                  '+ ${tx('Alternate Exercise')}',
+                  style: BoltText.a(12, weight: 700, color: BoltColors.neon),
+                ),
+              ),
+            ),
           ),
           if (h != null) ...[
             const SizedBox(height: 8),

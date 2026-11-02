@@ -26,6 +26,7 @@ import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
 import 'package:bolt/data/seed/exercises.dart';
 import 'package:bolt/data/seed/templates.dart';
+import 'package:bolt/features/workout/floor_view.dart';
 import 'package:bolt/l10n/sr.dart';
 import 'package:bolt/services/notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1155,6 +1156,80 @@ void ownerTests() {
       expect(ana.mine['2026-10-18']!.status, SessionStatus.moved);
       // Her own session stays.
       expect(ana.mine['2026-10-20']!.byCoach, isFalse);
+    });
+
+    test('an alternate joins one exercise round by round, for the sets it has left', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-14');
+      final ex = f.data.plans[Account.ownerId]!['2026-10-14']!.ex;
+      const push = ExSeed('Push-up', 4, '15', '—', null, null);
+      final main = ex[1];
+      final count = ex.length;
+      f.store.startWorkout('2026-10-14');
+      f.store.logSet(main.id, 0, SetLog(kg: 20, reps: 10));
+
+      f.store.pairAlternate('2026-10-14', 1, push, first: true, noRest: true);
+      final alt = ex[1];
+      expect(ex.length, count + 1);
+      expect(ex[2], main);
+      expect((alt.name, alt.alternate, alt.noRest, alt.sets, alt.joinAt), ('Push-up', true, true, main.sets - 1, 1));
+      expect(main.noRest, isTrue);
+      expect(alt.group, main.group);
+      // The set already done stays, then the alternate goes first each round.
+      expect(setFlow(ex).where((x) => x.$1 == 1 || x.$1 == 2).take(5).toList(), [
+        (2, 0),
+        (1, 0),
+        (2, 1),
+        (1, 1),
+        (2, 2),
+      ]);
+      expect(Exercise.fromJson(alt.toJson()).noRest, isTrue);
+      expect(Exercise.fromJson(alt.toJson()).joinAt, 1);
+
+      // Only that exercise is touched, and not the workout's template.
+      expect(ex.where((e) => e.group != null), [alt, main]);
+      expect(f.data.tpls.values.expand((t) => t.ex).where((e) => e.alternate), isEmpty);
+
+      // Thrown away, it runs from its first round; taken off, it leaves no trace.
+      f.store.discardWorkout();
+      expect(alt.joinAt, 0);
+      f.store.removeAlternate('2026-10-14', alt);
+      expect(ex.length, count);
+      expect((main.group, main.noRest), (null, null));
+    });
+
+    test('an alternate added before the start lands at the bottom and moves past a superset', () {
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      f.store.addFromRotation(Account.ownerId, '2026-10-14');
+      final ex = f.data.plans[Account.ownerId]!['2026-10-14']!.ex;
+      toggleSuperset(ex, 0);
+      final last = ex.length;
+      f.store.addAlternate('2026-10-14', const ExSeed('Push-up', 3, '15', '—', null, null));
+      final alt = ex.last;
+      expect((alt.name, alt.alternate, alt.group), ('Push-up', true, null));
+      expect(ex.length, last + 1);
+      for (var i = last; i > 2; i--) {
+        f.store.moveAlternate('2026-10-14', i, -1);
+      }
+      expect(ex[2], alt);
+      f.store.moveAlternate('2026-10-14', 2, -1);
+      expect(ex.first, alt);
+      expect(ex[1].group, 'A');
+      expect(ex[2].group, 'A');
+      f.store.moveAlternate('2026-10-14', 0, 1);
+      expect(ex[2], alt);
+    });
+
+    test('rest in a pair follows the muscle and how heavy the set was', () {
+      Exercise e(String name) => Exercise(id: name, name: name, sets: 3, reps: '10', load: '50 kg');
+      // A big back lift, another compound, an isolation move.
+      expect(pairRest(e('Barbell Row'), SetLog(kg: 80, reps: 10)), 180);
+      expect(pairRest(e('Barbell Row'), SetLog(kg: 100, reps: 5)), 240);
+      expect(pairRest(e('Bench Press'), SetLog(kg: 80, reps: 10)), 120);
+      expect(pairRest(e('Bench Press'), SetLog(kg: 90, reps: 8)), 150);
+      expect(pairRest(e('Cable Curl'), SetLog(kg: 20, reps: 12)), 60);
+      expect(pairRest(e('Cable Curl'), SetLog(kg: 10, reps: 20)), 45);
+      expect(pairRest(e('Cable Curl')..rest = 90, SetLog(kg: 20, reps: 5)), 90);
     });
 
     test('workouts sent to a friend land in Your workouts', () {

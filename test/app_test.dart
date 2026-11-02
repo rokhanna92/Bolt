@@ -595,6 +595,69 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('an alternate goes on the ready page and moves', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapText(tester, 'Open workout');
+    final ex = c.read(boltProvider).plans[Account.ownerId]!['2026-10-14']!.ex;
+    final count = ex.length;
+    await tapText(tester, 'Alternate Exercise');
+    await tapText(tester, 'Push-up');
+    expect(ex.length, count + 1);
+    expect(ex.last.name, 'Push-up');
+    expect(find.textContaining('ALTERNATE'), findsOneWidget);
+
+    await tapText(tester, '↑');
+    expect(ex[count - 1].name, 'Push-up');
+    await unmount(tester);
+  });
+
+  testWidgets('an alternate added mid workout asks first or after, then rest', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapText(tester, 'Open workout');
+    await tapText(tester, 'START');
+    await tapText(tester, 'Warm-up done');
+    final ex = c.read(boltProvider).plans[Account.ownerId]!['2026-10-14']!.ex;
+    final main = ex.first;
+
+    // No rest: Done, 5 seconds to get in position, then the other exercise.
+    await tapText(tester, 'Alternate Exercise');
+    await tapText(tester, 'Push-up');
+    expect(find.textContaining('first or after'), findsOneWidget);
+    await tapText(tester, 'After');
+    expect(find.text('Rest between them?'), findsOneWidget);
+    await tapText(tester, 'No rest');
+    expect((ex[0], ex[1].name, ex[1].noRest), (main, 'Push-up', true));
+
+    await tapText(tester, 'Done · set 1');
+    expect(find.text('GET READY'), findsOneWidget);
+    expect(find.text('REST'), findsNothing);
+    await tester.pump(const Duration(seconds: 6));
+    await settle(tester);
+    expect(find.text('GET READY'), findsNothing);
+    expect(find.text('Push-up'), findsOneWidget);
+
+    // The round is done, so now a real rest.
+    await tapText(tester, 'Done · set 1');
+    expect(find.text('REST'), findsOneWidget);
+    await tester.pump(const Duration(minutes: 6));
+    await settle(tester);
+    expect(find.text(main.name), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    // First: it is the set to do right now, with a rest worked out after it.
+    await tester.tap(find.text('Alternate Exercise'));
+    await settle(tester);
+    await tapText(tester, 'Plank');
+    await tapText(tester, 'First');
+    await tapText(tester, 'Rest');
+    expect(ex[0].name, 'Plank');
+    expect(ex[0].noRest, isFalse);
+    expect(find.text('Plank'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('today\'s workout opens ready, then START, warm-up and set by set', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
