@@ -112,7 +112,7 @@ class _InstallGuideState extends State<InstallGuide> {
                   circle: true,
                   stroke: Stroke(BoltColors.neon, 1.5),
                   alignment: Alignment.center,
-                  child: Text('\${i + 1}', style: BoltText.m(12, weight: 700, color: BoltColors.neon)),
+                  child: Text('${i + 1}', style: BoltText.m(12, weight: 700, color: BoltColors.neon)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

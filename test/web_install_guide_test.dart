@@ -33,6 +33,7 @@ void main() {
       expect(style?.decoration, anyOf(isNull, TextDecoration.none), reason: t.text.toPlainText());
       expect(style?.color?.r, isNot(closeTo(0xD0 / 255, .01)), reason: t.text.toPlainText());
     }
+    expect(find.text('1'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.ensureVisible(find.text('Continue in the browser'));
     await tester.pump();
