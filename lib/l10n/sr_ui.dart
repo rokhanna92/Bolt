@@ -1,7 +1,9 @@
 // Serbian for the screens, toasts and messages.
 
 const kSrUi = <String, String>{
-  'Want reminders and widgets too? The full app has them. Your phone will ask you to allow the install.': 'Želiš i podsetnike i vidžete? Ima ih puna aplikacija. Telefon će tražiti dozvolu za instalaciju.',
+  'It takes a few seconds, then Bolt opens full screen like any app.': 'Traje par sekundi, a onda se Bolt otvara preko celog ekrana kao svaka aplikacija.',
+  'Then open Bolt from your home screen and type your key.': 'Zatim otvori Bolt sa početnog ekrana i upiši svoj ključ.',
+  'Adds reminders and widgets. Your phone asks you to allow the install.': 'Dodaje podsetnike i vidžete. Telefon će tražiti dozvolu za instalaciju.',
   'Get the full Android app': 'Preuzmi punu Android aplikaciju',
   'Call a friend': 'Pozovi prijatelja',
   'Show them a code that gets them into Bolt': 'Pokaži kod koji ih vodi u Bolt',
@@ -10,7 +12,6 @@ const kSrUi = <String, String>{
   'Share the link': 'Podeli link',
   'Try Bolt, the gym app: {url}': 'Probaj Bolt, aplikaciju za teretanu: {url}',
   'Get Bolt on your phone': 'Instaliraj Bolt na telefon',
-  'It takes a few seconds. Bolt then opens full screen like any app, and your data stays on your phone.': 'Traje par sekundi. Bolt se onda otvara preko celog ekrana kao svaka aplikacija, a tvoji podaci ostaju na telefonu.',
   'Copy the link below and paste it into Safari.': 'Kopiraj link dugmetom ispod i nalepi ga u Safari.',
   'Follow the steps there.': 'Prati korake koji se tamo pojave.',
   'Copied': 'Kopirano',

@@ -88,121 +88,185 @@ class _InstallGuideState extends State<InstallGuide> {
     web.window.location.href = url;
   }
 
-  List<Widget> _steps(List<(String, IconData?)> steps) => [
-    for (final (i, (text, icon)) in steps.indexed) ...[
-      if (i > 0) const SizedBox(height: 10),
-      BoltBox(
-        color: BoltColors.surface1,
-        stroke: const Stroke(BoltColors.lineSoft),
-        radius: 14,
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 26,
-              child: Text('${i + 1}', style: BoltText.m(14, weight: 700, color: BoltColors.neon)),
+  /// Numbered steps in one card, so they read as a single short task.
+  Widget _steps(List<(String, IconData?)> steps) => BoltBox(
+    color: BoltColors.surface1,
+    stroke: const Stroke(BoltColors.lineSoft),
+    radius: 18,
+    child: Column(
+      children: [
+        for (final (i, (text, icon)) in steps.indexed)
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: i == steps.length - 1
+                ? null
+                : const BoxDecoration(
+                    border: Border(bottom: BorderSide(color: BoltColors.divider)),
+                  ),
+            child: Row(
+              children: [
+                BoltBox(
+                  width: 26,
+                  height: 26,
+                  borderBox: true,
+                  circle: true,
+                  stroke: Stroke(BoltColors.neon, 1.5),
+                  alignment: Alignment.center,
+                  child: Text('\${i + 1}', style: BoltText.m(12, weight: 700, color: BoltColors.neon)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(text, style: BoltText.a(14, weight: 600, color: BoltColors.text, height: 1.35)),
+                ),
+                if (icon != null) ...[const SizedBox(width: 10), Icon(icon, size: 22, color: BoltColors.neon)],
+              ],
             ),
-            Expanded(child: Text(text, style: BoltText.a(14, weight: 600, height: 1.35))),
-            if (icon != null) ...[const SizedBox(width: 10), Icon(icon, size: 24, color: BoltColors.neon)],
-          ],
+          ),
+      ],
+    ),
+  );
+
+  Widget _hint(String text) => Text(
+    text,
+    textAlign: TextAlign.center,
+    style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
+  );
+
+  List<Widget> _forThisPhone() {
+    final open = tx('Open Bolt from your home screen and type your key.');
+    return switch (_kind) {
+      _Phone.iphoneOther => [
+        _steps([(tx('Copy the link below and paste it into Safari.'), null), (tx('Follow the steps there.'), null)]),
+        const SizedBox(height: 14),
+        NeonButton(label: _copied ? tx('Copied') : tx('Copy the link'), height: 54, onTap: _copy),
+      ],
+      // The browser offers the install itself: one button, nothing to explain.
+      _Phone.android when _canInstall() => [
+        NeonButton(
+          label: tx('Install Bolt'),
+          height: 54,
+          onTap: () => _install().toDart.then((_) {}, onError: (_) {}),
         ),
-      ),
-    ],
-  ];
+        const SizedBox(height: 12),
+        _hint(tx('Then open Bolt from your home screen and type your key.')),
+      ],
+      _Phone.android => [
+        _steps([
+          (tx('Tap the menu at the top right of your browser.'), Icons.more_vert),
+          (tx('Tap Install app or Add to Home screen.'), null),
+          (open, null),
+        ]),
+      ],
+      _ => [
+        _steps([
+          (tx('Tap the Share button in Safari.'), Icons.ios_share),
+          (tx('Scroll down and tap Add to Home Screen.'), Icons.add_box_outlined),
+          (tx('Tap Add at the top right.'), null),
+          (open, null),
+        ]),
+      ],
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     final insets = MediaQuery.paddingOf(context);
-    final open = tx('Open Bolt from your home screen and type your key.');
-    return ColoredBox(
+    // The guide sits above the app's pages, so it brings its own Material:
+    // without one Flutter draws all text red with a yellow underline.
+    return Material(
       color: BoltColors.page,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20, insets.top + 24, 20, insets.bottom + 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'BOLT',
-                    style: BoltText.a(42, weight: 900, color: BoltColors.neon, width: 112, spacing: -.02),
+      child: CustomScrollView(
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20, insets.top + 20, 20, insets.bottom + 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      BoltBox(
+                        width: 44,
+                        height: 44,
+                        radius: 13,
+                        color: BoltColors.neon,
+                        alignment: Alignment.center,
+                        child: BoltIcon('bolt', size: 26, color: BoltColors.onNeon),
+                      ),
+                      const Spacer(),
+                      const LanguagePicker(compact: true),
+                    ],
                   ),
-                ),
-                const LanguagePicker(compact: true),
-              ],
-            ),
-            const SizedBox(height: 18),
-            Text(tx('Get Bolt on your phone'), style: BoltText.a(28, weight: 900, width: 112, spacing: -.02)),
-            const SizedBox(height: 6),
-            Text(
-              tx(
-                'It takes a few seconds. Bolt then opens full screen like any app, and your data stays on your phone.',
-              ),
-              style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
-            ),
-            const SizedBox(height: 20),
-            ...switch (_kind) {
-              _Phone.iphoneOther => [
-                ..._steps([
-                  (tx('Copy the link below and paste it into Safari.'), null),
-                  (tx('Follow the steps there.'), null),
-                ]),
-                const SizedBox(height: 12),
-                NeonButton(label: _copied ? tx('Copied') : tx('Copy the link'), height: 52, onTap: _copy),
-              ],
-              _Phone.android => [
-                if (_canInstall()) ...[
-                  NeonButton(
-                    label: tx('Install Bolt'),
-                    height: 52,
-                    onTap: () => _install().toDart.then((_) {}, onError: (_) {}),
+                  const SizedBox(height: 28),
+                  Text(
+                    tx('Get Bolt on your phone'),
+                    style: BoltText.a(32, weight: 900, width: 112, spacing: -.02, color: BoltColors.text, height: 1.08),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
+                  Text(
+                    tx('It takes a few seconds, then Bolt opens full screen like any app.'),
+                    style: BoltText.a(15, color: BoltColors.muted, height: 1.4),
+                  ),
+                  const SizedBox(height: 26),
+                  ..._forThisPhone(),
+                  const Spacer(),
+                  const SizedBox(height: 26),
+                  if (_kind == _Phone.android) ...[
+                    Tap(
+                      onTap: _downloadApk,
+                      child: BoltBox(
+                        color: BoltColors.surface1,
+                        stroke: const Stroke(BoltColors.lineSoft),
+                        radius: 16,
+                        padding: const EdgeInsets.all(14),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tx('Get the full Android app'),
+                                    style: BoltText.a(14, weight: 800, color: BoltColors.text),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    tx('Adds reminders and widgets. Your phone asks you to allow the install.'),
+                                    style: BoltText.a(12, color: BoltColors.muted, height: 1.35),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            const Chevron(size: 18),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+                  Text(
+                    tx('No key yet? Ask the owner of Bolt for one.'),
+                    textAlign: TextAlign.center,
+                    style: BoltText.a(12, color: BoltColors.muted),
+                  ),
+                  Tap(
+                    onTap: widget.onSkip,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        tx('Continue in the browser'),
+                        textAlign: TextAlign.center,
+                        style: BoltText.a(13, weight: 700, color: BoltColors.muted),
+                      ),
+                    ),
+                  ),
                 ],
-                ..._steps([
-                  (tx('Tap the menu at the top right of your browser.'), Icons.more_vert),
-                  (tx('Tap Install app or Add to Home screen.'), null),
-                  (open, null),
-                ]),
-                const SizedBox(height: 18),
-                Text(
-                  tx(
-                    'Want reminders and widgets too? The full app has them. Your phone will ask you to allow the install.',
-                  ),
-                  textAlign: TextAlign.center,
-                  style: BoltText.a(12, color: BoltColors.muted, height: 1.45),
-                ),
-                const SizedBox(height: 8),
-                OutlineButton(label: tx('Get the full Android app'), onTap: _downloadApk),
-              ],
-              _ => _steps([
-                (tx('Tap the Share button in Safari.'), Icons.ios_share),
-                (tx('Scroll down and tap Add to Home Screen.'), Icons.add_box_outlined),
-                (tx('Tap Add at the top right.'), null),
-                (open, null),
-              ]),
-            },
-            const SizedBox(height: 14),
-            Text(
-              tx('No key yet? Ask the owner of Bolt for one.'),
-              textAlign: TextAlign.center,
-              style: BoltText.a(12, color: BoltColors.muted),
-            ),
-            const SizedBox(height: 18),
-            Tap(
-              onTap: widget.onSkip,
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  tx('Continue in the browser'),
-                  textAlign: TextAlign.center,
-                  style: BoltText.a(13, weight: 700, color: BoltColors.muted),
-                ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
