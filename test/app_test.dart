@@ -10,6 +10,7 @@ import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/board.dart';
 import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/models/exercise.dart';
+import 'package:bolt/data/models/people.dart';
 import 'package:bolt/data/models/session.dart';
 import 'package:bolt/data/rules.dart';
 import 'package:bolt/data/seed/badges.dart';
@@ -99,10 +100,14 @@ Future<ProviderContainer> pumpApp(
           (c) => switch (c) {
             '11111' => License.coach,
             '222222' => License.admin,
+            '33333' => License.solo,
+            '44444' => License.trainee,
             _ => null,
           },
         ),
-        coachSlotProvider.overrideWithValue((c) => c == '11111' ? 0 : null),
+        keyNameProvider.overrideWithValue(
+          (c) => const {'11111': 'Coach 1', '222222': 'Admin', '33333': 'Solo 1', '44444': 'Trainee 1'}[c],
+        ),
       ],
       child: const BoltApp(),
     ),
@@ -189,13 +194,18 @@ Future<void> swipeFace(WidgetTester tester) async {
 }
 
 /// Goes through onboarding as [role] with [name]. Coaches enter [code].
-Future<void> onboard(WidgetTester tester, String role, String name, {String? weight, String code = '11111'}) async {
+/// The test key that fits each way of training on the first screen.
+String keyFor(String role) => const {'On my own': '33333', 'With a coach': '44444', 'I coach people': '11111'}[role]!;
+
+Future<void> typeKey(WidgetTester tester, String code) async {
+  await typeInto(tester, 'Your key', code);
+  await tapText(tester, 'Unlock');
+}
+
+Future<void> onboard(WidgetTester tester, String role, String name, {String? weight, String? code}) async {
   expect(find.text('HOW DO YOU TRAIN?'), findsOneWidget);
   await tapText(tester, role);
-  if (role == 'I coach people') {
-    await typeInto(tester, '5-digit code', code);
-    await tapText(tester, 'Unlock');
-  }
+  await typeKey(tester, code ?? keyFor(role));
   await typeInto(tester, 'Your name', name);
   await tapText(tester, 'Continue');
   expect(find.text('Your body'), findsOneWidget);
@@ -1044,6 +1054,7 @@ void main() {
       coaches: const [ListedCoach('Marko Ilić', 'Strength & Hypertrophy'), ListedCoach('Sara Novak', '')],
     );
     await tapText(tester, 'With a coach');
+    await typeKey(tester, '44444');
     expect(find.text('Strength & Hypertrophy'), findsOneWidget);
     expect(find.text('Not listed? Type their name.'), findsOneWidget);
     await typeInto(tester, 'Your name', 'Ana');
@@ -1061,6 +1072,7 @@ void main() {
   testWidgets('without the coach list a trainee types the name', (tester) async {
     final c = await pumpApp(tester, coaches: null);
     await tapText(tester, 'With a coach');
+    await typeKey(tester, '44444');
     expect(find.text('Could not load the coach list. Type your coach\'s name instead.'), findsOneWidget);
     await typeInto(tester, 'Your name', 'Ana');
     await typeInto(tester, 'Coach\'s name (optional)', 'Marko');
@@ -1070,26 +1082,29 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('coaching needs a license code', (tester) async {
+  testWidgets('every way of training needs a key that fits it', (tester) async {
     await pumpApp(tester);
     await tapText(tester, 'I coach people');
-    expect(find.text('Your coach code'), findsOneWidget);
-    await typeInto(tester, '5-digit code', '12345');
-    await tapText(tester, 'Unlock');
-    expect(find.text('That code is not valid. Check it and try again.'), findsOneWidget);
-    await typeInto(tester, '5-digit code', '11111');
-    await tapText(tester, 'Unlock');
+    expect(find.text('Type your key'), findsOneWidget);
+    await typeKey(tester, '12345');
+    expect(find.text('That key does not open Bolt. Check it and try again.'), findsOneWidget);
+    await typeKey(tester, '33333');
+    expect(find.text('That key is for a different way of training. Go back and pick the right one.'), findsOneWidget);
+    await typeKey(tester, '11111');
     expect(find.text('About you'), findsOneWidget);
     expect(find.text('STEP 1 OF 2'), findsOneWidget);
-    // Back from the profile step returns to the code, then to the roles.
+    // Back from the profile step returns to the key, then to the roles.
     await tester.tap(find.byType(BackBox).first);
     await settle(tester);
-    expect(find.text('Your coach code'), findsOneWidget);
+    expect(find.text('Type your key'), findsOneWidget);
     await tester.tap(find.byType(BackBox).first);
     await settle(tester);
     expect(find.text('HOW DO YOU TRAIN?'), findsOneWidget);
-    // Trainees and solo users skip the code.
+    // Solo and trainee keys only fit their own way too.
     await tapText(tester, 'With a coach');
+    await typeKey(tester, '33333');
+    expect(find.text('About you'), findsNothing);
+    await typeKey(tester, '44444');
     expect(find.text('About you'), findsOneWidget);
     await unmount(tester);
   });
@@ -1108,10 +1123,10 @@ void main() {
     final c = await pumpApp(tester, data: await afterUpdate(tester));
     expect(find.text('Type your key'), findsOneWidget);
     expect(find.text('Hey Dani'), findsNothing);
-    await typeInto(tester, '5 or 6 digits', '99999');
+    await typeInto(tester, 'Your key', '99999');
     await tapText(tester, 'Open Bolt');
     expect(find.text('That key does not open Bolt. Check it and try again.'), findsOneWidget);
-    await typeInto(tester, '5 or 6 digits', '222222');
+    await typeInto(tester, 'Your key', '222222');
     await tapText(tester, 'Open Bolt');
     // Straight back in, with the training data still there.
     expect(find.text('Hey Dani'), findsOneWidget);
@@ -1124,23 +1139,27 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('a coach key waits until the owner switches it on', (tester) async {
+  testWidgets('after the reset any real key opens a solo phone, and coaches need a coach key', (tester) async {
     final data = await afterUpdate(tester);
     final c = await pumpApp(tester, data: data);
-    await typeInto(tester, '5 or 6 digits', '11111');
-    await tapText(tester, 'Open Bolt');
-    expect(find.text('Not switched on yet'), findsOneWidget);
-    expect(find.text('Hey Dani'), findsNothing);
-    expect(c.read(boltProvider).settings.keyLog.last.how, 'pending');
-    await unmount(tester);
-
-    // The owner switches that key on; the same code now opens the app.
-    data.settings.keyGen = 0;
-    data.settings.coachKeysOn.add(0);
-    await pumpApp(tester, data: data);
-    await typeInto(tester, '5 or 6 digits', '11111');
+    await typeInto(tester, 'Your key', '33333');
     await tapText(tester, 'Open Bolt');
     expect(find.text('Hey Dani'), findsOneWidget);
+    expect(c.read(boltProvider).settings.keyLog.last.name, 'Solo 1');
+    expect(c.read(boltProvider).account!.role, Role.solo);
+    await unmount(tester);
+
+    data.settings.keyGen = 0;
+    data.account = Account(Role.coach, Account.ownerId);
+    data.coaches.add(Coach(id: Account.ownerId, name: 'Dani', role: 'Coach'));
+    final c2 = await pumpApp(tester, data: data);
+    await typeInto(tester, 'Your key', '44444');
+    await tapText(tester, 'Open Bolt');
+    expect(find.text('This phone is set up for coaching, so it needs a coach key.'), findsOneWidget);
+    expect(c2.read(boltProvider).settings.keyLog.last.how, 'needsCoach');
+    await typeInto(tester, 'Your key', '11111');
+    await tapText(tester, 'Open Bolt');
+    expect(c2.read(boltProvider.notifier).needsKey, isFalse);
     await unmount(tester);
   });
 
@@ -1257,7 +1276,7 @@ void main() {
   testWidgets('the admin key switches between every role', (tester) async {
     final c = await pumpApp(tester);
     await tapText(tester, 'I coach people');
-    await typeInto(tester, '5-digit code', '222222');
+    await typeInto(tester, 'Your key', '222222');
     await tapText(tester, 'Unlock');
     expect(find.text('ADMIN · STEP 1 OF 2'), findsOneWidget);
     await typeInto(tester, 'Your name', 'Dani');
@@ -1284,7 +1303,7 @@ void main() {
     final board = FakeBoard();
     final c = await pumpApp(tester, board: board);
     await tapText(tester, 'I coach people');
-    await typeInto(tester, '5-digit code', '222222');
+    await typeInto(tester, 'Your key', '222222');
     await tapText(tester, 'Unlock');
     await typeInto(tester, 'Your name', 'Dani');
     await tapText(tester, 'Continue');

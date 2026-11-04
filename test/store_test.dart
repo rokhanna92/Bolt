@@ -600,6 +600,7 @@ void ownerTests() {
       for (final c in ['', '00000', '000000', 'abcde', '1234', '1234567']) {
         expect(checkLicense(c), isNull, reason: c);
       }
+      expect(licenseHash(' abcd-efgh '), licenseHash('ABCDEFGH'));
       expect(licenseHash('12345'), licenseHash('12345'));
       expect(licenseHash('12345'), isNot(licenseHash('12346')));
     });

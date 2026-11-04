@@ -42,11 +42,9 @@ class AppSettings {
     Map<String, int>? supps,
     Board? board,
     List<String>? hintsSeen,
-    List<int>? coachKeysOn,
     List<KeyEntry>? keyLog,
   }) : supps = supps ?? {},
        hintsSeen = hintsSeen ?? [],
-       coachKeysOn = coachKeysOn ?? [],
        keyLog = keyLog ?? [],
        board = board ?? Board();
 
@@ -121,10 +119,6 @@ class AppSettings {
   /// asks for a key again before it opens.
   int keyGen;
 
-  /// Coach keys the owner has switched on, numbered as in `licenses.dart`. A
-  /// coach key that is not in here is recognised but waits for activation.
-  final List<int> coachKeysOn;
-
   /// Every go at the key screen, oldest first, trimmed to the last 60.
   final List<KeyEntry> keyLog;
 
@@ -156,7 +150,6 @@ class AppSettings {
     'waterHours': waterHours,
     'supps': supps,
     'bellSeen': bellSeen?.toIso8601String(),
-    'coachKeysOn': coachKeysOn,
     'keyLog': [for (final e in keyLog) e.toJson()],
     'board': board.toJson(),
   };
@@ -186,7 +179,6 @@ class AppSettings {
     waterHours: j['waterHours'] as int? ?? 3,
     bellSeen: DateTime.tryParse(j['bellSeen'] as String? ?? ''),
     supps: {for (final e in (j['supps'] as Map? ?? const {}).entries) e.key as String: e.value as int},
-    coachKeysOn: [for (final x in j['coachKeysOn'] as List? ?? const []) x as int],
     keyLog: [for (final x in j['keyLog'] as List? ?? const []) KeyEntry.fromJson(x as Map<String, dynamic>)],
     board: Board.fromJson(j['board']),
   );

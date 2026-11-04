@@ -8,7 +8,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
-import '../../data/licenses.dart';
 import '../../data/models/board.dart';
 import '../../services/haptics.dart';
 import '../../services/notice_board.dart';
@@ -346,62 +345,14 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
           const SizedBox(height: 6),
           Text(
             tx(
-              'A coach key opens Bolt only once you switch it on here. Until then that phone sees a screen saying its key is waiting for you.',
+              'Every key typed on this phone, by its name on your list. Keys used on other phones are not reported here.',
             ),
             style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
           ),
           const SizedBox(height: 22),
-          Kicker(tx('COACH KEYS'), size: 10),
-          const SizedBox(height: 8),
-          _keySwitches(),
-          const SizedBox(height: 22),
           Kicker(tx('KEY LOG'), size: 10),
           const SizedBox(height: 8),
           _keyLog(),
-        ],
-      ),
-    );
-  }
-
-  /// The owner's five coach keys, numbered as on their own list.
-  Widget _keySwitches() {
-    final on = ref.watch(boltProvider).settings.coachKeysOn;
-    return BoltBox(
-      color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
-      radius: 18,
-      clip: true,
-      child: Column(
-        children: [
-          for (var i = 0; i < kCoachKeys; i++)
-            Tap(
-              onTap: () => ref.read(boltProvider.notifier).toggleCoachKey(i),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: BoltColors.divider)),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(tx('Coach {n}', {'n': i + 1}), style: BoltText.a(14, weight: 700)),
-                          const SizedBox(height: 2),
-                          Text(
-                            on.contains(i) ? tx('Opens Bolt') : tx('Waiting for you'),
-                            style: BoltText.a(12, color: on.contains(i) ? BoltColors.neon : BoltColors.muted),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    BoltSwitch(on: on.contains(i)),
-                  ],
-                ),
-              ),
-            ),
         ],
       ),
     );

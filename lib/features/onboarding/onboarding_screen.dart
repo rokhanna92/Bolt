@@ -111,7 +111,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   /// Steps: 0 role, 1 license code (coaches only), 2 about you, 3 body.
-  void _back() => setState(() => _step = _step == 2 && _role != Role.coach ? 0 : _step - 1);
+  void _back() => setState(() => _step--);
 
   Widget _header(String kicker, String title, {String? sub}) {
     return Column(
@@ -141,7 +141,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         onTap: () => setState(() {
           _role = role;
           _admin = false;
-          _step = role == Role.coach ? 1 : 2;
+          _step = 1;
         }),
         scale: .98,
         child: BoltBox(
@@ -230,21 +230,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _header(
-          tx('COACH LICENSE'),
-          tx('Your coach code'),
-          sub: tx(
-            tx(
-              'Coaching in Bolt needs a 5-digit license code. No code? Go back and train on your own or with a coach.',
-            ),
-          ),
+          tx('ACCESS KEY'),
+          tx('Type your key'),
+          sub: tx('Bolt opens with a key from its owner. No key yet? Ask them for one.'),
         ),
-        FieldLabel(tx('CODE'), top: 22),
-        BoltField(
-          controller: _code,
-          hint: tx('5-digit code'),
-          number: true,
-          onChanged: (_) => setState(() => _codeError = null),
-        ),
+        FieldLabel(tx('KEY'), top: 22),
+        BoltField(controller: _code, hint: tx('Your key'), onChanged: (_) => setState(() => _codeError = null)),
         if (_codeError != null) ...[
           const SizedBox(height: 8),
           Text(_codeError!, style: BoltText.a(13, weight: 600, color: BoltColors.warn)),
@@ -262,9 +253,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   void _unlock() {
     final license = ref.read(licenseProvider)(_code.text);
-    if (license == null) {
+    final fits = switch (license) {
+      null => false,
+      License.admin => true,
+      License.solo => _role == Role.solo,
+      License.trainee => _role == Role.trainee,
+      License.coach => _role == Role.coach,
+    };
+    if (!fits) {
       Haptics.play(Feel.error);
-      setState(() => _codeError = tx('That code is not valid. Check it and try again.'));
+      setState(
+        () => _codeError = license == null
+            ? tx('That key does not open Bolt. Check it and try again.')
+            : tx('That key is for a different way of training. Go back and pick the right one.'),
+      );
       return;
     }
     FocusScope.of(context).unfocus();
