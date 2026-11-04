@@ -68,7 +68,7 @@ class ProgressScreen extends ConsumerWidget {
               onTap: () => context.push('/wrap'),
               child: BoltBox(
                 color: BoltColors.surface1,
-                stroke: const Stroke(BoltColors.neon, 1.5),
+                stroke: Stroke(BoltColors.neon, 1.5),
                 radius: 14,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(

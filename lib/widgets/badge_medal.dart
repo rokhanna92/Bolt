@@ -41,25 +41,25 @@ class MedalPalette {
       );
     }
     return switch (shape) {
-      BadgeShape.plate => const MedalPalette(
+      BadgeShape.plate => MedalPalette(
         fill: BoltColors.ink,
         rim: BoltColors.neon,
-        ring: Color(0x73C6FF1A),
+        ring: const Color(0x73C6FF1A),
         hub: BoltColors.surface1,
         ink: BoltColors.neon,
         ink2: BoltColors.textSoft,
-        glow: BoxShadow(color: Color(0x47C6FF1A), blurRadius: 22),
+        glow: const BoxShadow(color: Color(0x47C6FF1A), blurRadius: 22),
       ),
-      BadgeShape.kb => const MedalPalette(
+      BadgeShape.kb => MedalPalette(
         fill: BoltColors.neon,
         rim: BoltColors.neon,
         ring: Colors.transparent,
         hub: Colors.transparent,
         ink: BoltColors.ink,
         ink2: BoltColors.ink,
-        glow: BoxShadow(color: Color(0x4DC6FF1A), blurRadius: 22),
+        glow: const BoxShadow(color: Color(0x4DC6FF1A), blurRadius: 22),
       ),
-      BadgeShape.hex => const MedalPalette(
+      BadgeShape.hex => MedalPalette(
         fill: BoltColors.ink,
         rim: BoltColors.neon,
         ring: Colors.transparent,

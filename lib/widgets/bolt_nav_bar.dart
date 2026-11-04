@@ -135,7 +135,7 @@ class BoltNavBar extends ConsumerWidget {
             height: 30,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: on ? const Color(0x24C6FF1A) : const Color(0x00C6FF1A),
+              color: on ? BoltColors.neon.withAlpha(0x24) : BoltColors.neon.withAlpha(0x00),
               borderRadius: BorderRadius.circular(99),
             ),
             child: Stack(
@@ -205,13 +205,13 @@ class _ScanSlot extends ConsumerWidget {
             // Glows brighter while its screen is open.
             boxShadow: [
               BoxShadow(
-                color: highlighted ? const Color(0x99C6FF1A) : const Color(0x59C6FF1A),
+                color: highlighted ? BoltColors.neon.withAlpha(0x99) : BoltColors.neon.withAlpha(0x59),
                 blurRadius: highlighted ? 30 : 24,
                 offset: const Offset(0, 6),
               ),
             ],
           ),
-          child: BoltIcon(icon, size: 26, color: BoltColors.ink),
+          child: BoltIcon(icon, size: 26, color: BoltColors.onNeon),
         ),
       ),
     );

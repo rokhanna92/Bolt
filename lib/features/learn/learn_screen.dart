@@ -92,13 +92,13 @@ class LearnScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 14),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: tab == k ? BoltColors.neon : const Color(0x00C6FF1A),
+                          color: tab == k ? BoltColors.neon : BoltColors.neon.withAlpha(0x00),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: tab == k ? BoltColors.neon : BoltColors.line),
                         ),
                         child: Text(
                           tx(l),
-                          style: BoltText.a(13, weight: 800, color: tab == k ? BoltColors.ink : BoltColors.text),
+                          style: BoltText.a(13, weight: 800, color: tab == k ? BoltColors.onNeon : BoltColors.text),
                         ),
                       ),
                     ),
@@ -281,7 +281,7 @@ class _Bullets extends StatelessWidget {
               width: 6,
               height: 6,
               margin: const EdgeInsets.only(top: 6),
-              decoration: const BoxDecoration(color: BoltColors.neon, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: BoltColors.neon, shape: BoxShape.circle),
             ),
             const SizedBox(width: 10),
             Expanded(child: Text(tx(p), style: BoltText.a(13, height: 1.45))),
@@ -315,8 +315,8 @@ class _StyleCard extends ConsumerWidget {
         const SizedBox(height: 10),
         BoltBox(
           radius: 12,
-          color: const Color(0x0FFF7A45),
-          stroke: const Stroke(Color(0x73FF7A45)),
+          color: BoltColors.warn.withAlpha(0x0F),
+          stroke: Stroke(BoltColors.warn.withAlpha(0x73)),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,7 +364,7 @@ class _MuscleCard extends StatelessWidget {
             Expanded(child: Text(tx(m.name), style: BoltText.a(18, weight: 900))),
             BoltBox(
               radius: 6,
-              stroke: const Stroke(BoltColors.neon),
+              stroke: Stroke(BoltColors.neon),
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
               child: Text(tx(m.volume).toUpperCase(), style: BoltText.m(9, weight: 700, color: BoltColors.neon)),
             ),
@@ -464,7 +464,7 @@ class _SuppList extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                       child: Text(
                         tx(label),
-                        style: BoltText.a(12, weight: 700, color: f == i ? BoltColors.ink : BoltColors.text),
+                        style: BoltText.a(12, weight: 700, color: f == i ? BoltColors.onNeon : BoltColors.text),
                       ),
                     ),
                   ),

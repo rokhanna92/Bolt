@@ -125,7 +125,7 @@ class RankName extends StatelessWidget {
     );
     if (tier != kTiers.length - 1) return text;
     return ShaderMask(
-      shaderCallback: (b) => const LinearGradient(colors: kAtlasNeon).createShader(b),
+      shaderCallback: (b) => LinearGradient(colors: kAtlasNeon).createShader(b),
       child: text,
     );
   }

@@ -285,7 +285,7 @@ class LiftGoalCard extends ConsumerWidget {
               value: pace == null ? 0 : (pace.current / g.$1).clamp(0.0, 1.0),
               minHeight: 6,
               backgroundColor: BoltColors.lineSoft,
-              valueColor: const AlwaysStoppedAnimation(BoltColors.neon),
+              valueColor: AlwaysStoppedAnimation(BoltColors.neon),
             ),
           ),
           const SizedBox(height: 6),

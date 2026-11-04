@@ -251,7 +251,7 @@ class _WaterCard extends ConsumerWidget {
     final store = ref.read(boltProvider.notifier);
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: Stroke(on ? const Color(0x73C6FF1A) : BoltColors.lineSoft),
+      stroke: Stroke(on ? BoltColors.neon.withAlpha(0x73) : BoltColors.lineSoft),
       radius: 18,
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -297,7 +297,7 @@ class _WaterCard extends ConsumerWidget {
                         stroke: Stroke(h == hours ? BoltColors.neon : BoltColors.line),
                         child: Text(
                           spanText(h * 60),
-                          style: BoltText.a(13, weight: 800, color: h == hours ? BoltColors.ink : BoltColors.text),
+                          style: BoltText.a(13, weight: 800, color: h == hours ? BoltColors.onNeon : BoltColors.text),
                         ),
                       ),
                     ),
@@ -331,7 +331,7 @@ class _SuppTile extends StatelessWidget {
         height: 70,
         radius: 14,
         color: BoltColors.surface1,
-        stroke: m != null ? const Stroke(BoltColors.neon, 1.5) : const Stroke(BoltColors.lineSoft),
+        stroke: m != null ? Stroke(BoltColors.neon, 1.5) : const Stroke(BoltColors.lineSoft),
         child: Stack(
           children: [
             Padding(

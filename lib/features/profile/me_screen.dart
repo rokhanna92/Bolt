@@ -171,7 +171,7 @@ class InjuryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(Color(0x73FF7A45)),
+      stroke: Stroke(BoltColors.warn.withAlpha(0x73)),
       radius: 16,
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -281,7 +281,7 @@ class _LinkCard extends StatelessWidget {
               width: 46,
               height: 46,
               radius: 14,
-              stroke: const Stroke(BoltColors.neon, 1.5),
+              stroke: Stroke(BoltColors.neon, 1.5),
               alignment: Alignment.center,
               child: BoltIcon(icon, color: BoltColors.neon),
             ),

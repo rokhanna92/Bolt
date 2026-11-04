@@ -285,7 +285,7 @@ class Avatar extends StatelessWidget {
         style: BoltText.a(
           fontSize,
           weight: weight,
-          color: color ?? (fill != null ? BoltColors.ink : BoltColors.text),
+          color: color ?? (fill != null ? BoltColors.onNeon : BoltColors.text),
           height: 1,
         ),
       ),
@@ -302,8 +302,8 @@ class NeonButton extends StatelessWidget {
     this.height = 54,
     this.radius = 16,
     this.fontSize = 15,
-    this.color = BoltColors.neon,
-    this.textColor = BoltColors.ink,
+    this.color,
+    this.textColor,
     this.scale = .97,
     this.leading,
   });
@@ -313,13 +313,15 @@ class NeonButton extends StatelessWidget {
   final double height;
   final double radius;
   final double fontSize;
-  final Color color;
-  final Color textColor;
+  final Color? color;
+  final Color? textColor;
   final double scale;
   final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? BoltColors.neon;
+    final textColor = this.textColor ?? BoltColors.onNeon;
     // No onTap means it cannot be pressed yet: grey, so it never looks ready.
     final on = onTap != null;
     return Tap(
@@ -359,7 +361,7 @@ class OutlineButton extends StatelessWidget {
     this.height = 52,
     this.radius = 16,
     this.fontSize = 14,
-    this.color = BoltColors.neon,
+    this.color,
     this.borderColor,
     this.borderWidth = 1.5,
     this.weight = 800,
@@ -370,13 +372,14 @@ class OutlineButton extends StatelessWidget {
   final double height;
   final double radius;
   final double fontSize;
-  final Color color;
+  final Color? color;
   final Color? borderColor;
   final double borderWidth;
   final double weight;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? BoltColors.neon;
     return Tap(
       onTap: onTap,
       child: BoltBox(
@@ -406,9 +409,9 @@ class ChipStyle {
 
 /// `CHIP` in the prototype: pill colors per session status.
 ChipStyle chipFor(SessionStatus s) => switch (s) {
-  SessionStatus.done => const ChipStyle(BoltColors.neon, BoltColors.ink, Stroke(BoltColors.neon)),
-  SessionStatus.approved => const ChipStyle(BoltColors.surface2, BoltColors.neon, Stroke(BoltColors.line)),
-  SessionStatus.pending => const ChipStyle(Colors.transparent, BoltColors.neon, Stroke.dashed(BoltColors.neon)),
+  SessionStatus.done => ChipStyle(BoltColors.neon, BoltColors.onNeon, Stroke(BoltColors.neon)),
+  SessionStatus.approved => ChipStyle(BoltColors.surface2, BoltColors.neon, const Stroke(BoltColors.line)),
+  SessionStatus.pending => ChipStyle(Colors.transparent, BoltColors.neon, Stroke.dashed(BoltColors.neon)),
   SessionStatus.moved => const ChipStyle(Colors.transparent, BoltColors.text, Stroke(BoltColors.text)),
   SessionStatus.draft => const ChipStyle(Colors.transparent, BoltColors.textSoft, Stroke.dashed(BoltColors.muted2)),
 };
@@ -681,7 +684,7 @@ class BoltSwitch extends StatelessWidget {
           width: 22,
           height: 22,
           margin: const EdgeInsets.all(2),
-          decoration: BoxDecoration(color: on ? BoltColors.ink : BoltColors.muted, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: on ? BoltColors.onNeon : BoltColors.muted, shape: BoxShape.circle),
         ),
       ),
     );

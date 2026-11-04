@@ -64,8 +64,8 @@ class ExerciseSheet extends StatelessWidget {
                 width: 28,
                 height: 28,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(color: BoltColors.neon, shape: BoxShape.circle),
-                child: Text('${i + 1}', style: BoltText.m(12, weight: 700, color: BoltColors.ink, height: 1)),
+                decoration: BoxDecoration(color: BoltColors.neon, shape: BoxShape.circle),
+                child: Text('${i + 1}', style: BoltText.m(12, weight: 700, color: BoltColors.onNeon, height: 1)),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -80,8 +80,8 @@ class ExerciseSheet extends StatelessWidget {
         const SizedBox(height: 16),
         BoltBox(
           radius: 14,
-          color: const Color(0x0FFF7A45),
-          stroke: const Stroke(Color(0x73FF7A45)),
+          color: BoltColors.warn.withAlpha(0x0F),
+          stroke: Stroke(BoltColors.warn.withAlpha(0x73)),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -71,7 +71,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           color: _tpl == id ? BoltColors.neon : BoltColors.surface2,
           stroke: Stroke(_tpl == id ? BoltColors.neon : BoltColors.line),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          child: Text(label, style: BoltText.a(12, weight: 700, color: _tpl == id ? BoltColors.ink : BoltColors.text)),
+          child: Text(
+            label,
+            style: BoltText.a(12, weight: 700, color: _tpl == id ? BoltColors.onNeon : BoltColors.text),
+          ),
         ),
       ),
     );
@@ -166,7 +169,7 @@ class _Record extends StatelessWidget {
       onTap: () => context.push('/lift/${Uri.encodeComponent(name)}'),
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: const Stroke(Color(0x73C6FF1A)),
+        stroke: Stroke(BoltColors.neon.withAlpha(0x73)),
         radius: 16,
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -206,7 +209,7 @@ class _DayCard extends StatelessWidget {
     ].where((x) => x.isNotEmpty).join(' · ');
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: Stroke(s.prs.isNotEmpty ? const Color(0x73C6FF1A) : BoltColors.lineSoft),
+      stroke: Stroke(s.prs.isNotEmpty ? BoltColors.neon.withAlpha(0x73) : BoltColors.lineSoft),
       radius: 18,
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
       child: Column(

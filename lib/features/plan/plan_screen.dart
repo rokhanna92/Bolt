@@ -126,12 +126,12 @@ class PlanScreen extends ConsumerWidget {
                       children: [
                         Text(
                           tx('Moving {workout} · {day}', {'workout': tx(moving.title), 'day': fmtDay(moveFrom!)}),
-                          style: BoltText.a(13, weight: 800, color: BoltColors.ink),
+                          style: BoltText.a(13, weight: 800, color: BoltColors.onNeon),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           tx('Tap a free day to move it'),
-                          style: BoltText.a(12, weight: 600, color: BoltColors.ink.withValues(alpha: .75)),
+                          style: BoltText.a(12, weight: 600, color: BoltColors.onNeon.withValues(alpha: .75)),
                         ),
                       ],
                     ),
@@ -141,9 +141,9 @@ class PlanScreen extends ConsumerWidget {
                     onTap: () => ref.read(moveFromProvider.notifier).set(null),
                     child: BoltBox(
                       radius: 10,
-                      stroke: const Stroke(BoltColors.ink, 1.5),
+                      stroke: Stroke(BoltColors.onNeon, 1.5),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: Text(tx('Cancel'), style: BoltText.a(12, weight: 800, color: BoltColors.ink)),
+                      child: Text(tx('Cancel'), style: BoltText.a(12, weight: 800, color: BoltColors.onNeon)),
                     ),
                   ),
                 ],
@@ -184,7 +184,7 @@ class PlanScreen extends ConsumerWidget {
                     color: BoltColors.neon,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     alignment: Alignment.center,
-                    child: Text(tx('Auto-fill 3 wks'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                    child: Text(tx('Auto-fill 3 wks'), style: BoltText.a(13, weight: 800, color: BoltColors.onNeon)),
                   ),
                 ),
               ],

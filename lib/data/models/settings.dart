@@ -39,6 +39,7 @@ class AppSettings {
     this.water = false,
     this.waterHours = 3,
     this.bellSeen,
+    this.blue = false,
     Map<String, int>? supps,
     Board? board,
     List<String>? hintsSeen,
@@ -112,6 +113,9 @@ class AppSettings {
   /// each one.
   final Map<String, int> supps;
 
+  /// The grey and blue theme instead of orange and neon.
+  bool blue;
+
   /// When the Notifications screen was last opened, for the dot on the bell.
   DateTime? bellSeen;
 
@@ -150,6 +154,7 @@ class AppSettings {
     'waterHours': waterHours,
     'supps': supps,
     'bellSeen': bellSeen?.toIso8601String(),
+    'blue': blue,
     'keyLog': [for (final e in keyLog) e.toJson()],
     'board': board.toJson(),
   };
@@ -177,6 +182,7 @@ class AppSettings {
     watchFace: j['watchFace'] as String? ?? 'dial',
     water: j['water'] as bool? ?? false,
     waterHours: j['waterHours'] as int? ?? 3,
+    blue: j['blue'] as bool? ?? false,
     bellSeen: DateTime.tryParse(j['bellSeen'] as String? ?? ''),
     supps: {for (final e in (j['supps'] as Map? ?? const {}).entries) e.key as String: e.value as int},
     keyLog: [for (final x in j['keyLog'] as List? ?? const []) KeyEntry.fromJson(x as Map<String, dynamic>)],

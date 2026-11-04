@@ -7,6 +7,7 @@ import '../core/format.dart';
 import '../core/units.dart';
 import '../services/haptics.dart';
 import '../services/notifications.dart';
+import '../theme/tokens.dart';
 import '../services/rest_timer.dart' show kRestSounds;
 import 'models/board.dart';
 import 'models/bolt_data.dart';
@@ -131,7 +132,7 @@ class ProfileInput {
 
 /// Whether the phone owner set Female, for Serbian female word forms.
 bool _ownerFemale(BoltData d) {
-  final me = Account.ownerId;
+  const me = Account.ownerId;
   final body = (d.account?.isCoach ?? false)
       ? d.coaches.where((c) => c.id == me).firstOrNull?.body
       : d.trainees.where((t) => t.id == me).firstOrNull?.body;
@@ -146,6 +147,7 @@ class BoltStore extends Notifier<BoltData> {
     final d = ref.read(initialDataProvider);
     appLang = AppLang.byName(d.settings.lang);
     appFemale = _ownerFemale(d);
+    BoltColors.blue = d.settings.blue;
     Haptics.enabled = d.settings.haptics;
     return d;
   }
@@ -337,7 +339,7 @@ class BoltStore extends Notifier<BoltData> {
   /// owner's, the coach record on coach screens.
   Body? bodyFor(String? tid) {
     if (tid != null) return trOrNull(tid)?.body;
-    final me = Account.ownerId;
+    const me = Account.ownerId;
     return (state.account?.isCoach ?? false) ? coOrNull(me)?.body : trOrNull(me)?.body;
   }
 
@@ -375,7 +377,10 @@ class BoltStore extends Notifier<BoltData> {
     _notify.replaceSessionReminders(const []);
     _notify.replaceDailyReminders(const []);
     final lang = state.settings.lang;
-    state = freshData()..settings.lang = lang;
+    final blue = state.settings.blue;
+    state = freshData()
+      ..settings.lang = lang
+      ..settings.blue = blue;
     appFemale = false;
     ref.read(repositoryProvider).scheduleSave(state);
   }
@@ -1414,6 +1419,7 @@ class BoltStore extends Notifier<BoltData> {
       state = d;
       appLang = AppLang.byName(d.settings.lang);
       appFemale = _ownerFemale(d);
+      BoltColors.blue = d.settings.blue;
       ref.read(repositoryProvider).scheduleSave(state);
       syncSessionReminders();
       syncDailyReminders();
@@ -2298,6 +2304,14 @@ class BoltStore extends Notifier<BoltData> {
 
   void toggleUnits() {
     state.settings.kg = !state.settings.kg;
+    _commit();
+  }
+
+  /// Orange and neon, or grey and blue. Those are the only two.
+  void toggleTheme() {
+    final s = state.settings;
+    s.blue = !s.blue;
+    BoltColors.blue = s.blue;
     _commit();
   }
 

@@ -12,11 +12,11 @@ import '../../widgets/calendar_grid.dart';
 import '../../widgets/common.dart';
 import '../coach_schedule/schedule_screen.dart' show TraineeSessionRow;
 
-const _legend = [
+List<LegendItem> get _legend => [
   LegendItem('Done', BoltColors.neon, Stroke(BoltColors.neon)),
-  LegendItem('Confirmed', BoltColors.text, Stroke(BoltColors.text)),
+  const LegendItem('Confirmed', BoltColors.text, Stroke(BoltColors.text)),
   LegendItem('Waiting', Colors.transparent, Stroke(BoltColors.neon, 1.5)),
-  LegendItem('Draft', Colors.transparent, Stroke.dashed(BoltColors.muted2, 1.5)),
+  const LegendItem('Draft', Colors.transparent, Stroke.dashed(BoltColors.muted2, 1.5)),
 ];
 
 /// Every trainee's sessions by month, a dot per session. Tapping a day lists
@@ -114,7 +114,7 @@ class _CoachCalendarScreenState extends ConsumerState<CoachCalendarScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        const Legend(items: _legend),
+        Legend(items: _legend),
         const SizedBox(height: 22),
         Row(
           children: [

@@ -79,15 +79,15 @@ List<CalCell> buildCalendar({
     switch (p?.status) {
       case SessionStatus.done:
         bg = BoltColors.neon;
-        stroke = const Stroke(BoltColors.neon);
-        num = BoltColors.ink;
-        lab = BoltColors.ink;
+        stroke = Stroke(BoltColors.neon);
+        num = BoltColors.onNeon;
+        lab = BoltColors.onNeon;
       case SessionStatus.approved:
         bg = BoltColors.surface2;
         stroke = const Stroke(BoltColors.line);
         num = BoltColors.text;
       case SessionStatus.pending:
-        stroke = const Stroke.dashed(BoltColors.neon, 1.5);
+        stroke = Stroke.dashed(BoltColors.neon, 1.5);
         num = BoltColors.text;
       case SessionStatus.moved:
         bg = BoltColors.surface2;
@@ -103,15 +103,15 @@ List<CalCell> buildCalendar({
     }
     // A rest day: dotted neon, so it never reads as a dashed "needs your OK".
     if (p == null && rest.contains(k)) {
-      stroke = const Stroke.dotted(BoltColors.neon, 1.5);
+      stroke = Stroke.dotted(BoltColors.neon, 1.5);
       lab = BoltColors.neon;
     }
     // An empty today shows its number in neon, as well as the dot.
     if (p == null && k == today && inM) num = BoltColors.neon;
     final ds = dots[k] ?? const <SessionStatus>[];
     if (ds.isNotEmpty && inM && !past) num = BoltColors.text;
-    if (moveFrom != null && p == null && !past && inM) bg = const Color(0x17C6FF1A);
-    if (moveFrom == k) stroke = const Stroke(BoltColors.neon, 1.5);
+    if (moveFrom != null && p == null && !past && inM) bg = BoltColors.neon.withAlpha(0x17);
+    if (moveFrom == k) stroke = Stroke(BoltColors.neon, 1.5);
     final tpl = p == null ? null : tpls[p.tpl];
     final title = p?.title ?? '';
     cells.add(
@@ -128,7 +128,7 @@ List<CalCell> buildCalendar({
         ring: selKey == k,
         inMonth: inM,
         today: k == today,
-        todayColor: p?.status == SessionStatus.done ? BoltColors.ink : BoltColors.neon,
+        todayColor: p?.status == SessionStatus.done ? BoltColors.onNeon : BoltColors.neon,
         session: p,
         dots: ds,
       ),
@@ -300,7 +300,7 @@ class SessionDot extends StatelessWidget {
       _ => Colors.transparent,
     };
     final stroke = switch (status) {
-      SessionStatus.pending => const Stroke(BoltColors.neon, 1.5),
+      SessionStatus.pending => Stroke(BoltColors.neon, 1.5),
       SessionStatus.draft => const Stroke.dashed(BoltColors.muted2, 1.5),
       null => const Stroke(BoltColors.line, 1.5),
       _ => Stroke.none,
@@ -433,20 +433,20 @@ class LegendItem {
   final Stroke stroke;
 }
 
-const traineeLegend = [
+List<LegendItem> get traineeLegend => [
   LegendItem('Done', BoltColors.neon, Stroke(BoltColors.neon)),
-  LegendItem('Confirmed', BoltColors.surface2, Stroke(BoltColors.line)),
+  const LegendItem('Confirmed', BoltColors.surface2, Stroke(BoltColors.line)),
   LegendItem('Needs your OK', Colors.transparent, Stroke.dashed(BoltColors.neon, 1.5)),
-  LegendItem('Moved', BoltColors.surface2, Stroke(BoltColors.text, 1.5)),
+  const LegendItem('Moved', BoltColors.surface2, Stroke(BoltColors.text, 1.5)),
   LegendItem('Rest day', Colors.transparent, Stroke.dotted(BoltColors.neon, 1.5)),
 ];
 
-const coachLegend = [
+List<LegendItem> get coachLegend => [
   LegendItem('Done', BoltColors.neon, Stroke(BoltColors.neon)),
-  LegendItem('Confirmed', BoltColors.surface2, Stroke(BoltColors.line)),
+  const LegendItem('Confirmed', BoltColors.surface2, Stroke(BoltColors.line)),
   LegendItem('Waiting', Colors.transparent, Stroke.dashed(BoltColors.neon, 1.5)),
-  LegendItem('Moved', BoltColors.surface2, Stroke(BoltColors.text, 1.5)),
-  LegendItem('Draft', Colors.transparent, Stroke.dashed(BoltColors.muted2, 1.5)),
+  const LegendItem('Moved', BoltColors.surface2, Stroke(BoltColors.text, 1.5)),
+  const LegendItem('Draft', Colors.transparent, Stroke.dashed(BoltColors.muted2, 1.5)),
 ];
 
 class Legend extends StatelessWidget {

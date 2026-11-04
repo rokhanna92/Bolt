@@ -38,7 +38,7 @@ class DeloadSheet extends ConsumerWidget {
                 fontSize: 13,
                 scale: 1,
                 color: sessions.isEmpty ? BoltColors.line : BoltColors.neon,
-                textColor: sessions.isEmpty ? BoltColors.muted : BoltColors.ink,
+                textColor: sessions.isEmpty ? BoltColors.muted : BoltColors.onNeon,
                 onTap: sessions.isEmpty ? null : () => store.toggleDeload(tid, mon),
               ),
       );

@@ -174,7 +174,10 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                           color: BoltColors.neon,
                           padding: const EdgeInsets.symmetric(horizontal: 14),
                           alignment: Alignment.center,
-                          child: Text(tx('Auto-fill 3 wks'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                          child: Text(
+                            tx('Auto-fill 3 wks'),
+                            style: BoltText.a(13, weight: 800, color: BoltColors.onNeon),
+                          ),
                         ),
                       ),
                     ],
@@ -184,8 +187,8 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 for (var i = 0; i < x.injuries.length; i++) ...[
                   BoltBox(
                     radius: 14,
-                    color: const Color(0x0FFF7A45),
-                    stroke: const Stroke(Color(0x73FF7A45)),
+                    color: BoltColors.warn.withAlpha(0x0F),
+                    stroke: Stroke(BoltColors.warn.withAlpha(0x73)),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     child: Row(
                       children: [
@@ -507,7 +510,7 @@ class _SelectedDay extends ConsumerWidget {
                       width: 44,
                       height: 44,
                       radius: 12,
-                      color: s.cheer == e ? const Color(0x26C6FF1A) : BoltColors.surface2,
+                      color: s.cheer == e ? BoltColors.neon.withAlpha(0x26) : BoltColors.surface2,
                       stroke: Stroke(s.cheer == e ? BoltColors.neon : BoltColors.line, s.cheer == e ? 1.5 : 1),
                       alignment: Alignment.center,
                       child: Text(e, style: const TextStyle(fontSize: 20)),
@@ -528,7 +531,7 @@ class _SelectedDay extends ConsumerWidget {
                       color: BoltColors.neon,
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       alignment: Alignment.center,
-                      child: Text(tx('Send'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                      child: Text(tx('Send'), style: BoltText.a(13, weight: 800, color: BoltColors.onNeon)),
                     ),
                   ),
               ],

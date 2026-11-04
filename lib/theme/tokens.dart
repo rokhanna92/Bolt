@@ -1,7 +1,11 @@
 import 'package:flutter/painting.dart';
 
 /// Design tokens from `Bolt UI.html`. One accent (neon) plus warn for injuries.
+/// Those two follow the theme in settings; black and white stay the same.
 abstract final class BoltColors {
+  /// The grey and #0000FF theme. Set from settings; the app rebuilds on a change.
+  static bool blue = false;
+
   static const ink = Color(0xFF0A0B09);
   static const surface1 = Color(0xFF141612);
   static const surface2 = Color(0xFF1C1F19);
@@ -16,8 +20,11 @@ abstract final class BoltColors {
   // The dimmest grey for text: 4.5:1 on cards. muted4 is too dark for text.
   static const muted3 = Color(0xFF7A8172);
   static const muted4 = Color(0xFF5E6558);
-  static const neon = Color(0xFFC6FF1A);
-  static const warn = Color(0xFFFF7A45);
+  static Color get neon => blue ? const Color(0xFF0000FF) : const Color(0xFFC6FF1A);
+  static Color get warn => blue ? const Color(0xFF9E9E9E) : const Color(0xFFFF7A45);
+
+  /// Text and icons on a [neon] fill: blue needs white, neon needs ink.
+  static Color get onNeon => blue ? const Color(0xFFFFFFFF) : ink;
 
   // Secondary shades the prototype uses for handles, faded numbers and
   // locked badge rings.

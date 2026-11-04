@@ -189,7 +189,7 @@ class ChallengeCard extends StatelessWidget {
               value: pct,
               minHeight: 8,
               backgroundColor: BoltColors.lineSoft,
-              valueColor: const AlwaysStoppedAnimation(BoltColors.neon),
+              valueColor: AlwaysStoppedAnimation(BoltColors.neon),
             ),
           ),
           const SizedBox(height: 8),

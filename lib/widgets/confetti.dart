@@ -34,14 +34,14 @@ class _Piece {
   final Color color;
 }
 
-const _palette = [
+List<Color> get _palette => [
   BoltColors.neon,
   BoltColors.neon,
   BoltColors.neon,
   BoltColors.text,
   BoltColors.text,
   BoltColors.warn,
-  Color(0xFF57E0C8),
+  const Color(0xFF57E0C8),
 ];
 
 class _ConfettiState extends State<Confetti> with SingleTickerProviderStateMixin {

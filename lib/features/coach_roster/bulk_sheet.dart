@@ -121,7 +121,7 @@ class _BulkSheetState extends ConsumerState<BulkSheet> {
                         style: BoltText.a(
                           12,
                           weight: 800,
-                          color: _sent.contains(id) ? BoltColors.muted : BoltColors.ink,
+                          color: _sent.contains(id) ? BoltColors.muted : BoltColors.onNeon,
                         ),
                       ),
                     ),
@@ -167,7 +167,7 @@ class _BulkSheetState extends ConsumerState<BulkSheet> {
                     style: BoltText.a(
                       13,
                       weight: 700,
-                      color: _picked.contains(t.id) ? BoltColors.ink : BoltColors.text,
+                      color: _picked.contains(t.id) ? BoltColors.onNeon : BoltColors.text,
                     ),
                   ),
                 ),
@@ -219,7 +219,7 @@ class _BulkSheetState extends ConsumerState<BulkSheet> {
           height: 52,
           scale: 1,
           color: _picked.isEmpty ? BoltColors.line : BoltColors.neon,
-          textColor: _picked.isEmpty ? BoltColors.muted : BoltColors.ink,
+          textColor: _picked.isEmpty ? BoltColors.muted : BoltColors.onNeon,
           onTap: _picked.isEmpty ? null : _apply,
         ),
       ],

@@ -156,7 +156,7 @@ class SwapButton extends StatelessWidget {
         color: BoltColors.warn,
         radius: 8,
         padding: padding,
-        child: Text(tx('Swap'), style: BoltText.a(12, weight: 800, color: BoltColors.ink)),
+        child: Text(tx('Swap'), style: BoltText.a(12, weight: 800, color: BoltColors.onNeon)),
       ),
     );
   }

@@ -164,7 +164,7 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
                 child: NeonButton(
                   label: running ? tx('Stop') : (w.idle ? tx('Start') : tx('Resume')),
                   color: running ? BoltColors.warn : BoltColors.neon,
-                  textColor: BoltColors.ink,
+                  textColor: BoltColors.onNeon,
                   onTap: _crown,
                 ),
               ),
@@ -462,7 +462,7 @@ class _ChronoPainter extends CustomPainter {
         base,
         tip,
         Paint()
-          ..shader = LinearGradient(colors: const [_steelLight, _steelDark]).createShader(Rect.fromPoints(base, tip))
+          ..shader = const LinearGradient(colors: [_steelLight, _steelDark]).createShader(Rect.fromPoints(base, tip))
           ..strokeWidth = w
           ..strokeCap = StrokeCap.round,
       );
@@ -500,11 +500,11 @@ class _ChronoPainter extends CustomPainter {
       c,
       r * .93,
       Paint()
-        ..shader = RadialGradient(
-          center: const Alignment(-.25, -.45),
+        ..shader = const RadialGradient(
+          center: Alignment(-.25, -.45),
           radius: 1.1,
-          colors: const [BoltColors.surface2, BoltColors.surface1, _dialEdge],
-          stops: const [0, .55, 1],
+          colors: [BoltColors.surface2, BoltColors.surface1, _dialEdge],
+          stops: [0, .55, 1],
         ).createShader(Rect.fromCircle(center: c, radius: r * .93)),
     );
     canvas.drawCircle(c, r * .93, Paint()..color = Colors.black.withValues(alpha: .25));

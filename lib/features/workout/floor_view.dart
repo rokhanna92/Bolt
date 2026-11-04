@@ -460,15 +460,11 @@ class _FloorViewState extends State<FloorView> {
             runSpacing: 8,
             children: [
               if (widget.canSwap(i))
-                _pill(
-                  const BoltIcon('swap', size: 15, color: BoltColors.neon),
-                  tx('Swap exercise'),
-                  () => widget.onSwap(i),
-                ),
+                _pill(BoltIcon('swap', size: 15, color: BoltColors.neon), tx('Swap exercise'), () => widget.onSwap(i)),
               _pill(
                 Transform.rotate(
                   angle: math.pi / 4,
-                  child: const BoltIcon('close', size: 15, color: BoltColors.neon),
+                  child: BoltIcon('close', size: 15, color: BoltColors.neon),
                 ),
                 tx('Alternate Exercise'),
                 () => _alternate(i),
@@ -508,7 +504,7 @@ class _FloorViewState extends State<FloorView> {
                     ),
                     child: Text(
                       '${k + 1}',
-                      style: BoltText.m(14, weight: 700, color: _done(i, k) ? BoltColors.ink : BoltColors.text),
+                      style: BoltText.m(14, weight: 700, color: _done(i, k) ? BoltColors.onNeon : BoltColors.text),
                     ),
                   ),
                 ),
@@ -517,7 +513,7 @@ class _FloorViewState extends State<FloorView> {
           const SizedBox(height: 14),
           BoltBox(
             color: BoltColors.surface1,
-            stroke: Stroke(done ? const Color(0x8CC6FF1A) : BoltColors.lineSoft),
+            stroke: Stroke(done ? BoltColors.neon.withAlpha(0x8C) : BoltColors.lineSoft),
             radius: 24,
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
             child: Column(
@@ -551,7 +547,7 @@ class _FloorViewState extends State<FloorView> {
                       },
                       child: BoltBox(
                         radius: 99,
-                        stroke: const Stroke(BoltColors.neon, 1.5),
+                        stroke: Stroke(BoltColors.neon, 1.5),
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                         child: Text(
                           tx('Every rep hit last time · try {kg}', {
@@ -641,7 +637,7 @@ class _FloorViewState extends State<FloorView> {
               height: 68,
               fontSize: 18,
               color: done ? BoltColors.surface2 : BoltColors.neon,
-              textColor: done ? BoltColors.neon : BoltColors.ink,
+              textColor: done ? BoltColors.neon : BoltColors.onNeon,
               onTap: _log,
             ),
         ],

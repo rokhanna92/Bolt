@@ -111,7 +111,7 @@ class TodayScreen extends ConsumerWidget {
             onTap: () => openScanner(context, ref),
             child: BoltBox(
               color: BoltColors.surface1,
-              stroke: const Stroke(Color(0x66C6FF1A)),
+              stroke: Stroke(BoltColors.neon.withAlpha(0x66)),
               radius: 14,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
@@ -160,7 +160,7 @@ class TodayScreen extends ConsumerWidget {
           const SizedBox(height: 18),
           BoltBox(
             color: BoltColors.surface1,
-            stroke: const Stroke(Color(0x73C6FF1A)),
+            stroke: Stroke(BoltColors.neon.withAlpha(0x73)),
             radius: 24,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
             child: Column(
@@ -231,7 +231,7 @@ class TodayScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             BoltBox(
               color: BoltColors.surface1,
-              stroke: const Stroke(Color(0x73C6FF1A)),
+              stroke: Stroke(BoltColors.neon.withAlpha(0x73)),
               radius: 20,
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -346,7 +346,7 @@ class TodayScreen extends ConsumerWidget {
         if (pend.isNotEmpty) ...[
           const SizedBox(height: 22),
           BoltBox(
-            stroke: const Stroke.dashed(BoltColors.neon, 1.5),
+            stroke: Stroke.dashed(BoltColors.neon, 1.5),
             radius: 20,
             padding: const EdgeInsets.all(18),
             child: Column(
@@ -378,7 +378,7 @@ class TodayScreen extends ConsumerWidget {
                         color: BoltColors.neon,
                         radius: 12,
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        child: Text(tx('Accept all'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+                        child: Text(tx('Accept all'), style: BoltText.a(13, weight: 800, color: BoltColors.onNeon)),
                       ),
                     ),
                   ],
@@ -428,10 +428,10 @@ class TodayScreen extends ConsumerWidget {
     final dot = p == null
         ? Colors.transparent
         : p.status == SessionStatus.done
-        ? (it ? BoltColors.ink : BoltColors.neon)
+        ? (it ? BoltColors.onNeon : BoltColors.neon)
         : p.status == SessionStatus.pending
         ? BoltColors.muted2
-        : (it ? BoltColors.ink : BoltColors.text);
+        : (it ? BoltColors.onNeon : BoltColors.text);
     void plan() {
       final store = ref.read(boltProvider.notifier);
       openPlanDay(context, ref, store.addFromRotation(ref.read(boltProvider).account!.id, k) ? k : null);
@@ -456,7 +456,7 @@ class TodayScreen extends ConsumerWidget {
               style: BoltText.a(
                 17,
                 weight: 800,
-                color: it ? BoltColors.ink : (past ? BoltColors.muted2 : BoltColors.text),
+                color: it ? BoltColors.onNeon : (past ? BoltColors.muted2 : BoltColors.text),
               ),
             ),
             const SizedBox(height: 4),
@@ -466,7 +466,7 @@ class TodayScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: dot,
                 shape: BoxShape.circle,
-                border: rested ? Border.all(color: it ? BoltColors.ink : BoltColors.muted2, width: 1.5) : null,
+                border: rested ? Border.all(color: it ? BoltColors.onNeon : BoltColors.muted2, width: 1.5) : null,
               ),
             ),
           ],
@@ -503,7 +503,7 @@ class _CheerCard extends ConsumerWidget {
 
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(Color(0x73C6FF1A)),
+      stroke: Stroke(BoltColors.neon.withAlpha(0x73)),
       radius: 20,
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -641,7 +641,7 @@ class _RestHero extends ConsumerWidget {
     );
     return BoltBox(
       radius: 24,
-      stroke: const Stroke.dotted(Color(0x99C6FF1A), 1.5),
+      stroke: Stroke.dotted(BoltColors.neon.withAlpha(0x99), 1.5),
       gradient: const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -665,7 +665,7 @@ class _RestHero extends ConsumerWidget {
                       const SizedBox(width: 8),
                       BoltBox(
                         radius: 99,
-                        stroke: const Stroke(BoltColors.neon),
+                        stroke: Stroke(BoltColors.neon),
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         child: Text(
                           rested ? tx('RESTING') : tx('NOTHING PLANNED'),
@@ -776,7 +776,7 @@ class _OffCard extends StatelessWidget {
       );
     }
     if (days >= 5) {
-      const ink = BoltColors.ink;
+      final ink = BoltColors.onNeon;
       return BoltBox(
         color: BoltColors.warn,
         radius: 24,
@@ -853,7 +853,7 @@ class _OffCard extends StatelessWidget {
               color: c,
               radius: 12,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              child: Text(tx('Train today'), style: BoltText.a(13, weight: 800, color: BoltColors.ink)),
+              child: Text(tx('Train today'), style: BoltText.a(13, weight: 800, color: BoltColors.onNeon)),
             ),
           ),
         ],
@@ -1020,7 +1020,7 @@ class _HeroCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = session;
-    const ink = BoltColors.ink;
+    final ink = BoltColors.onNeon;
     final chips = [plural(s.ex.length, 'exercise'), plural(s.totalSets, 'set'), '~${s.mins} min'];
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
@@ -1132,7 +1132,7 @@ class _HeroCard extends ConsumerWidget {
                       child: BoltBox(
                         height: 50,
                         radius: 14,
-                        stroke: const Stroke(ink, 1.5),
+                        stroke: Stroke(ink, 1.5),
                         padding: const EdgeInsets.symmetric(horizontal: 18),
                         alignment: Alignment.center,
                         child: Text(tx('Details'), style: BoltText.a(14, weight: 700, color: ink)),
@@ -1181,7 +1181,7 @@ class _NewCard extends ConsumerWidget {
     final store = ref.read(boltProvider.notifier);
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(Color(0x73C6FF1A)),
+      stroke: Stroke(BoltColors.neon.withAlpha(0x73)),
       radius: 20,
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1244,7 +1244,7 @@ class _StartCard extends ConsumerWidget {
       child: OutlineButton(label: label, height: 46, radius: 12, fontSize: 13, onTap: onTap),
     );
     return BoltBox(
-      stroke: const Stroke.dashed(BoltColors.neon, 1.5),
+      stroke: Stroke.dashed(BoltColors.neon, 1.5),
       radius: 20,
       padding: const EdgeInsets.all(18),
       child: Column(
@@ -1298,7 +1298,7 @@ class _HintCard extends ConsumerWidget {
 
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(Color(0x59C6FF1A)),
+      stroke: Stroke(BoltColors.neon.withAlpha(0x59)),
       radius: 16,
       padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
       child: Row(
@@ -1317,7 +1317,7 @@ class _HintCard extends ConsumerWidget {
                     radius: 10,
                     color: BoltColors.neon,
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                    child: Text(h.action, style: BoltText.a(12, weight: 800, color: BoltColors.ink)),
+                    child: Text(h.action, style: BoltText.a(12, weight: 800, color: BoltColors.onNeon)),
                   ),
                 ),
               ],

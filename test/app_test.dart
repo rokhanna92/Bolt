@@ -12,6 +12,8 @@ import 'package:bolt/data/models/bolt_data.dart';
 import 'package:bolt/data/models/exercise.dart';
 import 'package:bolt/data/models/people.dart';
 import 'package:bolt/data/models/session.dart';
+import 'package:bolt/theme/tokens.dart';
+import 'package:bolt/data/models/settings.dart';
 import 'package:bolt/data/rules.dart';
 import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
@@ -450,6 +452,27 @@ void main() {
     await settle(tester);
     expect(c.read(boltProvider).settings.supps, isEmpty);
     expect(find.text('Sleep and recovery'), findsOneWidget);
+    await unmount(tester);
+  });
+
+  testWidgets('the theme switches to grey and blue and back, and is saved', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    expect(BoltColors.neon, const Color(0xFFC6FF1A));
+    c.read(routerProvider).push('/settings');
+    await settle(tester);
+    await tapText(tester, 'Orange and neon');
+    await settle(tester);
+    expect(find.text('Grey and blue'), findsOneWidget);
+    expect(c.read(boltProvider).settings.blue, isTrue);
+    expect(BoltColors.neon, const Color(0xFF0000FF));
+    expect(BoltColors.onNeon, const Color(0xFFFFFFFF));
+    expect(BoltColors.warn, const Color(0xFF9E9E9E));
+    expect(AppSettings.fromJson(c.read(boltProvider).settings.toJson()).blue, isTrue);
+    await tapText(tester, 'Grey and blue');
+    await settle(tester);
+    expect(BoltColors.neon, const Color(0xFFC6FF1A));
+    expect(BoltColors.onNeon, BoltColors.ink);
     await unmount(tester);
   });
 

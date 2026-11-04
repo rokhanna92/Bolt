@@ -141,8 +141,8 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               const SizedBox(height: 10),
               BoltBox(
                 radius: 12,
-                color: const Color(0x14FF7A45),
-                stroke: const Stroke(Color(0x59FF7A45)),
+                color: BoltColors.warn.withAlpha(0x14),
+                stroke: Stroke(BoltColors.warn.withAlpha(0x59)),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 child: Text(
                   x.injuries.map((i) => '${tx(kAreas[i.area]!)}: ${tx(i.note)}').join('  ·  '),
@@ -174,7 +174,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
               child: BoltBox(
                 height: 48,
                 radius: 14,
-                stroke: const Stroke.dashed(BoltColors.neon, 1.5),
+                stroke: Stroke.dashed(BoltColors.neon, 1.5),
                 alignment: Alignment.center,
                 child: Text(tx('+ Add exercise'), style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
               ),
@@ -395,7 +395,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
     onTap: onTap,
     child: BoltBox(
       radius: 99,
-      color: on ? const Color(0x1FC6FF1A) : null,
+      color: on ? BoltColors.neon.withAlpha(0x1F) : null,
       stroke: Stroke(on ? BoltColors.neon : BoltColors.line),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       child: Text(label, style: BoltText.a(11, weight: 700, color: on ? BoltColors.neon : BoltColors.muted)),
@@ -629,7 +629,10 @@ class _ExercisePickerState extends State<ExercisePicker> {
           color: _group == k ? BoltColors.neon : BoltColors.surface2,
           stroke: Stroke(_group == k ? BoltColors.neon : BoltColors.line),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          child: Text(label, style: BoltText.a(12, weight: 700, color: _group == k ? BoltColors.ink : BoltColors.text)),
+          child: Text(
+            label,
+            style: BoltText.a(12, weight: 700, color: _group == k ? BoltColors.onNeon : BoltColors.text),
+          ),
         ),
       ),
     );

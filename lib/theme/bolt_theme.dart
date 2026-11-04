@@ -12,11 +12,11 @@ ThemeData buildBoltTheme() {
     fontFamily: BoltText.archivo,
     scaffoldBackgroundColor: BoltColors.ink,
     canvasColor: BoltColors.ink,
-    colorScheme: const ColorScheme.dark(
+    colorScheme: ColorScheme.dark(
       primary: BoltColors.neon,
-      onPrimary: BoltColors.ink,
+      onPrimary: BoltColors.onNeon,
       secondary: BoltColors.neon,
-      onSecondary: BoltColors.ink,
+      onSecondary: BoltColors.onNeon,
       error: BoltColors.warn,
       onError: BoltColors.ink,
       surface: BoltColors.ink,
@@ -25,9 +25,9 @@ ThemeData buildBoltTheme() {
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
     splashColor: Colors.transparent,
-    textSelectionTheme: const TextSelectionThemeData(
+    textSelectionTheme: TextSelectionThemeData(
       cursorColor: BoltColors.neon,
-      selectionColor: Color(0x55C6FF1A),
+      selectionColor: BoltColors.neon.withAlpha(0x55),
       selectionHandleColor: BoltColors.neon,
     ),
   );

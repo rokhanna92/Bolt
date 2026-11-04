@@ -191,7 +191,7 @@ class RosterScreen extends ConsumerWidget {
           child: BoltBox(
             height: 48,
             radius: 14,
-            stroke: const Stroke.dashed(BoltColors.neon, 1.5),
+            stroke: Stroke.dashed(BoltColors.neon, 1.5),
             alignment: Alignment.center,
             child: Text(tx('+ Add trainee'), style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
           ),
@@ -315,7 +315,7 @@ class _AttentionRow extends StatelessWidget {
             onTap: a.onAct,
             child: BoltBox(
               radius: 10,
-              stroke: const Stroke(BoltColors.neon),
+              stroke: Stroke(BoltColors.neon),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Text(a.act, style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
             ),
@@ -365,7 +365,7 @@ class _TraineeCard extends ConsumerWidget {
                       if (x.injuries.isNotEmpty) ...[
                         const SizedBox(width: 8),
                         BoltBox(
-                          color: const Color(0x26FF7A45),
+                          color: BoltColors.warn.withAlpha(0x26),
                           radius: 6,
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           child: Text(
@@ -458,7 +458,7 @@ class _AddTraineeSheetState extends ConsumerState<AddTraineeSheet> {
           height: 52,
           scale: 1,
           color: ok ? BoltColors.neon : BoltColors.line,
-          textColor: ok ? BoltColors.ink : BoltColors.muted,
+          textColor: ok ? BoltColors.onNeon : BoltColors.muted,
           onTap: ok
               ? () => Navigator.of(context).pop(
                   ref

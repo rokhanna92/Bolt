@@ -160,9 +160,9 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
       routerConfig: ref.watch(routerProvider),
       // The layout is pixel-tuned to the prototype; allow larger system text
       // but cap it so fixed-size controls keep their shape.
-      // A language change rebuilds every screen, constant widgets included.
+      // A language or theme change rebuilds every screen, constant widgets included.
       builder: (context, child) => KeyedSubtree(
-        key: ValueKey(ref.watch(boltProvider.select((d) => d.settings.lang))),
+        key: ValueKey(ref.watch(boltProvider.select((d) => '${d.settings.lang}/${d.settings.blue}'))),
         child: MediaQuery.withClampedTextScaling(
           maxScaleFactor: 1.15,
           child: Stack(children: [child!, const ToastLayer()]),

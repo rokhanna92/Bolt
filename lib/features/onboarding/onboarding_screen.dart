@@ -155,7 +155,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 width: 46,
                 height: 46,
                 radius: 14,
-                stroke: const Stroke(BoltColors.neon, 1.5),
+                stroke: Stroke(BoltColors.neon, 1.5),
                 alignment: Alignment.center,
                 child: BoltIcon(icon, color: BoltColors.neon),
               ),
@@ -244,7 +244,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         NeonButton(
           label: tx('Unlock'),
           color: ok ? BoltColors.neon : BoltColors.line,
-          textColor: ok ? BoltColors.ink : BoltColors.muted,
+          textColor: ok ? BoltColors.onNeon : BoltColors.muted,
           onTap: ok ? _unlock : null,
         ),
       ],
@@ -311,7 +311,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         NeonButton(
           label: tx('Continue'),
           color: ok ? BoltColors.neon : BoltColors.line,
-          textColor: ok ? BoltColors.ink : BoltColors.muted,
+          textColor: ok ? BoltColors.onNeon : BoltColors.muted,
           onTap: ok
               ? () {
                   FocusScope.of(context).unfocus();
@@ -389,13 +389,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           height: 42,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: on == metric ? BoltColors.neon : const Color(0x00C6FF1A),
+            color: on == metric ? BoltColors.neon : BoltColors.neon.withAlpha(0x00),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: on == metric ? BoltColors.neon : BoltColors.line),
           ),
           child: Text(
             label,
-            style: BoltText.a(13, weight: 800, color: on == metric ? BoltColors.ink : BoltColors.text),
+            style: BoltText.a(13, weight: 800, color: on == metric ? BoltColors.onNeon : BoltColors.text),
           ),
         ),
       ),

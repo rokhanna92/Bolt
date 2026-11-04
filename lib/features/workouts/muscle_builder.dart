@@ -87,7 +87,7 @@ class _MuscleBuilderSheetState extends State<MuscleBuilderSheet> {
                     style: BoltText.a(
                       13,
                       weight: 700,
-                      color: _muscles.contains(e.key) ? BoltColors.ink : BoltColors.text,
+                      color: _muscles.contains(e.key) ? BoltColors.onNeon : BoltColors.text,
                     ),
                   ),
                 ),
@@ -178,7 +178,7 @@ class _MuscleBuilderSheetState extends State<MuscleBuilderSheet> {
           height: 52,
           scale: 1,
           color: ok ? BoltColors.neon : BoltColors.line,
-          textColor: ok ? BoltColors.ink : BoltColors.muted,
+          textColor: ok ? BoltColors.onNeon : BoltColors.muted,
           onTap: ok
               ? () => Navigator.of(context).pop(MuscleBuild([..._muscles], _ex, save: widget.libraryOnly || _save))
               : null,

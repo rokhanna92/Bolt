@@ -249,12 +249,12 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
                 width: 120,
                 height: 120,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: BoltColors.neon,
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: Color(0x73C6FF1A), blurRadius: 60)],
+                  boxShadow: [BoxShadow(color: BoltColors.neon.withAlpha(0x73), blurRadius: 60)],
                 ),
-                child: const BoltIcon('check', size: 56, color: BoltColors.ink),
+                child: BoltIcon('check', size: 56, color: BoltColors.onNeon),
               ),
             ),
             const SizedBox(height: 16),
@@ -385,7 +385,7 @@ class _LaserState extends State<_Laser> with SingleTickerProviderStateMixin {
                   decoration: BoxDecoration(
                     color: BoltColors.neon,
                     borderRadius: BorderRadius.circular(99),
-                    boxShadow: const [BoxShadow(color: Color(0x99C6FF1A), blurRadius: 18, spreadRadius: 4)],
+                    boxShadow: [BoxShadow(color: BoltColors.neon.withAlpha(0x99), blurRadius: 18, spreadRadius: 4)],
                   ),
                 ),
               ),

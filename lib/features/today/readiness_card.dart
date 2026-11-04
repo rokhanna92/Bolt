@@ -171,7 +171,7 @@ class _ReadinessCardState extends ConsumerState<ReadinessCard> {
         color: on ? BoltColors.neon : BoltColors.surface2,
         stroke: Stroke(on ? BoltColors.neon : BoltColors.line),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        child: Text(label, style: BoltText.a(13, weight: 700, color: on ? BoltColors.ink : BoltColors.text)),
+        child: Text(label, style: BoltText.a(13, weight: 700, color: on ? BoltColors.onNeon : BoltColors.text)),
       ),
     );
     return Column(
@@ -226,7 +226,7 @@ class _ReadinessCardState extends ConsumerState<ReadinessCard> {
     final auto = store.canUndoReadiness ? store.autoDone : null;
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: Stroke(level == 'low' ? const Color(0x73FF7A45) : BoltColors.lineSoft),
+      stroke: Stroke(level == 'low' ? BoltColors.warn.withAlpha(0x73) : BoltColors.lineSoft),
       radius: 18,
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -293,7 +293,7 @@ class _ReadinessCardState extends ConsumerState<ReadinessCard> {
                     radius: 10,
                     color: BoltColors.warn,
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                    child: Text(tx('Make today lighter'), style: BoltText.a(12, weight: 800, color: BoltColors.ink)),
+                    child: Text(tx('Make today lighter'), style: BoltText.a(12, weight: 800, color: BoltColors.onNeon)),
                   ),
                 ),
               ),
@@ -464,7 +464,7 @@ class CheckIns extends StatelessWidget {
                         value: recent.fold(0, (a, r) => a + r[i]) / recent.length / 3,
                         minHeight: 6,
                         backgroundColor: BoltColors.lineSoft,
-                        valueColor: const AlwaysStoppedAnimation(BoltColors.neon),
+                        valueColor: AlwaysStoppedAnimation(BoltColors.neon),
                       ),
                     ),
                   ),
@@ -572,7 +572,7 @@ class _GripBar extends StatelessWidget {
                   child: Container(
                     width: _thumb,
                     height: _thumb,
-                    decoration: const BoxDecoration(color: BoltColors.neon, shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: BoltColors.neon, shape: BoxShape.circle),
                   ),
                 ),
             ],

@@ -86,16 +86,16 @@ class WorkoutPickerSheet extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(tx('Build from muscles'), style: BoltText.a(16, weight: 900, color: BoltColors.ink)),
+                        Text(tx('Build from muscles'), style: BoltText.a(16, weight: 900, color: BoltColors.onNeon)),
                         const SizedBox(height: 2),
                         Text(
                           tx('Pick chest + triceps, biceps + shoulders, anything'),
-                          style: BoltText.a(12, weight: 600, color: BoltColors.ink.withValues(alpha: .75)),
+                          style: BoltText.a(12, weight: 600, color: BoltColors.onNeon.withValues(alpha: .75)),
                         ),
                       ],
                     ),
                   ),
-                  const BoltIcon('chevron', size: 22, color: BoltColors.ink),
+                  BoltIcon('chevron', size: 22, color: BoltColors.onNeon),
                 ],
               ),
             ),
@@ -265,7 +265,7 @@ class ChangeWorkoutButton extends StatelessWidget {
       scale: .98,
       child: BoltBox(
         radius: 14,
-        stroke: const Stroke(BoltColors.neon, 1.5),
+        stroke: Stroke(BoltColors.neon, 1.5),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
         child: Row(
           children: [
@@ -282,7 +282,7 @@ class ChangeWorkoutButton extends StatelessWidget {
                 ],
               ),
             ),
-            const BoltIcon('chevron', size: 20, color: BoltColors.neon),
+            BoltIcon('chevron', size: 20, color: BoltColors.neon),
           ],
         ),
       ),

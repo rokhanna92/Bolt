@@ -60,7 +60,7 @@ class ChoiceChips extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
               child: Text(
                 tx(labels?[o] ?? o),
-                style: BoltText.a(13, weight: 700, color: o == selected ? BoltColors.ink : BoltColors.text),
+                style: BoltText.a(13, weight: 700, color: o == selected ? BoltColors.onNeon : BoltColors.text),
               ),
             ),
           ),

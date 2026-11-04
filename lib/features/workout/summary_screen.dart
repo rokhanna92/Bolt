@@ -97,8 +97,8 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(v, style: BoltText.a(24, weight: 900, color: BoltColors.ink)),
-          Text(l, style: BoltText.m(9, weight: 700, spacing: .1, color: BoltColors.ink.withValues(alpha: .7))),
+          Text(v, style: BoltText.a(24, weight: 900, color: BoltColors.onNeon)),
+          Text(l, style: BoltText.m(9, weight: 700, spacing: .1, color: BoltColors.onNeon.withValues(alpha: .7))),
         ],
       ),
     );
@@ -127,18 +127,18 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                   children: [
                     Row(
                       children: [
-                        Text('BOLT', style: BoltText.a(18, weight: 900, width: 125, color: BoltColors.ink)),
+                        Text('BOLT', style: BoltText.a(18, weight: 900, width: 125, color: BoltColors.onNeon)),
                         const Spacer(),
                         Text(
                           fmtDay(widget.dayKey).toUpperCase(),
-                          style: BoltText.m(11, weight: 700, color: BoltColors.ink),
+                          style: BoltText.m(11, weight: 700, color: BoltColors.onNeon),
                         ),
                       ],
                     ),
                     const SizedBox(height: 18),
                     Text(
                       title.toUpperCase(),
-                      style: BoltText.a(tsz(title, 44), weight: 900, width: 115, height: .95, color: BoltColors.ink),
+                      style: BoltText.a(tsz(title, 44), weight: 900, width: 115, height: .95, color: BoltColors.onNeon),
                     ),
                     const SizedBox(height: 18),
                     Row(
@@ -159,25 +159,25 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                       const SizedBox(height: 14),
                       Text(
                         '${vs.$1 > vs.$2 ? '▲' : '▼'} ${vsText(vs)}',
-                        style: BoltText.a(15, weight: 800, color: BoltColors.ink),
+                        style: BoltText.a(15, weight: 800, color: BoltColors.onNeon),
                       ),
                     ],
                     if (std != null) ...[
                       const SizedBox(height: 6),
                       Text(
                         '${std >= 0 ? '▲' : '▼'} ${standardText(std)}',
-                        style: BoltText.a(15, weight: 800, color: BoltColors.ink),
+                        style: BoltText.a(15, weight: 800, color: BoltColors.onNeon),
                       ),
                     ],
                     if (s.prs.isNotEmpty) ...[
                       const SizedBox(height: 18),
                       Text(
                         tx('NEW PERSONAL RECORDS'),
-                        style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.ink),
+                        style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.onNeon),
                       ),
                       const SizedBox(height: 6),
                       for (final p in s.prs)
-                        Text('★ ${tx(p)}', style: BoltText.a(16, weight: 800, color: BoltColors.ink)),
+                        Text('★ ${tx(p)}', style: BoltText.a(16, weight: 800, color: BoltColors.onNeon)),
                     ],
                     if (muscles.isNotEmpty) ...[
                       const SizedBox(height: 18),
@@ -192,7 +192,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                               child: Text(
                                 tx(kMuscles[m]!.name).toUpperCase(),
-                                style: BoltText.m(10, weight: 700, color: BoltColors.ink),
+                                style: BoltText.m(10, weight: 700, color: BoltColors.onNeon),
                               ),
                             ),
                         ],
@@ -201,7 +201,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                     const SizedBox(height: 18),
                     Text(
                       logText(s.log),
-                      style: BoltText.a(13, weight: 700, color: BoltColors.ink.withValues(alpha: .8)),
+                      style: BoltText.a(13, weight: 700, color: BoltColors.onNeon.withValues(alpha: .8)),
                     ),
                   ],
                 ),

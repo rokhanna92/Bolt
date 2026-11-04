@@ -172,7 +172,7 @@ class _UnlockOverlayState extends State<UnlockOverlay> with SingleTickerProvider
                     color: BoltColors.ink,
                     shape: BoxShape.circle,
                     border: Border.all(color: BoltColors.neon, width: 5),
-                    boxShadow: const [BoxShadow(color: Color(0x73C6FF1A), blurRadius: 70)],
+                    boxShadow: [BoxShadow(color: BoltColors.neon.withAlpha(0x73), blurRadius: 70)],
                   ),
                   child: Stack(
                     alignment: Alignment.center,
@@ -183,7 +183,7 @@ class _UnlockOverlayState extends State<UnlockOverlay> with SingleTickerProvider
                           child: DecoratedBox(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: const Color(0x73C6FF1A), width: 1.5),
+                              border: Border.all(color: BoltColors.neon.withAlpha(0x73), width: 1.5),
                             ),
                           ),
                         ),

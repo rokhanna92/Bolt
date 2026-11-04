@@ -6,23 +6,23 @@ import '../data/rank.dart';
 import '../theme/tokens.dart';
 
 /// Colours per tier, dark then light, for the emblem's metal.
-const _metal = <(Color, Color)>[
+List<(Color, Color)> get _metal => <(Color, Color)>[
   (BoltColors.line, BoltColors.muted3),
-  (Color(0xFF6E7B8A), Color(0xFFAEBACB)),
-  (Color(0xFF8E5129), Color(0xFFE09A5E)),
-  (Color(0xFF454B52), Color(0xFF8D959F)),
-  (Color(0xFF557189), Color(0xFFB2CBE0)),
-  (Color(0xFF8F98A3), Color(0xFFF1F4F7)),
-  (Color(0xFFB57F12), Color(0xFFFFDD6E)),
-  (Color(0xFF1F9C86), Color(0xFF94F5E1)),
-  (Color(0xFF4F6EF0), Color(0xFFCDB0FF)),
-  (Color(0xFF8E1736), Color(0xFFFF5470)),
-  (Color(0xFF7FB000), BoltColors.neon),
-  (Color(0xFF00E5FF), BoltColors.neon),
+  (const Color(0xFF6E7B8A), const Color(0xFFAEBACB)),
+  (const Color(0xFF8E5129), const Color(0xFFE09A5E)),
+  (const Color(0xFF454B52), const Color(0xFF8D959F)),
+  (const Color(0xFF557189), const Color(0xFFB2CBE0)),
+  (const Color(0xFF8F98A3), const Color(0xFFF1F4F7)),
+  (const Color(0xFFB57F12), const Color(0xFFFFDD6E)),
+  (const Color(0xFF1F9C86), const Color(0xFF94F5E1)),
+  (const Color(0xFF4F6EF0), const Color(0xFFCDB0FF)),
+  (const Color(0xFF8E1736), const Color(0xFFFF5470)),
+  (const Color(0xFF7FB000), BoltColors.neon),
+  (const Color(0xFF00E5FF), BoltColors.neon),
 ];
 
 /// Atlas shifts through neon green, electric cyan and magenta.
-const kAtlasNeon = [BoltColors.neon, Color(0xFF00F0FF), Color(0xFFFF2BD6), BoltColors.neon];
+List<Color> get kAtlasNeon => [BoltColors.neon, const Color(0xFF00F0FF), const Color(0xFFFF2BD6), BoltColors.neon];
 
 /// The colour a tier is known by, for text next to its emblem.
 Color tierColor(int tier) => _metal[tier.clamp(0, _metal.length - 1)].$2;

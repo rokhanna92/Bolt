@@ -5,11 +5,11 @@ import '../theme/tokens.dart';
 /// A small trend line through [values], oldest first, with the latest
 /// point marked. Needs at least two values.
 class Sparkline extends StatelessWidget {
-  const Sparkline({super.key, required this.values, this.height = 40, this.color = BoltColors.neon, this.goal});
+  const Sparkline({super.key, required this.values, this.height = 40, this.color, this.goal});
 
   final List<double> values;
   final double height;
-  final Color color;
+  final Color? color;
 
   /// A target drawn as a dashed line.
   final double? goal;
@@ -18,7 +18,7 @@ class Sparkline extends StatelessWidget {
   Widget build(BuildContext context) => SizedBox(
     height: height,
     width: double.infinity,
-    child: CustomPaint(painter: _SparkPainter(values, color, goal)),
+    child: CustomPaint(painter: _SparkPainter(values, color ?? BoltColors.neon, goal)),
   );
 }
 

@@ -135,6 +135,10 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
       (
+        tx('LOOK'),
+        [_Row(tx('Theme'), value: s.blue ? tx('Grey and blue') : tx('Orange and neon'), onTap: store.toggleTheme)],
+      ),
+      (
         tx('TRAINING'),
         [
           _Row(tx('Units'), value: s.kg ? 'kg · cm' : 'lb · in', onTap: store.toggleUnits),
@@ -253,7 +257,7 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 32),
             BoltBox(
               color: BoltColors.surface1,
-              stroke: const Stroke(Color(0x66FF7A45)),
+              stroke: Stroke(BoltColors.warn.withAlpha(0x66)),
               radius: 18,
               clip: true,
               child: _row(_Row(tx('Reset app'), danger: true, onTap: () => _reset(context, ref))),

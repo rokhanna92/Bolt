@@ -62,7 +62,7 @@ class _InjurySheetState extends ConsumerState<InjurySheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   child: Text(
                     tx(a.value),
-                    style: BoltText.a(13, weight: 700, color: _area == a.key ? BoltColors.ink : BoltColors.text),
+                    style: BoltText.a(13, weight: 700, color: _area == a.key ? BoltColors.onNeon : BoltColors.text),
                   ),
                 ),
               ),

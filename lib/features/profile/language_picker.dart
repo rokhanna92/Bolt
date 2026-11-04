@@ -36,7 +36,7 @@ class LanguagePicker extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: Text(
                   l.short,
-                  style: BoltText.m(11, weight: 700, color: l == cur ? BoltColors.ink : BoltColors.text),
+                  style: BoltText.m(11, weight: 700, color: l == cur ? BoltColors.onNeon : BoltColors.text),
                 ),
               ),
             ),
@@ -58,9 +58,7 @@ class LanguagePicker extends ConsumerWidget {
               radius: 14,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               child: Row(
-                children: [
-                  Expanded(child: Text(l.label, style: BoltText.a(14, weight: 800))),
-                ],
+                children: [Expanded(child: Text(l.label, style: BoltText.a(14, weight: 800)))],
               ),
             ),
           ),

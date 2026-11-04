@@ -44,7 +44,7 @@ class SeasonCard extends StatelessWidget {
       onTap: () => showBoltSheet<void>(context, (_) => const SeasonSheet()),
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: const Stroke(Color(0x73C6FF1A)),
+        stroke: Stroke(BoltColors.neon.withAlpha(0x73)),
         radius: 18,
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -72,7 +72,7 @@ class SeasonCard extends StatelessWidget {
                 value: (done / s.goal).clamp(0.0, 1.0),
                 minHeight: 6,
                 backgroundColor: BoltColors.lineSoft,
-                valueColor: const AlwaysStoppedAnimation(BoltColors.neon),
+                valueColor: AlwaysStoppedAnimation(BoltColors.neon),
               ),
             ),
             const SizedBox(height: 6),
@@ -111,23 +111,23 @@ class SeasonDoneCard extends ConsumerWidget {
               Expanded(
                 child: Text(
                   tx('SEASON {n} COMPLETE', {'n': s.n}),
-                  style: BoltText.m(11, weight: 700, spacing: .12, color: BoltColors.ink),
+                  style: BoltText.m(11, weight: 700, spacing: .12, color: BoltColors.onNeon),
                 ),
               ),
               Tap(
                 onTap: () => store.dismissHint('season:${s.n}'),
-                child: const CloseGlyph(color: BoltColors.ink),
+                child: CloseGlyph(color: BoltColors.onNeon),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          Text(s.name.toUpperCase(), style: BoltText.a(26, weight: 900, width: 112, color: BoltColors.ink)),
+          Text(s.name.toUpperCase(), style: BoltText.a(26, weight: 900, width: 112, color: BoltColors.onNeon)),
           const SizedBox(height: 4),
           Text(
             done >= s.goal
                 ? tx('Goal reached: {done} of {goal} workouts.', {'done': done, 'goal': s.goal})
                 : tx('{done} of {goal} workouts. Next season, beat it.', {'done': done, 'goal': s.goal}),
-            style: BoltText.a(13, weight: 700, color: BoltColors.ink.withValues(alpha: .8)),
+            style: BoltText.a(13, weight: 700, color: BoltColors.onNeon.withValues(alpha: .8)),
           ),
           const SizedBox(height: 12),
           Row(
@@ -138,7 +138,7 @@ class SeasonDoneCard extends ConsumerWidget {
                   height: 44,
                   radius: 12,
                   fontSize: 13,
-                  color: BoltColors.ink,
+                  color: BoltColors.onNeon,
                   textColor: BoltColors.neon,
                   onTap: () => context.push('/wrap?season=${s.n}'),
                 ),
@@ -150,7 +150,7 @@ class SeasonDoneCard extends ConsumerWidget {
                   height: 44,
                   radius: 12,
                   fontSize: 13,
-                  color: BoltColors.ink,
+                  color: BoltColors.onNeon,
                   onTap: () => showBoltSheet<void>(context, (_) => const SeasonSheet()),
                 ),
               ),

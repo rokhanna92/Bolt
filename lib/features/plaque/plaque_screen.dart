@@ -77,7 +77,7 @@ class _PlaqueScreenState extends ConsumerState<PlaqueScreen> {
                   child: BoltBox(
                     color: BoltColors.ink,
                     radius: 24,
-                    stroke: const Stroke(BoltColors.neon, 2),
+                    stroke: Stroke(BoltColors.neon, 2),
                     shadows: const [BoxShadow(color: Color(0x2EC6FF1A), blurRadius: 40)],
                     padding: const EdgeInsets.all(24),
                     child: Column(

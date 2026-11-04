@@ -318,7 +318,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             label: _busy ? tx('Publishing…') : (_dirty ? tx('Publish to every phone') : tx('Published')),
             height: 54,
             color: _dirty ? BoltColors.neon : BoltColors.surface2,
-            textColor: _dirty ? BoltColors.ink : BoltColors.muted,
+            textColor: _dirty ? BoltColors.onNeon : BoltColors.muted,
             onTap: _busy || !_dirty ? null : _publish,
           ),
           const SizedBox(height: 8),
@@ -497,7 +497,7 @@ class _PushSheetState extends State<_PushSheet> {
                           style: BoltText.a(
                             12,
                             weight: 700,
-                            color: _p.date == dk(d) ? BoltColors.ink : BoltColors.text,
+                            color: _p.date == dk(d) ? BoltColors.onNeon : BoltColors.text,
                           ),
                         ),
                       ),
@@ -526,7 +526,11 @@ class _PushSheetState extends State<_PushSheet> {
                     alignment: Alignment.center,
                     child: Text(
                       weekdays[d % 7],
-                      style: BoltText.a(11, weight: 800, color: _p.days.contains(d) ? BoltColors.ink : BoltColors.text),
+                      style: BoltText.a(
+                        11,
+                        weight: 800,
+                        color: _p.days.contains(d) ? BoltColors.onNeon : BoltColors.text,
+                      ),
                     ),
                   ),
                 ),

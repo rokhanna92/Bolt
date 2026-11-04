@@ -442,7 +442,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
           },
           child: BoltBox(
             radius: 99,
-            stroke: const Stroke(BoltColors.neon, 1.5),
+            stroke: Stroke(BoltColors.neon, 1.5),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Text(
               floor ? tx('LIST') : tx('GYM FLOOR'),
@@ -750,7 +750,7 @@ class _ExerciseCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: BoltColors.surface1,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: all ? const Color(0x8CC6FF1A) : BoltColors.lineSoft),
+        border: Border.all(color: all ? BoltColors.neon.withAlpha(0x8C) : BoltColors.lineSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -903,7 +903,7 @@ class _SetButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = done ? BoltColors.ink : BoltColors.text;
+    final fg = done ? BoltColors.onNeon : BoltColors.text;
     final l = logged;
     final value = !done || l == null
         ? reps
@@ -1095,9 +1095,9 @@ class _RestBarState extends State<_RestBar> with SingleTickerProviderStateMixin 
         width: 44,
         height: 44,
         radius: 12,
-        stroke: const Stroke(BoltColors.ink, 1.5),
+        stroke: Stroke(BoltColors.onNeon, 1.5),
         alignment: Alignment.center,
-        child: Text(l, style: BoltText.m(12, weight: 700, color: BoltColors.ink)),
+        child: Text(l, style: BoltText.m(12, weight: 700, color: BoltColors.onNeon)),
       ),
     );
     return Container(
@@ -1119,7 +1119,12 @@ class _RestBarState extends State<_RestBar> with SingleTickerProviderStateMixin 
                     children: [
                       Text(
                         tx('REST'),
-                        style: BoltText.m(10, weight: 700, spacing: .12, color: BoltColors.ink.withValues(alpha: .6)),
+                        style: BoltText.m(
+                          10,
+                          weight: 700,
+                          spacing: .12,
+                          color: BoltColors.onNeon.withValues(alpha: .6),
+                        ),
                       ),
                       AnimatedBuilder(
                         animation: _c,
@@ -1128,7 +1133,7 @@ class _RestBarState extends State<_RestBar> with SingleTickerProviderStateMixin 
                           final left = math.max(0, (ms / 1000).ceil());
                           return Text(
                             '${left ~/ 60}:${pad(left % 60)}',
-                            style: BoltText.m(28, weight: 700, color: BoltColors.ink, height: 1),
+                            style: BoltText.m(28, weight: 700, color: BoltColors.onNeon, height: 1),
                           );
                         },
                       ),
@@ -1159,7 +1164,7 @@ class _RestBarState extends State<_RestBar> with SingleTickerProviderStateMixin 
               child: AnimatedBuilder(
                 animation: _c,
                 builder: (context, child) => FractionallySizedBox(widthFactor: _c.value, child: child),
-                child: Container(height: 4, color: BoltColors.ink),
+                child: Container(height: 4, color: BoltColors.onNeon),
               ),
             ),
           ),
@@ -1259,7 +1264,7 @@ class _Progress extends StatelessWidget {
                 curve: const Cubic(.2, .8, .2, 1),
                 widthFactor: tot == 0 ? 0 : done / tot,
                 heightFactor: 1,
-                child: const ColoredBox(color: BoltColors.neon),
+                child: ColoredBox(color: BoltColors.neon),
               ),
             ),
           ),

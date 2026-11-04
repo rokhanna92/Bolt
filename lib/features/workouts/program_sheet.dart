@@ -50,7 +50,7 @@ class ProgramSheet extends ConsumerWidget {
           const SizedBox(height: 14),
           BoltBox(
             color: BoltColors.surface1,
-            stroke: const Stroke(Color(0x73C6FF1A)),
+            stroke: Stroke(BoltColors.neon.withAlpha(0x73)),
             radius: 14,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(

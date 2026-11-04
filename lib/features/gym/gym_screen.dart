@@ -91,7 +91,7 @@ class GymScreen extends ConsumerWidget {
               NeonButton(
                 label: g == null ? tx('Scan to check in') : tx('Scan to check out'),
                 onTap: () => openScanner(context, ref),
-                leading: const BoltIcon('scan_line', size: 20, color: BoltColors.ink),
+                leading: BoltIcon('scan_line', size: 20, color: BoltColors.onNeon),
               ),
               const SizedBox(height: 10),
               OutlineButton(
@@ -391,9 +391,12 @@ class _LiveRingState extends State<_LiveRing> with TickerProviderStateMixin {
                   child: Container(
                     width: 172,
                     height: 172,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: RadialGradient(colors: [Color(0x24C6FF1A), Color(0x00C6FF1A)], stops: [0, .7]),
+                      gradient: RadialGradient(
+                        colors: [BoltColors.neon.withAlpha(0x24), BoltColors.neon.withAlpha(0x00)],
+                        stops: const [0, .7],
+                      ),
                     ),
                   ),
                 ),
@@ -466,9 +469,9 @@ class GymHeatmap extends StatelessWidget {
     Color shade(String k) {
       final m = mins[k];
       if (m == null) {
-        return plan[k]?.status == SessionStatus.done ? const Color(0x33C6FF1A) : BoltColors.lineSoft;
+        return plan[k]?.status == SessionStatus.done ? BoltColors.neon.withAlpha(0x33) : BoltColors.lineSoft;
       }
-      return m >= 90 ? BoltColors.neon : (m >= 45 ? const Color(0xB3C6FF1A) : const Color(0x66C6FF1A));
+      return m >= 90 ? BoltColors.neon : (m >= 45 ? BoltColors.neon.withAlpha(0xB3) : BoltColors.neon.withAlpha(0x66));
     }
 
     return LayoutBuilder(

@@ -77,7 +77,7 @@ class ScheduleScreen extends ConsumerWidget {
                       color: BoltColors.neon,
                       radius: 6,
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      child: Text(tx('TODAY'), style: BoltText.m(9, weight: 700, color: BoltColors.ink)),
+                      child: Text(tx('TODAY'), style: BoltText.m(9, weight: 700, color: BoltColors.onNeon)),
                     ),
                   ],
                   const SizedBox(width: 8),

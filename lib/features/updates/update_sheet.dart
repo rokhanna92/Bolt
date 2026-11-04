@@ -98,11 +98,11 @@ class UpdateCard extends ConsumerWidget {
                 BoltBox(
                   radius: 12,
                   color: fresh == null ? null : BoltColors.neon,
-                  stroke: const Stroke(BoltColors.neon, 1.5),
+                  stroke: Stroke(BoltColors.neon, 1.5),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   child: Text(
                     fresh == null ? tx('Check') : tx('Update'),
-                    style: BoltText.a(13, weight: 800, color: fresh == null ? BoltColors.neon : BoltColors.ink),
+                    style: BoltText.a(13, weight: 800, color: fresh == null ? BoltColors.neon : BoltColors.onNeon),
                   ),
                 ),
               ],
@@ -126,7 +126,7 @@ class NewVersionCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(Color(0x73C6FF1A)),
+      stroke: Stroke(BoltColors.neon.withAlpha(0x73)),
       radius: 18,
       padding: const EdgeInsets.fromLTRB(16, 4, 4, 14),
       child: Row(
@@ -149,7 +149,7 @@ class NewVersionCard extends ConsumerWidget {
                     scale: .96,
                     child: BoltBox(
                       radius: 12,
-                      stroke: const Stroke(BoltColors.neon, 1.5),
+                      stroke: Stroke(BoltColors.neon, 1.5),
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       child: Text(tx('Update'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
                     ),

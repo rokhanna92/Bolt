@@ -88,8 +88,8 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(v, style: BoltText.a(24, weight: 900, color: BoltColors.ink)),
-          Text(l, style: BoltText.m(9, weight: 700, spacing: .1, color: BoltColors.ink.withValues(alpha: .7))),
+          Text(v, style: BoltText.a(24, weight: 900, color: BoltColors.onNeon)),
+          Text(l, style: BoltText.m(9, weight: 700, spacing: .1, color: BoltColors.onNeon.withValues(alpha: .7))),
         ],
       ),
     );
@@ -98,9 +98,9 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
       child: Row(
         children: [
           Expanded(
-            child: Text(k, style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.ink)),
+            child: Text(k, style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.onNeon)),
           ),
-          Text(v, style: BoltText.a(15, weight: 800, color: BoltColors.ink)),
+          Text(v, style: BoltText.a(15, weight: 800, color: BoltColors.onNeon)),
         ],
       ),
     );
@@ -136,18 +136,18 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
                   children: [
                     Row(
                       children: [
-                        Text('BOLT', style: BoltText.a(18, weight: 900, width: 125, color: BoltColors.ink)),
+                        Text('BOLT', style: BoltText.a(18, weight: 900, width: 125, color: BoltColors.onNeon)),
                         const Spacer(),
-                        Text(tx('WRAP'), style: BoltText.m(11, weight: 700, color: BoltColors.ink)),
+                        Text(tx('WRAP'), style: BoltText.m(11, weight: 700, color: BoltColors.onNeon)),
                       ],
                     ),
                     const SizedBox(height: 18),
                     Text(
                       label.toUpperCase(),
-                      style: BoltText.a(tsz(label, 44), weight: 900, width: 115, height: .95, color: BoltColors.ink),
+                      style: BoltText.a(tsz(label, 44), weight: 900, width: 115, height: .95, color: BoltColors.onNeon),
                     ),
                     const SizedBox(height: 4),
-                    Text(t.name, style: BoltText.a(14, weight: 700, color: BoltColors.ink.withValues(alpha: .8))),
+                    Text(t.name, style: BoltText.a(14, weight: 700, color: BoltColors.onNeon.withValues(alpha: .8))),
                     const SizedBox(height: 18),
                     Row(
                       children: [
