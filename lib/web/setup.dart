@@ -6,6 +6,7 @@ import 'package:web/web.dart' as web;
 
 import '../services/notifications.dart';
 import '../services/rest_timer.dart';
+import 'fonts.dart';
 import 'frame.dart';
 import 'rest_timer.dart';
 
@@ -19,7 +20,7 @@ RestTimer platformRestTimer(BoltNotifications notifications) => WebRestTimer();
 
 Widget platformFrame(Widget child) => WebFrame(child: child);
 
-void startPlatform() {
+Future<void> startPlatform() async {
   _coverWholeScreen();
   _keepScreenOn();
   // Ask the browser not to clear Bolt's data when the phone runs short.
@@ -33,6 +34,7 @@ void startPlatform() {
   MobileScannerPlatform.instance
     ..setWebBarcodeReader(WebBarcodeReader.zxingJs)
     ..setBarcodeLibraryScriptUrl('vendor/zxing.min.js');
+  await ensureFonts();
 }
 
 /// Flutter writes its own viewport tag, without the part that lets the page

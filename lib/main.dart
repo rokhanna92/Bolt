@@ -13,7 +13,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  startPlatform();
+  await startPlatform();
 
   // Independent setup, so it runs side by side before the first frame.
   final (repo, notifications) = await (BoltRepository.open(), openNotifications()).wait;

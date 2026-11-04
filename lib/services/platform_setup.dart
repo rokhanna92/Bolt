@@ -15,4 +15,4 @@ RestTimer platformRestTimer(BoltNotifications notifications) =>
 
 Widget platformFrame(Widget child) => child;
 
-void startPlatform() {}
+Future<void> startPlatform() async {}
