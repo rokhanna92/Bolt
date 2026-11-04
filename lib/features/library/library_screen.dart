@@ -179,36 +179,43 @@ class LibraryScreen extends ConsumerWidget {
         color: BoltColors.surface1,
         stroke: const Stroke(BoltColors.lineSoft),
         radius: 18,
-        padding: const EdgeInsets.all(14),
         child: Stack(
-          clipBehavior: Clip.none,
           children: [
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 112 - 30),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(t.code, style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.neon)),
-                  const SizedBox(height: 6),
-                  Text(tx(t.name), style: BoltText.a(18, weight: 900)),
-                  const SizedBox(height: 6),
-                  Expanded(
-                    child: Text(tx(t.focus), style: BoltText.a(11, color: BoltColors.muted)),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '${plural(t.ex.length, 'exercise')} · ${t.mins} min'.toUpperCase(),
-                    style: BoltText.m(10, color: BoltColors.muted2),
-                  ),
-                ],
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 112 - 30),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 14,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(t.code, style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.neon)),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(tx(t.name), style: BoltText.a(18, weight: 900)),
+                    const SizedBox(height: 6),
+                    Expanded(
+                      child: Text(tx(t.focus), style: BoltText.a(11, color: BoltColors.muted)),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${plural(t.ex.length, 'exercise')} · ${t.mins} min'.toUpperCase(),
+                      style: BoltText.m(10, color: BoltColors.muted2),
+                    ),
+                  ],
+                ),
               ),
             ),
-            // Takes it off Your workouts, in the corner so the card keeps
-            // the size of the others.
+            // Takes it off Your workouts. The glyph is 38 tall with its tap
+            // padding, so top 2 centres the X on the code row (14 + 7 - 19).
             if (onRemove != null)
               Positioned(
-                top: -4,
-                right: -4,
+                top: 2,
+                right: 2,
                 child: Tap(onTap: onRemove, child: const CloseGlyph()),
               ),
           ],
