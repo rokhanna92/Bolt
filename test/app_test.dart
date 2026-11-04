@@ -7,6 +7,7 @@ import 'package:bolt/app/actions.dart' show openShortcut;
 import 'package:bolt/app/router.dart';
 import 'package:bolt/core/pwa.dart';
 import 'package:bolt/widgets/bolt_nav_bar.dart';
+import 'package:bolt/widgets/calendar_grid.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/board.dart';
@@ -323,7 +324,7 @@ void main() {
     await settle(tester);
     store.importText(msg);
     await settle(tester);
-    expect(find.text('YOUR WORKOUTS'), findsOneWidget);
+    expect(find.text('Your workouts'), findsOneWidget);
     expect(find.text('Custom 1'), findsOneWidget);
 
     await tapText(tester, 'Import workouts');
@@ -656,9 +657,9 @@ void main() {
     await tapText(tester, 'Max reps');
     expect(bench.reps, 'max');
     await back(tester);
-    expect(tester.getTopLeft(find.text('YOUR WORKOUTS')).dy, lessThan(tester.getTopLeft(find.text('CLASSIC')).dy));
+    expect(tester.getTopLeft(find.text('Your workouts')).dy, lessThan(tester.getTopLeft(find.text('Classic')).dy));
     await tapLabel(tester, 'Close');
-    expect(find.text('YOUR WORKOUTS'), findsNothing);
+    expect(find.text('Your workouts'), findsNothing);
     expect(c.read(boltProvider).tpls['push']!.ex.first.load, '75 kg');
     expect(tester.takeException(), isNull);
     await unmount(tester);
@@ -1629,6 +1630,33 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the blue theme has a black nav bar and a backed calendar', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    c.read(boltProvider.notifier).toggleTheme();
+    await settle(tester);
+    final bar = find.descendant(of: find.byType(BoltNavBar), matching: find.byType(ColoredBox));
+    expect(tester.widget<ColoredBox>(bar.first).color, Colors.black);
+    await tapTab(tester, 'Plan');
+    expect(find.byType(BluePanel), findsWidgets);
+    expect(find.descendant(of: find.byType(BluePanel), matching: find.byType(CalendarGrid)), findsWidgets);
+    c.read(boltProvider.notifier).toggleTheme();
+    await unmount(tester);
+  });
+
+  testWidgets('workouts open and close by category', (tester) async {
+    await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapTab(tester, 'Workouts');
+    expect(find.text('Push'), findsOneWidget);
+    expect(find.text('Chest'), findsNothing);
+    await tapText(tester, 'One muscle a day');
+    await settle(tester);
+    expect(find.text('Chest'), findsOneWidget);
+    expect(find.text('Weekly splits'), findsOneWidget);
+    await unmount(tester);
+  });
+
   group('as the PWA', () {
     setUp(() => isPwa = true);
     tearDown(() => isPwa = false);
@@ -1643,17 +1671,6 @@ void main() {
       for (final gone in ['App', 'Water', 'Supplements', 'Training', 'Session reminders', 'Morning brief']) {
         expect(find.text(gone), findsNothing, reason: gone);
       }
-      await unmount(tester);
-    });
-
-    testWidgets('the blue theme has a black nav bar', (tester) async {
-      final c = await pumpApp(tester);
-      await onboard(tester, 'On my own', 'Dani');
-      c.read(boltProvider.notifier).toggleTheme();
-      await settle(tester);
-      final bar = find.descendant(of: find.byType(BoltNavBar), matching: find.byType(ColoredBox));
-      expect(tester.widget<ColoredBox>(bar.first).color, Colors.black);
-      c.read(boltProvider.notifier).toggleTheme();
       await unmount(tester);
     });
 

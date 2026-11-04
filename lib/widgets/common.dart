@@ -597,6 +597,26 @@ class Chevron extends StatelessWidget {
   Widget build(BuildContext context) => BoltIcon('chevron', size: size * .8, color: BoltColors.neon);
 }
 
+/// A card behind things that have no box of their own, like a calendar, so
+/// they stay readable on the blue page. The other theme does not need one.
+class BluePanel extends StatelessWidget {
+  const BluePanel({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!BoltColors.blue) return child;
+    return BoltBox(
+      color: BoltColors.surface1,
+      stroke: const Stroke(BoltColors.lineSoft),
+      radius: 18,
+      padding: const EdgeInsets.all(12),
+      child: child,
+    );
+  }
+}
+
 /// Three stat tiles in a row, all as tall as the tallest, so a label that
 /// wraps does not leave the row jagged.
 class StatRow extends StatelessWidget {

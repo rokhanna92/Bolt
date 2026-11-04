@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/format.dart';
-import '../core/pwa.dart';
 import '../data/bolt_store.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
@@ -23,8 +22,8 @@ class NavItem {
   final double pillWidth;
 }
 
-/// On the PWA the blue theme's nav bar is black, not blue.
-Color get _navBackground => isPwa && BoltColors.blue ? Colors.black : BoltColors.page;
+/// The blue theme's nav bar is black, not blue.
+Color get _navBackground => BoltColors.blue ? Colors.black : BoltColors.page;
 
 /// Five-slot bottom nav with the raised neon button in the middle: the gym
 /// scanner for people who train, the calendar for coaches. Icons only; the

@@ -226,15 +226,22 @@ class PlanScreen extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: 16),
-        WeekdayHeader(mondayFirst: d.settings.mondayFirst),
-        const SizedBox(height: 6),
-        MonthPager(
-          month: month,
-          onMonth: ref.read(planMonthProvider.notifier).set,
-          grid: (m) => CalendarGrid(cells: cellsOf(m), onTap: onTap, onLongPress: onLongPress),
+        BluePanel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              WeekdayHeader(mondayFirst: d.settings.mondayFirst),
+              const SizedBox(height: 6),
+              MonthPager(
+                month: month,
+                onMonth: ref.read(planMonthProvider.notifier).set,
+                grid: (m) => CalendarGrid(cells: cellsOf(m), onTap: onTap, onLongPress: onLongPress),
+              ),
+              const SizedBox(height: 14),
+              Legend(items: traineeLegend),
+            ],
+          ),
         ),
-        const SizedBox(height: 14),
-        Legend(items: traineeLegend),
         const SizedBox(height: 26),
         SectionTitle(tx('Coming up')),
         const SizedBox(height: 10),

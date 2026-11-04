@@ -181,7 +181,9 @@ class GymScreen extends ConsumerWidget {
         const SizedBox(height: 4),
         Text(tx('Every gym day, brighter for longer sessions.'), style: BoltText.a(12, color: BoltColors.muted)),
         const SizedBox(height: 10),
-        GymHeatmap(visits: visits, plan: store.plan(id), now: now),
+        BluePanel(
+          child: GymHeatmap(visits: visits, plan: store.plan(id), now: now),
+        ),
         const SizedBox(height: 22),
         SectionTitle(tx('Your best gym times')),
         const SizedBox(height: 4),

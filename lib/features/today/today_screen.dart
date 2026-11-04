@@ -316,13 +316,15 @@ class TodayScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            for (var i = 0; i < 7; i++) ...[
-              if (i > 0) const SizedBox(width: 6),
-              Expanded(child: _weekDay(context, ref, addDays(ws, i), today, vis, t.stats.rest)),
+        BluePanel(
+          child: Row(
+            children: [
+              for (var i = 0; i < 7; i++) ...[
+                if (i > 0) const SizedBox(width: 6),
+                Expanded(child: _weekDay(context, ref, addDays(ws, i), today, vis, t.stats.rest)),
+              ],
             ],
-          ],
+          ),
         ),
         const SizedBox(height: 26),
         Row(

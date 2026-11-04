@@ -99,22 +99,29 @@ class _CoachCalendarScreenState extends ConsumerState<CoachCalendarScreen> {
           ],
         ),
         const SizedBox(height: 18),
-        WeekdayHeader(mondayFirst: d.settings.mondayFirst),
-        const SizedBox(height: 8),
-        MonthPager(
-          month: _month,
-          onMonth: _setMonth,
-          grid: (m) => CalendarGrid(
-            cells: cellsOf(m),
-            onTap: (cell) => setState(() {
-              _sel = cell.k;
-              final t = DateTime.parse(cell.k);
-              _month = DateTime(t.year, t.month);
-            }),
+        BluePanel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              WeekdayHeader(mondayFirst: d.settings.mondayFirst),
+              const SizedBox(height: 8),
+              MonthPager(
+                month: _month,
+                onMonth: _setMonth,
+                grid: (m) => CalendarGrid(
+                  cells: cellsOf(m),
+                  onTap: (cell) => setState(() {
+                    _sel = cell.k;
+                    final t = DateTime.parse(cell.k);
+                    _month = DateTime(t.year, t.month);
+                  }),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Legend(items: _legend),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        Legend(items: _legend),
         const SizedBox(height: 22),
         Row(
           children: [

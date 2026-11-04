@@ -67,6 +67,10 @@ class BoltBox extends StatelessWidget {
     final pad = padding?.resolve(TextDirection.ltr) ?? EdgeInsets.zero;
     final extraW = borderBox ? 0.0 : 2 * stroke.width + pad.horizontal;
     final extraH = borderBox ? 0.0 : 2 * stroke.width + pad.vertical;
+    // Nothing outlined sits straight on the blue page: it is hard to read.
+    final fill = BoltColors.blue && stroke.width > 0 && gradient == null && (color == null || color!.a == 0)
+        ? BoltColors.surface1
+        : color;
     final box = Container(
       width: width == null ? null : width! + extraW,
       height: height == null ? null : height! + extraH,
@@ -74,7 +78,7 @@ class BoltBox extends StatelessWidget {
       padding: stroke.dashed ? EdgeInsets.all(stroke.width).add(padding ?? EdgeInsets.zero) : padding,
       clipBehavior: clip ? Clip.antiAlias : Clip.none,
       decoration: BoxDecoration(
-        color: color,
+        color: fill,
         gradient: gradient,
         shape: shape,
         borderRadius: r,

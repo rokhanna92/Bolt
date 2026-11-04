@@ -9,6 +9,7 @@ import '../../data/models/bolt_data.dart';
 import '../../data/models/template.dart';
 import '../../data/seed/splits.dart';
 import '../../data/seed/templates.dart';
+import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
@@ -118,56 +119,71 @@ class LibraryScreen extends ConsumerWidget {
             ),
           ),
         ),
-        for (final (title, ids) in groups)
-          if (ids.isNotEmpty) ...[
-            const SizedBox(height: 20),
-            Kicker(tx(title).toUpperCase(), size: 10, spacing: .1),
-            const SizedBox(height: 8),
-            for (var r = 0; r < ids.length; r += 2) ...[
-              if (r > 0) const SizedBox(height: 8),
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final i in [r, r + 1]) ...[
-                      if (i > r) const SizedBox(width: 8),
-                      Expanded(
-                        child: i < ids.length
-                            ? _tplCard(
-                                context,
-                                d.tpls[ids[i]]!,
-                                onRemove: identical(ids, own) ? () => store.hideTemplate(ids[i]) : null,
-                              )
-                            : const SizedBox(),
-                      ),
+        const SizedBox(height: 12),
+        // Everything at a glance: categories shut, the first one open.
+        for (final (i, (title, ids)) in groups.where((g) => g.$2.isNotEmpty).indexed) ...[
+          if (i > 0) const SizedBox(height: 8),
+          _Category(
+            key: ValueKey(title),
+            title: tx(title),
+            preview: [for (final id in ids) tx(d.tpls[id]!.name)],
+            initiallyOpen: i == 0,
+            children: [
+              for (var r = 0; r < ids.length; r += 2) ...[
+                if (r > 0) const SizedBox(height: 8),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final i in [r, r + 1]) ...[
+                        if (i > r) const SizedBox(width: 8),
+                        Expanded(
+                          child: i < ids.length
+                              ? _tplCard(
+                                  context,
+                                  d.tpls[ids[i]]!,
+                                  onRemove: identical(ids, own) ? () => store.hideTemplate(ids[i]) : null,
+                                )
+                              : const SizedBox(),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+        const SizedBox(height: 8),
+        _Category(
+          key: const ValueKey('splits'),
+          title: tx('Weekly splits'),
+          preview: [for (final k in splitIds(d)) tx(splitOf(d, k).name)],
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Tap(
+                onTap: () => context.push('/split/${store.newSplit()}'),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text(tx('+ Build a split'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
                 ),
               ),
+            ),
+            const SizedBox(height: 6),
+            for (final k in splitIds(d)) ...[
+              _splitCard(
+                context,
+                d,
+                k,
+                coach
+                    ? plural(d.trainees.where((x) => x.split == k).length, 'trainee').toUpperCase()
+                    : (store.trOrNull(Account.ownerId)?.split == k ? tx('YOUR SPLIT') : ''),
+              ),
+              const SizedBox(height: 8),
             ],
           ],
-        const SizedBox(height: 24),
-        Row(
-          children: [
-            Expanded(child: SectionTitle(tx('Weekly splits'))),
-            Tap(
-              onTap: () => context.push('/split/${store.newSplit()}'),
-              child: Text(tx('+ Build a split'), style: BoltText.a(13, weight: 800, color: BoltColors.neon)),
-            ),
-          ],
         ),
-        const SizedBox(height: 10),
-        for (final k in splitIds(d)) ...[
-          _splitCard(
-            context,
-            d,
-            k,
-            coach
-                ? plural(d.trainees.where((x) => x.split == k).length, 'trainee').toUpperCase()
-                : (store.trOrNull(Account.ownerId)?.split == k ? tx('YOUR SPLIT') : ''),
-          ),
-          const SizedBox(height: 8),
-        ],
       ],
     );
   }
@@ -253,6 +269,96 @@ class LibraryScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// A category that opens to show its cards. Shut, it still names what is
+/// inside, so the whole library fits on a screen or two.
+class _Category extends StatefulWidget {
+  const _Category({
+    super.key,
+    required this.title,
+    required this.preview,
+    required this.children,
+    this.initiallyOpen = false,
+  });
+
+  final String title;
+  final List<String> preview;
+  final List<Widget> children;
+  final bool initiallyOpen;
+
+  @override
+  State<_Category> createState() => _CategoryState();
+}
+
+class _CategoryState extends State<_Category> {
+  late bool _open = widget.initiallyOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          button: true,
+          expanded: _open,
+          child: Tap(
+            onTap: () {
+              Haptics.play(Feel.tick);
+              setState(() => _open = !_open);
+            },
+            child: BoltBox(
+              color: BoltColors.surface1,
+              stroke: Stroke(_open ? BoltColors.line : BoltColors.lineSoft),
+              radius: 16,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(widget.title, style: BoltText.a(16, weight: 800)),
+                        // Open, the cards below say it already.
+                        if (!_open) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.preview.join(' · '),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: BoltText.a(12, color: BoltColors.muted),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text('${widget.preview.length}', style: BoltText.m(12, weight: 700, color: BoltColors.neon)),
+                  const SizedBox(width: 4),
+                  AnimatedRotation(
+                    turns: _open ? .25 : 0,
+                    duration: const Duration(milliseconds: 180),
+                    child: const Chevron(size: 18),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          alignment: Alignment.topCenter,
+          child: _open
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 4),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: widget.children),
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+      ],
     );
   }
 }
