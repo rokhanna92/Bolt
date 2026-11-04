@@ -31,6 +31,19 @@
   <script>
     // Without a share sheet the share library must fall back to a download.
     navigator.canShare ??= () => false;
+    // Android offers to install before Flutter is running, so it is kept here.
+    let installOffer = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      installOffer = e;
+      window.dispatchEvent(new Event('boltcaninstall'));
+    });
+    window.boltCanInstall = () => installOffer !== null;
+    window.boltInstall = async () => {
+      if (!installOffer) return false;
+      installOffer.prompt();
+      return (await installOffer.userChoice).outcome === 'accepted';
+    };
     window.addEventListener('flutter-first-frame', () => document.getElementById('splash').remove());
     // Keeps Bolt working with no signal. Written by tool/build_web.dart.
     if ('serviceWorker' in navigator) {

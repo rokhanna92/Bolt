@@ -14,7 +14,7 @@ import '../plaque/plaque_qr.dart';
 import '../profile/body_card.dart';
 import '../profile/role_switch.dart';
 import '../updates/update_sheet.dart';
-import '../profile/language_picker.dart';
+import '../profile/call_friend.dart';
 import '../profile/me_screen.dart' show ProfileHeader;
 
 class CoachProfileScreen extends ConsumerWidget {
@@ -117,7 +117,7 @@ class CoachProfileScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
         const RoleSwitch(),
-        const LanguagePicker(),
+        const CallFriendCard(),
         const SizedBox(height: 18),
         const UpdateCard(),
       ],

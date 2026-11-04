@@ -19,7 +19,7 @@ import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
 import '../sharing/import_sheet.dart';
 import '../updates/update_sheet.dart';
-import 'language_picker.dart';
+import 'call_friend.dart';
 import 'body_card.dart';
 import 'role_switch.dart';
 
@@ -137,7 +137,7 @@ class MeScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
         const RoleSwitch(),
-        const LanguagePicker(),
+        const CallFriendCard(),
         const SizedBox(height: 18),
         const UpdateCard(),
       ],

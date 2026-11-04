@@ -16,6 +16,7 @@ import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
+import '../profile/language_picker.dart';
 
 class _Row {
   const _Row(this.label, {this.sub, this.toggle, this.value, this.onTap, this.danger = false});
@@ -263,6 +264,8 @@ class SettingsScreen extends ConsumerWidget {
                 child: Column(children: [for (final r in rows) _row(r)]),
               ),
             ],
+            const SizedBox(height: 22),
+            const LanguagePicker(),
             // Wiping the phone sits apart, so it is never tapped on the way
             // to Privacy.
             const SizedBox(height: 32),

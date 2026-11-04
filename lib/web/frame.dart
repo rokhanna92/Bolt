@@ -3,7 +3,11 @@ import 'dart:math' as math;
 import 'dart:ui' show PointerDeviceKind;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:web/web.dart' as web;
+
+import '../data/bolt_store.dart';
+import 'install_guide.dart';
 
 /// Fits Bolt to a browser. Flutter reports no safe areas on the web, so on an
 /// iPhone the page would slide under the notch and home bar: they are read
@@ -32,6 +36,7 @@ class _WebFrameState extends State<WebFrame> {
     );
   late final _onResize = ((web.Event _) => _read()).toJS;
   EdgeInsets _safe = EdgeInsets.zero;
+  bool _skipGuide = false;
 
   @override
   void initState() {
@@ -80,7 +85,18 @@ class _WebFrameState extends State<WebFrame> {
                   padding: mq.padding + _safe,
                   viewPadding: mq.viewPadding + _safe,
                 ),
-                child: widget.child,
+                child: Stack(
+                  children: [
+                    widget.child,
+                    // A new phone in a browser tab gets the steps to install first.
+                    if (!_skipGuide && shouldGuideInstall())
+                      Consumer(
+                        builder: (context, ref, _) => ref.watch(boltProvider.select((d) => d.account == null))
+                            ? Positioned.fill(child: InstallGuide(onSkip: () => setState(() => _skipGuide = true)))
+                            : const SizedBox.shrink(),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),

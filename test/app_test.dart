@@ -6,7 +6,9 @@ import 'package:bolt/app.dart';
 import 'package:bolt/app/actions.dart' show openShortcut;
 import 'package:bolt/app/router.dart';
 import 'package:bolt/core/pwa.dart';
+import 'package:bolt/features/profile/language_picker.dart';
 import 'package:bolt/widgets/bolt_nav_bar.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:bolt/widgets/box.dart';
 import 'package:bolt/widgets/calendar_grid.dart';
 import 'package:bolt/data/bolt_store.dart';
@@ -1668,6 +1670,23 @@ void main() {
     expect(fillOf(const Key('page')), BoltColors.surface1);
     expect(fillOf(const Key('card')), isNull);
     expect(fillOf(const Key('surface')), isNull);
+  });
+
+  testWidgets('Me has Call a friend with a QR code, and the language moved to Settings', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapTab(tester, 'Me');
+    expect(find.byType(LanguagePicker), findsNothing);
+    await tapText(tester, 'Call a friend');
+    await settle(tester);
+    expect(find.byType(QrImageView), findsOneWidget);
+    expect(find.text('bolt.x3kk3x.cloud'), findsOneWidget);
+    await tester.tapAt(const Offset(20, 20));
+    await settle(tester);
+    c.read(routerProvider).push('/settings');
+    await settle(tester);
+    expect(find.byType(LanguagePicker), findsOneWidget);
+    await unmount(tester);
   });
 
   testWidgets('workouts open and close by category', (tester) async {
