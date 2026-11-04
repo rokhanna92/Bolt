@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/actions.dart';
 import '../../app/tick.dart';
 import '../../core/format.dart';
+import '../../core/pwa.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/bolt_data.dart';
 import '../../data/models/exercise.dart';
@@ -200,7 +201,7 @@ class TodayScreen extends ConsumerWidget {
           const SizedBox(height: 18),
           NewVersionCard(release: r, onClose: () => store.dismissHint('update:${r.version}')),
         ],
-        if (!d.settings.hintsSeen.contains(_newId)) ...[const SizedBox(height: 18), const _NewCard()],
+        if (!isPwa && !d.settings.hintsSeen.contains(_newId)) ...[const SizedBox(height: 18), const _NewCard()],
         if (tp?.status != SessionStatus.done && d.workout?.key != today) ...[
           const SizedBox(height: 12),
           ReadinessCard(trainee: t, session: tp, dayKey: today),

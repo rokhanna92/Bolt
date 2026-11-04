@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
+import '../../core/pwa.dart';
 import '../../data/bolt_store.dart';
 import '../../data/seed/learn.dart';
 import '../../services/haptics.dart';
@@ -95,83 +96,88 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               for (final n in news) ...[_NewsCard(n), const SizedBox(height: 8)],
               const SizedBox(height: 16),
             ],
-            const UpdateCard(),
-            const SizedBox(height: 26),
-            SectionTitle(tx('Water')),
-            const SizedBox(height: 10),
-            _WaterCard(on: s.water, hours: s.waterHours),
-            const SizedBox(height: 26),
-            SectionTitle(tx('Supplements')),
-            const SizedBox(height: 2),
-            Text(tx('Tap what you take every day and set its time.'), style: BoltText.a(12, color: BoltColors.muted)),
-            for (final (group, items) in kDailySupps) ...[
-              const SizedBox(height: 16),
-              Kicker(tx(group).toUpperCase()),
-              const SizedBox(height: 8),
-              for (var i = 0; i < items.length; i += 2) ...[
-                if (i > 0) const SizedBox(height: 8),
-                Row(
-                  children: [
-                    for (final x in items.skip(i).take(2)) ...[
-                      if (x != items[i]) const SizedBox(width: 8),
-                      Expanded(
-                        child: _SuppTile(
-                          x: x,
-                          minute: s.supps[x.name],
-                          onTap: () {
-                            Haptics.play(Feel.tick);
-                            final m = s.supps[x.name];
-                            if (m == null) store.toggleSupp(x.name);
-                            _pick(x, m ?? 9 * 60);
-                          },
-                          onRemove: () {
-                            Haptics.play(Feel.off);
-                            store.toggleSupp(x.name);
-                          },
+            // No push server and no APK: the bell only carries news here.
+            if (isPwa && news.isEmpty)
+              Text(tx('No news yet. Messages from Bolt show up here.'), style: BoltText.a(14, color: BoltColors.muted)),
+            if (!isPwa) ...[
+              const UpdateCard(),
+              const SizedBox(height: 26),
+              SectionTitle(tx('Water')),
+              const SizedBox(height: 10),
+              _WaterCard(on: s.water, hours: s.waterHours),
+              const SizedBox(height: 26),
+              SectionTitle(tx('Supplements')),
+              const SizedBox(height: 2),
+              Text(tx('Tap what you take every day and set its time.'), style: BoltText.a(12, color: BoltColors.muted)),
+              for (final (group, items) in kDailySupps) ...[
+                const SizedBox(height: 16),
+                Kicker(tx(group).toUpperCase()),
+                const SizedBox(height: 8),
+                for (var i = 0; i < items.length; i += 2) ...[
+                  if (i > 0) const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      for (final x in items.skip(i).take(2)) ...[
+                        if (x != items[i]) const SizedBox(width: 8),
+                        Expanded(
+                          child: _SuppTile(
+                            x: x,
+                            minute: s.supps[x.name],
+                            onTap: () {
+                              Haptics.play(Feel.tick);
+                              final m = s.supps[x.name];
+                              if (m == null) store.toggleSupp(x.name);
+                              _pick(x, m ?? 9 * 60);
+                            },
+                            onRemove: () {
+                              Haptics.play(Feel.off);
+                              store.toggleSupp(x.name);
+                            },
+                          ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
-                ),
-              ],
-            ],
-            const SizedBox(height: 26),
-            SectionTitle(tx('Training')),
-            const SizedBox(height: 10),
-            BoltBox(
-              color: BoltColors.surface1,
-              stroke: const Stroke(BoltColors.lineSoft),
-              radius: 18,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Column(
-                children: [
-                  if (isT)
-                    _ToggleRow(
-                      tx('Session reminders'),
-                      tx('{time} before a planned session, and a nudge after 3 days off', {
-                        'time': spanText(s.board.times.before),
-                      }),
-                      s.remind,
-                      () => store.toggleSetting('remind'),
-                    ),
-                  if (isT)
-                    _ToggleRow(
-                      tx('Morning brief'),
-                      tx('{time} on training days: your workout and what to beat', {
-                        'time': fromMin(s.board.times.brief),
-                      }),
-                      s.brief,
-                      () => store.toggleSetting('brief'),
-                    ),
-                  _ToggleRow(
-                    tx('Check-out reminder'),
-                    tx('If you are still checked in after {time}', {'time': spanText(s.board.times.checkout)}),
-                    s.checkout,
-                    () => store.toggleSetting('checkout'),
                   ),
                 ],
+              ],
+              const SizedBox(height: 26),
+              SectionTitle(tx('Training')),
+              const SizedBox(height: 10),
+              BoltBox(
+                color: BoltColors.surface1,
+                stroke: const Stroke(BoltColors.lineSoft),
+                radius: 18,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Column(
+                  children: [
+                    if (isT)
+                      _ToggleRow(
+                        tx('Session reminders'),
+                        tx('{time} before a planned session, and a nudge after 3 days off', {
+                          'time': spanText(s.board.times.before),
+                        }),
+                        s.remind,
+                        () => store.toggleSetting('remind'),
+                      ),
+                    if (isT)
+                      _ToggleRow(
+                        tx('Morning brief'),
+                        tx('{time} on training days: your workout and what to beat', {
+                          'time': fromMin(s.board.times.brief),
+                        }),
+                        s.brief,
+                        () => store.toggleSetting('brief'),
+                      ),
+                    _ToggleRow(
+                      tx('Check-out reminder'),
+                      tx('If you are still checked in after {time}', {'time': spanText(s.board.times.checkout)}),
+                      s.checkout,
+                      () => store.toggleSetting('checkout'),
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

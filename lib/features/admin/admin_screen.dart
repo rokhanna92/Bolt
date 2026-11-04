@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
+import '../../core/pwa.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/board.dart';
 import '../../services/haptics.dart';
@@ -139,7 +140,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
 
   Future<void> _edit(Push? p) async {
     final store = ref.read(boltProvider.notifier);
-    final draft = p?.copy() ?? Push(id: math.Random().nextInt(1 << 32).toRadixString(36), title: '', body: '');
+    final draft = p?.copy() ?? Push(id: math.Random().nextInt(0x100000000).toRadixString(36), title: '', body: '');
     final out = await showBoltSheet<Push?>(
       context,
       (_) => _PushSheet(
@@ -573,19 +574,21 @@ class _PushSheetState extends State<_PushSheet> {
             Navigator.of(context).pop(p);
           },
         ),
-        const SizedBox(height: 8),
-        OutlineButton(
-          label: tx('Try it on this phone'),
-          color: BoltColors.text,
-          borderColor: BoltColors.line,
-          weight: 700,
-          onTap: () {
-            final p = _read();
-            if (p.title.isEmpty) return Haptics.play(Feel.error);
-            Haptics.play(Feel.tap);
-            widget.onTest(p);
-          },
-        ),
+        if (!isPwa) ...[
+          const SizedBox(height: 8),
+          OutlineButton(
+            label: tx('Try it on this phone'),
+            color: BoltColors.text,
+            borderColor: BoltColors.line,
+            weight: 700,
+            onTap: () {
+              final p = _read();
+              if (p.title.isEmpty) return Haptics.play(Feel.error);
+              Haptics.play(Feel.tap);
+              widget.onTest(p);
+            },
+          ),
+        ],
         if (!widget.isNew) ...[
           const SizedBox(height: 8),
           OutlineButton(

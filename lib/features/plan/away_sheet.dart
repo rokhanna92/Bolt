@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../core/pwa.dart';
 import '../../data/bolt_store.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -36,7 +37,11 @@ class _AwaySheetState extends ConsumerState<AwaySheet> {
         Text(tx('Going away'), style: BoltText.a(20, weight: 900)),
         const SizedBox(height: 4),
         Text(
-          tx('Holiday, sick or a busy stretch: away weeks never break your streak and session reminders stay quiet.'),
+          isPwa
+              ? tx('Holiday, sick or a busy stretch: away weeks never break your streak.')
+              : tx(
+                  'Holiday, sick or a busy stretch: away weeks never break your streak and session reminders stay quiet.',
+                ),
           style: BoltText.a(13, color: BoltColors.muted, height: 1.45),
         ),
         FieldLabel(tx('FROM')),

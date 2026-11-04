@@ -11,6 +11,7 @@ import '../../app/router.dart';
 import '../../app/share.dart';
 import '../../app/tick.dart';
 import '../../core/format.dart';
+import '../../core/pwa.dart';
 import '../../core/units.dart';
 import '../../data/bolt_store.dart';
 import '../../data/lifts.dart';
@@ -485,7 +486,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
           onFinish: _finish,
           onWork: _onWork,
           onDiscard: _discard,
-          volumeLog: d.settings.volumeLog,
+          volumeLog: d.settings.volumeLog && !isPwa,
           header: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

@@ -3,10 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
+import '../../core/pwa.dart';
 
 import '../../app/share.dart';
 import '../../data/bolt_store.dart';
-import '../../services/backup.dart';
+import '../../services/backup.dart' if (dart.library.js_interop) '../../web/backup.dart';
 import '../../services/haptics.dart';
 import '../../services/rest_timer.dart';
 import '../../theme/text_styles.dart';
@@ -107,33 +108,36 @@ class SettingsScreen extends ConsumerWidget {
     final isT = d.account?.isTrainee ?? true;
     final insets = MediaQuery.paddingOf(context);
     final groups = <(String, List<_Row>)>[
-      (
-        tx('NOTIFICATIONS'),
-        [
-          if (isT)
+      if (!isPwa)
+        (
+          tx('NOTIFICATIONS'),
+          [
+            if (isT)
+              _Row(
+                tx('Session reminders'),
+                sub: tx('{time} before a planned session, and a nudge after 3 days off', {
+                  'time': spanText(s.board.times.before),
+                }),
+                toggle: s.remind,
+                onTap: () => store.toggleSetting('remind'),
+              ),
+            if (isT)
+              _Row(
+                tx('Morning brief'),
+                sub: tx('{time} on training days: your workout and what to beat', {
+                  'time': fromMin(s.board.times.brief),
+                }),
+                toggle: s.brief,
+                onTap: () => store.toggleSetting('brief'),
+              ),
             _Row(
-              tx('Session reminders'),
-              sub: tx('{time} before a planned session, and a nudge after 3 days off', {
-                'time': spanText(s.board.times.before),
-              }),
-              toggle: s.remind,
-              onTap: () => store.toggleSetting('remind'),
+              tx('Check-out reminder'),
+              sub: tx('If you are still checked in after {time}', {'time': spanText(s.board.times.checkout)}),
+              toggle: s.checkout,
+              onTap: () => store.toggleSetting('checkout'),
             ),
-          if (isT)
-            _Row(
-              tx('Morning brief'),
-              sub: tx('{time} on training days: your workout and what to beat', {'time': fromMin(s.board.times.brief)}),
-              toggle: s.brief,
-              onTap: () => store.toggleSetting('brief'),
-            ),
-          _Row(
-            tx('Check-out reminder'),
-            sub: tx('If you are still checked in after {time}', {'time': spanText(s.board.times.checkout)}),
-            toggle: s.checkout,
-            onTap: () => store.toggleSetting('checkout'),
-          ),
-        ],
-      ),
+          ],
+        ),
       (
         tx('LOOK'),
         [_Row(tx('Theme'), value: s.blue ? tx('Grey and blue') : tx('Orange and neon'), onTap: store.toggleTheme)],
@@ -143,12 +147,13 @@ class SettingsScreen extends ConsumerWidget {
         [
           _Row(tx('Units'), value: s.kg ? 'kg · cm' : 'lb · in', onTap: store.toggleUnits),
           _Row(tx('Week starts on'), value: s.mondayFirst ? tx('Monday') : tx('Sunday'), onTap: store.toggleWeekStart),
-          _Row(
-            tx('Haptics'),
-            sub: tx('Steppers tick, sets land with a thud, records swell'),
-            toggle: s.haptics,
-            onTap: () => store.toggleSetting('haptics'),
-          ),
+          if (!isPwa)
+            _Row(
+              tx('Haptics'),
+              sub: tx('Steppers tick, sets land with a thud, records swell'),
+              toggle: s.haptics,
+              onTap: () => store.toggleSetting('haptics'),
+            ),
           _Row(
             tx('Default rest timer'),
             sub: s.restAuto ? tx('Longer for big lifts, shorter for isolation') : null,
@@ -166,16 +171,19 @@ class SettingsScreen extends ConsumerWidget {
           ),
           _Row(
             tx('3-2-1 countdown'),
-            sub: tx('A tap, and a blip with a sound on, in the last 3 seconds of a rest'),
+            sub: isPwa
+                ? tx('A blip in the last 3 seconds of a rest, with a sound on')
+                : tx('A tap, and a blip with a sound on, in the last 3 seconds of a rest'),
             toggle: s.countdown,
             onTap: () => store.toggleSetting('countdown'),
           ),
-          _Row(
-            tx('Volume down logs a set'),
-            sub: tx('During a workout, press volume down instead of the big button'),
-            toggle: s.volumeLog,
-            onTap: () => store.toggleSetting('volumeLog'),
-          ),
+          if (!isPwa)
+            _Row(
+              tx('Volume down logs a set'),
+              sub: tx('During a workout, press volume down instead of the big button'),
+              toggle: s.volumeLog,
+              onTap: () => store.toggleSetting('volumeLog'),
+            ),
         ],
       ),
       (
@@ -207,7 +215,9 @@ class SettingsScreen extends ConsumerWidget {
         [
           _Row(
             tx('Back up to a file'),
-            sub: tx('Save everything to Drive, Downloads or any folder'),
+            sub: isPwa
+                ? tx('Removing Bolt from your home screen erases its data. Keep a backup in Files.')
+                : tx('Save everything to Drive, Downloads or any folder'),
             value: '',
             onTap: () => _backup(ref),
           ),
