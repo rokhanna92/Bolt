@@ -149,21 +149,11 @@ class ChoiceChips extends StatelessWidget {
 /// Weekly split cards with a 7-day preview, like the Library: the built-in
 /// splits, then the owner's own.
 class SplitPicker extends StatelessWidget {
-  const SplitPicker({
-    super.key,
-    required this.selected,
-    required this.onSelect,
-    required this.data,
-    this.startShut = false,
-    this.onEdit,
-  });
+  const SplitPicker({super.key, required this.selected, required this.onSelect, required this.data, this.onEdit});
 
   final String selected;
   final ValueChanged<String> onSelect;
   final BoltData data;
-
-  /// Every category shut at first, for someone seeing them for the first time.
-  final bool startShut;
 
   /// Shows "Edit" on custom splits.
   final ValueChanged<String>? onEdit;
@@ -196,7 +186,6 @@ class SplitPicker extends StatelessWidget {
             key: ValueKey(title),
             title: title,
             preview: [for (final k in group) tx(splitOf(data, k).name)],
-            initiallyOpen: !startShut && group.contains(selected),
             summary: group.contains(selected) ? tx(splitOf(data, selected).name) : null,
             highlight: group.contains(selected),
             children: [for (final k in group) _card(k)],

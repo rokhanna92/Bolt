@@ -127,14 +127,13 @@ class LibraryScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 12),
-        // Everything at a glance: categories shut, the first one open.
+        // Everything at a glance: every category starts shut.
         for (final (i, (title, ids)) in groups.where((g) => g.$2.isNotEmpty).indexed) ...[
           if (i > 0) const SizedBox(height: 8),
           BoltAccordion(
             key: ValueKey(title),
             title: tx(title),
             preview: [for (final id in ids) tx(d.tpls[id]!.name)],
-            initiallyOpen: i == 0,
             children: [
               for (var r = 0; r < ids.length; r += 2) ...[
                 if (r > 0) const SizedBox(height: 8),
@@ -306,17 +305,25 @@ class _CreateTile extends StatelessWidget {
         color: primary ? BoltColors.neon : BoltColors.surface1,
         stroke: Stroke(primary ? BoltColors.neon : BoltColors.line),
         radius: 16,
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        // Icon and words side by side, so nothing sinks to the bottom.
+        child: Row(
           children: [
             Icon(icon, size: 24, color: primary ? BoltColors.onNeon : BoltColors.neon),
-            const SizedBox(height: 10),
-            Text(title, style: BoltText.a(15, weight: 800, color: fg)),
-            const SizedBox(height: 3),
-            Text(
-              sub,
-              style: BoltText.a(12, color: primary ? BoltColors.onNeon.withValues(alpha: .75) : BoltColors.muted),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: BoltText.a(14, weight: 800, color: fg)),
+                  const SizedBox(height: 2),
+                  Text(
+                    sub,
+                    style: BoltText.a(11, color: primary ? BoltColors.onNeon.withValues(alpha: .75) : BoltColors.muted),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

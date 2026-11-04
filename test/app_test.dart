@@ -656,6 +656,8 @@ void main() {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     await tapTab(tester, 'Workouts');
+    await tapText(tester, 'Classic');
+    await settle(tester);
     await tapText(tester, 'Push');
     expect(find.text('VS YOUR STANDARD'), findsOneWidget);
     final bench = c.read(boltProvider).tpls['push']!.ex.first;
@@ -668,6 +670,8 @@ void main() {
     expect(bench.reps, 'max');
     await back(tester);
     expect(tester.getTopLeft(find.text('Your workouts')).dy, lessThan(tester.getTopLeft(find.text('Classic')).dy));
+    await tapText(tester, 'Your workouts');
+    await settle(tester);
     await tapLabel(tester, 'Close');
     expect(find.text('Your workouts'), findsNothing);
     expect(c.read(boltProvider).tpls['push']!.ex.first.load, '75 kg');
@@ -688,6 +692,8 @@ void main() {
     expect(find.text('▲ 11% above your standard'), findsOneWidget);
     await tapText(tester, 'Done');
     await tapTab(tester, 'Workouts');
+    await tapText(tester, 'Classic');
+    await settle(tester);
     await tapText(tester, 'Push');
     await tapText(tester, '+11%');
     expect(find.text('80 kg × 5 · standard 70 kg × 6'), findsOneWidget);
@@ -1089,6 +1095,8 @@ void main() {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     await tapTab(tester, 'Workouts');
+    await tapText(tester, 'Classic');
+    await settle(tester);
     await tapText(tester, 'Push');
     List<String> names() => c.read(boltProvider).tpls['push']!.ex.map((e) => e.name).toList();
     expect(names().take(2), ['Bench Press', 'Overhead Press']);
@@ -1740,8 +1748,11 @@ void main() {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     await tapTab(tester, 'Workouts');
-    expect(find.text('Push'), findsOneWidget);
+    expect(find.text('Push'), findsNothing);
     expect(find.text('Chest'), findsNothing);
+    await tapText(tester, 'Classic');
+    await settle(tester);
+    expect(find.text('Push'), findsOneWidget);
     await tapText(tester, 'One muscle a day');
     await settle(tester);
     expect(find.text('Chest'), findsOneWidget);

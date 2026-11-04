@@ -290,7 +290,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           FieldLabel(tx('GOAL')),
           GoalPicker(selected: _goal, onSelect: (g) => setState(() => _goal = g)),
           FieldLabel(tx('WEEKLY SPLIT')),
-          SplitPicker(selected: _split, data: d, startShut: true, onSelect: (s) => setState(() => _split = s)),
+          SplitPicker(selected: _split, data: d, onSelect: (s) => setState(() => _split = s)),
         ],
         if (_role == Role.trainee) ...[
           FieldLabel(tx('YOUR COACH')),
