@@ -127,12 +127,6 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => store.toggleSetting('brief'),
             ),
           _Row(
-            tx('Daily reminders'),
-            sub: tx('Water, supplements and updates'),
-            value: '',
-            onTap: () => context.push('/notifications'),
-          ),
-          _Row(
             tx('Check-out reminder'),
             sub: tx('If you are still checked in after {time}', {'time': spanText(s.board.times.checkout)}),
             toggle: s.checkout,

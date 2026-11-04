@@ -429,8 +429,6 @@ const kSrUi = <String, String>{
   'Bolt keeps everything on this phone: your profile, body measurements, plans, workouts and gym visits. There is no account and nothing is uploaded.\n\nA plan or update only leaves the phone when you share it yourself, as a message to your coach or trainee.': 'Bolt čuva sve na ovom telefonu: tvoj profil, mere tela, planove, treninge i dolaske u teretanu. Nema naloga i ništa se ne šalje na internet.\n\nPlan ili izveštaj napušta telefon samo kad ga sam podeliš, kao poruku treneru ili klijentu.',
   'NOTIFICATIONS': 'OBAVEŠTENJA',
   'Session reminders': 'Podsetnici za trening',
-  'Daily reminders': 'Dnevni podsetnici',
-  'Water, supplements and updates': 'Voda, suplementi i ažuriranja',
   'Water': 'Voda',
   'Time for a cup of water': 'Vreme je za čašu vode',
   'A cup of water every {time}, from 09:00 to 21:00': 'Čaša vode na svakih {time}, od 09:00 do 21:00',
