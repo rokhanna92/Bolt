@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/format.dart';
+import '../core/pwa.dart';
 import '../data/bolt_store.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
@@ -21,6 +22,9 @@ class NavItem {
   final String? initials;
   final double pillWidth;
 }
+
+/// On the PWA the blue theme's nav bar is black, not blue.
+Color get _navBackground => isPwa && BoltColors.blue ? Colors.black : BoltColors.page;
 
 /// Five-slot bottom nav with the raised neon button in the middle: the gym
 /// scanner for people who train, the calendar for coaches. Icons only; the
@@ -70,7 +74,7 @@ class BoltNavBar extends ConsumerWidget {
             right: 0,
             bottom: 0,
             height: height + bottom,
-            child: ColoredBox(color: BoltColors.page),
+            child: ColoredBox(color: _navBackground),
           ),
           Positioned(
             left: 0,
@@ -83,7 +87,7 @@ class BoltNavBar extends ConsumerWidget {
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
-                    colors: [BoltColors.page, BoltColors.page.withAlpha(0)],
+                    colors: [_navBackground, _navBackground.withAlpha(0)],
                   ),
                 ),
               ),
@@ -163,7 +167,7 @@ class BoltNavBar extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: BoltColors.neon,
                         shape: BoxShape.circle,
-                        border: Border.all(color: BoltColors.page, width: 2),
+                        border: Border.all(color: _navBackground, width: 2),
                       ),
                     ),
                   ),

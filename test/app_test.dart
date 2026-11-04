@@ -6,6 +6,7 @@ import 'package:bolt/app.dart';
 import 'package:bolt/app/actions.dart' show openShortcut;
 import 'package:bolt/app/router.dart';
 import 'package:bolt/core/pwa.dart';
+import 'package:bolt/widgets/bolt_nav_bar.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/board.dart';
@@ -1642,6 +1643,17 @@ void main() {
       for (final gone in ['App', 'Water', 'Supplements', 'Training', 'Session reminders', 'Morning brief']) {
         expect(find.text(gone), findsNothing, reason: gone);
       }
+      await unmount(tester);
+    });
+
+    testWidgets('the blue theme has a black nav bar', (tester) async {
+      final c = await pumpApp(tester);
+      await onboard(tester, 'On my own', 'Dani');
+      c.read(boltProvider.notifier).toggleTheme();
+      await settle(tester);
+      final bar = find.descendant(of: find.byType(BoltNavBar), matching: find.byType(ColoredBox));
+      expect(tester.widget<ColoredBox>(bar.first).color, Colors.black);
+      c.read(boltProvider.notifier).toggleTheme();
       await unmount(tester);
     });
 
