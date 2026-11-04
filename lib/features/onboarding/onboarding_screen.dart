@@ -389,7 +389,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           height: 42,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: on == metric ? BoltColors.neon : BoltColors.neon.withAlpha(0x00),
+            color: on == metric
+                ? BoltColors.neon
+                : (BoltColors.blue ? BoltColors.surface1 : BoltColors.neon.withAlpha(0x00)),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: on == metric ? BoltColors.neon : BoltColors.line),
           ),

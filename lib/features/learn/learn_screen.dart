@@ -92,7 +92,9 @@ class LearnScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 14),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: tab == k ? BoltColors.neon : BoltColors.neon.withAlpha(0x00),
+                          color: tab == k
+                              ? BoltColors.neon
+                              : (BoltColors.blue ? BoltColors.surface1 : BoltColors.neon.withAlpha(0x00)),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: tab == k ? BoltColors.neon : BoltColors.line),
                         ),
