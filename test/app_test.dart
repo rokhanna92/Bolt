@@ -473,7 +473,7 @@ void main() {
     await settle(tester);
     expect(find.text('Grey and blue'), findsOneWidget);
     expect(c.read(boltProvider).settings.blue, isTrue);
-    expect(BoltColors.page, const Color(0xFF0000FF));
+    expect(BoltColors.page, const Color(0xFF00008E));
     expect(BoltColors.neon, const Color(0xFFFFFFFF));
     expect(BoltColors.onNeon, const Color(0xFF000000));
     expect(BoltColors.glow(0x40).a, 0);

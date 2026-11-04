@@ -2,7 +2,7 @@ import 'package:flutter/painting.dart';
 
 /// Design tokens from `Bolt UI.html`. One accent (neon) plus warn for injuries.
 /// The grey and blue theme is built for reading: a blue page, black cards, and
-/// white and grey for text and buttons, because #0000FF is too dark to read on
+/// white and grey for text and buttons, because that blue is too dark to read on
 /// black. So [neon] means "the accent", which is white there.
 abstract final class BoltColors {
   /// The grey and blue theme. Set from settings; the app rebuilds on a change.
@@ -26,7 +26,7 @@ abstract final class BoltColors {
   static Color get warn => blue ? const Color(0xFFC8C8C8) : const Color(0xFFFF7A45);
 
   /// The background of every page.
-  static Color get page => blue ? const Color(0xFF0000FF) : ink;
+  static Color get page => blue ? const Color(0xFF00008E) : ink;
 
   /// A glow around something lit up. None on the blue page, where it only blurs.
   static Color glow(int alpha) => blue ? const Color(0x00000000) : neon.withAlpha(alpha);
