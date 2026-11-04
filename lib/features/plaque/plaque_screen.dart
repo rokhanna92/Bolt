@@ -1,15 +1,13 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../l10n/l10n.dart';
 
+import '../../app/share.dart';
 import '../../data/bolt_store.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -36,16 +34,8 @@ class _PlaqueScreenState extends ConsumerState<PlaqueScreen> {
       final boundary = _plaque.currentContext!.findRenderObject()! as RenderRepaintBoundary;
       final image = await boundary.toImage(pixelRatio: 6);
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/bolt-plaque.png');
-      await file.writeAsBytes(bytes!.buffer.asUint8List());
       store.toast(tx('Plaque file ready'));
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(file.path, mimeType: 'image/png')],
-          subject: tx('Bolt entrance plaque'),
-        ),
-      );
+      await sharePng(bytes!.buffer.asUint8List(), 'bolt-plaque.png', tx('Bolt entrance plaque'));
     } catch (_) {
       store.toast(tx('Could not create the print file'));
     }

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' if (dart.library.js_interop) '../web/io.dart';
 
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:path_provider/path_provider.dart' if (dart.library.js_interop) '../web/paths.dart';
 
 /// Where Bolt's releases are published.
 const kReleasesApi = 'https://api.github.com/repos/rokhanna92/Bolt/releases/latest';

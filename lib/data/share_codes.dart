@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io' show gzip;
+import 'dart:io' if (dart.library.js_interop) '../web/io.dart' show gzip;
 
 /// Plans and updates travel between phones as a short code inside a normal
 /// message (WhatsApp, email, anything that carries text). There is no server:

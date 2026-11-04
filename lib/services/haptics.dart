@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'dart:io' if (dart.library.js_interop) '../web/io.dart' show Platform;
 
 import 'package:flutter/services.dart';
 

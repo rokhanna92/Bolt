@@ -1,13 +1,11 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
+import '../../app/share.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/lifts.dart';
@@ -27,15 +25,7 @@ Future<void> shareCard(GlobalKey key, String file, String subject, BoltStore sto
     final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
     final image = await boundary.toImage(pixelRatio: 4);
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    final dir = await getTemporaryDirectory();
-    final f = File('${dir.path}/$file');
-    await f.writeAsBytes(bytes!.buffer.asUint8List());
-    await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(f.path, mimeType: 'image/png')],
-        subject: subject,
-      ),
-    );
+    await sharePng(bytes!.buffer.asUint8List(), file, subject);
   } catch (_) {
     store.toast(tx('Could not create the image'));
   }

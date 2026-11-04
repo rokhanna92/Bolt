@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' if (dart.library.js_interop) '../web/io.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

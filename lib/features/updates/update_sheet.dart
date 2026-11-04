@@ -1,8 +1,9 @@
-import 'dart:io';
+import 'dart:io' if (dart.library.js_interop) '../../web/io.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/pwa.dart';
 import '../../l10n/l10n.dart';
 
 import '../../services/updater.dart';
@@ -30,6 +31,7 @@ class NewRelease extends Notifier<Release?> {
   /// Asks GitHub at most every 6 hours; a failed check keeps what was known.
   /// Also keeps the daily check with Bolt closed going, in today's language.
   Future<void> refresh() async {
+    if (isPwa) return;
     final last = _at;
     if (last != null && DateTime.now().difference(last).inHours < 6) return;
     _at = DateTime.now();

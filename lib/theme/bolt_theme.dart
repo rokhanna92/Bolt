@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'text_styles.dart';
@@ -8,6 +9,8 @@ import 'tokens.dart';
 ThemeData buildBoltTheme() {
   final base = ThemeData(
     useMaterial3: true,
+    // A browser on an iPhone would otherwise scroll and animate like iOS.
+    platform: kIsWeb ? TargetPlatform.android : null,
     brightness: Brightness.dark,
     fontFamily: BoltText.archivo,
     scaffoldBackgroundColor: BoltColors.page,

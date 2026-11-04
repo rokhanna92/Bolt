@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/actions.dart';
 import 'app/router.dart';
 import 'core/format.dart';
+import 'core/pwa.dart';
 import 'data/bolt_store.dart';
 import 'data/level.dart';
 import 'data/models/session.dart';
@@ -14,6 +15,7 @@ import 'features/progress/recovery_card.dart' show readyMuscles;
 import 'features/updates/update_sheet.dart' show newReleaseProvider;
 import 'services/home_widget.dart';
 import 'services/notice_board.dart';
+import 'services/platform_setup.dart' if (dart.library.js_interop) 'web/setup.dart';
 import 'services/shortcuts.dart';
 import 'theme/bolt_theme.dart';
 import 'widgets/toast.dart';
@@ -45,6 +47,7 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
   /// orange; the days-off line goes ahead a week so it shows even when Bolt
   /// stays closed.
   void _pushWidget() {
+    if (isPwa) return;
     final d = ref.read(boltProvider);
     final store = ref.read(boltProvider.notifier);
     final a = d.account;
@@ -121,7 +124,7 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
       store.syncGymTimer();
       _refreshBoard();
       ref.read(newReleaseProvider.notifier).refresh();
-      AppShortcuts.listen(openShortcut);
+      if (!isPwa) AppShortcuts.listen(openShortcut);
       _pushWidget();
     });
     // Keep the home screen widget in step with every change.
@@ -163,9 +166,8 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
       // A language or theme change rebuilds every screen, constant widgets included.
       builder: (context, child) => KeyedSubtree(
         key: ValueKey(ref.watch(boltProvider.select((d) => '${d.settings.lang}/${d.settings.blue}'))),
-        child: MediaQuery.withClampedTextScaling(
-          maxScaleFactor: 1.15,
-          child: Stack(children: [child!, const ToastLayer()]),
+        child: platformFrame(
+          MediaQuery.withClampedTextScaling(maxScaleFactor: 1.15, child: Stack(children: [child!, const ToastLayer()])),
         ),
       ),
     );

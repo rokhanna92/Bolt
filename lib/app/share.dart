@@ -1,5 +1,9 @@
+import 'dart:io' if (dart.library.js_interop) '../web/io.dart';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart' if (dart.library.js_interop) '../web/paths.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../l10n/l10n.dart';
@@ -14,12 +18,29 @@ import '../widgets/common.dart';
 /// it can be pasted into any chat. Returns a hint for a toast when copied.
 Future<String?> shareMessage(String text, {required String subject}) async {
   try {
-    await SharePlus.instance.share(ShareParams(text: text, subject: subject));
+    // Without a share sheet (a computer's browser) copy it, rather than
+    // opening an email.
+    await SharePlus.instance.share(ShareParams(text: text, subject: subject, mailToFallbackEnabled: false));
     return null;
   } catch (_) {
     await Clipboard.setData(ClipboardData(text: text));
     return tx('Copied · paste it into a message');
   }
+}
+
+/// Opens the share sheet with a PNG. A browser has no files to point at, so
+/// there it is handed over in memory, and downloads without a share sheet.
+Future<void> sharePng(Uint8List png, String name, String subject) async {
+  final XFile file;
+  if (kIsWeb) {
+    file = XFile.fromData(png, name: name, mimeType: 'image/png');
+  } else {
+    final dir = await getTemporaryDirectory();
+    final f = File('${dir.path}/$name');
+    await f.writeAsBytes(png);
+    file = XFile(f.path, mimeType: 'image/png');
+  }
+  await SharePlus.instance.share(ShareParams(files: [file], subject: subject));
 }
 
 /// Text on the clipboard if it holds a Bolt code.
