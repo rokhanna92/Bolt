@@ -33,7 +33,7 @@ Future<void> main() async {
     hash(utf8.encode(path));
     hash(f.readAsBytesSync());
     if (_skip(path)) continue;
-    files.add(path);
+    files.add(path == 'index.html' ? './' : path);
   }
 
   final worker = File('build/web/sw.js');

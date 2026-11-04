@@ -53,8 +53,10 @@ self.addEventListener('fetch', (event) => {
   // Everything else from elsewhere (coach list, news) is always live.
   if (url.origin !== self.location.origin) return;
 
+  // The page is kept as './': hosts like Cloudflare redirect index.html to it,
+  // and Chrome refuses to open a saved redirect as a page.
   if (req.mode === 'navigate') {
-    event.respondWith(caches.match('index.html').then((hit) => hit || fetch(req)));
+    event.respondWith(caches.match('./').then((hit) => (hit && !hit.redirected ? hit : fetch(req))));
     return;
   }
 
