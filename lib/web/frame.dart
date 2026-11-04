@@ -24,7 +24,6 @@ class WebFrame extends StatefulWidget {
 
 class _WebFrameState extends State<WebFrame> {
   static const _maxWidth = 480.0;
-  static const _maxBottomInset = 14.0;
 
   // padding: env(...) on a hidden element; the browser works out the pixels.
   late final _probe = web.HTMLDivElement()
@@ -73,14 +72,13 @@ class _WebFrameState extends State<WebFrame> {
     final mq = MediaQuery.of(context);
     final width = math.min(mq.size.width, _maxWidth);
     // The larger of the two, never both: a browser that reports its own insets
-    // would otherwise count them twice. The bottom is capped so the nav bar
-    // sits low as on Android: the full iPhone inset leaves a band under it,
-    // and the icons still clear the home bar.
+    // would otherwise count them twice. Nothing is kept at the bottom, so the
+    // nav bar sits right down at the edge, as on Android.
     final padding = EdgeInsets.fromLTRB(
       math.max(mq.padding.left, _safe.left),
       math.max(mq.padding.top, _safe.top),
       math.max(mq.padding.right, _safe.right),
-      math.min(math.max(mq.padding.bottom, _safe.bottom), _maxBottomInset),
+      0,
     );
     return ScrollConfiguration(
       behavior: const _WebScroll(),

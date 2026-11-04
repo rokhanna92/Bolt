@@ -52,20 +52,19 @@
   </script>
   <script>
     // An installed iPhone app can report a page shorter than its screen, which
-    // leaves a band under the app. Flutter sizes itself from these values, so
-    // they give the whole screen, except while typing, when the keyboard counts.
+    // leaves a band under the app. On iOS Flutter sizes itself from the root
+    // element's clientHeight, so that gives the whole screen.
     (() => {
-      if (!navigator.standalone || !window.visualViewport) return;
-      const real = Object.getOwnPropertyDescriptor(VisualViewport.prototype, 'height');
+      const iOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      const installed = navigator.standalone || !matchMedia('(display-mode: browser)').matches;
+      if (!iOS || !installed) return;
+      const root = document.documentElement;
+      const real = Object.getOwnPropertyDescriptor(Element.prototype, 'clientHeight');
       const full = () => (innerWidth < innerHeight ? screen.height : screen.width);
-      const typing = () => /INPUT|TEXTAREA/.test(document.activeElement?.tagName ?? '');
-      Object.defineProperty(VisualViewport.prototype, 'height', {
-        get() {
-          const h = real.get.call(this);
-          return typing() ? h : Math.max(h, full());
-        },
+      Object.defineProperty(root, 'clientHeight', {
+        get: () => Math.max(real.get.call(root), full()),
       });
-      const size = () => document.documentElement.style.setProperty('--bolt-screen', `${full()}px`);
+      const size = () => root.style.setProperty('--bolt-screen', `${full()}px`);
       size();
       addEventListener('resize', size);
       document.head.insertAdjacentHTML(
