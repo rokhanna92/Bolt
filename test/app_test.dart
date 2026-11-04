@@ -414,6 +414,27 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('daily reminders: water switch, supplement buttons and their times', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    c.read(routerProvider).push('/settings');
+    await settle(tester);
+    await tapText(tester, 'Daily reminders');
+    await settle(tester);
+    expect(find.text('A cup of water every 3 h, from 09:00 to 21:00'), findsOneWidget);
+    expect(find.text('2 h'), findsNothing);
+    await tapText(tester, 'Water');
+    await settle(tester);
+    await tapText(tester, '2 h');
+    await settle(tester);
+    expect(c.read(boltProvider).settings.waterHours, 2);
+    await tapText(tester, 'Magnesium');
+    await settle(tester);
+    expect(c.read(boltProvider).settings.supps, {'Magnesium': 9 * 60});
+    expect(find.text('09:00'), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('a check-in on a rest day gives no training advice and shows on the day', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

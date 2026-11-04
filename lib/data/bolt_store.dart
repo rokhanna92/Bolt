@@ -156,6 +156,7 @@ class BoltStore extends Notifier<BoltData> {
     appLang = l;
     _commit();
     syncBroadcasts();
+    syncDailyReminders();
   }
 
   DateTime get now => ref.read(clockProvider)();
@@ -372,6 +373,7 @@ class BoltStore extends Notifier<BoltData> {
     _notify.cancelCheckout();
     _notify.clearInGym();
     _notify.replaceSessionReminders(const []);
+    _notify.replaceDailyReminders(const []);
     final lang = state.settings.lang;
     state = freshData()..settings.lang = lang;
     appFemale = false;
@@ -1414,6 +1416,7 @@ class BoltStore extends Notifier<BoltData> {
       appFemale = _ownerFemale(d);
       ref.read(repositoryProvider).scheduleSave(state);
       syncSessionReminders();
+      syncDailyReminders();
       syncGymTimer();
       _toast(tx('Backup restored'));
       return null;
@@ -2181,9 +2184,59 @@ class BoltStore extends Notifier<BoltData> {
       case 'haptics':
         s.haptics = !s.haptics;
         Haptics.enabled = s.haptics;
+      case 'water':
+        s.water = !s.water;
     }
     _commit();
     if (key == 'remind' || key == 'brief') syncSessionReminders();
+    if (key == 'water') syncDailyReminders();
+  }
+
+  void setWaterHours(int hours) {
+    state.settings.waterHours = hours;
+    _commit();
+    syncDailyReminders();
+  }
+
+  /// Adds a daily supplement at 9:00, or takes it off again.
+  void toggleSupp(String name) {
+    final s = state.settings.supps;
+    if (s.remove(name) == null) s[name] = 9 * 60;
+    _commit();
+    syncDailyReminders();
+  }
+
+  void setSuppTime(String name, int minute) {
+    state.settings.supps[name] = minute;
+    _commit();
+    syncDailyReminders();
+  }
+
+  /// Water every few hours from 9:00 to 21:00, and supplements at their times,
+  /// with those due at the same minute in one notification.
+  void syncDailyReminders() {
+    final s = state.settings;
+    if (state.account == null) {
+      _notify.replaceDailyReminders(const []);
+      return;
+    }
+    DateTime next(int minute) {
+      final n = now;
+      final at = DateTime(n.year, n.month, n.day, 0, minute);
+      return at.isAfter(n) ? at : DateTime(n.year, n.month, n.day + 1, 0, minute);
+    }
+
+    final list = <Reminder>[
+      if (s.water)
+        for (var m = 9 * 60; m <= 21 * 60; m += s.waterHours * 60)
+          Reminder(at: next(m), title: tx('Water'), body: tx('Time for a cup of water')),
+    ];
+    final byTime = <int, List<String>>{};
+    s.supps.forEach((name, m) => byTime.putIfAbsent(m, () => []).add(tx(name)));
+    byTime.forEach((m, names) {
+      list.add(Reminder(at: next(m), title: tx('Time for your supplements'), body: names.join(', ')));
+    });
+    _notify.replaceDailyReminders(list);
   }
 
   /// True while this phone has to enter its key before the app opens.

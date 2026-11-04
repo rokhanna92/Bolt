@@ -116,6 +116,7 @@ class _BoltAppState extends ConsumerState<BoltApp> with WidgetsBindingObserver {
         showRankUp();
       }
       store.syncSessionReminders();
+      store.syncDailyReminders();
       store.syncBroadcasts();
       store.syncGymTimer();
       _refreshBoard();

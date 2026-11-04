@@ -1,5 +1,6 @@
 import 'package:bolt/data/repositories/bolt_repository.dart';
 import 'package:bolt/data/models/people.dart';
+import 'package:bolt/data/models/settings.dart';
 import 'package:bolt/core/units.dart';
 
 import 'dart:io';
@@ -931,6 +932,32 @@ void ownerTests() {
       expect(n.last.first.title, '3 days off');
     });
 
+    test('water and supplement reminders follow the daily setup', () {
+      final n = _Reminders();
+      final f = Fresh(wed, n)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      expect(f.store.state.settings.waterHours, 3);
+      f.store.toggleSetting('water');
+      expect([for (final r in n.daily) hm(r.at)], ['09:00', '12:00', '15:00', '18:00', '21:00']);
+      expect(n.daily.every((r) => r.at.isAfter(wed)), isTrue);
+
+      f.store.setWaterHours(4);
+      expect([for (final r in n.daily) hm(r.at)], ['09:00', '13:00', '17:00', '21:00']);
+      f.store.toggleSetting('water');
+      expect(n.daily, isEmpty);
+
+      f.store.toggleSupp('Magnesium');
+      f.store.toggleSupp('Zinc');
+      f.store.setSuppTime('Magnesium', 22 * 60);
+      f.store.setSuppTime('Zinc', 22 * 60);
+      f.store.toggleSupp('Vitamin D3');
+      expect({for (final r in n.daily) hm(r.at): r.body}, {'22:00': 'Magnesium, Zinc', '09:00': 'Vitamin D3'});
+
+      final back = AppSettings.fromJson(f.store.state.settings.toJson());
+      expect(back.supps, {'Magnesium': 22 * 60, 'Zinc': 22 * 60, 'Vitamin D3': 9 * 60});
+      f.store.toggleSupp('Zinc');
+      expect(f.store.state.settings.supps.containsKey('Zinc'), isFalse);
+    });
+
     test('the owner\'s notices move reminder times and push to the right people', () {
       final n = _Reminders();
       final f = Fresh(wed, n)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
@@ -1345,6 +1372,11 @@ void ownerTests() {
 class _Reminders extends NoopNotifications {
   List<Reminder> last = const [];
 
+  List<Reminder> daily = const [];
+
   @override
   Future<void> replaceSessionReminders(List<Reminder> list) async => last = list;
+
+  @override
+  Future<void> replaceDailyReminders(List<Reminder> list) async => daily = list;
 }

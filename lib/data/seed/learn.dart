@@ -155,6 +155,20 @@ class Supplement {
   final String note;
 }
 
+/// The supplements people take every day, offered as daily reminders.
+const kDailySupplements = <String>[
+  'Creatine monohydrate',
+  'Protein powder',
+  'Vitamin D3',
+  'Omega-3 (fish oil)',
+  'Magnesium',
+  'Zinc',
+  'Multivitamin',
+  'Collagen + vitamin C',
+  'Probiotics',
+  'Beta-alanine',
+];
+
 const kSupplements = <Supplement>[
   Supplement(
     name: 'Creatine monohydrate',

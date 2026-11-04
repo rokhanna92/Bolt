@@ -25,6 +25,10 @@ abstract class BoltNotifications {
   /// Replaces every scheduled session reminder with [list].
   Future<void> replaceSessionReminders(List<Reminder> list);
 
+  /// Replaces every daily reminder with [list]. Each repeats at its time of
+  /// day from [Reminder.at] on, even while the app stays closed.
+  Future<void> replaceDailyReminders(List<Reminder> list);
+
   /// A live gym timer in the notification shade, counting up from [since].
   Future<void> showInGym(DateTime since, String sinceText);
   Future<void> clearInGym();
@@ -51,6 +55,9 @@ class NoopNotifications implements BoltNotifications {
 
   @override
   Future<void> replaceSessionReminders(List<Reminder> list) async {}
+
+  @override
+  Future<void> replaceDailyReminders(List<Reminder> list) async {}
 
   @override
   Future<void> showInGym(DateTime since, String sinceText) async {}
@@ -84,6 +91,8 @@ class LocalNotifications implements BoltNotifications {
   static const _pushBase = 300;
   static const _pushSlots = 40;
   static const _nowId = 4;
+  static const _dailyBase = 400;
+  static const _dailySlots = 40;
 
   static const _details = NotificationDetails(
     android: AndroidNotificationDetails(
@@ -244,6 +253,28 @@ class LocalNotifications implements BoltNotifications {
     try {
       await _ensurePermission();
       await _plugin.show(id: _nowId, title: title, body: body, notificationDetails: _details);
+    } catch (_) {}
+  }
+
+  @override
+  Future<void> replaceDailyReminders(List<Reminder> list) async {
+    try {
+      for (var i = 0; i < _dailySlots; i++) {
+        await _plugin.cancel(id: _dailyBase + i);
+      }
+      if (list.isEmpty) return;
+      await _ensurePermission();
+      for (var i = 0; i < list.length && i < _dailySlots; i++) {
+        await _plugin.zonedSchedule(
+          id: _dailyBase + i,
+          title: list[i].title,
+          body: list[i].body,
+          scheduledDate: tz.TZDateTime.from(list[i].at, tz.local),
+          notificationDetails: _details,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+      }
     } catch (_) {}
   }
 
