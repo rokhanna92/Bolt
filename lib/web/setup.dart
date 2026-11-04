@@ -23,7 +23,11 @@ void startPlatform() {
   _coverWholeScreen();
   _keepScreenOn();
   // Ask the browser not to clear Bolt's data when the phone runs short.
-  web.window.navigator.storage.persist().toDart.catchError((_) => false.toJS);
+  try {
+    web.window.navigator.storage.persist();
+  } catch (_) {
+    // Older iPhones do not have this.
+  }
   // The QR reader ships with Bolt instead of coming from a CDN, so scanning
   // works on a gym's bad signal.
   MobileScannerPlatform.instance
