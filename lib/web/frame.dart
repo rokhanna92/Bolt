@@ -92,7 +92,11 @@ class _WebFrameState extends State<WebFrame> {
                     if (!_skipGuide && shouldGuideInstall())
                       Consumer(
                         builder: (context, ref, _) => ref.watch(boltProvider.select((d) => d.account == null))
-                            ? Positioned.fill(child: InstallGuide(onSkip: () => setState(() => _skipGuide = true)))
+                            ? Positioned.fill(
+                                child: BlockSemantics(
+                                  child: InstallGuide(onSkip: () => setState(() => _skipGuide = true)),
+                                ),
+                              )
                             : const SizedBox.shrink(),
                       ),
                   ],
