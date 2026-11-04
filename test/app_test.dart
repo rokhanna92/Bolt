@@ -5,6 +5,7 @@ import 'package:bolt/app/ui_state.dart';
 import 'package:bolt/app.dart';
 import 'package:bolt/app/actions.dart' show openShortcut;
 import 'package:bolt/app/router.dart';
+import 'package:bolt/core/pwa.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
 import 'package:bolt/data/models/board.dart';
@@ -1625,5 +1626,60 @@ void main() {
     expect(find.textContaining('is out'), findsNothing);
     expect(find.byWidgetPredicate((w) => w is Semantics && w.properties.hint == 'New version'), findsNothing);
     await unmount(tester);
+  });
+
+  group('as the PWA', () {
+    setUp(() => isPwa = true);
+    tearDown(() => isPwa = false);
+
+    testWidgets('the bell only carries news', (tester) async {
+      await pumpApp(tester);
+      await onboard(tester, 'On my own', 'Dani');
+      expect(find.bySemanticsLabel('Notifications'), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('Notifications'));
+      await settle(tester);
+      expect(find.text('No news yet. Messages from Bolt show up here.'), findsOneWidget);
+      for (final gone in ['App', 'Water', 'Supplements', 'Training', 'Session reminders', 'Morning brief']) {
+        expect(find.text(gone), findsNothing, reason: gone);
+      }
+      await unmount(tester);
+    });
+
+    testWidgets('settings hide what cannot work and warn about the home screen', (tester) async {
+      final c = await pumpApp(tester);
+      await onboard(tester, 'On my own', 'Dani');
+      c.read(routerProvider).push('/settings');
+      await settle(tester);
+      for (final gone in [
+        'NOTIFICATIONS',
+        'Session reminders',
+        'Morning brief',
+        'Check-out reminder',
+        'Haptics',
+        'Volume down logs a set',
+      ]) {
+        expect(find.text(gone), findsNothing, reason: gone);
+      }
+      for (final kept in ['Rest sound', '3-2-1 countdown', 'Back up to a file', 'Restore from a backup', 'Theme']) {
+        expect(find.text(kept), findsOneWidget, reason: kept);
+      }
+      expect(find.textContaining('Removing Bolt from your home screen'), findsOneWidget);
+      // Admin only: a solo user never sees it.
+      expect(find.text('Add a user'), findsNothing);
+      await unmount(tester);
+    });
+
+    testWidgets('Today has no update or 1.24 card and never asks for a new version', (tester) async {
+      await pumpApp(
+        tester,
+        updater: FakeUpdater(
+          const UpdateFound(Release(title: 'Bolt 9', version: '9.0.0', build: 900, notes: '', apkUrl: 'x', apkBytes: 1)),
+        ),
+      );
+      await onboard(tester, 'On my own', 'Dani');
+      expect(find.textContaining('is out'), findsNothing);
+      expect(find.text('NEW IN BOLT 1.24'), findsNothing);
+      await unmount(tester);
+    });
   });
 }
