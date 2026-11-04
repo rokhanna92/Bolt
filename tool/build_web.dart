@@ -10,7 +10,8 @@ Future<void> main() async {
     'build',
     'web',
     '--release',
-    '--no-web-resources-cdn', // CanvasKit ships with Bolt, for working offline.
+    '--wasm', // Falls back to JavaScript by itself on browsers without WasmGC.
+    '--no-web-resources-cdn', // The engine ships with Bolt, for working offline.
     '--pwa-strategy=none', // Flutter's own service worker is deprecated; web/sw.js replaces it.
   ], mode: ProcessStartMode.inheritStdio);
   final code = await flutter.exitCode;
@@ -45,13 +46,27 @@ Future<void> main() async {
   stdout.writeln('Service worker ${version.toRadixString(36)} with ${files.length} files.');
 }
 
-/// The worker fetches one CanvasKit, the plain one or Chrome's. The other
-/// variants belong to the WebAssembly build, which Bolt does not use.
-bool _skip(String path) =>
-    path == 'flutter.js' ||
-    path == '.last_build_id' ||
-    path.endsWith('.symbols') ||
-    (path.startsWith('canvaskit/') &&
-        path != 'canvaskit/canvaskit.js' &&
-        path != 'canvaskit/canvaskit.wasm' &&
-        !path.startsWith('canvaskit/chromium/'));
+/// Only what can be needed up front: web/sw.js picks one engine from these.
+/// Anything else is fetched and kept if a browser ever asks for it.
+bool _skip(String path) {
+  const engines = {
+    'canvaskit/canvaskit.js',
+    'canvaskit/canvaskit.wasm',
+    'canvaskit/chromium/canvaskit.js',
+    'canvaskit/chromium/canvaskit.wasm',
+    'canvaskit/skwasm.js',
+    'canvaskit/skwasm.wasm',
+    'canvaskit/skwasm_heavy.js',
+    'canvaskit/skwasm_heavy.wasm',
+  };
+  if (path.startsWith('canvaskit/')) return !engines.contains(path);
+  return const {
+        'flutter.js',
+        'flutter_service_worker.js',
+        'version.json',
+        '.last_build_id',
+        '_headers',
+        'assets/NOTICES',
+      }.contains(path) ||
+      path.startsWith('assets/packages/flutter_local_notifications_web/');
+}

@@ -29,6 +29,8 @@
     <svg viewBox="0 0 24 24"><path d="M13,2L3,14H12L11,22L21,10H12L13,2Z" fill="#C6FF1A"/></svg>
   </div>
   <script>
+    // Without a share sheet the share library must fall back to a download.
+    navigator.canShare ??= () => false;
     window.addEventListener('flutter-first-frame', () => document.getElementById('splash').remove());
     // Keeps Bolt working with no signal. Written by tool/build_web.dart.
     if ('serviceWorker' in navigator) {

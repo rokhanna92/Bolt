@@ -6,8 +6,19 @@ const FILES = ['__BOLT_FILES__'];
 const CACHE = `bolt-${VERSION}`;
 const FONTS = 'bolt-fonts';
 
-// Chrome loads its own CanvasKit, every other browser (an iPhone's too) the plain one.
-const NEEDED = FILES.filter((f) => !f.startsWith('canvaskit/chromium/') || self.navigator.userAgent.includes('Chrome/'));
+// Fetch only what this browser will run, the same way Flutter's loader picks:
+// WebAssembly with Skwasm where WasmGC exists, else JavaScript with CanvasKit.
+const WASM_GC = !self.navigator.userAgent.includes('Firefox/') &&
+  WebAssembly.validate(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 95, 1, 120, 0]));
+const CHROME = self.navigator.userAgent.includes('Chrome/');
+const ENGINE = WASM_GC
+  ? (CHROME ? 'canvaskit/skwasm.' : 'canvaskit/skwasm_heavy.')
+  : (CHROME ? 'canvaskit/chromium/canvaskit.' : 'canvaskit/canvaskit.');
+const NEEDED = FILES.filter((f) => {
+  if (f.startsWith('canvaskit/')) return f.startsWith(ENGINE);
+  if (f.startsWith('main.dart.')) return f.endsWith('.js') !== WASM_GC;
+  return true;
+});
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(NEEDED)).then(() => self.skipWaiting()));

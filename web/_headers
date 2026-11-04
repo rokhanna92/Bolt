@@ -1,0 +1,8 @@
+# Lets Flutter draw on its own thread, which is what makes scrolling smooth.
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+
+# A new build must reach phones on their next launch.
+/sw.js
+  Cache-Control: no-cache
