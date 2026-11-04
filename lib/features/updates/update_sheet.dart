@@ -62,6 +62,7 @@ class UpdateCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (isPwa) return const SizedBox.shrink();
     final installed = ref.watch(installedProvider).value;
     final fresh = ref.watch(newReleaseProvider);
     void open() => showBoltSheet<void>(context, (_) => const UpdateSheet());

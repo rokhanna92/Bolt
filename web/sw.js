@@ -6,8 +6,11 @@ const FILES = ['__BOLT_FILES__'];
 const CACHE = `bolt-${VERSION}`;
 const FONTS = 'bolt-fonts';
 
+// Chrome loads its own CanvasKit, every other browser (an iPhone's too) the plain one.
+const NEEDED = FILES.filter((f) => !f.startsWith('canvaskit/chromium/') || self.navigator.userAgent.includes('Chrome/'));
+
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(NEEDED)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {

@@ -45,10 +45,13 @@ Future<void> main() async {
   stdout.writeln('Service worker ${version.toRadixString(36)} with ${files.length} files.');
 }
 
-/// An iPhone only needs plain CanvasKit up front. Chrome's own variant is
-/// fetched and kept if a browser asks for it, and the WebAssembly build's
-/// files are never used.
+/// The worker fetches one CanvasKit, the plain one or Chrome's. The other
+/// variants belong to the WebAssembly build, which Bolt does not use.
 bool _skip(String path) =>
     path == 'flutter.js' ||
     path == '.last_build_id' ||
-    (path.startsWith('canvaskit/') && path != 'canvaskit/canvaskit.js' && path != 'canvaskit/canvaskit.wasm');
+    path.endsWith('.symbols') ||
+    (path.startsWith('canvaskit/') &&
+        path != 'canvaskit/canvaskit.js' &&
+        path != 'canvaskit/canvaskit.wasm' &&
+        !path.startsWith('canvaskit/chromium/'));

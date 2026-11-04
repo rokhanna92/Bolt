@@ -1673,12 +1673,17 @@ void main() {
       await pumpApp(
         tester,
         updater: FakeUpdater(
-          const UpdateFound(Release(title: 'Bolt 9', version: '9.0.0', build: 900, notes: '', apkUrl: 'x', apkBytes: 1)),
+          const UpdateFound(
+            Release(title: 'Bolt 9', version: '9.0.0', build: 900, notes: '', apkUrl: 'x', apkBytes: 1),
+          ),
         ),
       );
       await onboard(tester, 'On my own', 'Dani');
       expect(find.textContaining('is out'), findsNothing);
       expect(find.text('NEW IN BOLT 1.24'), findsNothing);
+      await tapTab(tester, 'Me');
+      expect(find.text('Get the newest version without reinstalling'), findsNothing);
+      expect(find.text('Check'), findsNothing);
       await unmount(tester);
     });
   });
