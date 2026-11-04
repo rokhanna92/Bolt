@@ -17,7 +17,7 @@ List<(Color, Color)> get _metal => <(Color, Color)>[
   (const Color(0xFF1F9C86), const Color(0xFF94F5E1)),
   (const Color(0xFF4F6EF0), const Color(0xFFCDB0FF)),
   (const Color(0xFF8E1736), const Color(0xFFFF5470)),
-  (const Color(0xFF7FB000), BoltColors.neon),
+  (BoltColors.blue ? const Color(0xFF808080) : const Color(0xFF7FB000), BoltColors.neon),
   (const Color(0xFF00E5FF), BoltColors.neon),
 ];
 

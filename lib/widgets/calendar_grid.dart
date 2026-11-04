@@ -95,7 +95,7 @@ List<CalCell> buildCalendar({
         num = BoltColors.text;
         lab = BoltColors.text;
       case SessionStatus.draft:
-        stroke = const Stroke.dashed(BoltColors.muted2, 1.5);
+        stroke = Stroke.dashed(BoltColors.muted2, 1.5);
         num = BoltColors.text;
         lab = BoltColors.textSoft;
       case null:
@@ -301,7 +301,7 @@ class SessionDot extends StatelessWidget {
     };
     final stroke = switch (status) {
       SessionStatus.pending => Stroke(BoltColors.neon, 1.5),
-      SessionStatus.draft => const Stroke.dashed(BoltColors.muted2, 1.5),
+      SessionStatus.draft => Stroke.dashed(BoltColors.muted2, 1.5),
       null => const Stroke(BoltColors.line, 1.5),
       _ => Stroke.none,
     };
@@ -446,7 +446,7 @@ List<LegendItem> get coachLegend => [
   const LegendItem('Confirmed', BoltColors.surface2, Stroke(BoltColors.line)),
   LegendItem('Waiting', Colors.transparent, Stroke.dashed(BoltColors.neon, 1.5)),
   const LegendItem('Moved', BoltColors.surface2, Stroke(BoltColors.text, 1.5)),
-  const LegendItem('Draft', Colors.transparent, Stroke.dashed(BoltColors.muted2, 1.5)),
+  LegendItem('Draft', Colors.transparent, Stroke.dashed(BoltColors.muted2, 1.5)),
 ];
 
 class Legend extends StatelessWidget {

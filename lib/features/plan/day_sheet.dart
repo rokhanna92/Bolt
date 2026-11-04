@@ -301,11 +301,11 @@ class CoachNote extends StatelessWidget {
 /// A quiet text action. The ways to clear a day sit at the bottom of the
 /// sheet and should never pull the eye away from starting the workout.
 class _QuietAction extends StatelessWidget {
-  const _QuietAction({required this.label, required this.onTap, this.color = BoltColors.muted});
+  const _QuietAction({required this.label, required this.onTap, this.color});
 
   final String label;
   final VoidCallback onTap;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) => Tap(
@@ -319,7 +319,7 @@ class _QuietAction extends StatelessWidget {
         label,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: BoltText.a(13, weight: 700, color: color),
+        style: BoltText.a(13, weight: 700, color: color ?? BoltColors.muted),
       ),
     ),
   );

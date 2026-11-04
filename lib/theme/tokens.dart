@@ -1,9 +1,11 @@
 import 'package:flutter/painting.dart';
 
 /// Design tokens from `Bolt UI.html`. One accent (neon) plus warn for injuries.
-/// Those two follow the theme in settings; black and white stay the same.
+/// The grey and blue theme is built for reading: a blue page, black cards, and
+/// white and grey for text and buttons, because #0000FF is too dark to read on
+/// black. So [neon] means "the accent", which is white there.
 abstract final class BoltColors {
-  /// The grey and #0000FF theme. Set from settings; the app rebuilds on a change.
+  /// The grey and blue theme. Set from settings; the app rebuilds on a change.
   static bool blue = false;
 
   static const ink = Color(0xFF0A0B09);
@@ -15,16 +17,22 @@ abstract final class BoltColors {
   static const divider = Color(0xFF1E221B);
   static const text = Color(0xFFF1F4EC);
   static const textSoft = Color(0xFFC9CEC2);
-  static const muted = Color(0xFF9CA393);
-  static const muted2 = Color(0xFF80877A);
+  static Color get muted => blue ? const Color(0xFFD6D6D6) : const Color(0xFF9CA393);
+  static Color get muted2 => blue ? const Color(0xFFC8C8C8) : const Color(0xFF80877A);
   // The dimmest grey for text: 4.5:1 on cards. muted4 is too dark for text.
-  static const muted3 = Color(0xFF7A8172);
+  static Color get muted3 => blue ? const Color(0xFFBDBDBD) : const Color(0xFF7A8172);
   static const muted4 = Color(0xFF5E6558);
-  static Color get neon => blue ? const Color(0xFF0000FF) : const Color(0xFFC6FF1A);
-  static Color get warn => blue ? const Color(0xFF9E9E9E) : const Color(0xFFFF7A45);
+  static Color get neon => blue ? const Color(0xFFFFFFFF) : const Color(0xFFC6FF1A);
+  static Color get warn => blue ? const Color(0xFFC8C8C8) : const Color(0xFFFF7A45);
 
-  /// Text and icons on a [neon] fill: blue needs white, neon needs ink.
-  static Color get onNeon => blue ? const Color(0xFFFFFFFF) : ink;
+  /// The background of every page.
+  static Color get page => blue ? const Color(0xFF0000FF) : ink;
+
+  /// A glow around something lit up. None on the blue page, where it only blurs.
+  static Color glow(int alpha) => blue ? const Color(0x00000000) : neon.withAlpha(alpha);
+
+  /// Text and icons on a [neon] fill.
+  static Color get onNeon => blue ? const Color(0xFF000000) : ink;
 
   // Secondary shades the prototype uses for handles, faded numbers and
   // locked badge rings.

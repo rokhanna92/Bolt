@@ -16,7 +16,7 @@ List<LegendItem> get _legend => [
   LegendItem('Done', BoltColors.neon, Stroke(BoltColors.neon)),
   const LegendItem('Confirmed', BoltColors.text, Stroke(BoltColors.text)),
   LegendItem('Waiting', Colors.transparent, Stroke(BoltColors.neon, 1.5)),
-  const LegendItem('Draft', Colors.transparent, Stroke.dashed(BoltColors.muted2, 1.5)),
+  LegendItem('Draft', Colors.transparent, Stroke.dashed(BoltColors.muted2, 1.5)),
 ];
 
 /// Every trainee's sessions by month, a dot per session. Tapping a day lists

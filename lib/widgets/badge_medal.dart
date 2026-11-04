@@ -30,7 +30,7 @@ class MedalPalette {
 
   static MedalPalette of(BadgeShape shape, bool on) {
     if (!on) {
-      return const MedalPalette(
+      return MedalPalette(
         fill: BoltColors.surface1,
         rim: BoltColors.line,
         ring: BoltColors.lineFaint,
@@ -44,11 +44,11 @@ class MedalPalette {
       BadgeShape.plate => MedalPalette(
         fill: BoltColors.ink,
         rim: BoltColors.neon,
-        ring: const Color(0x73C6FF1A),
+        ring: BoltColors.neon.withAlpha(0x73),
         hub: BoltColors.surface1,
         ink: BoltColors.neon,
         ink2: BoltColors.textSoft,
-        glow: const BoxShadow(color: Color(0x47C6FF1A), blurRadius: 22),
+        glow: BoxShadow(color: BoltColors.glow(0x47), blurRadius: 22),
       ),
       BadgeShape.kb => MedalPalette(
         fill: BoltColors.neon,
@@ -57,7 +57,7 @@ class MedalPalette {
         hub: Colors.transparent,
         ink: BoltColors.ink,
         ink2: BoltColors.ink,
-        glow: const BoxShadow(color: Color(0x4DC6FF1A), blurRadius: 22),
+        glow: BoxShadow(color: BoltColors.glow(0x4D), blurRadius: 22),
       ),
       BadgeShape.hex => MedalPalette(
         fill: BoltColors.ink,
@@ -288,7 +288,7 @@ class _HexPainter extends CustomPainter {
       canvas.drawPath(
         outer,
         Paint()
-          ..color = const Color(0x59C6FF1A)
+          ..color = BoltColors.neon.withAlpha(0x59)
           ..maskFilter = const MaskFilter.blur(BlurStyle.outer, 6),
       );
     }

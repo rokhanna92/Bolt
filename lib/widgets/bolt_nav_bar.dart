@@ -70,9 +70,9 @@ class BoltNavBar extends ConsumerWidget {
             right: 0,
             bottom: 0,
             height: height + bottom,
-            child: const ColoredBox(color: BoltColors.ink),
+            child: ColoredBox(color: BoltColors.page),
           ),
-          const Positioned(
+          Positioned(
             left: 0,
             right: 0,
             top: 0,
@@ -83,7 +83,7 @@ class BoltNavBar extends ConsumerWidget {
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
-                    colors: [BoltColors.ink, Color(0x000A0B09)],
+                    colors: [BoltColors.page, BoltColors.page.withAlpha(0)],
                   ),
                 ),
               ),
@@ -163,7 +163,7 @@ class BoltNavBar extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: BoltColors.neon,
                         shape: BoxShape.circle,
-                        border: Border.all(color: BoltColors.ink, width: 2),
+                        border: Border.all(color: BoltColors.page, width: 2),
                       ),
                     ),
                   ),
@@ -205,7 +205,7 @@ class _ScanSlot extends ConsumerWidget {
             // Glows brighter while its screen is open.
             boxShadow: [
               BoxShadow(
-                color: highlighted ? BoltColors.neon.withAlpha(0x99) : BoltColors.neon.withAlpha(0x59),
+                color: highlighted ? BoltColors.glow(0x99) : BoltColors.glow(0x59),
                 blurRadius: highlighted ? 30 : 24,
                 offset: const Offset(0, 6),
               ),

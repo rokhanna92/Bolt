@@ -304,7 +304,7 @@ class _MapPainter extends CustomPainter {
     final n = sets[m] ?? 0;
     if (n == 0) return BoltColors.line;
     final lo = volumeRange(m)?.$1 ?? 10;
-    return Color.lerp(const Color(0x40C6FF1A), BoltColors.neon, (n / lo).clamp(0.0, 1.0))!;
+    return Color.lerp(BoltColors.neon.withAlpha(0x40), BoltColors.neon, (n / lo).clamp(0.0, 1.0))!;
   }
 
   /// A closed curve through [p] (Catmull-Rom as cubics), so a handful of

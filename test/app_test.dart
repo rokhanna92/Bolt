@@ -473,9 +473,15 @@ void main() {
     await settle(tester);
     expect(find.text('Grey and blue'), findsOneWidget);
     expect(c.read(boltProvider).settings.blue, isTrue);
-    expect(BoltColors.neon, const Color(0xFF0000FF));
-    expect(BoltColors.onNeon, const Color(0xFFFFFFFF));
-    expect(BoltColors.warn, const Color(0xFF9E9E9E));
+    expect(BoltColors.page, const Color(0xFF0000FF));
+    expect(BoltColors.neon, const Color(0xFFFFFFFF));
+    expect(BoltColors.onNeon, const Color(0xFF000000));
+    expect(BoltColors.glow(0x40).a, 0);
+    // Everything meant to be read directly on the blue page clears 4.5:1.
+    for (final c in [BoltColors.text, BoltColors.textSoft, BoltColors.muted, BoltColors.muted2, BoltColors.muted3]) {
+      final ratio = (c.computeLuminance() + .05) / (BoltColors.page.computeLuminance() + .05);
+      expect(ratio, greaterThan(4.5));
+    }
     expect(AppSettings.fromJson(c.read(boltProvider).settings.toJson()).blue, isTrue);
     await tapText(tester, 'Grey and blue');
     await settle(tester);

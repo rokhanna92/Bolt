@@ -17,16 +17,17 @@ import 'tap.dart';
 /// Page root: ink background, light status bar, Material ancestor for text.
 /// Content that scrolls up passes under [StatusScrim], not under the clock.
 class BoltPage extends StatelessWidget {
-  const BoltPage({super.key, required this.child, this.color = BoltColors.ink, this.scrim = true});
+  const BoltPage({super.key, required this.child, this.color, this.scrim = true});
 
   final Widget child;
-  final Color color;
+  final Color? color;
 
   /// False for pages that place their own [StatusScrim].
   final bool scrim;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? BoltColors.page;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
         statusBarColor: Colors.transparent,
@@ -50,14 +51,15 @@ class BoltPage extends StatelessWidget {
 
 /// The page color behind the status bar, fading out just below it.
 class StatusScrim extends StatelessWidget {
-  const StatusScrim({super.key, this.color = BoltColors.ink});
+  const StatusScrim({super.key, this.color});
 
-  final Color color;
+  final Color? color;
 
   static const _fade = 14.0;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? BoltColors.page;
     final top = MediaQuery.paddingOf(context).top;
     if (top == 0) return const SizedBox.shrink();
     return Positioned(
@@ -145,7 +147,7 @@ class Kicker extends StatelessWidget {
     this.text, {
     super.key,
     this.size = 11,
-    this.color = BoltColors.muted,
+    this.color,
     this.spacing = .12,
     this.weight = 400,
     this.maxLines,
@@ -153,7 +155,7 @@ class Kicker extends StatelessWidget {
 
   final String text;
   final double size;
-  final Color color;
+  final Color? color;
   final double spacing;
   final double weight;
 
@@ -165,7 +167,7 @@ class Kicker extends StatelessWidget {
     text,
     maxLines: maxLines,
     overflow: maxLines == null ? null : TextOverflow.ellipsis,
-    style: BoltText.m(size, color: color, spacing: spacing, weight: weight),
+    style: BoltText.m(size, color: color ?? BoltColors.muted, spacing: spacing, weight: weight),
   );
 }
 
@@ -413,7 +415,7 @@ ChipStyle chipFor(SessionStatus s) => switch (s) {
   SessionStatus.approved => ChipStyle(BoltColors.surface2, BoltColors.neon, const Stroke(BoltColors.line)),
   SessionStatus.pending => ChipStyle(Colors.transparent, BoltColors.neon, Stroke.dashed(BoltColors.neon)),
   SessionStatus.moved => const ChipStyle(Colors.transparent, BoltColors.text, Stroke(BoltColors.text)),
-  SessionStatus.draft => const ChipStyle(Colors.transparent, BoltColors.textSoft, Stroke.dashed(BoltColors.muted2)),
+  SessionStatus.draft => ChipStyle(Colors.transparent, BoltColors.textSoft, Stroke.dashed(BoltColors.muted2)),
 };
 
 /// Trainee wording for a status.
@@ -570,9 +572,9 @@ class InfoIcon extends StatelessWidget {
 /// The ✕ that dismisses a card, with padding around it to make it easy to
 /// hit.
 class CloseGlyph extends StatelessWidget {
-  const CloseGlyph({super.key, this.color = BoltColors.muted2, this.size = 14});
+  const CloseGlyph({super.key, this.color, this.size = 14});
 
-  final Color color;
+  final Color? color;
   final double size;
 
   @override
@@ -580,7 +582,7 @@ class CloseGlyph extends StatelessWidget {
     label: tx('Close'),
     child: Padding(
       padding: const EdgeInsets.all(12),
-      child: BoltIcon('close', size: size, color: color),
+      child: BoltIcon('close', size: size, color: color ?? BoltColors.muted2),
     ),
   );
 }

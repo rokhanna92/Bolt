@@ -128,7 +128,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                 alignment: Alignment.centerLeft,
                 child: BoltBox(
                   radius: 8,
-                  stroke: const Stroke.dashed(BoltColors.muted2),
+                  stroke: Stroke.dashed(BoltColors.muted2),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   child: Text(
                     tx('DRAFT · {name} SEES IT AFTER YOU SEND', {'name': firstName(x!.name).toUpperCase()}),

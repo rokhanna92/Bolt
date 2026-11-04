@@ -172,7 +172,7 @@ class _UnlockOverlayState extends State<UnlockOverlay> with SingleTickerProvider
                     color: BoltColors.ink,
                     shape: BoxShape.circle,
                     border: Border.all(color: BoltColors.neon, width: 5),
-                    boxShadow: [BoxShadow(color: BoltColors.neon.withAlpha(0x73), blurRadius: 70)],
+                    boxShadow: [BoxShadow(color: BoltColors.glow(0x73), blurRadius: 70)],
                   ),
                   child: Stack(
                     alignment: Alignment.center,
