@@ -108,7 +108,15 @@ Future<ProviderContainer> pumpApp(
           },
         ),
         keyNameProvider.overrideWithValue(
-          (c) => const {'11111': 'Coach 1', '222222': 'Admin', '33333': 'Solo 1', '44444': 'Trainee 1'}[c],
+          (c) => const {
+            '11111': 'Coach 1',
+            '222222': 'Admin',
+            '33333': 'Solo 1',
+            '44444': 'Trainee 1',
+            'AAAA-BBBB': 'Solo 1',
+            'CCCC-DDDD': 'Coach 2',
+            'EEEE-FFFF': 'Solo 2',
+          }[c],
         ),
       ],
       child: const BoltApp(),
@@ -473,6 +481,43 @@ void main() {
     await settle(tester);
     expect(BoltColors.neon, const Color(0xFFC6FF1A));
     expect(BoltColors.onNeon, BoltColors.ink);
+    await unmount(tester);
+  });
+
+  testWidgets('only the admin gets Add a user: paste keys once, the bolt crosses one off', (tester) async {
+    var c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    c.read(routerProvider).push('/settings');
+    await settle(tester);
+    expect(find.text('Add a user'), findsNothing);
+    await unmount(tester);
+
+    c = await pumpApp(tester);
+    await onboard(tester, 'I coach people', 'Dani', code: '222222');
+    c.read(routerProvider).push('/settings');
+    await settle(tester);
+    await tapText(tester, 'Add a user');
+    await settle(tester);
+    expect(find.text('AAAA-BBBB'), findsNothing);
+
+    // Junk and unknown keys are ignored; the list comes out in order.
+    await typeInto(tester, 'Paste your keys', '| 2 | eeee-ffff | ZZZZ-ZZZZ | coachdd2 CCCC-DDDD | AAAA-BBBB |');
+    await tapText(tester, 'Save keys');
+    await settle(tester);
+    final s = c.read(boltProvider).settings;
+    expect(s.ownKeys, {'Solo 1': 'AAAA-BBBB', 'Solo 2': 'EEEE-FFFF', 'Coach 2': 'CCCC-DDDD'});
+    expect(find.text('SOLO · 0 of 2 given'), findsOneWidget);
+
+    TextStyle? style() => tester.widget<Text>(find.text('AAAA-BBBB')).style;
+    expect(style()?.decoration, TextDecoration.none);
+    await tester.tap(find.bySemanticsLabel('Solo 1').last);
+    await settle(tester);
+    expect(c.read(boltProvider).settings.usedKeys, ['Solo 1']);
+    expect(style()?.decoration, TextDecoration.lineThrough);
+    expect(find.text('SOLO · 1 of 2 given'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Solo 1').last);
+    await settle(tester);
+    expect(c.read(boltProvider).settings.usedKeys, isEmpty);
     await unmount(tester);
   });
 

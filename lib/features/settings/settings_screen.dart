@@ -199,6 +199,7 @@ class SettingsScreen extends ConsumerWidget {
               value: '',
               onTap: () => context.push('/admin'),
             ),
+            _Row(tx('Add a user'), value: '', onTap: () => context.push('/add-user')),
           ],
         ),
       (

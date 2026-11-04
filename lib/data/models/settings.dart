@@ -40,11 +40,15 @@ class AppSettings {
     this.waterHours = 3,
     this.bellSeen,
     this.blue = false,
+    Map<String, String>? ownKeys,
+    List<String>? usedKeys,
     Map<String, int>? supps,
     Board? board,
     List<String>? hintsSeen,
     List<KeyEntry>? keyLog,
   }) : supps = supps ?? {},
+       ownKeys = ownKeys ?? {},
+       usedKeys = usedKeys ?? [],
        hintsSeen = hintsSeen ?? [],
        keyLog = keyLog ?? [],
        board = board ?? Board();
@@ -113,6 +117,13 @@ class AppSettings {
   /// each one.
   final Map<String, int> supps;
 
+  /// The owner's keys by name on their list ("Solo 3"), pasted in on their own
+  /// phone. Never shipped in the app.
+  final Map<String, String> ownKeys;
+
+  /// Names of the keys the owner has given away.
+  final List<String> usedKeys;
+
   /// The grey and blue theme instead of orange and neon.
   bool blue;
 
@@ -155,6 +166,8 @@ class AppSettings {
     'supps': supps,
     'bellSeen': bellSeen?.toIso8601String(),
     'blue': blue,
+    'ownKeys': ownKeys,
+    'usedKeys': usedKeys,
     'keyLog': [for (final e in keyLog) e.toJson()],
     'board': board.toJson(),
   };
@@ -183,6 +196,8 @@ class AppSettings {
     water: j['water'] as bool? ?? false,
     waterHours: j['waterHours'] as int? ?? 3,
     blue: j['blue'] as bool? ?? false,
+    ownKeys: {for (final e in (j['ownKeys'] as Map? ?? const {}).entries) e.key as String: e.value as String},
+    usedKeys: [for (final x in j['usedKeys'] as List? ?? const []) x as String],
     bellSeen: DateTime.tryParse(j['bellSeen'] as String? ?? ''),
     supps: {for (final e in (j['supps'] as Map? ?? const {}).entries) e.key as String: e.value as int},
     keyLog: [for (final x in j['keyLog'] as List? ?? const []) KeyEntry.fromJson(x as Map<String, dynamic>)],

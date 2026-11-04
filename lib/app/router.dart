@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../data/bolt_store.dart';
 import '../data/models/bolt_data.dart';
+import '../features/admin/add_user_screen.dart';
 import '../features/admin/admin_screen.dart';
 import '../features/badges/badges_screen.dart';
 import '../features/coach_calendar/calendar_screen.dart';
@@ -193,6 +194,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) =>
             _enter(s, LiftScreen(name: s.pathParameters['name']!, tid: s.uri.queryParameters['tid'])),
+      ),
+      GoRoute(
+        path: '/add-user',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const AddUserScreen()),
       ),
       GoRoute(
         path: '/admin',

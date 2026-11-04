@@ -2267,6 +2267,38 @@ class BoltStore extends Notifier<BoltData> {
     return how;
   }
 
+  /// Takes the owner's keys out of pasted [text], in list order, keeping only
+  /// real ones. Returns how many are new on this phone.
+  int addOwnKeys(String text) {
+    final own = state.settings.ownKeys;
+    final name = ref.read(keyNameProvider);
+    final found = <String, String>{};
+    for (final m in RegExp(r'\b([A-Z0-9]{4})-?([A-Z0-9]{4})\b').allMatches(text.toUpperCase())) {
+      final key = '${m[1]}-${m[2]}';
+      final n = name(key);
+      if (n != null && n != 'Admin' && !own.containsKey(n)) found[n] = key;
+    }
+    if (found.isEmpty) return 0;
+    final all = {...own, ...found}.entries.toList()..sort((a, b) => _keyOrder(a.key).compareTo(_keyOrder(b.key)));
+    own
+      ..clear()
+      ..addEntries(all);
+    _commit();
+    return found.length;
+  }
+
+  /// Solo, then Trainee, then Coach, each counted from 1.
+  int _keyOrder(String name) {
+    final p = name.split(' ');
+    return const ['Solo', 'Trainee', 'Coach'].indexOf(p[0]) * 100 + int.parse(p[1]);
+  }
+
+  void toggleKeyUsed(String name) {
+    final used = state.settings.usedKeys;
+    used.contains(name) ? used.remove(name) : used.add(name);
+    _commit();
+  }
+
   /// Turns the owner into an admin, keeping the role they are in: an admin
   /// needs a coach and a trainee record, so the missing one is made from
   /// the other, like onboarding does for an admin.
