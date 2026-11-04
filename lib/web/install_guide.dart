@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:js_interop';
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:web/web.dart' as web;
 
 import '../core/format.dart';
 import '../features/profile/language_picker.dart';
+import '../services/updater.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
 import '../widgets/box.dart';
@@ -73,6 +75,17 @@ class _InstallGuideState extends State<InstallGuide> {
   Future<void> _copy() async {
     await Clipboard.setData(ClipboardData(text: web.window.location.origin));
     if (mounted) setState(() => _copied = true);
+  }
+
+  /// The newest release's APK, or the release page if GitHub cannot say.
+  Future<void> _downloadApk() async {
+    var url = 'https://github.com/rokhanna92/Bolt/releases/latest';
+    try {
+      final res = await web.window.fetch(kReleasesApi.toJS).toDart;
+      final json = jsonDecode((await res.text().toDart).toDart);
+      url = pickApk((json as Map)['assets'])?.url ?? url;
+    } catch (_) {}
+    web.window.location.href = url;
   }
 
   List<Widget> _steps(List<(String, IconData?)> steps) => [
@@ -152,6 +165,16 @@ class _InstallGuideState extends State<InstallGuide> {
                   (tx('Tap Install app or Add to Home screen.'), null),
                   (open, null),
                 ]),
+                const SizedBox(height: 18),
+                Text(
+                  tx(
+                    'Want reminders and widgets too? The full app has them. Your phone will ask you to allow the install.',
+                  ),
+                  textAlign: TextAlign.center,
+                  style: BoltText.a(12, color: BoltColors.muted, height: 1.45),
+                ),
+                const SizedBox(height: 8),
+                OutlineButton(label: tx('Get the full Android app'), onTap: _downloadApk),
               ],
               _ => _steps([
                 (tx('Tap the Share button in Safari.'), Icons.ios_share),

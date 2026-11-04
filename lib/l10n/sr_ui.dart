@@ -1,6 +1,8 @@
 // Serbian for the screens, toasts and messages.
 
 const kSrUi = <String, String>{
+  'Want reminders and widgets too? The full app has them. Your phone will ask you to allow the install.': 'Želiš i podsetnike i vidžete? Ima ih puna aplikacija. Telefon će tražiti dozvolu za instalaciju.',
+  'Get the full Android app': 'Preuzmi punu Android aplikaciju',
   'Call a friend': 'Pozovi prijatelja',
   'Show them a code that gets them into Bolt': 'Pokaži kod koji ih vodi u Bolt',
   'They point their camera at this code, and Bolt shows them how to install it on their phone.': 'Neka uperi kameru u ovaj kod, a Bolt će pokazati kako da ga instalira na telefon.',
