@@ -10,6 +10,7 @@ import 'package:bolt/features/profile/language_picker.dart';
 import 'package:bolt/widgets/bolt_nav_bar.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:bolt/widgets/box.dart';
+import 'package:bolt/widgets/forms.dart';
 import 'package:bolt/widgets/calendar_grid.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
@@ -1720,6 +1721,18 @@ void main() {
     expect(before, greaterThan(0));
     store.clearMonth(Account.ownerId, month);
     expect(store.hasPlansIn(Account.ownerId, month), isFalse);
+    await unmount(tester);
+  });
+
+  testWidgets('About you starts with every split category shut, the chosen one named', (tester) async {
+    await pumpApp(tester);
+    await tapText(tester, 'On my own');
+    await typeKey(tester, keyFor('On my own'));
+    expect(find.byType(SplitWeek), findsNothing);
+    expect(find.text('3-day Push / Pull / Legs'), findsOneWidget);
+    await tapText(tester, 'Classic');
+    await settle(tester);
+    expect(find.byType(SplitWeek), findsWidgets);
     await unmount(tester);
   });
 

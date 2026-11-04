@@ -17,6 +17,7 @@ class BoltAccordion extends StatefulWidget {
     required this.children,
     this.initiallyOpen = false,
     this.highlight = false,
+    this.summary,
   });
 
   final String title;
@@ -26,6 +27,9 @@ class BoltAccordion extends StatefulWidget {
 
   /// Holds what is currently chosen, so it stays findable when shut.
   final bool highlight;
+
+  /// Said while shut instead of [preview], like what is chosen inside.
+  final String? summary;
 
   @override
   State<BoltAccordion> createState() => _BoltAccordionState();
@@ -65,10 +69,10 @@ class _BoltAccordionState extends State<BoltAccordion> {
                         if (!_open) ...[
                           const SizedBox(height: 2),
                           Text(
-                            widget.preview.join(' · '),
+                            widget.summary ?? widget.preview.join(' · '),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: BoltText.a(12, color: BoltColors.muted),
+                            style: BoltText.a(12, color: widget.summary == null ? BoltColors.muted : BoltColors.neon),
                           ),
                         ],
                       ],
