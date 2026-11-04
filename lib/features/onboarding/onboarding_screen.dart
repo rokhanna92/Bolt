@@ -6,7 +6,6 @@ import '../../data/bolt_store.dart';
 import '../../data/licenses.dart';
 import '../../data/models/bolt_data.dart';
 import '../../data/models/people.dart';
-import '../../data/seed/splits.dart';
 import '../../services/coach_directory.dart';
 import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
@@ -41,7 +40,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _gym = TextEditingController();
   String _goal = 'General fitness';
   String _split = 'ppl';
-  bool _autoPlan = true;
   BodyForm? _body;
 
   @override
@@ -77,7 +75,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             gym: _gym.text,
             body: withBody ? _bodyForm.read() : null,
           ),
-          autoPlan: _role == Role.solo && _autoPlan,
           admin: _admin,
         );
   }
@@ -291,7 +288,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           BoltField(controller: _specialty, hint: tx('e.g. Strength & Hypertrophy (optional)')),
         ] else ...[
           FieldLabel(tx('GOAL')),
-          ChoiceChips(options: kGoals, selected: _goal, onSelect: (g) => setState(() => _goal = g)),
+          GoalPicker(selected: _goal, onSelect: (g) => setState(() => _goal = g)),
           FieldLabel(tx('WEEKLY SPLIT')),
           SplitPicker(selected: _split, data: d, onSelect: (s) => setState(() => _split = s)),
         ],
@@ -414,37 +411,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         Row(children: [unitTab('kg · cm', true), const SizedBox(width: 6), unitTab('lb · in', false)]),
         const SizedBox(height: 14),
         BodyFields(key: ValueKey(metric), form: form),
-        if (_role == Role.solo) ...[
-          const SizedBox(height: 18),
-          Tap(
-            onTap: () => setState(() => _autoPlan = !_autoPlan),
-            child: BoltBox(
-              color: BoltColors.surface1,
-              stroke: const Stroke(BoltColors.lineSoft),
-              radius: 16,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(tx('Plan my next 3 weeks'), style: BoltText.a(14, weight: 700)),
-                        const SizedBox(height: 2),
-                        Text(
-                          tx('From your {split}', {'split': tx(splitOf(ref.read(boltProvider), _split).name)}),
-                          style: BoltText.a(12, color: BoltColors.muted),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  BoltSwitch(on: _autoPlan),
-                ],
-              ),
-            ),
-          ),
-        ],
         const SizedBox(height: 22),
         NeonButton(
           label: _role == Role.coach ? tx('Start coaching') : tx('Start training'),

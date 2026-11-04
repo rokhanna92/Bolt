@@ -9,6 +9,7 @@ import '../data/seed/splits.dart';
 import '../services/haptics.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
+import 'accordion.dart';
 import 'box.dart';
 import 'common.dart';
 import 'fields.dart';
@@ -28,6 +29,82 @@ class FieldLabel extends StatelessWidget {
     padding: EdgeInsets.only(top: top, bottom: 8),
     child: Kicker(text, size: 10),
   );
+}
+
+/// What each goal means, for [GoalPicker].
+const _goalInfo = <String, (IconData, String)>{
+  'Strength': (Icons.fitness_center, 'Lift heavier'),
+  'Hypertrophy': (Icons.accessibility_new, 'Build muscle'),
+  'Fat loss': (Icons.local_fire_department, 'Lean out'),
+  'Conditioning': (Icons.directions_run, 'Last longer'),
+  'General fitness': (Icons.favorite_border, 'Feel good, stay fit'),
+  'Return to sport': (Icons.sports_soccer, 'Back in the game'),
+};
+
+/// The goals as an even grid of tiles, each saying what it means.
+class GoalPicker extends StatelessWidget {
+  const GoalPicker({super.key, required this.selected, required this.onSelect});
+
+  final String? selected;
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var r = 0; r < kGoals.length; r += 2) ...[
+          if (r > 0) const SizedBox(height: 8),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: _tile(kGoals[r])),
+                const SizedBox(width: 8),
+                Expanded(child: _tile(kGoals[r + 1])),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _tile(String goal) {
+    final on = goal == selected;
+    final (icon, about) = _goalInfo[goal]!;
+    return Tap(
+      onTap: () {
+        Haptics.play(Feel.tick);
+        onSelect(goal);
+      },
+      scale: .97,
+      child: BoltBox(
+        color: on ? BoltColors.neon : BoltColors.surface1,
+        stroke: Stroke(on ? BoltColors.neon : BoltColors.lineSoft),
+        radius: 16,
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Icon(icon, size: 22, color: on ? BoltColors.onNeon : BoltColors.neon),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(tx(goal), style: BoltText.a(13, weight: 800, color: on ? BoltColors.onNeon : BoltColors.text)),
+                  const SizedBox(height: 2),
+                  Text(
+                    tx(about),
+                    style: BoltText.a(11, color: on ? BoltColors.onNeon.withValues(alpha: .75) : BoltColors.muted),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// Single-choice pill chips (neon when picked).
@@ -83,41 +160,74 @@ class SplitPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ids = splitIds(data);
+    final groups = [
+      (
+        tx('Your splits'),
+        [
+          for (final k in ids)
+            if (data.splits.containsKey(k)) k,
+        ],
+      ),
+      for (final (title, group) in kSplitGroups)
+        (
+          tx(title),
+          [
+            for (final k in group)
+              if (ids.contains(k)) k,
+          ],
+        ),
+    ].where((g) => g.$2.isNotEmpty);
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final k in splitIds(data)) ...[
-          Tap(
-            onTap: () => onSelect(k),
-            child: BoltBox(
-              color: BoltColors.surface1,
-              stroke: Stroke(k == selected ? BoltColors.neon : BoltColors.lineSoft, k == selected ? 1.5 : 1),
-              radius: 18,
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(child: Text(tx(splitOf(data, k).name), style: BoltText.a(14, weight: 800))),
-                      if (onEdit != null && data.splits.containsKey(k))
-                        Tap(
-                          onTap: () => onEdit!(k),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            child: Text(tx('Edit'), style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  SplitWeek(split: splitOf(data, k), tpls: data.tpls),
-                ],
-              ),
-            ),
+        for (final (title, group) in groups) ...[
+          BoltAccordion(
+            key: ValueKey(title),
+            title: title,
+            preview: [for (final k in group) tx(splitOf(data, k).name)],
+            initiallyOpen: group.contains(selected),
+            highlight: group.contains(selected),
+            children: [for (final k in group) _card(k)],
           ),
           const SizedBox(height: 8),
         ],
       ],
+    );
+  }
+
+  Widget _card(String k) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Tap(
+        onTap: () => onSelect(k),
+        child: BoltBox(
+          color: BoltColors.surface1,
+          stroke: Stroke(k == selected ? BoltColors.neon : BoltColors.lineSoft, k == selected ? 1.5 : 1),
+          radius: 18,
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Text(tx(splitOf(data, k).name), style: BoltText.a(14, weight: 800))),
+                  if (onEdit != null && data.splits.containsKey(k))
+                    Tap(
+                      onTap: () => onEdit!(k),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        child: Text(tx('Edit'), style: BoltText.a(12, weight: 800, color: BoltColors.neon)),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              SplitWeek(split: splitOf(data, k), tpls: data.tpls),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

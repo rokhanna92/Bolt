@@ -371,7 +371,7 @@ void main() {
     });
 
     test('logged workouts and their sets count toward badges', () {
-      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'), autoPlan: true);
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))..store.autoFill(Account.ownerId);
       f.store.startWorkout('2026-10-14');
       final ex = f.mine['2026-10-14']!.ex;
       f.store.toggleSet(ex[0].id, 0);
@@ -535,7 +535,6 @@ void ownerTests() {
           gym: 'Iron Den',
           body: Body(weightKg: 80, cm: {'waist': 84}),
         ),
-        autoPlan: true,
       );
       final me = f.data.trainees.single;
       expect(f.data.account!.role, Role.solo);
@@ -543,10 +542,8 @@ void ownerTests() {
       expect(me.body.weightKg, 80);
       expect(me.body.updated, '2026-10-14');
       expect(f.data.settings.gymName, 'Iron Den');
-      // PPL Mon/Wed/Fri from this Monday, today onwards: 14, 16 then 2 weeks.
-      expect(f.mine.length, 8);
-      expect(f.mine.values.every((s) => s.status == SessionStatus.approved && !s.byCoach), isTrue);
-      expect(f.mine['2026-10-14']!.title, 'Pull');
+      // Bolt never fills the calendar by itself.
+      expect(f.mine, isEmpty);
     });
 
     test('coach profile', () {
@@ -614,7 +611,7 @@ void ownerTests() {
     });
 
     test('reset erases everything', () {
-      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'), autoPlan: true);
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))..store.autoFill(Account.ownerId);
       f.store.resetAll();
       expect(f.data.account, isNull);
       expect(f.data.trainees, isEmpty);
@@ -659,7 +656,7 @@ void ownerTests() {
     });
 
     test('moving your own session does not mark it moved', () {
-      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'), autoPlan: true);
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))..store.autoFill(Account.ownerId);
       expect(f.store.move('2026-10-16', '2026-10-17'), isTrue);
       expect(f.mine['2026-10-17']!.status, SessionStatus.approved);
       expect(f.mine['2026-10-17']!.from, isNull);
@@ -893,7 +890,7 @@ void ownerTests() {
     });
 
     test('a rest day replaces a planned session but never a logged one', () {
-      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'), autoPlan: true);
+      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))..store.autoFill(Account.ownerId);
       final rest = f.data.trainees.single.stats.rest;
       final k = (f.mine.keys.where((k) => k.compareTo('2026-10-14') >= 0).toList()..sort()).first;
       f.store.toggleRest(k);

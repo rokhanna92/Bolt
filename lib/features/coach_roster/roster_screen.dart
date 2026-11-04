@@ -444,14 +444,9 @@ class _AddTraineeSheetState extends ConsumerState<AddTraineeSheet> {
         FieldLabel(tx('NAME'), top: 14),
         BoltField(controller: _name, hint: tx('Full name'), words: true, onChanged: (_) => setState(() {})),
         FieldLabel(tx('GOAL')),
-        ChoiceChips(options: kGoals, selected: _goal, onSelect: (g) => setState(() => _goal = g)),
+        GoalPicker(selected: _goal, onSelect: (g) => setState(() => _goal = g)),
         FieldLabel(tx('WEEKLY SPLIT')),
-        ChoiceChips(
-          options: splitIds(d),
-          selected: _split,
-          labels: {for (final k in splitIds(d)) k: splitOf(d, k).name},
-          onSelect: (s) => setState(() => _split = s),
-        ),
+        SplitPicker(selected: _split, data: d, onSelect: (s) => setState(() => _split = s)),
         const SizedBox(height: 16),
         NeonButton(
           label: tx('Add trainee'),

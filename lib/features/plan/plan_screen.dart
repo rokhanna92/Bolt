@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/actions.dart';
 import '../../app/ui_state.dart';
+import '../../app/share.dart';
 import '../../core/format.dart';
 import '../../data/bolt_store.dart';
 import '../../data/models/session.dart';
@@ -190,40 +191,66 @@ class PlanScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          // Three equal pills: they open sheets, and a trailing "…" read
-          // like text cut short.
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
-                child: _PlanPill(
+                child: _PlanTool(
+                  icon: Icons.south,
                   label: tx('Deload week'),
+                  sub: tx('A lighter week'),
                   onTap: () => showBoltSheet<void>(context, (_) => DeloadSheet(tid: t.id)),
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               Expanded(
-                child: _PlanPill(
+                child: _PlanTool(
+                  icon: Icons.flight_takeoff,
                   label: t.stats.away.contains(dk(store.mon0)) ? tx('Away this week') : tx('Away'),
+                  sub: tx('Keeps your streak'),
                   on: t.stats.away.contains(dk(store.mon0)),
                   onTap: () => showBoltSheet<void>(context, (_) => const AwaySheet()),
                 ),
               ),
-              const SizedBox(width: 6),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
               Expanded(
-                child: _PlanPill(
+                child: _PlanTool(
+                  icon: Icons.view_timeline_outlined,
                   label: programWeekText(store, t.id) ?? tx('Programs'),
+                  sub: tx('Ready-made blocks'),
                   on: programWeekText(store, t.id) != null,
                   onTap: () => showBoltSheet<void>(context, (_) => ProgramSheet(tid: t.id), maxHeight: .92),
                 ),
               ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _PlanTool(
+                  icon: Icons.delete_sweep_outlined,
+                  label: tx('Clear month'),
+                  sub: tx('Wipe what you planned'),
+                  danger: true,
+                  onTap: () => _clearMonth(context, ref, t.id, month),
+                ),
+              ),
             ],
+          ),
+          const SizedBox(height: 18),
+          Text(
+            tx('Tap an empty day to add the next session from your split.'),
+            style: BoltText.a(13, color: BoltColors.muted, height: 1.4),
           ),
           const SizedBox(height: 6),
           Text(
-            '${d.account?.isSolo ?? false ? tx('Tap an empty day to add the next session from your split. Past days too, to log your diary.') : tx('Tap an empty day to add the next session from your split.')} ${tx('Long-press one to mark it as a rest day.')}',
-            style: BoltText.a(12, color: BoltColors.muted),
+            d.account?.isSolo ?? false
+                ? '${tx('Past days too, to log your diary.')} ${tx('Long-press one to mark it as a rest day.')}'
+                : tx('Long-press one to mark it as a rest day.'),
+            style: BoltText.a(13, color: BoltColors.muted, height: 1.4),
           ),
+          const SizedBox(height: 4),
         ],
         const SizedBox(height: 16),
         BluePanel(
@@ -299,32 +326,81 @@ class _UpRow extends StatelessWidget {
 }
 
 /// A small outlined pill that opens a planning sheet; neon while it is on.
-class _PlanPill extends StatelessWidget {
-  const _PlanPill({required this.label, required this.onTap, this.on = false});
+/// One of the plan's tools: what it is and what it does, with room to breathe.
+class _PlanTool extends StatelessWidget {
+  const _PlanTool({
+    required this.icon,
+    required this.label,
+    required this.sub,
+    required this.onTap,
+    this.on = false,
+    this.danger = false,
+  });
 
+  final IconData icon;
   final String label;
+  final String sub;
   final VoidCallback onTap;
   final bool on;
+  final bool danger;
 
   @override
   Widget build(BuildContext context) {
+    final accent = danger ? BoltColors.warn : BoltColors.neon;
     return Tap(
       onTap: onTap,
-      scale: .96,
+      scale: .97,
       child: BoltBox(
-        height: 40,
-        radius: BoltRadii.pill,
-        stroke: Stroke(on ? BoltColors.neon : BoltColors.line, on ? 1.5 : 1),
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        alignment: Alignment.center,
-        borderBox: true,
-        child: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: BoltText.a(13, weight: 700, color: on ? BoltColors.neon : BoltColors.textSoft),
+        color: BoltColors.surface1,
+        stroke: Stroke(on ? BoltColors.neon : BoltColors.lineSoft, on ? 1.5 : 1),
+        radius: 14,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: accent),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: BoltText.a(13, weight: 800, color: danger ? BoltColors.warn : BoltColors.text),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    sub,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: BoltText.a(11, color: BoltColors.muted),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+/// Asks first, since this wipes a whole month of planning.
+Future<void> _clearMonth(BuildContext context, WidgetRef ref, String tid, DateTime month) async {
+  final store = ref.read(boltProvider.notifier);
+  final name = monthsLong[month.month - 1];
+  if (!store.hasPlansIn(tid, month)) {
+    store.toast(tx('Nothing planned in {month}', {'month': name}));
+    return;
+  }
+  final ok = await confirmSheet(
+    context,
+    title: tx('Are you sure?'),
+    body: tx('This removes everything you planned in {month}, sessions and rest days. Finished workouts stay.', {
+      'month': name,
+    }),
+    confirm: tx('Clear {month}', {'month': name}),
+  );
+  if (ok) store.clearMonth(tid, month);
 }

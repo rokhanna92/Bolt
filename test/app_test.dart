@@ -218,7 +218,7 @@ Future<void> typeKey(WidgetTester tester, String code) async {
   await tapText(tester, 'Unlock');
 }
 
-Future<void> onboard(WidgetTester tester, String role, String name, {String? weight, String? code}) async {
+Future<void> onboard(WidgetTester tester, String role, String name, {String? weight, String? code, bool planned = true}) async {
   expect(find.text('HOW DO YOU TRAIN?'), findsOneWidget);
   await tapText(tester, role);
   await typeKey(tester, code ?? keyFor(role));
@@ -227,6 +227,10 @@ Future<void> onboard(WidgetTester tester, String role, String name, {String? wei
   expect(find.text('Your body'), findsOneWidget);
   if (weight != null) await typeInto(tester, 'Weight (kg)', weight);
   await tapText(tester, role == 'I coach people' ? 'Start coaching' : 'Start training');
+  // Bolt never fills the calendar by itself; most tests want a planned week.
+  if (planned && role == 'On my own') {
+    ProviderScope.containerOf(tester.element(find.byType(BoltApp))).read(boltProvider.notifier).autoFill(Account.ownerId);
+  }
   // Today's cards rise in one after another; let them land.
   await tester.pump(const Duration(milliseconds: 600));
 }
@@ -593,6 +597,8 @@ void main() {
     await tapText(tester, '4');
     await tapText(tester, 'Start season 1');
     expect(find.text('SEASON 1 · WEEK 1 OF 8'), findsOneWidget);
+    await tester.ensureVisible(find.byType(BackBox).first);
+    await settle(tester);
     await tester.tap(find.byType(BackBox).first);
     await settle(tester);
     expect(find.text('SEASON 1 · WEEK 1 OF 8'), findsOneWidget);
@@ -1118,6 +1124,8 @@ void main() {
     await tapText(tester, '+ Add trainee');
     await typeInto(tester, 'Full name', 'Ana Marić');
     // The sheet's title says the same, so tap the button itself.
+    await tester.ensureVisible(find.widgetWithText(NeonButton, 'Add trainee'));
+    await settle(tester);
     await tester.tap(find.widgetWithText(NeonButton, 'Add trainee'));
     await settle(tester);
     await settle(tester);
@@ -1686,6 +1694,32 @@ void main() {
     c.read(routerProvider).push('/settings');
     await settle(tester);
     expect(find.byType(LanguagePicker), findsOneWidget);
+    await unmount(tester);
+  });
+
+  testWidgets('signing up never fills the calendar', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani', planned: false);
+    expect(c.read(boltProvider.notifier).plan(Account.ownerId), isEmpty);
+    expect(find.text('Nothing planned yet'), findsWidgets);
+    await unmount(tester);
+  });
+
+  testWidgets('clear month asks first, then leaves finished workouts', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    final store = c.read(boltProvider.notifier);
+    final month = DateTime(store.now.year, store.now.month);
+    await tapTab(tester, 'Plan');
+    await tapText(tester, 'Clear month');
+    await settle(tester);
+    expect(find.text('Are you sure?'), findsOneWidget);
+    await tapText(tester, 'Cancel');
+    await settle(tester);
+    final before = store.plan(Account.ownerId).length;
+    expect(before, greaterThan(0));
+    store.clearMonth(Account.ownerId, month);
+    expect(store.hasPlansIn(Account.ownerId, month), isFalse);
     await unmount(tester);
   });
 

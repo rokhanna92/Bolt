@@ -96,7 +96,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             ],
             if (_trainee != null) ...[
               FieldLabel(tx('GOAL')),
-              ChoiceChips(options: kGoals, selected: _goal, onSelect: (g) => setState(() => _goal = g)),
+              GoalPicker(selected: _goal, onSelect: (g) => setState(() => _goal = g)),
               FieldLabel(tx('WEEKLY SPLIT')),
               SplitPicker(selected: _split, data: d, onSelect: (s) => setState(() => _split = s)),
             ],

@@ -110,6 +110,15 @@ const kSplits = <String, Split>{
 
 final List<String> kSplitOrder = kSplits.keys.toList();
 
+/// The built-in splits by kind, for picking one without reading all of them.
+const kSplitGroups = <(String, List<String>)>[
+  ('Classic', ['ppl', 'ppl6', 'ul', 'fb']),
+  ('Old school bodybuilding', ['old4', 'classic4', 'bro5', 'arnold', 'hit2']),
+  ('Strength and focus', ['str3', 'glute4']),
+  ('Bodyweight & home', ['calis3', 'home3']),
+  ('Engine & recovery', ['hybrid', 'rehab']),
+];
+
 /// Weekdays in display order, Monday to Sunday.
 const kWeekOrder = [1, 2, 3, 4, 5, 6, 7];
 

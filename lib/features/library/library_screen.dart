@@ -9,9 +9,9 @@ import '../../data/models/bolt_data.dart';
 import '../../data/models/template.dart';
 import '../../data/seed/splits.dart';
 import '../../data/seed/templates.dart';
-import '../../services/haptics.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/accordion.dart';
 import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
@@ -60,55 +60,62 @@ class LibraryScreen extends ConsumerWidget {
           tx('Templates used by auto-fill and splits. Edit once, every future plan follows.'),
           style: BoltText.a(13, color: BoltColors.muted),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: NeonButton(
-                label: tx('+ From muscles'),
-                height: 44,
-                radius: 12,
-                fontSize: 13,
-                onTap: newTemplateFromMuscles,
+        const SizedBox(height: 16),
+        // Making a workout comes first; passing them around is a quieter strip.
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _CreateTile(
+                  icon: Icons.accessibility_new,
+                  title: tx('From muscles'),
+                  sub: tx('Pick muscles, Bolt builds it'),
+                  primary: true,
+                  onTap: newTemplateFromMuscles,
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlineButton(
-                label: tx('+ Empty'),
-                height: 44,
-                radius: 12,
-                fontSize: 13,
-                onTap: () => context.push('/editor/tpl/${store.newTemplate()}'),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _CreateTile(
+                  icon: Icons.edit_note,
+                  title: tx('Empty workout'),
+                  sub: tx('Start from scratch'),
+                  onTap: () => context.push('/editor/tpl/${store.newTemplate()}'),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: OutlineButton(
-                label: tx('Send workouts'),
-                height: 44,
-                radius: 12,
-                fontSize: 13,
-                onTap: () => showBoltSheet<void>(context, (_) => const SendWorkoutsSheet()),
-              ),
+        BoltBox(
+          color: BoltColors.surface1,
+          stroke: const Stroke(BoltColors.lineSoft),
+          radius: 14,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: _ShareAction(
+                    icon: Icons.upload,
+                    label: tx('Send workouts'),
+                    onTap: () => showBoltSheet<void>(context, (_) => const SendWorkoutsSheet()),
+                  ),
+                ),
+                const VerticalDivider(width: 1, thickness: 1, color: BoltColors.divider),
+                Expanded(
+                  child: _ShareAction(
+                    icon: Icons.download,
+                    label: tx('Import workouts'),
+                    onTap: () => showBoltSheet<void>(context, (_) => const ImportSheet(workouts: true)),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlineButton(
-                label: tx('Import workouts'),
-                height: 44,
-                radius: 12,
-                fontSize: 13,
-                onTap: () => showBoltSheet<void>(context, (_) => const ImportSheet(workouts: true)),
-              ),
-            ),
-          ],
+          ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         Align(
           alignment: Alignment.centerLeft,
           child: Tap(
@@ -123,7 +130,7 @@ class LibraryScreen extends ConsumerWidget {
         // Everything at a glance: categories shut, the first one open.
         for (final (i, (title, ids)) in groups.where((g) => g.$2.isNotEmpty).indexed) ...[
           if (i > 0) const SizedBox(height: 8),
-          _Category(
+          BoltAccordion(
             key: ValueKey(title),
             title: tx(title),
             preview: [for (final id in ids) tx(d.tpls[id]!.name)],
@@ -155,7 +162,7 @@ class LibraryScreen extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: 8),
-        _Category(
+        BoltAccordion(
           key: const ValueKey('splits'),
           title: tx('Weekly splits'),
           preview: [for (final k in splitIds(d)) tx(splitOf(d, k).name)],
@@ -273,92 +280,81 @@ class LibraryScreen extends ConsumerWidget {
   }
 }
 
-/// A category that opens to show its cards. Shut, it still names what is
-/// inside, so the whole library fits on a screen or two.
-class _Category extends StatefulWidget {
-  const _Category({
-    super.key,
+/// One way to start a workout: what it is and what it does, in one tap.
+class _CreateTile extends StatelessWidget {
+  const _CreateTile({
+    required this.icon,
     required this.title,
-    required this.preview,
-    required this.children,
-    this.initiallyOpen = false,
+    required this.sub,
+    required this.onTap,
+    this.primary = false,
   });
 
+  final IconData icon;
   final String title;
-  final List<String> preview;
-  final List<Widget> children;
-  final bool initiallyOpen;
-
-  @override
-  State<_Category> createState() => _CategoryState();
-}
-
-class _CategoryState extends State<_Category> {
-  late bool _open = widget.initiallyOpen;
+  final String sub;
+  final VoidCallback onTap;
+  final bool primary;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Semantics(
-          button: true,
-          expanded: _open,
-          child: Tap(
-            onTap: () {
-              Haptics.play(Feel.tick);
-              setState(() => _open = !_open);
-            },
-            child: BoltBox(
-              color: BoltColors.surface1,
-              stroke: Stroke(_open ? BoltColors.line : BoltColors.lineSoft),
-              radius: 16,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(widget.title, style: BoltText.a(16, weight: 800)),
-                        // Open, the cards below say it already.
-                        if (!_open) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            widget.preview.join(' · '),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: BoltText.a(12, color: BoltColors.muted),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text('${widget.preview.length}', style: BoltText.m(12, weight: 700, color: BoltColors.neon)),
-                  const SizedBox(width: 4),
-                  AnimatedRotation(
-                    turns: _open ? .25 : 0,
-                    duration: const Duration(milliseconds: 180),
-                    child: const Chevron(size: 18),
-                  ),
-                ],
+    final fg = primary ? BoltColors.onNeon : BoltColors.text;
+    return Tap(
+      onTap: onTap,
+      scale: .97,
+      child: BoltBox(
+        color: primary ? BoltColors.neon : BoltColors.surface1,
+        stroke: Stroke(primary ? BoltColors.neon : BoltColors.line),
+        radius: 16,
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 24, color: primary ? BoltColors.onNeon : BoltColors.neon),
+            const SizedBox(height: 10),
+            Text(title, style: BoltText.a(15, weight: 800, color: fg)),
+            const SizedBox(height: 3),
+            Text(
+              sub,
+              style: BoltText.a(12, color: primary ? BoltColors.onNeon.withValues(alpha: .75) : BoltColors.muted),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One half of the strip for passing workouts to and from friends.
+class _ShareAction extends StatelessWidget {
+  const _ShareAction({required this.icon, required this.label, required this.onTap});
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tap(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: BoltColors.neon),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: BoltText.a(13, weight: 700, color: BoltColors.text),
               ),
             ),
-          ),
+          ],
         ),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          alignment: Alignment.topCenter,
-          child: _open
-              ? Padding(
-                  padding: const EdgeInsets.only(top: 8, bottom: 4),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: widget.children),
-                )
-              : const SizedBox(width: double.infinity),
-        ),
-      ],
+      ),
     );
   }
 }

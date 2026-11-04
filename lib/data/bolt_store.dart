@@ -230,7 +230,7 @@ class BoltStore extends Notifier<BoltData> {
   /// Onboarding: creates the phone owner's profile. Solo users can have their
   /// first three weeks planned from their split right away. An admin gets
   /// both a coach and a trainee record so every role works.
-  void createProfile(Role role, ProfileInput p, {bool autoPlan = false, bool admin = false}) {
+  void createProfile(Role role, ProfileInput p, {bool admin = false}) {
     final body = (p.body ?? Body())..updated = (p.body?.isEmpty ?? true) ? null : today;
     if (!body.isEmpty) body.logCurrent(today);
     if (role == Role.coach || admin) {
@@ -264,7 +264,6 @@ class BoltStore extends Notifier<BoltData> {
     state.settings.levelSeen = 1;
     // Everyone starts at Bodyweight, so the first placement is celebrated.
     state.settings.rankSeen = 0;
-    if (autoPlan && role != Role.coach) _fill(Account.ownerId, SessionStatus.approved);
     _commit();
     syncSessionReminders();
   }
@@ -1539,6 +1538,25 @@ class BoltStore extends Notifier<BoltData> {
     final was = plan(tid).remove(k)?.status;
     _commit();
     _toast(was == SessionStatus.draft ? tx('Draft removed') : tx('Removed'));
+    if (!_isCoach) syncSessionReminders();
+  }
+
+  /// What Clear month would remove from [month]: every session not done yet.
+  /// Rest days go too, but only sessions are worth counting.
+  bool hasPlansIn(String tid, DateTime month) {
+    final m = '${month.year}-${pad(month.month)}-';
+    return plan(tid).entries.any((e) => e.key.startsWith(m) && e.value.status != SessionStatus.done) ||
+        tr(tid).stats.rest.any((k) => k.startsWith(m));
+  }
+
+  /// Wipes what was planned in [month]. Finished workouts stay, they are
+  /// history, and so does a workout under way.
+  void clearMonth(String tid, DateTime month) {
+    final m = '${month.year}-${pad(month.month)}-';
+    plan(tid).removeWhere((k, s) => k.startsWith(m) && s.status != SessionStatus.done && k != state.workout?.key);
+    tr(tid).stats.rest.removeWhere((k) => k.startsWith(m));
+    _commit();
+    _toast(tx('{month} cleared', {'month': monthsLong[month.month - 1]}));
     if (!_isCoach) syncSessionReminders();
   }
 

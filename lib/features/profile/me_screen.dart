@@ -58,22 +58,27 @@ class MeScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 14),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (final c in [
-              tx(t.goal),
-              tx(splitOf(d, t.split).name),
-              tx('Since {when}', {'when': monthYear(t.since)}),
-            ])
-              BoltBox(
-                radius: 99,
-                stroke: const Stroke(BoltColors.line),
-                padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-                child: Text(c, style: BoltText.a(12, weight: 600)),
+        BoltBox(
+          color: BoltColors.surface1,
+          stroke: const Stroke(BoltColors.lineSoft),
+          radius: 16,
+          child: Column(
+            children: [
+              _Fact(
+                icon: Icons.flag_outlined,
+                label: tx('GOAL'),
+                value: tx(t.goal),
+                onTap: () => context.push('/edit-profile'),
               ),
-          ],
+              _Fact(
+                icon: Icons.calendar_view_week_outlined,
+                label: tx('WEEKLY SPLIT'),
+                value: tx(splitOf(d, t.split).name),
+                onTap: () => context.push('/edit-profile'),
+              ),
+              _Fact(icon: Icons.event_available, label: tx('TRAINING SINCE'), value: monthYear(t.since), last: true),
+            ],
+          ),
         ),
         const SizedBox(height: 18),
         StatRow(
@@ -298,6 +303,49 @@ class _LinkCard extends StatelessWidget {
             ),
             const SizedBox(width: 14),
             const Chevron(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One line about the owner: what it is, and its value.
+class _Fact extends StatelessWidget {
+  const _Fact({required this.icon, required this.label, required this.value, this.onTap, this.last = false});
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final VoidCallback? onTap;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tap(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: last
+            ? null
+            : const BoxDecoration(
+                border: Border(bottom: BorderSide(color: BoltColors.divider)),
+              ),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: BoltColors.neon),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Kicker(label, size: 9),
+                  const SizedBox(height: 2),
+                  Text(value, style: BoltText.a(14, weight: 700)),
+                ],
+              ),
+            ),
+            if (onTap != null) const Chevron(size: 18),
           ],
         ),
       ),
