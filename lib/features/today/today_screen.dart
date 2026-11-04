@@ -36,6 +36,7 @@ import '../plan/free_day_sheet.dart';
 import '../measurements/measurements_screen.dart' show bodyChange, bodyDelta, bodySeries, bodyValue;
 import '../sharing/import_sheet.dart';
 import '../rank/rank_screen.dart' show RankCard;
+import '../notifications/notifications_screen.dart' show NotificationBell;
 import '../updates/update_sheet.dart' show NewVersionCard, newReleaseProvider;
 import 'level_card.dart';
 import 'readiness_card.dart';
@@ -101,7 +102,7 @@ class TodayScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            Avatar(ini: initials(t.name), ring: BoltColors.neon, color: BoltColors.neon),
+            const NotificationBell(),
           ],
         ),
         if (g != null) ...[

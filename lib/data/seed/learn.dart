@@ -155,18 +155,41 @@ class Supplement {
   final String note;
 }
 
-/// The supplements people take every day, offered as daily reminders.
-const kDailySupplements = <String>[
-  'Creatine monohydrate',
-  'Protein powder',
-  'Vitamin D3',
-  'Omega-3 (fish oil)',
-  'Magnesium',
-  'Zinc',
-  'Multivitamin',
-  'Collagen + vitamin C',
-  'Probiotics',
-  'Beta-alanine',
+/// A supplement offered as a daily reminder. [name] matches [kSupplements] and
+/// is what settings store; [short] and [why] label its tile.
+class DailySupp {
+  const DailySupp(this.name, this.short, this.why);
+
+  final String name;
+  final String short;
+  final String why;
+}
+
+/// The supplements people take every day, by what they are taken for. Each
+/// group has an even count, so the two-column grid always ends flush.
+const kDailySupps = <(String, List<DailySupp>)>[
+  (
+    'Strength and recovery',
+    [
+      DailySupp('Creatine monohydrate', 'Creatine', 'Strength and power'),
+      DailySupp('Protein powder', 'Protein', 'Muscle repair'),
+      DailySupp('Beta-alanine', 'Beta-alanine', 'Muscle endurance'),
+      DailySupp('Collagen + vitamin C', 'Collagen', 'Tendons and joints'),
+    ],
+  ),
+  (
+    'Everyday health',
+    [
+      DailySupp('Vitamin D3', 'Vitamin D3', 'Bones and immunity'),
+      DailySupp('Omega-3 (fish oil)', 'Omega-3', 'Heart and joints'),
+      DailySupp('Multivitamin', 'Multivitamin', 'Covers the gaps'),
+      DailySupp('Zinc', 'Zinc', 'Immunity'),
+    ],
+  ),
+  (
+    'Sleep and gut',
+    [DailySupp('Magnesium', 'Magnesium', 'Sleep and recovery'), DailySupp('Probiotics', 'Probiotics', 'Gut health')],
+  ),
 ];
 
 const kSupplements = <Supplement>[

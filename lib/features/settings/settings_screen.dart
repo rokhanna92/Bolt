@@ -15,7 +15,6 @@ import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
-import 'daily_reminders_sheet.dart';
 
 class _Row {
   const _Row(this.label, {this.sub, this.toggle, this.value, this.onTap, this.danger = false});
@@ -129,9 +128,9 @@ class SettingsScreen extends ConsumerWidget {
             ),
           _Row(
             tx('Daily reminders'),
-            sub: tx('Water and supplements'),
+            sub: tx('Water, supplements and updates'),
             value: '',
-            onTap: () => showBoltSheet<void>(context, (_) => const DailyRemindersSheet(), maxHeight: .92),
+            onTap: () => context.push('/notifications'),
           ),
           _Row(
             tx('Check-out reminder'),

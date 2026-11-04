@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../notifications/notifications_screen.dart' show NotificationBell;
 import '../../app/share.dart';
 import '../../app/tick.dart';
 import '../../core/format.dart';
@@ -136,14 +137,11 @@ class RosterScreen extends ConsumerWidget {
                 children: [
                   Kicker(tx(c.role).toUpperCase()),
                   const SizedBox(height: 4),
-                  Text(
-                    firstName(c.name),
-                    style: BoltText.a(26, weight: 800, spacing: -.02),
-                  ),
+                  Text(firstName(c.name), style: BoltText.a(26, weight: 800, spacing: -.02)),
                 ],
               ),
             ),
-            Avatar(ini: initials(c.name), fill: BoltColors.neon, weight: 900),
+            const NotificationBell(),
           ],
         ),
         _LiveCard(trainees: my, coachId: c.id),

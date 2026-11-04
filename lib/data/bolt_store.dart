@@ -2444,6 +2444,48 @@ class BoltStore extends Notifier<BoltData> {
 
   void syncBroadcasts() => _notify.replaceBroadcasts(broadcasts());
 
+  /// The owner's pushes for this phone's role that went out in the last 7
+  /// days, once each at its latest time, newest first.
+  List<Reminder> recentPushes() {
+    final a = state.account;
+    if (a == null) return const [];
+    final role = switch (a.role) {
+      Role.solo => 'solo',
+      Role.trainee => 'clients',
+      Role.coach => 'coaches',
+    };
+    final out = <Reminder>[];
+    for (final p in state.settings.board.pushes) {
+      if (p.to != 'all' && p.to != role) continue;
+      for (var i = 0; i < 7; i++) {
+        final d = addDays(now, -i);
+        final at = DateTime(d.year, d.month, d.day, 0, p.at);
+        final on = p.date != null ? p.date == dk(d) : (p.days.isEmpty || p.days.contains(d.weekday));
+        if (!on || at.isAfter(now)) continue;
+        out.add(
+          Reminder(
+            at: at,
+            title: isSerbian && p.titleSr.isNotEmpty ? p.titleSr : p.title,
+            body: isSerbian && p.bodySr.isNotEmpty ? p.bodySr : p.body,
+          ),
+        );
+        break;
+      }
+    }
+    return out..sort((x, y) => y.at.compareTo(x.at));
+  }
+
+  /// Something new from the owner since the Notifications screen was opened.
+  bool get bellUnread {
+    final seen = state.settings.bellSeen;
+    return recentPushes().any((r) => seen == null || r.at.isAfter(seen));
+  }
+
+  void markBellSeen() {
+    state.settings.bellSeen = now;
+    _commit();
+  }
+
   /// The morning brief for day [k]: the size of the workout and what to
   /// beat, a weight to go for or the last time's log.
   String brief(String tid, String k) {

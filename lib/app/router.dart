@@ -30,6 +30,7 @@ import '../features/profile/me_screen.dart';
 import '../features/quick/quick_screen.dart';
 import '../features/quick/stopwatch_screen.dart';
 import '../features/rank/rank_screen.dart';
+import '../features/notifications/notifications_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/today/today_screen.dart';
 import '../features/workout/summary_screen.dart';
@@ -232,6 +233,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/badges',
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) => _enter(s, const BadgesScreen()),
+      ),
+      GoRoute(
+        path: '/notifications',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const NotificationsScreen()),
       ),
       GoRoute(
         path: '/settings',

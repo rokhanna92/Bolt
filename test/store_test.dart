@@ -958,6 +958,25 @@ void ownerTests() {
       expect(f.store.state.settings.supps.containsKey('Zinc'), isFalse);
     });
 
+    test('the bell lights for new pushes that went out, not for future ones', () {
+      final f = Fresh(wed)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      expect(f.store.bellUnread, isFalse);
+      f.store.applyBoard(
+        Board.fromJson({
+          'pushes': [
+            {'id': 'old', 'title': 'Sent', 'body': '', 'at': 60, 'date': dk(addDays(wed, -2)), 'to': 'all'},
+            {'id': 'far', 'title': 'Too old', 'body': '', 'at': 60, 'date': dk(addDays(wed, -9)), 'to': 'all'},
+            {'id': 'new', 'title': 'Soon', 'body': '', 'at': 60, 'date': dk(addDays(wed, 1)), 'to': 'all'},
+            {'id': 'coach', 'title': 'Coaches', 'body': '', 'at': 60, 'date': dk(addDays(wed, -1)), 'to': 'coaches'},
+          ],
+        }),
+      );
+      expect([for (final r in f.store.recentPushes()) r.title], ['Sent']);
+      expect(f.store.bellUnread, isTrue);
+      f.store.markBellSeen();
+      expect(f.store.bellUnread, isFalse);
+    });
+
     test('the owner\'s notices move reminder times and push to the right people', () {
       final n = _Reminders();
       final f = Fresh(wed, n)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));

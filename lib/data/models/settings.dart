@@ -38,6 +38,7 @@ class AppSettings {
     this.watchFace = 'dial',
     this.water = false,
     this.waterHours = 3,
+    this.bellSeen,
     Map<String, int>? supps,
     Board? board,
     List<String>? hintsSeen,
@@ -113,6 +114,9 @@ class AppSettings {
   /// each one.
   final Map<String, int> supps;
 
+  /// When the Notifications screen was last opened, for the dot on the bell.
+  DateTime? bellSeen;
+
   /// The key generation this phone last got through. Below `kKeyGen` the app
   /// asks for a key again before it opens.
   int keyGen;
@@ -151,6 +155,7 @@ class AppSettings {
     'water': water,
     'waterHours': waterHours,
     'supps': supps,
+    'bellSeen': bellSeen?.toIso8601String(),
     'coachKeysOn': coachKeysOn,
     'keyLog': [for (final e in keyLog) e.toJson()],
     'board': board.toJson(),
@@ -179,6 +184,7 @@ class AppSettings {
     watchFace: j['watchFace'] as String? ?? 'dial',
     water: j['water'] as bool? ?? false,
     waterHours: j['waterHours'] as int? ?? 3,
+    bellSeen: DateTime.tryParse(j['bellSeen'] as String? ?? ''),
     supps: {for (final e in (j['supps'] as Map? ?? const {}).entries) e.key as String: e.value as int},
     coachKeysOn: [for (final x in j['coachKeysOn'] as List? ?? const []) x as int],
     keyLog: [for (final x in j['keyLog'] as List? ?? const []) KeyEntry.fromJson(x as Map<String, dynamic>)],
