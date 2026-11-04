@@ -1,3 +1,5 @@
+import 'dart:ui' show lerpDouble;
+
 import 'package:flutter/material.dart';
 
 import '../core/format.dart';
@@ -181,6 +183,12 @@ class CalendarGrid extends StatelessWidget {
   final double numSize;
   final double labSpacing;
 
+  /// Height of the whole grid, with the 5 between rows.
+  double get height {
+    final rows = cells.length ~/ 7;
+    return rows * cellHeight + (rows - 1) * 5;
+  }
+
   @override
   Widget build(BuildContext context) {
     final rows = <Widget>[];
@@ -303,6 +311,101 @@ class SessionDot extends StatelessWidget {
 
 /// The selected day's ring: 2 px outside the cell, like CSS
 /// `box-shadow: 0 0 0 2px`, which never paints under the cell itself.
+/// Months side by side, to swipe through. Changing [month] from outside, like
+/// the arrows do, slides to it. The height follows the rows of the month in
+/// view, and the header only changes once a swipe has settled.
+class MonthPager extends StatefulWidget {
+  const MonthPager({super.key, required this.month, required this.onMonth, required this.grid});
+
+  final DateTime month;
+  final ValueChanged<DateTime> onMonth;
+  final CalendarGrid Function(DateTime month) grid;
+
+  @override
+  State<MonthPager> createState() => _MonthPagerState();
+}
+
+class _MonthPagerState extends State<MonthPager> {
+  static int _index(DateTime m) => m.year * 12 + m.month - 1;
+  static DateTime _monthAt(int i) => DateTime(i ~/ 12, i % 12 + 1);
+
+  late final PageController _c = PageController(initialPage: _index(widget.month));
+  final Map<int, double> _heights = {};
+
+  double _height(int i) => _heights[i] ??= widget.grid(_monthAt(i)).height;
+
+  @override
+  void didUpdateWidget(MonthPager old) {
+    super.didUpdateWidget(old);
+    _heights.clear();
+    if (old.month == widget.month) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_c.hasClients) return;
+      final to = _index(widget.month);
+      final at = _c.page ?? to.toDouble();
+      if (at == to) return;
+      if ((at - to).abs() > 2) {
+        _c.jumpToPage(to);
+      } else {
+        _c.animateToPage(to, duration: const Duration(milliseconds: 260), curve: Curves.easeOutCubic);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  bool _settled(ScrollEndNotification n) {
+    if (n.depth == 0 && _c.hasClients) {
+      final i = _c.page!.round();
+      if (i != _index(widget.month)) widget.onMonth(_monthAt(i));
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, child) {
+        final page = _c.hasClients && _c.position.haveDimensions ? _c.page! : _index(widget.month).toDouble();
+        final i = page.floor();
+        return SizedBox(height: lerpDouble(_height(i), _height(i + 1), page - i), child: child);
+      },
+      // The viewport's own clip would cut the ring around a selected day.
+      child: ClipRect(
+        clipper: const _RingRoomClipper(),
+        child: NotificationListener<ScrollEndNotification>(
+          onNotification: _settled,
+          child: PageView.builder(
+            controller: _c,
+            clipBehavior: Clip.none,
+            itemBuilder: (context, i) => OverflowBox(
+              alignment: Alignment.topCenter,
+              minHeight: 0,
+              maxHeight: double.infinity,
+              child: widget.grid(_monthAt(i)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RingRoomClipper extends CustomClipper<Rect> {
+  const _RingRoomClipper();
+
+  @override
+  Rect getClip(Size size) => (Offset.zero & size).inflate(2);
+
+  @override
+  bool shouldReclip(_RingRoomClipper old) => false;
+}
+
 class _RingPainter extends CustomPainter {
   const _RingPainter();
 

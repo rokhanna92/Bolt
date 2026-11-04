@@ -94,8 +94,8 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
     final sp = _sel == null ? null : p[_sel];
     final drafts = p.values.where((s) => s.status == SessionStatus.draft).length;
     final insets = MediaQuery.paddingOf(context);
-    final cells = buildCalendar(
-      month: _month,
+    List<CalCell> cellsOf(DateTime m) => buildCalendar(
+      month: m,
       plan: p,
       tpls: d.tpls,
       today: today,
@@ -376,7 +376,12 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 const SizedBox(height: 10),
                 WeekdayHeader(mondayFirst: d.settings.mondayFirst),
                 const SizedBox(height: 6),
-                CalendarGrid(cells: cells, onTap: onCell, cellHeight: 48, numSize: 13, labSpacing: 0),
+                MonthPager(
+                  month: _month,
+                  onMonth: (m) => setState(() => _month = m),
+                  grid: (m) =>
+                      CalendarGrid(cells: cellsOf(m), onTap: onCell, cellHeight: 48, numSize: 13, labSpacing: 0),
+                ),
                 const SizedBox(height: 12),
                 Legend(items: coachLegend, gap: 10),
                 if (sp != null) ...[

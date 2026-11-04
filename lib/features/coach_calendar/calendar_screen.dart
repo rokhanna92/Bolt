@@ -33,8 +33,9 @@ class _CoachCalendarScreenState extends ConsumerState<CoachCalendarScreen> {
   late DateTime _month = DateTime(_store.now.year, _store.now.month);
   late String _sel = _store.today;
 
-  void _goMonth(int by) {
-    final m = DateTime(_month.year, _month.month + by);
+  void _goMonth(int by) => _setMonth(DateTime(_month.year, _month.month + by));
+
+  void _setMonth(DateTime m) {
     final n = _store.now;
     setState(() {
       _month = m;
@@ -52,8 +53,8 @@ class _CoachCalendarScreenState extends ConsumerState<CoachCalendarScreen> {
     for (final x in my) {
       _store.plan(x.id).forEach((k, s) => byDay.putIfAbsent(k, () => []).add((x, s)));
     }
-    final cells = buildCalendar(
-      month: _month,
+    List<CalCell> cellsOf(DateTime m) => buildCalendar(
+      month: m,
       plan: const {},
       tpls: d.tpls,
       today: today,
@@ -100,13 +101,17 @@ class _CoachCalendarScreenState extends ConsumerState<CoachCalendarScreen> {
         const SizedBox(height: 18),
         WeekdayHeader(mondayFirst: d.settings.mondayFirst),
         const SizedBox(height: 8),
-        CalendarGrid(
-          cells: cells,
-          onTap: (cell) => setState(() {
-            _sel = cell.k;
-            final t = DateTime.parse(cell.k);
-            _month = DateTime(t.year, t.month);
-          }),
+        MonthPager(
+          month: _month,
+          onMonth: _setMonth,
+          grid: (m) => CalendarGrid(
+            cells: cellsOf(m),
+            onTap: (cell) => setState(() {
+              _sel = cell.k;
+              final t = DateTime.parse(cell.k);
+              _month = DateTime(t.year, t.month);
+            }),
+          ),
         ),
         const SizedBox(height: 12),
         const Legend(items: _legend),

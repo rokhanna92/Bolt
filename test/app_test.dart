@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:bolt/core/format.dart';
+import 'package:bolt/app/ui_state.dart';
 import 'package:bolt/app.dart';
 import 'package:bolt/app/actions.dart' show openShortcut;
 import 'package:bolt/app/router.dart';
@@ -384,6 +386,31 @@ void main() {
     await settle(tester);
     expect(c.read(boltProvider).trainees.single.stats.rest, isEmpty);
     expect(find.text('REST'), findsNothing);
+    await unmount(tester);
+  });
+
+  testWidgets('swiping the Plan calendar changes month, and the arrows slide it too', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapTab(tester, 'Plan');
+    final start = c.read(planMonthProvider);
+    final next = DateTime(start.year, start.month + 1);
+    await tester.fling(find.byType(PageView), const Offset(-300, 0), 1000);
+    await settle(tester);
+    expect(c.read(planMonthProvider), next);
+    expect(find.text(monthsLong[next.month - 1]), findsOneWidget);
+    expect(tester.widget<PageView>(find.byType(PageView)).controller!.page, next.year * 12 + next.month - 1);
+
+    await tester.fling(find.byType(PageView), const Offset(300, 0), 1000);
+    await settle(tester);
+    expect(c.read(planMonthProvider), start);
+
+    c.read(planMonthProvider.notifier).shift(-1);
+    await settle(tester);
+    await settle(tester); // The slide starts on the frame after the change.
+    final back = DateTime(start.year, start.month - 1);
+    expect(tester.widget<PageView>(find.byType(PageView)).controller!.page, back.year * 12 + back.month - 1);
+    expect(c.read(planMonthProvider), back);
     await unmount(tester);
   });
 

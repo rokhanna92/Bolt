@@ -45,8 +45,8 @@ class PlanScreen extends ConsumerWidget {
             )
             .toList()
           ..sort();
-    final cells = buildCalendar(
-      month: month,
+    List<CalCell> cellsOf(DateTime m) => buildCalendar(
+      month: m,
       plan: plan,
       tpls: d.tpls,
       today: today,
@@ -228,7 +228,11 @@ class PlanScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         WeekdayHeader(mondayFirst: d.settings.mondayFirst),
         const SizedBox(height: 6),
-        CalendarGrid(cells: cells, onTap: onTap, onLongPress: onLongPress),
+        MonthPager(
+          month: month,
+          onMonth: ref.read(planMonthProvider.notifier).set,
+          grid: (m) => CalendarGrid(cells: cellsOf(m), onTap: onTap, onLongPress: onLongPress),
+        ),
         const SizedBox(height: 14),
         Legend(items: traineeLegend),
         const SizedBox(height: 26),
