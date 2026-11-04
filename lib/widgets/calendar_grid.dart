@@ -447,7 +447,6 @@ class LegendItem {
 List<LegendItem> get traineeLegend => [
   LegendItem('Done', BoltColors.neon, Stroke(BoltColors.neon)),
   LegendItem('Confirmed', _plannedBg, _plannedStroke),
-  LegendItem('Needs your OK', Colors.transparent, Stroke.dashed(BoltColors.neon, 1.5)),
   LegendItem('Moved', _plannedBg, const Stroke(BoltColors.text, 1.5)),
   LegendItem('Rest day', Colors.transparent, Stroke.dotted(BoltColors.neon, 1.5)),
 ];
