@@ -14,7 +14,11 @@ import '../coach_schedule/schedule_screen.dart' show TraineeSessionRow;
 
 List<LegendItem> get _legend => [
   LegendItem('Done', BoltColors.neon, Stroke(BoltColors.neon)),
-  const LegendItem('Confirmed', BoltColors.text, Stroke(BoltColors.text)),
+  LegendItem(
+    'Confirmed',
+    BoltColors.blue ? BoltColors.blueCell : BoltColors.text,
+    Stroke(BoltColors.blue ? BoltColors.blueCell : BoltColors.text),
+  ),
   LegendItem('Waiting', Colors.transparent, Stroke(BoltColors.neon, 1.5)),
   LegendItem('Draft', Colors.transparent, Stroke.dashed(BoltColors.muted2, 1.5)),
 ];

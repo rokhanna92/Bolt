@@ -9,6 +9,10 @@ abstract final class BoltColors {
   static bool blue = false;
 
   static const ink = Color(0xFF0A0B09);
+
+  /// A planned day on the blue theme's black calendar. White text reads 7:1 on it.
+  static const blueCell = Color(0xFF2B3BE5);
+
   static const surface1 = Color(0xFF141612);
   static const surface2 = Color(0xFF1C1F19);
   static const sheet = Color(0xFF111310);

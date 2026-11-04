@@ -10,6 +10,11 @@ import '../theme/tokens.dart';
 import 'box.dart';
 import 'tap.dart';
 
+// A planned day: on the blue theme's black card a real blue, so it reads at a
+// glance. The other theme keeps its soft card with a neon label.
+Color get _plannedBg => BoltColors.blue ? BoltColors.blueCell : BoltColors.surface2;
+Stroke get _plannedStroke => BoltColors.blue ? const Stroke(BoltColors.blueCell) : const Stroke(BoltColors.line);
+
 class CalCell {
   const CalCell({
     required this.k,
@@ -74,7 +79,9 @@ List<CalCell> buildCalendar({
     final past = k.compareTo(today) < 0;
     var bg = Colors.transparent;
     var stroke = const Stroke(Colors.transparent);
-    var num = inM ? (past ? BoltColors.muted3 : BoltColors.textSoft) : BoltColors.handle;
+    var num = inM
+        ? (past ? BoltColors.muted3 : BoltColors.textSoft)
+        : (BoltColors.blue ? BoltColors.muted3 : BoltColors.handle);
     var lab = p == null ? BoltColors.muted : BoltColors.neon;
     switch (p?.status) {
       case SessionStatus.done:
@@ -83,14 +90,14 @@ List<CalCell> buildCalendar({
         num = BoltColors.onNeon;
         lab = BoltColors.onNeon;
       case SessionStatus.approved:
-        bg = BoltColors.surface2;
-        stroke = const Stroke(BoltColors.line);
+        bg = _plannedBg;
+        stroke = _plannedStroke;
         num = BoltColors.text;
       case SessionStatus.pending:
         stroke = Stroke.dashed(BoltColors.neon, 1.5);
         num = BoltColors.text;
       case SessionStatus.moved:
-        bg = BoltColors.surface2;
+        bg = _plannedBg;
         stroke = const Stroke(BoltColors.text, 1.5);
         num = BoltColors.text;
         lab = BoltColors.text;
@@ -110,6 +117,14 @@ List<CalCell> buildCalendar({
     if (p == null && k == today && inM) num = BoltColors.neon;
     final ds = dots[k] ?? const <SessionStatus>[];
     if (ds.isNotEmpty && inM && !past) num = BoltColors.text;
+    // On the blue theme today is a ring, where it does not hide what the
+    // border already says about the day.
+    final ringed =
+        BoltColors.blue &&
+        k == today &&
+        !rest.contains(k) &&
+        (p == null || p.status == SessionStatus.approved || p.status == SessionStatus.moved);
+    if (ringed) stroke = Stroke(BoltColors.text, 2);
     if (moveFrom != null && p == null && !past && inM) bg = BoltColors.neon.withAlpha(0x17);
     if (moveFrom == k) stroke = Stroke(BoltColors.neon, 1.5);
     final tpl = p == null ? null : tpls[p.tpl];
@@ -127,7 +142,7 @@ List<CalCell> buildCalendar({
         labColor: lab,
         ring: selKey == k,
         inMonth: inM,
-        today: k == today,
+        today: k == today && !ringed,
         todayColor: p?.status == SessionStatus.done ? BoltColors.onNeon : BoltColors.neon,
         session: p,
         dots: ds,
@@ -210,7 +225,7 @@ class CalendarGrid extends StatelessWidget {
       onTap: () => onTap(c),
       onLongPress: onLongPress == null ? null : () => onLongPress!(c),
       child: Opacity(
-        opacity: c.inMonth ? 1 : .35,
+        opacity: c.inMonth ? 1 : (BoltColors.blue ? .45 : .35),
         child: CustomPaint(
           foregroundPainter: c.ring ? const _RingPainter() : null,
           child: BoltBox(
@@ -238,19 +253,15 @@ class CalendarGrid extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Today's dot sits centred above the number, clear of the
-                // rounded corner.
+                // Today's dot sits in the corner, clear of the number.
                 if (c.today)
                   Positioned(
-                    top: 5,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(color: c.todayColor, shape: BoxShape.circle),
-                      ),
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(color: c.todayColor, shape: BoxShape.circle),
                     ),
                   ),
               ],
@@ -296,7 +307,7 @@ class SessionDot extends StatelessWidget {
   Widget build(BuildContext context) {
     final bg = switch (status) {
       SessionStatus.done => BoltColors.neon,
-      SessionStatus.approved || SessionStatus.moved => BoltColors.text,
+      SessionStatus.approved || SessionStatus.moved => BoltColors.blue ? BoltColors.blueCell : BoltColors.text,
       _ => Colors.transparent,
     };
     final stroke = switch (status) {
@@ -435,17 +446,17 @@ class LegendItem {
 
 List<LegendItem> get traineeLegend => [
   LegendItem('Done', BoltColors.neon, Stroke(BoltColors.neon)),
-  const LegendItem('Confirmed', BoltColors.surface2, Stroke(BoltColors.line)),
+  LegendItem('Confirmed', _plannedBg, _plannedStroke),
   LegendItem('Needs your OK', Colors.transparent, Stroke.dashed(BoltColors.neon, 1.5)),
-  const LegendItem('Moved', BoltColors.surface2, Stroke(BoltColors.text, 1.5)),
+  LegendItem('Moved', _plannedBg, const Stroke(BoltColors.text, 1.5)),
   LegendItem('Rest day', Colors.transparent, Stroke.dotted(BoltColors.neon, 1.5)),
 ];
 
 List<LegendItem> get coachLegend => [
   LegendItem('Done', BoltColors.neon, Stroke(BoltColors.neon)),
-  const LegendItem('Confirmed', BoltColors.surface2, Stroke(BoltColors.line)),
+  LegendItem('Confirmed', _plannedBg, _plannedStroke),
   LegendItem('Waiting', Colors.transparent, Stroke.dashed(BoltColors.neon, 1.5)),
-  const LegendItem('Moved', BoltColors.surface2, Stroke(BoltColors.text, 1.5)),
+  LegendItem('Moved', _plannedBg, const Stroke(BoltColors.text, 1.5)),
   LegendItem('Draft', Colors.transparent, Stroke.dashed(BoltColors.muted2, 1.5)),
 ];
 
@@ -457,37 +468,23 @@ class Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Even columns, so no item is left alone on a second line.
-    return LayoutBuilder(
-      builder: (context, box) {
-        final cols = box.maxWidth >= 480 ? 3 : 2;
-        final w = (box.maxWidth - gap * (cols - 1)) / cols;
-        return Wrap(
-          spacing: gap,
-          runSpacing: 8,
-          children: [
-            for (final l in items)
-              SizedBox(
-                width: w,
-                child: Row(
-                  children: [
-                    // Big enough that dotted, dashed and solid edges read apart.
-                    BoltBox(width: 16, height: 16, borderBox: true, radius: 5, color: l.bg, stroke: l.stroke),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        tx(l.label),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: BoltText.a(12, color: BoltColors.muted),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        );
-      },
+    // Compact and centred under the grid, reading as its key.
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: gap,
+      runSpacing: 8,
+      children: [
+        for (final l in items)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Big enough that dotted, dashed and solid edges read apart.
+              BoltBox(width: 14, height: 14, borderBox: true, radius: 4, color: l.bg, stroke: l.stroke),
+              const SizedBox(width: 6),
+              Text(tx(l.label), style: BoltText.a(12, color: BoltColors.muted)),
+            ],
+          ),
+      ],
     );
   }
 }

@@ -21,6 +21,16 @@ class Stroke {
   final bool dotted;
 }
 
+/// Marks everything below as already sitting on a background, for surfaces
+/// that are not a [BoltBox]. See [BoltBox]: only what sits straight on the
+/// blue page gets a fill.
+class OnSurface extends InheritedWidget {
+  const OnSurface({super.key, required super.child});
+
+  @override
+  bool updateShouldNotify(OnSurface oldWidget) => false;
+}
+
 /// A box with background, border (solid or dashed), radius and shadows.
 ///
 /// Sized like the prototype's CSS, which uses the default `content-box`:
@@ -67,8 +77,11 @@ class BoltBox extends StatelessWidget {
     final pad = padding?.resolve(TextDirection.ltr) ?? EdgeInsets.zero;
     final extraW = borderBox ? 0.0 : 2 * stroke.width + pad.horizontal;
     final extraH = borderBox ? 0.0 : 2 * stroke.width + pad.vertical;
+    final empty = gradient == null && (color == null || color!.a == 0);
     // Nothing outlined sits straight on the blue page: it is hard to read.
-    final fill = BoltColors.blue && stroke.width > 0 && gradient == null && (color == null || color!.a == 0)
+    // Inside a card it keeps its outline: its text is chosen for that card.
+    final fill =
+        BoltColors.blue && empty && stroke.width > 0 && context.getInheritedWidgetOfExactType<OnSurface>() == null
         ? BoltColors.surface1
         : color;
     final box = Container(
@@ -87,11 +100,13 @@ class BoltBox extends StatelessWidget {
       ),
       child: child,
     );
-    if (!stroke.dashed || stroke.width == 0) return box;
-    return CustomPaint(
-      foregroundPainter: DashedBorderPainter(stroke: stroke, radius: radius, circle: circle),
-      child: box,
-    );
+    final painted = !stroke.dashed || stroke.width == 0
+        ? box
+        : CustomPaint(
+            foregroundPainter: DashedBorderPainter(stroke: stroke, radius: radius, circle: circle),
+            child: box,
+          );
+    return empty ? painted : OnSurface(child: painted);
   }
 }
 

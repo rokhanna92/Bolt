@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 
 import '../theme/tokens.dart';
+import 'box.dart';
 
 /// Modal bottom sheet styled like the prototype: slides up 350 ms on
 /// cubic(.2,.8,.2,1) over a 60 % black scrim, 28 px top corners, a handle.
@@ -154,7 +155,7 @@ class _SheetBodyState extends State<_SheetBody> with SingleTickerProviderStateMi
                       decoration: BoxDecoration(color: BoltColors.handle, borderRadius: BorderRadius.circular(99)),
                     ),
                   ),
-                  widget.child,
+                  OnSurface(child: widget.child),
                 ],
               ),
             ),

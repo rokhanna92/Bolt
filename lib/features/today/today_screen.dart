@@ -316,15 +316,13 @@ class TodayScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 12),
-        BluePanel(
-          child: Row(
-            children: [
-              for (var i = 0; i < 7; i++) ...[
-                if (i > 0) const SizedBox(width: 6),
-                Expanded(child: _weekDay(context, ref, addDays(ws, i), today, vis, t.stats.rest)),
-              ],
+        Row(
+          children: [
+            for (var i = 0; i < 7; i++) ...[
+              if (i > 0) const SizedBox(width: 6),
+              Expanded(child: _weekDay(context, ref, addDays(ws, i), today, vis, t.stats.rest)),
             ],
-          ),
+          ],
         ),
         const SizedBox(height: 26),
         Row(
@@ -1027,125 +1025,127 @@ class _HeroCard extends ConsumerWidget {
     final chips = [plural(s.ex.length, 'exercise'), plural(s.totalSets, 'set'), '~${s.mins} min'];
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
-      child: Container(
-        color: BoltColors.neon,
-        padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned(
-              right: -60,
-              top: -62,
-              child: Container(
-                width: 214,
-                height: 214,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0x140A0B09), width: 22),
-                ),
-              ),
-            ),
-            Positioned(
-              right: -5,
-              top: -7,
-              child: Container(
-                width: 76,
-                height: 76,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0x140A0B09), width: 8),
-                ),
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Text(tx('TODAY'), style: BoltText.m(11, weight: 700, spacing: .12, color: ink)),
-                    const SizedBox(width: 8),
-                    BoltBox(
-                      color: ink,
-                      radius: 99,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      child: Text(
-                        traineeLabel(s.status),
-                        style: BoltText.m(10, weight: 700, spacing: .08, color: BoltColors.neon),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  tx(s.title).toUpperCase(),
-                  style: BoltText.a(
-                    tsz(tx(s.title), 54),
-                    weight: 900,
-                    width: 115,
-                    spacing: -.03,
-                    height: .95,
-                    color: ink,
+      child: OnSurface(
+        child: Container(
+          color: BoltColors.neon,
+          padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned(
+                right: -60,
+                top: -62,
+                child: Container(
+                  width: 214,
+                  height: 214,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0x140A0B09), width: 22),
                   ),
                 ),
-                const SizedBox(height: 6),
-                Text(tx(s.focus), style: BoltText.a(14, weight: 600, color: ink.withValues(alpha: .8))),
-                const SizedBox(height: 14),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    for (final c in chips)
-                      BoltBox(
-                        radius: 99,
-                        stroke: const Stroke(Color(0x590A0B09)),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        child: Text(c, style: BoltText.m(11, weight: 600, color: ink)),
-                      ),
-                  ],
+              ),
+              Positioned(
+                right: -5,
+                top: -7,
+                child: Container(
+                  width: 76,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0x140A0B09), width: 8),
+                  ),
                 ),
-                if (flagged.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  BoltBox(
-                    color: const Color(0x1F0A0B09),
-                    radius: 10,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    child: Text(
-                      '⚠\uFE0E ${tx('{n} flagged for your {area} · swap available', {'n': plural(flagged.length, 'exercise'), 'area': tx(kAreas[flagged.first.area]!).toLowerCase()})}',
-                      style: BoltText.a(12, weight: 700, color: ink),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Text(tx('TODAY'), style: BoltText.m(11, weight: 700, spacing: .12, color: ink)),
+                      const SizedBox(width: 8),
+                      BoltBox(
+                        color: ink,
+                        radius: 99,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        child: Text(
+                          traineeLabel(s.status),
+                          style: BoltText.m(10, weight: 700, spacing: .08, color: BoltColors.neon),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    tx(s.title).toUpperCase(),
+                    style: BoltText.a(
+                      tsz(tx(s.title), 54),
+                      weight: 900,
+                      width: 115,
+                      spacing: -.03,
+                      height: .95,
+                      color: ink,
                     ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(tx(s.focus), style: BoltText.a(14, weight: 600, color: ink.withValues(alpha: .8))),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final c in chips)
+                        BoltBox(
+                          radius: 99,
+                          stroke: const Stroke(Color(0x590A0B09)),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          child: Text(c, style: BoltText.m(11, weight: 600, color: ink)),
+                        ),
+                    ],
+                  ),
+                  if (flagged.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    BoltBox(
+                      color: const Color(0x1F0A0B09),
+                      radius: 10,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      child: Text(
+                        '⚠\uFE0E ${tx('{n} flagged for your {area} · swap available', {'n': plural(flagged.length, 'exercise'), 'area': tx(kAreas[flagged.first.area]!).toLowerCase()})}',
+                        style: BoltText.a(12, weight: 700, color: ink),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: NeonButton(
+                          label: tx('Open workout'),
+                          height: 50,
+                          radius: 14,
+                          color: ink,
+                          textColor: BoltColors.neon,
+                          onTap: () =>
+                              s.status == SessionStatus.pending ? openPlanDay(context, ref, today) : openWorkout(today),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Tap(
+                        onTap: () => openPlanDay(context, ref, today),
+                        child: BoltBox(
+                          height: 50,
+                          radius: 14,
+                          stroke: Stroke(ink, 1.5),
+                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                          alignment: Alignment.center,
+                          child: Text(tx('Details'), style: BoltText.a(14, weight: 700, color: ink)),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: NeonButton(
-                        label: tx('Open workout'),
-                        height: 50,
-                        radius: 14,
-                        color: ink,
-                        textColor: BoltColors.neon,
-                        onTap: () =>
-                            s.status == SessionStatus.pending ? openPlanDay(context, ref, today) : openWorkout(today),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Tap(
-                      onTap: () => openPlanDay(context, ref, today),
-                      child: BoltBox(
-                        height: 50,
-                        radius: 14,
-                        stroke: Stroke(ink, 1.5),
-                        padding: const EdgeInsets.symmetric(horizontal: 18),
-                        alignment: Alignment.center,
-                        child: Text(tx('Details'), style: BoltText.a(14, weight: 700, color: ink)),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

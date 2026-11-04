@@ -7,6 +7,7 @@ import 'package:bolt/app/actions.dart' show openShortcut;
 import 'package:bolt/app/router.dart';
 import 'package:bolt/core/pwa.dart';
 import 'package:bolt/widgets/bolt_nav_bar.dart';
+import 'package:bolt/widgets/box.dart';
 import 'package:bolt/widgets/calendar_grid.dart';
 import 'package:bolt/data/bolt_store.dart';
 import 'package:bolt/data/licenses.dart';
@@ -1642,6 +1643,31 @@ void main() {
     expect(find.descendant(of: find.byType(BluePanel), matching: find.byType(CalendarGrid)), findsWidgets);
     c.read(boltProvider.notifier).toggleTheme();
     await unmount(tester);
+  });
+
+  testWidgets('only what sits straight on the blue page gets a fill', (tester) async {
+    Color? fillOf(Key key) => (tester.widget<Container>(find.descendant(of: find.byKey(key), matching: find.byType(Container)).first).decoration as BoxDecoration).color;
+    const stroke = Stroke(Colors.white);
+    BoltColors.blue = true;
+    addTearDown(() => BoltColors.blue = false);
+    await tester.pumpWidget(
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: Column(
+          children: [
+            BoltBox(key: Key('page'), stroke: stroke, height: 10, width: 10),
+            BoltBox(
+              color: Colors.white,
+              child: BoltBox(key: Key('card'), stroke: stroke, height: 10, width: 10),
+            ),
+            OnSurface(child: BoltBox(key: Key('surface'), stroke: stroke, height: 10, width: 10)),
+          ],
+        ),
+      ),
+    );
+    expect(fillOf(const Key('page')), BoltColors.surface1);
+    expect(fillOf(const Key('card')), isNull);
+    expect(fillOf(const Key('surface')), isNull);
   });
 
   testWidgets('workouts open and close by category', (tester) async {
