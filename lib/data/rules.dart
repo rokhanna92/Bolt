@@ -117,7 +117,8 @@ List<ExSeed> workoutForMuscles(List<String> muscles, math.Random rnd) {
   final per = n == 1 ? 5 : (n == 2 ? 3 : (n <= 4 ? 2 : 1));
   final picked = <ExInfo>[];
   for (final m in muscles) {
-    final pool = kExercises.where((e) => e.muscle == m && !picked.contains(e)).toList()..shuffle(rnd);
+    final pool = kExercises.where((e) => e.muscle == m && !isPneumatic(e.name) && !picked.contains(e)).toList()
+      ..shuffle(rnd);
     // A compound lift leads when the muscle has one.
     pool.sort((a, b) => (b.compound ? 1 : 0) - (a.compound ? 1 : 0));
     final first = pool.take(1).toList();

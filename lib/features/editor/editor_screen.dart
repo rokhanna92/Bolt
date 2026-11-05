@@ -651,7 +651,7 @@ class _ExercisePickerState extends State<ExercisePicker> {
           const SizedBox(height: 14),
           Kicker(tx(kExerciseGroups[g]!).toUpperCase(), size: 10, spacing: .1),
           const SizedBox(height: 4),
-          for (final a in kExercises.where((e) => e.muscle == g))
+          for (final a in kExercises.where((e) => inGroup(e, g)))
             Tap(
               onTap: () => Navigator.of(context).pop(ExSeed(a.name, a.sets, a.reps, a.load, a.area, a.alt)),
               child: Container(

@@ -177,7 +177,7 @@ class LearnScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 Kicker(tx(g.value).toUpperCase(), size: 10, spacing: .1),
                 const SizedBox(height: 8),
-                for (final e in kExercises.where((x) => x.muscle == g.key)) ...[
+                for (final e in kExercises.where((x) => inGroup(x, g.key))) ...[
                   _ExerciseRow(e: e),
                   const SizedBox(height: 6),
                 ],

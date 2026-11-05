@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:bolt/data/repositories/bolt_repository.dart';
 import 'package:bolt/data/models/people.dart';
 import 'package:bolt/data/models/settings.dart';
@@ -122,6 +124,23 @@ void main() {
       expect(names.toSet().length, names.length);
       expect(names.first, '90/90 Hip Switch');
       expect(names, contains('Bench Press'));
+    });
+
+    test('Keiser machines have their own group and swap in for their muscle', () {
+      final keiser = kExercises.where((e) => inGroup(e, 'pneumatics')).map((e) => e.name).toList();
+      expect(keiser, hasLength(18));
+      expect(keiser.first, 'Keiser Seated Chest Press');
+      expect(
+        kExercises.where((e) => inGroup(e, 'biceps')).map((e) => e.name),
+        isNot(contains('Keiser Seated Biceps Curl')),
+      );
+      final curl = Exercise(id: 'c', name: 'Barbell Curl', sets: 3, reps: '10', load: '30 kg');
+      expect(swapOptions(curl, null).map((e) => e.name), contains('Keiser Seated Biceps Curl'));
+      // Generated workouts stay on kit every gym has.
+      for (var seed = 0; seed < 40; seed++) {
+        final w = workoutForMuscles(['biceps', 'quads', 'chest', 'back', 'abs'], math.Random(seed));
+        expect(w.where((e) => isPneumatic(e.name)), isEmpty);
+      }
     });
 
     test('every exercise has Serbian text and a real swap', () {

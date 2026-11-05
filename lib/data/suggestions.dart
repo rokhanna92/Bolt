@@ -109,7 +109,9 @@ List<Hint> suggestions(
           worst = m;
         }
       }
-      final ex = worst == null ? null : kExercises.where((e) => e.muscle == worst && e.compound).firstOrNull;
+      final ex = worst == null
+          ? null
+          : kExercises.where((e) => e.muscle == worst && e.compound && !isPneumatic(e.name)).firstOrNull;
       if (worst != null && ex != null && gap >= 4) {
         final (lo, hi) = volumeRange(worst)!;
         out.add(
