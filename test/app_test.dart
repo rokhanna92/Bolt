@@ -1012,7 +1012,7 @@ void main() {
     await tapText(tester, 'Save');
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text('RANK UP'), findsOneWidget);
-    expect(find.text('STEEL II'), findsOneWidget);
+    expect(find.text('PLATINUM I'), findsOneWidget);
     await tester.pump(const Duration(seconds: 3));
     await tapText(tester, 'Tap to continue');
     c.read(routerProvider).push('/rank');

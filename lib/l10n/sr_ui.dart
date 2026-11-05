@@ -1140,6 +1140,9 @@ const kSrUi = <String, String>{
   'Any one of these gets you there:': 'Bilo koja od ovih te vodi tamo:',
   'Atlas. Maybe once in a thousand years. There is nothing above this.': 'Atlas. Možda jednom u hiljadu godina. Iznad ovoga nema ničega.',
   '{x} bodyweight': '{x} telesne težine',
+  '{n} reps': '{n} ponavljanja',
+  'Muscle-ups, pull-ups, chin-ups and dips count by your best set of reps instead, on the same scale.':
+      'Mišićni zgibovi, zgibovi, zgibovi podhvatom i propadanja računaju se po najboljoj seriji ponavljanja, na istoj skali.',
   'How rank works': 'Kako se računa rang',
   'Each main lift\'s best: a max you set, or your best set as a one-rep max, weight × (1 + reps ÷ 30). 100 kg for 5 is about 117 kg.': 'Najbolje na svakoj glavnoj vežbi: maksimum koji upišeš ili najbolja serija preračunata u maksimum za jedno ponavljanje, težina × (1 + ponavljanja ÷ 30). 100 kg za 5 je oko 117 kg.',
   'That max divided by your bodyweight is placed on strength standards for your sex: Beginner, Novice, Intermediate, Advanced, Elite. On the bench that is {n}, {i}, {a} and {e} bodyweight for each step up.': 'Taj maksimum podeljen telesnom težinom stavlja se na standarde snage za tvoj pol: početni, osnovni, srednji, napredni, elitni. Na benču je to {n}, {i}, {a} i {e} telesne težine za svaki korak.',

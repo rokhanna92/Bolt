@@ -147,6 +147,7 @@ class RankScreen extends ConsumerWidget {
     final options = nextOptions(r, t.body);
     final insets = MediaQuery.paddingOf(context);
     String kg(double v) => fmtWeight(v, metric: metric);
+    String reps(int n) => tx('{n} reps', {'n': '$n'});
     final bench = standardsFor('Bench Press', t.body.sex == null ? (Body()..sex = 'm') : t.body)!;
     String x(double v) => '${v == v.roundToDouble() ? v.round() : v}×';
 
@@ -227,7 +228,7 @@ class RankScreen extends ConsumerWidget {
                       children: [
                         Expanded(child: Text(tx(lift), style: BoltText.a(14, weight: 700))),
                         Text(
-                          '+${kg(add)} → ${kg(r.lifts.firstWhere((l) => l.name == lift).maxKg + add)}',
+                          _gain(r.lifts.firstWhere((l) => l.name == lift), add, kg, reps),
                           style: BoltText.m(12, weight: 700, color: BoltColors.neon),
                         ),
                       ],
@@ -251,7 +252,9 @@ class RankScreen extends ConsumerWidget {
               label: tx('Share my rank'),
               height: 52,
               onTap: () async {
-                final lifts = r.lifts.map((l) => '${tx(l.name)} ${kg(l.maxKg)}').join(' · ');
+                final lifts = r.lifts
+                    .map((l) => '${tx(l.name)} ${l.reps != null ? reps(l.reps!) : kg(l.maxKg)}')
+                    .join(' · ');
                 final hint = await shareMessage(
                   tx('I am {rank} in Bolt. {lifts}', {'rank': rankText(r.step), 'lifts': lifts}),
                   subject: tx('My Bolt rank'),
@@ -266,7 +269,9 @@ class RankScreen extends ConsumerWidget {
           if (!r.placed) ...[
             const SizedBox(height: 12),
             Text(
-              tx('Lifts that count: {lifts}.', {'lifts': kStandardLifts.map(tx).join(', ')}),
+              tx('Lifts that count: {lifts}.', {
+                'lifts': [...kStandardLifts, ...kRepLifts].map(tx).join(', '),
+              }),
               textAlign: TextAlign.center,
               style: BoltText.a(12, color: BoltColors.muted3, height: 1.4),
             ),
@@ -302,8 +307,12 @@ class RankScreen extends ConsumerWidget {
                             const SizedBox(height: 2),
                             Text(
                               [
-                                kg(l.maxKg),
-                                tx('{x} bodyweight', {'x': '${(l.maxKg / t.body.weightKg!).toStringAsFixed(2)}×'}),
+                                if (l.reps != null)
+                                  reps(l.reps!)
+                                else ...[
+                                  kg(l.maxKg),
+                                  tx('{x} bodyweight', {'x': '${(l.maxKg / t.body.weightKg!).toStringAsFixed(2)}×'}),
+                                ],
                                 tx(kStrengthLevels[l.pos.floor().clamp(0, 4)]),
                                 rankText(stepOf(l.pos)),
                               ].join(' · '),
@@ -337,13 +346,17 @@ class RankScreen extends ConsumerWidget {
             ),
             (
               3,
+              tx('Muscle-ups, pull-ups, chin-ups and dips count by your best set of reps instead, on the same scale.'),
+            ),
+            (
+              4,
               tx(
                 'Each lift scores 0 to 6: 1 is Novice, 2 Intermediate, 3 Advanced, 4 Elite, and two more bands past Elite.',
               ),
             ),
-            (4, tx('Your best three lifts are averaged into your score.')),
+            (5, tx('Your best three lifts are averaged into your score.')),
             (
-              5,
+              6,
               tx(
                 'Scores 0 to 5 climb Plastic I to Immortal III in 27 steps. 5 is Olympia, the greatest lifters there have been. 6 is Atlas: world-record strength on all three at once.',
               ),
@@ -414,6 +427,11 @@ class RankScreen extends ConsumerWidget {
     );
   }
 }
+
+/// What one option in the next-rank box adds: "+2.5 kg → 102.5 kg", or
+/// "+2 → 10 reps" on a bodyweight lift.
+String _gain(RankedLift l, double add, String Function(double) kg, String Function(int) reps) =>
+    l.reps != null ? '+${add.round()} → ${reps(l.reps! + add.round())}' : '+${kg(add)} → ${kg(l.maxKg + add)}';
 
 /// The step shown for [tier] on the ladder: its top division.
 int _ladderStep(int tier) => tier == 0

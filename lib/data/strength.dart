@@ -20,7 +20,27 @@ const _standards = <String, (List<double>, List<double>)>{
   'Overhead Press': ([.5, .7, .9, 1.2], [.3, .45, .6, .8]),
   'Barbell Row': ([.6, .9, 1.2, 1.5], [.35, .55, .75, 1]),
   'Hip Thrust': ([1, 1.5, 2.25, 3], [.9, 1.4, 2, 2.75]),
+  'Leg Press': ([1.5, 2.25, 3.25, 4.5], [1, 1.75, 2.75, 3.75]),
 };
+
+/// Bodyweight lifts have no max to divide: the reps in one set where Novice,
+/// Intermediate, Advanced and Elite start, for men then women.
+const _repStandards = <String, (List<double>, List<double>)>{
+  'Muscle-up': ([1, 3, 6, 10], [1, 2, 4, 7]),
+  'Pull-up': ([5, 10, 18, 25], [1, 4, 9, 15]),
+  'Chin-up': ([5, 10, 18, 25], [1, 5, 10, 16]),
+  'Chest Dip': ([5, 12, 22, 32], [1, 5, 11, 18]),
+};
+
+/// Bodyweight lifts that count toward rank by their best set of reps.
+List<String> get kRepLifts => _repStandards.keys.toList();
+
+/// The rep marks for [lift] for [body]'s sex; null without any or a sex set.
+List<double>? repStandardsFor(String lift, Body body) {
+  final s = _repStandards[lift];
+  if (s == null || body.sex == null) return null;
+  return body.sex == 'f' ? s.$2 : s.$1;
+}
 
 /// Lifts with strength standards, in table order.
 List<String> get kStandardLifts => _standards.keys.toList();

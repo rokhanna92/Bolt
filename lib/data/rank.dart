@@ -38,14 +38,22 @@ const kAtlas = 29;
 const kOlympiaScore = 5.0;
 const kAtlasScore = 6.0;
 
+/// The score where each tier from Plastic to Immortal starts, then Olympia.
+/// Rank is meant to be climbed: Intermediate on every lift is already
+/// Platinum, while the strength levels themselves stay the honest standards.
+const _tierStart = [0.0, .25, .5, .8, 1.1, 1.5, 2.0, 2.6, 3.4, kOlympiaScore];
+
 /// One lift's place: 0 to 5 across Beginner, Novice, Intermediate, Advanced
 /// and Elite, then up to 6 for a second band as wide past Elite.
 class RankedLift {
-  const RankedLift(this.name, this.maxKg, this.pos);
+  const RankedLift(this.name, this.maxKg, this.pos, {this.reps});
 
   final String name;
   final double maxKg;
   final double pos;
+
+  /// Best set of a bodyweight lift, which has no [maxKg].
+  final int? reps;
 }
 
 class Rank {
@@ -76,18 +84,24 @@ int tierOf(int step) =>
 int divisionOf(int step) => step == 0 || step >= kOlympia ? 0 : 1 + (step - 1) % 3;
 
 /// The step a place of [score] lands on.
-int stepOf(double score) => score >= kAtlasScore
-    ? kAtlas
-    : score >= kOlympiaScore
-    ? kOlympia
-    : 1 + (score / kOlympiaScore * 27).floor();
+int stepOf(double score) {
+  if (score >= kAtlasScore) return kAtlas;
+  if (score >= kOlympiaScore) return kOlympia;
+  var tier = _tierStart.length - 2;
+  while (score < _tierStart[tier]) {
+    tier--;
+  }
+  final division = (score - _tierStart[tier]) / (_tierStart[tier + 1] - _tierStart[tier]) * 3;
+  return 1 + tier * 3 + math.min(2, (division + 1e-9).floor());
+}
 
 /// The score where [step] starts.
-double scoreAt(int step) => step >= kAtlas
-    ? kAtlasScore
-    : step >= kOlympia
-    ? kOlympiaScore
-    : (step - 1) / 27 * kOlympiaScore;
+double scoreAt(int step) {
+  if (step >= kAtlas) return kAtlasScore;
+  if (step >= kOlympia) return kOlympiaScore;
+  final tier = (step - 1) ~/ 3;
+  return _tierStart[tier] + (step - 1) % 3 * (_tierStart[tier + 1] - _tierStart[tier]) / 3;
+}
 
 /// "Gold II", "Bodyweight", "Olympia". English; translate the tier with tx.
 String rankName(int step) {
@@ -134,6 +148,25 @@ double? plannedMax(Map<String, Session> plan, String name) {
   return best;
 }
 
+/// The most reps of [name] in one set, from logged sets and days logged as
+/// done without ticking sets.
+int? bestReps(Map<String, Session> plan, String name) {
+  int? best;
+  for (final s in plan.values) {
+    if (s.status != SessionStatus.done) continue;
+    for (final e in s.ex) {
+      if (e.name != name) continue;
+      final reps = e.logged.isNotEmpty
+          ? e.logged.map((l) => l.reps)
+          : [for (var j = 0; j < e.sets; j++) lowReps(e.repsFor(j))];
+      for (final r in reps) {
+        if (r != null && r > 0 && (best == null || r > best)) best = r;
+      }
+    }
+  }
+  return best;
+}
+
 /// The rank of [t]: the mean place of their best three lifts with strength
 /// standards, from a max set by hand, else the best of logged sets and days
 /// logged as done. Unplaced (Bodyweight) without a bodyweight, sex or any
@@ -150,6 +183,12 @@ Rank rankOf(Trainee t, Map<String, Session> plan) {
       if (max == null || max <= 0 || s == null) continue;
       lifts.add(RankedLift(name, max, placeOf(max / bw, s)));
     }
+    for (final name in kRepLifts) {
+      final reps = bestReps(plan, name);
+      if (reps != null) {
+        lifts.add(RankedLift(name, 0, placeOf(reps.toDouble(), repStandardsFor(name, t.body)!), reps: reps));
+      }
+    }
   }
   lifts.sort((a, b) => b.pos.compareTo(a.pos));
   final top = lifts.take(3).toList();
@@ -161,7 +200,8 @@ Rank rankOf(Trainee t, Map<String, Session> plan) {
 }
 
 /// What reaches the next step from one counted lift alone: each lift and
-/// the kilograms to add (rounded up to 2.5), smallest first. Empty at
+/// the kilograms to add (rounded up to 2.5), or reps for a bodyweight lift,
+/// smallest first. Empty at
 /// Atlas, unplaced, or when no single lift can get there.
 List<(String, double)> nextOptions(Rank r, Body body) {
   if (!r.placed || r.step >= kAtlas) return const [];
@@ -173,6 +213,11 @@ List<(String, double)> nextOptions(Rank r, Body body) {
   for (final l in r.lifts) {
     final pos = l.pos + (target - r.score) * n;
     if (pos > kAtlasScore + 1e-9) continue;
+    if (l.reps != null) {
+      final more = (ratioAt(pos, repStandardsFor(l.name, body)!) - l.reps!).ceil();
+      out.add((l.name, math.max(1, more).toDouble()));
+      continue;
+    }
     final s = standardsFor(l.name, body)!;
     final kg = ((ratioAt(pos, s) * bw - l.maxKg) / 2.5).ceil() * 2.5;
     out.add((l.name, math.max(2.5, kg)));

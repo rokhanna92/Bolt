@@ -9,6 +9,7 @@ import '../data/bolt_store.dart';
 import '../core/units.dart';
 import '../data/level.dart';
 import '../data/rank.dart';
+import '../data/strength.dart';
 import '../data/rules.dart';
 import '../data/models/bolt_data.dart';
 import '../data/models/session.dart';
@@ -129,7 +130,9 @@ Future<void> showRankUp() async {
             ? tx('No single lift gets you there now: raise all three together.')
             : tx('Next: {rank} · +{kg} on {lift}', {
                 'rank': rankText(step + 1),
-                'kg': fmtWeight(next.$2, metric: d.settings.kg),
+                'kg': kRepLifts.contains(next.$1)
+                    ? tx('{n} reps', {'n': '${next.$2.round()}'})
+                    : fmtWeight(next.$2, metric: d.settings.kg),
                 'lift': tx(next.$1),
               }),
       ),

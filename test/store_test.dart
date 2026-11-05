@@ -371,7 +371,9 @@ void main() {
     });
 
     test('logged workouts and their sets count toward badges', () {
-      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))..store.autoFill(Account.ownerId);
+      final f = Fresh()
+        ..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))
+        ..store.autoFill(Account.ownerId);
       f.store.startWorkout('2026-10-14');
       final ex = f.mine['2026-10-14']!.ex;
       f.store.toggleSet(ex[0].id, 0);
@@ -611,7 +613,9 @@ void ownerTests() {
     });
 
     test('reset erases everything', () {
-      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))..store.autoFill(Account.ownerId);
+      final f = Fresh()
+        ..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))
+        ..store.autoFill(Account.ownerId);
       f.store.resetAll();
       expect(f.data.account, isNull);
       expect(f.data.trainees, isEmpty);
@@ -656,7 +660,9 @@ void ownerTests() {
     });
 
     test('moving your own session does not mark it moved', () {
-      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))..store.autoFill(Account.ownerId);
+      final f = Fresh()
+        ..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))
+        ..store.autoFill(Account.ownerId);
       expect(f.store.move('2026-10-16', '2026-10-17'), isTrue);
       expect(f.mine['2026-10-17']!.status, SessionStatus.approved);
       expect(f.mine['2026-10-17']!.from, isNull);
@@ -707,15 +713,15 @@ void ownerTests() {
       expect(rankOf(t, f.mine).placed, isFalse);
       // Bench at bodyweight is where Intermediate starts.
       t.maxes['Bench Press'] = 80;
-      expect(rankName(rankOf(t, f.mine).step), 'Steel II');
+      expect(rankName(rankOf(t, f.mine).step), 'Platinum I');
       t.maxes
         ..['Back Squat'] = 200
         ..['Deadlift'] = 250;
       final r = rankOf(t, f.mine);
-      expect(rankName(r.step), 'Platinum I');
+      expect(rankName(r.step), 'Diamond III');
       expect(r.lifts.map((l) => l.name), ['Deadlift', 'Back Squat', 'Bench Press']);
-      expect(nextStep(r, t.body), ('Back Squat', 17.5));
-      expect(nextOptions(r, t.body), [('Back Squat', 17.5), ('Bench Press', 17.5), ('Deadlift', 25.0)]);
+      expect(nextStep(r, t.body), ('Deadlift', 2.5));
+      expect(nextOptions(r, t.body), [('Deadlift', 2.5), ('Back Squat', 2.5), ('Bench Press', 2.5)]);
       // Past Elite on all three: the greatest lifters there have been.
       t.maxes
         ..['Bench Press'] = 208
@@ -731,6 +737,55 @@ void ownerTests() {
       expect(rankName(rankOf(t, f.mine).step), 'Atlas');
       expect(rankOf(t, f.mine).step, kAtlas);
       expect(nextOptions(rankOf(t, f.mine), t.body), isEmpty);
+    });
+
+    test('the ladder is walkable: every step starts where the last one ends', () {
+      for (var step = 1; step < kOlympia; step++) {
+        expect(stepOf(scoreAt(step) + 1e-9), step);
+        expect(scoreAt(step), lessThan(scoreAt(step + 1)));
+      }
+      // Novice on everything is Steel, Intermediate on everything Platinum.
+      expect(rankName(stepOf(1)), 'Steel III');
+      expect(rankName(stepOf(2)), 'Platinum I');
+    });
+
+    test('a strong all-rounder lands around Platinum and Diamond', () {
+      final f = Fresh(wed)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'));
+      final t = f.data.trainees.single;
+      t.body.sex = 'm';
+      t.maxes
+        ..['Bench Press'] = 100
+        ..['Deadlift'] = 160
+        ..['Overhead Press'] = 80
+        // 180 kg for 11 on the leg press.
+        ..['Leg Press'] = 246;
+      t.body.weightKg = 85;
+      expect(rankName(rankOf(t, f.mine).step), 'Diamond I');
+      t.body.weightKg = 90;
+      expect(rankName(rankOf(t, f.mine).step), 'Platinum III');
+    });
+
+    test('bodyweight lifts count by their best set of reps', () {
+      final f = Fresh(wed)..store.createProfile(Role.solo, const ProfileInput(name: 'Dani', split: 'ppl'));
+      final t = f.data.trainees.single;
+      t.body
+        ..weightKg = 80
+        ..sex = 'm';
+      f.store.addFromRotation(Account.ownerId, '2026-10-12');
+      f.store.setTemplate(Account.ownerId, '2026-10-12', 'push');
+      f.store.logPast('2026-10-12');
+      final e = f.mine['2026-10-12']!.ex.first;
+      e.name = 'Muscle-up';
+      e.logged
+        ..add(SetLog(reps: 8))
+        ..add(SetLog(reps: 6));
+      f.mine['2026-10-12']!.ex.removeRange(1, f.mine['2026-10-12']!.ex.length);
+      final r = rankOf(t, f.mine);
+      // 8 is halfway from Advanced at 6 to Elite at 10.
+      expect((r.lifts.single.name, r.lifts.single.reps, r.score), ('Muscle-up', 8, 3.5));
+      expect(rankName(r.step), 'Immortal I');
+      // Immortal II starts at about 3.93: 10 reps gets there.
+      expect(nextStep(r, t.body), ('Muscle-up', 2.0));
     });
 
     test('days logged as done count toward the rank with their planned numbers', () {
@@ -765,13 +820,13 @@ void ownerTests() {
       expect(f.data.settings.rankSeen, 0);
       expect(f.store.rankUp(), isNull);
       t.maxes['Bench Press'] = 80;
-      expect(f.store.rankUp(), 11);
+      expect(f.store.rankUp(), 19);
       expect(f.store.rankUp(), isNull);
       // A save from before ranks only remembers where it stands.
       f.data.settings.rankSeen = null;
       t.maxes['Back Squat'] = 200;
       expect(f.store.rankUp(), isNull);
-      expect(f.data.settings.rankSeen, greaterThan(11));
+      expect(f.data.settings.rankSeen, greaterThan(19));
     });
 
     test('a new level is celebrated once', () {
@@ -890,7 +945,9 @@ void ownerTests() {
     });
 
     test('a rest day replaces a planned session but never a logged one', () {
-      final f = Fresh()..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))..store.autoFill(Account.ownerId);
+      final f = Fresh()
+        ..store.createProfile(Role.solo, const ProfileInput(name: 'Dani'))
+        ..store.autoFill(Account.ownerId);
       final rest = f.data.trainees.single.stats.rest;
       final k = (f.mine.keys.where((k) => k.compareTo('2026-10-14') >= 0).toList()..sort()).first;
       f.store.toggleRest(k);
