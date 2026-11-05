@@ -256,8 +256,8 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
     );
   }
 
-  /// Big counter inside a ring that sweeps the minute, with a quieter inner
-  /// ring for the lap. The time is a real text, not painted, so it keeps
+  /// Big counter inside a lit ring that sweeps the minute, with a quieter
+  /// inner ring for the lap. The time is a real text, not painted, so it keeps
   /// the app's figures.
   Widget _ringFace(Watch w, bool running) {
     return Stack(
@@ -368,8 +368,9 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
   }
 }
 
-/// The digital face: a track of sixty ticks, a neon arc sweeping the
-/// minute, and a thinner inner arc for the lap in progress.
+/// The digital face: a black disc, like the cards, so it reads on every
+/// theme's page. Sixty ticks light up as the minute passes, over a track with
+/// a sweeping arc and a bead at its head, and a thinner inner arc for the lap.
 class _RingPainter extends CustomPainter {
   _RingPainter(this.total, this.lap, {required this.running, required this.showLap})
     : super(repaint: Listenable.merge([total, lap]));
@@ -382,19 +383,46 @@ class _RingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final c = Offset(size.width / 2, size.height / 2);
-    final r = size.width * .42;
-    final w = r * .085;
+    final r = size.width * .395;
+    final w = r * .075;
+    final secs = total.value.inMilliseconds / 1000.0 % 60;
+
+    final disc = Rect.fromCircle(center: c, radius: size.width / 2);
+    canvas.drawCircle(
+      c,
+      size.width / 2,
+      Paint()
+        ..shader = const RadialGradient(
+          center: Alignment(-.2, -.4),
+          radius: 1.1,
+          colors: [BoltColors.surface2, BoltColors.surface1, _dialEdge],
+          stops: [0, .55, 1],
+        ).createShader(disc),
+    );
+    canvas.drawCircle(
+      c,
+      size.width / 2 - r * .006,
+      Paint()
+        ..color = BoltColors.line
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = r * .012,
+    );
 
     for (var i = 0; i < 60; i++) {
       final a = -math.pi / 2 + i * math.pi / 30;
       final dir = Offset(math.cos(a), math.sin(a));
       final five = i % 5 == 0;
+      final lit = secs > 0 && i <= secs;
       canvas.drawLine(
-        c + dir * (r * 1.10),
-        c + dir * (r * (five ? 1.20 : 1.16)),
+        c + dir * (r * 1.09),
+        c + dir * (r * (five ? 1.2 : 1.16)),
         Paint()
-          ..color = five ? BoltColors.muted2 : BoltColors.lineFaint
-          ..strokeWidth = (five ? r * .018 : r * .009)
+          ..color = lit
+              ? BoltColors.neon
+              : five
+              ? BoltColors.text
+              : BoltColors.muted2
+          ..strokeWidth = five ? r * .024 : r * .012
           ..strokeCap = StrokeCap.round,
       );
     }
@@ -403,13 +431,12 @@ class _RingPainter extends CustomPainter {
       c,
       r,
       Paint()
-        ..color = BoltColors.surface2
+        ..color = BoltColors.line
         ..style = PaintingStyle.stroke
         ..strokeWidth = w,
     );
 
     final box = Rect.fromCircle(center: c, radius: r);
-    final secs = total.value.inMilliseconds / 1000.0 % 60;
     if (secs > 0) {
       final sweep = secs / 60 * 2 * math.pi;
       final arc = Paint()
@@ -423,22 +450,26 @@ class _RingPainter extends CustomPainter {
         sweep,
         false,
         Paint.from(arc)
-          ..color = BoltColors.neon.withValues(alpha: running ? .35 : .18)
+          ..color = BoltColors.glow(running ? 90 : 45)
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .06),
       );
       canvas.drawArc(box, -math.pi / 2, sweep, false, arc);
+      final head = -math.pi / 2 + sweep;
+      final bead = c + Offset(math.cos(head), math.sin(head)) * r;
+      canvas.drawCircle(bead, w * .85, Paint()..color = BoltColors.neon);
+      canvas.drawCircle(bead, w * .36, Paint()..color = _dialEdge);
     }
 
     if (showLap) {
       final ls = lap.value.inMilliseconds / 1000.0 % 60;
       if (ls > 0) {
         canvas.drawArc(
-          Rect.fromCircle(center: c, radius: r * .80),
+          Rect.fromCircle(center: c, radius: r * .86),
           -math.pi / 2,
           ls / 60 * 2 * math.pi,
           false,
           Paint()
-            ..color = BoltColors.textSoft.withValues(alpha: .7)
+            ..color = BoltColors.textSoft
             ..style = PaintingStyle.stroke
             ..strokeWidth = w * .42
             ..strokeCap = StrokeCap.round,
