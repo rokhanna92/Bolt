@@ -22,11 +22,12 @@ const _beat = [
   (1.0, 0.0),
 ];
 
-/// The session as a heartbeat, one beat per set in the order they are done.
-/// Done sets stay as neon spikes, taller for more weight moved; the set you
-/// are on is traced live like a monitor. During a rest that beat goes flat
-/// and grows back as the countdown runs, and the line flashes when the rest
-/// is over. It animates on its own, so nothing else rebuilds.
+/// The session as a heartbeat across the full width, one beat per set in the
+/// order they are done. Done sets stay as neon spikes, taller for more weight
+/// moved; the sets ahead wait dimmed, the one you are on the tallest, and a
+/// trace sweeps the whole line like a monitor. During a rest they go flat and
+/// grow back as the countdown runs, and the line flashes when the rest is
+/// over. It animates on its own, so nothing else rebuilds.
 class Lifeline extends StatefulWidget {
   const Lifeline({super.key, required this.beats, required this.at, required this.restEnd, required this.restTotal});
 
@@ -46,8 +47,11 @@ class Lifeline extends StatefulWidget {
 }
 
 class _LifelineState extends State<Lifeline> with TickerProviderStateMixin {
-  /// The live trace sweeping through the current set.
-  late final _sweep = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat();
+  /// The live trace sweeping the whole line.
+  late final _sweep = AnimationController(vsync: this, duration: _sweepTime)..repeat();
+
+  /// A steady pulse however many sets there are, within reason.
+  Duration get _sweepTime => Duration(milliseconds: (widget.beats.length * 700).clamp(2000, 8000));
 
   /// The newest done set's spike shooting up.
   late final _pop = AnimationController(vsync: this, duration: const Duration(milliseconds: 700));
@@ -66,6 +70,11 @@ class _LifelineState extends State<Lifeline> with TickerProviderStateMixin {
       }
     }
     if (old.restEnd != null && widget.restEnd == null) _flash.forward(from: 0);
+    if (old.beats.length != widget.beats.length) {
+      _sweep
+        ..duration = _sweepTime
+        ..repeat();
+    }
   }
 
   @override
@@ -117,22 +126,11 @@ class _LifelinePainter extends CustomPainter {
   final int? popped;
   final Animation<double> flash;
 
-  /// Where slot [k] starts and how wide it is. The set you are on gets a
-  /// third of the line, so its live beat reads at a glance; the others
-  /// share the rest.
-  (double, double) _slot(Size size, int k) {
-    final live = at != null && beats[at!] == null && beats.length > 1;
-    if (!live) return (k * size.width / beats.length, size.width / beats.length);
-    final wide = size.width / 3;
-    final w = (size.width - wide) / (beats.length - 1);
-    if (k < at!) return (k * w, w);
-    if (k == at) return (k * w, wide);
-    return (wide + (k - 1) * w, w);
-  }
-
-  /// Adds slot [k]'s beat at [amp] to [path].
+  /// Adds slot [k]'s beat at [amp] to [path]. Every set gets an equal slot,
+  /// so the line always fills the width.
   void _trace(Path path, Size size, int k, double amp) {
-    final (x0, w) = _slot(size, k);
+    final w = size.width / beats.length;
+    final x0 = k * w;
     final base = size.height * .72;
     final h = size.height * .64 * amp;
     path.moveTo(x0, base);
@@ -141,54 +139,48 @@ class _LifelinePainter extends CustomPainter {
     }
   }
 
-  /// The height of [n] beats in a row at [u], from 0 to 1 across them.
-  static double _wave(double u, int n) {
-    final x = (u * n) % 1;
+  /// How high the line is at [u], from 0 to 1 across it, before scaling.
+  static double _height(double u, List<double> amps) {
+    final at = u * amps.length;
+    final k = math.min(amps.length - 1, at.floor());
+    final x = at - k;
     for (var p = 1; p < _beat.length; p++) {
       final (bu, bv) = _beat[p];
       if (x <= bu) {
         final (pu, pv) = _beat[p - 1];
-        return pv + (bv - pv) * (x - pu) / (bu - pu);
+        return (pv + (bv - pv) * (x - pu) / (bu - pu)) * amps[k];
       }
     }
     return 0;
-  }
-
-  /// The live window's trace from [from] to [to] (0 to 1 across it), as a
-  /// monitor draws it: two beats per sweep.
-  Path _live(double x0, double w, double base, double h, double from, double to) {
-    final path = Path();
-    final steps = math.max(2, ((to - from) * w / 1.5).ceil());
-    for (var s = 0; s <= steps; s++) {
-      final u = from + (to - from) * s / steps;
-      final pt = Offset(x0 + u * w, base - _wave(u, 2) * h);
-      s == 0 ? path.moveTo(pt.dx, pt.dy) : path.lineTo(pt.dx, pt.dy);
-    }
-    return path;
   }
 
   @override
   void paint(Canvas canvas, Size size) {
     if (beats.isEmpty) return;
     final flashing = flash.isAnimating ? 1 - flash.value : 0.0;
-    final done = Path(), todo = Path();
+
+    // The sets not done yet. Resting, they start flat and grow back to full
+    // beats as the countdown runs out.
+    var live = .8;
+    var color = BoltColors.neon;
+    final end = restEnd;
+    if (end != null) {
+      final left = (end.difference(DateTime.now()).inMilliseconds / (restTotal * 1000)).clamp(0.0, 1.0);
+      live = .12 + .68 * (1 - left);
+      color = Color.lerp(BoltColors.text, BoltColors.neon, 1 - left)!;
+    }
+
+    final amps = <double>[];
+    final wave = Path(), done = Path();
     for (var k = 0; k < beats.length; k++) {
       final b = beats[k];
-      if (k == at && b == null) continue;
-      if (b == null) {
-        _trace(todo, size, k, 0);
-      } else {
-        final grow = k == popped && pop.isAnimating ? Curves.elasticOut.transform(pop.value) : 1.0;
-        _trace(done, size, k, (.35 + .65 * b) * grow);
-      }
+      final grow = k == popped && pop.isAnimating ? Curves.elasticOut.transform(pop.value) : 1.0;
+      final amp = b != null ? (.35 + .65 * b) * grow : (k == at ? live : live * .6);
+      amps.add(amp);
+      _trace(wave, size, k, amp);
+      if (b != null) _trace(done, size, k, amp);
     }
-    canvas.drawPath(
-      todo,
-      Paint()
-        ..color = BoltColors.line
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5,
-    );
+
     final glow = Paint()
       ..color = BoltColors.neon.withValues(alpha: .28 + .5 * flashing)
       ..style = PaintingStyle.stroke
@@ -199,41 +191,45 @@ class _LifelinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.2
       ..strokeJoin = StrokeJoin.round;
+    final dim = Paint()
+      ..color = color.withValues(alpha: .35)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.8
+      ..strokeJoin = StrokeJoin.round;
+
+    final k = at;
+    if (k == null || beats[k] != null) {
+      canvas.drawPath(wave, dim);
+      canvas.drawPath(done, glow);
+      canvas.drawPath(done, line);
+      return;
+    }
+
+    // The trace: bright behind its head, then a small gap ahead of it where
+    // the last sweep is wiped, and the waiting line after that.
+    final u = sweep.value;
+    final x = u * size.width;
+    const gap = 14.0;
+    canvas.save();
+    canvas.clipRect(Rect.fromLTRB(x + gap, -8, size.width, size.height + 8));
+    canvas.drawPath(wave, dim);
+    canvas.restore();
+    canvas.save();
+    canvas.clipRect(Rect.fromLTRB(0, -8, x, size.height + 8));
+    canvas.drawPath(wave, Paint.from(glow)..color = color.withValues(alpha: .35));
+    canvas.drawPath(wave, Paint.from(line)..color = color);
+    canvas.restore();
     canvas.drawPath(done, glow);
     canvas.drawPath(done, line);
 
-    final k = at;
-    if (k == null || beats[k] != null) return;
-    // The set you are on: traced live. Resting, it starts flat and grows
-    // back to a full beat as the countdown runs out.
-    var amp = .8;
-    var color = BoltColors.neon;
-    final end = restEnd;
-    if (end != null) {
-      final left = (end.difference(DateTime.now()).inMilliseconds / (restTotal * 1000)).clamp(0.0, 1.0);
-      amp = .12 + .68 * (1 - left);
-      color = Color.lerp(BoltColors.text, BoltColors.neon, 1 - left)!;
-    }
-    final (x0, w) = _slot(size, k);
-    final base = size.height * .72;
-    final h = size.height * .64 * amp;
-    final u = sweep.value;
-    // The last sweep fades out behind a small gap ahead of the head.
-    const gap = .1;
-    if (u + gap < 1) {
-      canvas.drawPath(_live(x0, w, base, h, u + gap, 1), line..color = color.withValues(alpha: .3));
-    }
-    final live = _live(x0, w, base, h, 0, u);
-    canvas.drawPath(live, glow..color = color.withValues(alpha: .35));
-    canvas.drawPath(live, line..color = color);
     // The head of the trace, a glowing dot.
-    final head = Offset(x0 + u * w, base - _wave(u, 2) * h);
+    final head = Offset(x, size.height * .72 - _height(u, amps) * size.height * .64);
     canvas.drawCircle(
       head,
       6,
       Paint()..shader = ui.Gradient.radial(head, 6, [color.withValues(alpha: .7), color.withValues(alpha: 0)]),
     );
-    canvas.drawCircle(head, math.max(1.5, 2.5 * amp), Paint()..color = color);
+    canvas.drawCircle(head, 2.5, Paint()..color = color);
   }
 
   @override
