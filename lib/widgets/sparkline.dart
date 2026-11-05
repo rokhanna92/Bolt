@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 
-/// A small trend line through [values], oldest first, with the latest
-/// point marked. Needs at least two values.
+/// A small trend through [values], oldest first: a smooth ribbon with some
+/// depth to it, a dot on every entry and a lit bead on the latest. Needs at
+/// least two values.
 class Sparkline extends StatelessWidget {
-  const Sparkline({super.key, required this.values, this.height = 40, this.color, this.goal});
+  const Sparkline({super.key, required this.values, this.height = 56, this.color, this.goal});
 
   final List<double> values;
   final double height;
@@ -37,17 +38,25 @@ class _SparkPainter extends CustomPainter {
     final hi = all.reduce((a, b) => a > b ? a : b);
     // A flat line sits in the middle instead of dividing by zero.
     final span = hi - lo == 0 ? 1.0 : hi - lo;
-    const pad = 4.0;
+    // Room for the bead on the sides and the ribbon's depth underneath.
+    const side = 10.0, top = 8.0, depth = 7.0;
+    final bottom = depth + 5;
+    double yOf(double v) => top + (size.height - top - bottom) * (1 - (v - lo) / span);
     Offset at(int i) => Offset(
-      pad + (size.width - 2 * pad) * i / (values.length - 1),
-      hi - lo == 0 ? size.height / 2 : pad + (size.height - 2 * pad) * (1 - (values[i] - lo) / span),
+      side + (size.width - 2 * side) * i / (values.length - 1),
+      hi - lo == 0 ? (size.height - depth) / 2 : yOf(values[i]),
     );
+    // Flat tangents at every entry: it flows, and never overshoots a value.
     final line = Path()..moveTo(at(0).dx, at(0).dy);
     for (var i = 1; i < values.length; i++) {
-      line.lineTo(at(i).dx, at(i).dy);
+      final a = at(i - 1), b = at(i);
+      final mid = (a.dx + b.dx) / 2;
+      line.cubicTo(mid, a.dy, mid, b.dy, b.dx, b.dy);
     }
+    final last = at(values.length - 1);
+
     final fill = Path.from(line)
-      ..lineTo(at(values.length - 1).dx, size.height)
+      ..lineTo(last.dx, size.height)
       ..lineTo(at(0).dx, size.height)
       ..close();
     canvas.drawPath(
@@ -56,22 +65,61 @@ class _SparkPainter extends CustomPainter {
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [color.withValues(alpha: .22), color.withValues(alpha: 0)],
+          colors: [color.withValues(alpha: .26), color.withValues(alpha: 0)],
         ).createShader(Offset.zero & size),
     );
+
+    // The ribbon's edge, fading away below the line.
+    for (var d = depth; d >= 1; d--) {
+      canvas.drawPath(
+        line.shift(Offset(0, d)),
+        Paint()
+          ..color = color.withValues(alpha: .04 + (depth - d) * .05)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.4
+          ..strokeCap = StrokeCap.round,
+      );
+    }
     canvas.drawPath(
       line,
       Paint()
-        ..color = color
+        ..shader = LinearGradient(colors: [color.withValues(alpha: .6), color])
+            .createShader(Rect.fromLTRB(at(0).dx, 0, last.dx, size.height))
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2
+        ..strokeWidth = 3
         ..strokeJoin = StrokeJoin.round
         ..strokeCap = StrokeCap.round,
     );
-    canvas.drawCircle(at(values.length - 1), 3.5, Paint()..color = color);
+
+    // A dot per entry while there is room to tell them apart.
+    if (values.length <= 14) {
+      for (var i = 0; i < values.length - 1; i++) {
+        canvas.drawCircle(at(i), 3, Paint()..color = BoltColors.surface1);
+        canvas.drawCircle(
+          at(i),
+          3,
+          Paint()
+            ..color = color
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.6,
+        );
+      }
+    }
+
+    canvas.drawCircle(last, 9, Paint()..color = color.withValues(alpha: .18));
+    canvas.drawCircle(
+      last,
+      5.5,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(-.4, -.4),
+          colors: [Color.lerp(color, const Color(0xFFFFFFFF), .8)!, color],
+        ).createShader(Rect.fromCircle(center: last, radius: 5.5)),
+    );
+
     final g = goal;
     if (g != null && hi - lo != 0) {
-      final y = pad + (size.height - 2 * pad) * (1 - (g - lo) / span);
+      final y = yOf(g);
       final dash = Paint()
         ..color = BoltColors.text.withValues(alpha: .55)
         ..strokeWidth = 1;
