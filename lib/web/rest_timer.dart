@@ -99,6 +99,12 @@ class WebRestTimer implements RestTimer {
     if (a != null) _play(a, _endCue(sound), a.currentTime);
   }
 
+  @override
+  Future<void> blip(String sound) async {
+    final a = _wake();
+    if (a != null) _play(a, _blip(sound), a.currentTime);
+  }
+
   void _play(web.AudioContext a, List<(double, List<_Partial>)> notes, double at) {
     for (final (delay, partials) in notes) {
       final start = at + delay;

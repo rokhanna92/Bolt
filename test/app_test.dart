@@ -6,6 +6,7 @@ import 'package:bolt/app.dart';
 import 'package:bolt/app/actions.dart' show openShortcut;
 import 'package:bolt/app/router.dart';
 import 'package:bolt/core/pwa.dart';
+import 'package:bolt/features/quick/watch.dart';
 import 'package:bolt/features/profile/language_picker.dart';
 import 'package:bolt/widgets/bolt_nav_bar.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -219,7 +220,14 @@ Future<void> typeKey(WidgetTester tester, String code) async {
   await tapText(tester, 'Unlock');
 }
 
-Future<void> onboard(WidgetTester tester, String role, String name, {String? weight, String? code, bool planned = true}) async {
+Future<void> onboard(
+  WidgetTester tester,
+  String role,
+  String name, {
+  String? weight,
+  String? code,
+  bool planned = true,
+}) async {
   expect(find.text('HOW DO YOU TRAIN?'), findsOneWidget);
   await tapText(tester, role);
   await typeKey(tester, code ?? keyFor(role));
@@ -230,7 +238,9 @@ Future<void> onboard(WidgetTester tester, String role, String name, {String? wei
   await tapText(tester, role == 'I coach people' ? 'Start coaching' : 'Start training');
   // Bolt never fills the calendar by itself; most tests want a planned week.
   if (planned && role == 'On my own') {
-    ProviderScope.containerOf(tester.element(find.byType(BoltApp))).read(boltProvider.notifier).autoFill(Account.ownerId);
+    ProviderScope.containerOf(tester.element(find.byType(BoltApp)))
+        .read(boltProvider.notifier)
+        .autoFill(Account.ownerId);
   }
   // Today's cards rise in one after another; let them land.
   await tester.pump(const Duration(milliseconds: 600));
@@ -1334,6 +1344,73 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the stopwatch goes back and forth from where it was reversed', (tester) async {
+    var now = wed;
+    await pumpApp(tester, clock: () => now);
+    await onboard(tester, 'On my own', 'Dani');
+    await tapTab(tester, 'Check in');
+    await tapText(tester, 'Stopwatch');
+
+    // Under a second there is nothing to go back over.
+    await tapText(tester, 'Start');
+    await tapText(tester, 'Reverse');
+    expect(find.text('Reverse'), findsOneWidget);
+
+    now = now.add(const Duration(seconds: 30));
+    await tapText(tester, 'Reverse');
+    expect(find.text('Reverse'), findsNothing);
+    expect(find.text('Back and forth: 0 to 00:30.00'), findsOneWidget);
+
+    // 12 s back, then held and picked up again from the same spot.
+    now = now.add(const Duration(seconds: 12));
+    await tapText(tester, 'Stop');
+    expect(find.text('00:18.00'), findsWidgets);
+    now = now.add(const Duration(minutes: 5));
+    await tapText(tester, 'Resume');
+    expect(find.text('00:18.00'), findsWidgets);
+
+    await tapText(tester, 'Stop');
+    await tapText(tester, 'Reset');
+    expect(find.text('Reverse'), findsOneWidget);
+    expect(find.text('00:00.00'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
+  test('a reversed watch bounces between its peak and zero, with cues on each stretch', () {
+    const peak = Duration(seconds: 10);
+    final start = DateTime(2026);
+    Duration on(int secs) => Watch(
+      carried: Duration(seconds: secs),
+      peak: peak,
+    ).at(start);
+    expect(on(0), peak);
+    expect(on(3), const Duration(seconds: 7));
+    expect(on(10), Duration.zero);
+    expect(on(13), const Duration(seconds: 3));
+    expect(on(20), peak);
+    expect(on(23), const Duration(seconds: 7));
+
+    // Over two full stretches: blips at 5, 4, 3, 2, 1 left, then the turn.
+    const w = Watch(peak: peak);
+    final cues = <({Duration at, bool end})>[];
+    var from = Duration.zero;
+    while (cues.length < 12) {
+      final cue = w.nextCue(from);
+      cues.add(cue);
+      from = cue.at;
+    }
+    expect(cues.map((c) => c.at.inSeconds), [5, 6, 7, 8, 9, 10, 15, 16, 17, 18, 19, 20]);
+    expect(cues.where((c) => c.end).map((c) => c.at.inSeconds), [10, 20]);
+
+    // A stretch of 3 seconds only has room for 2 and 1 before the turn.
+    const short = Watch(peak: Duration(seconds: 3));
+    final first = short.nextCue(Duration.zero);
+    expect((first.at.inSeconds, first.end), (1, false));
+    final turn = short.nextCue(const Duration(seconds: 2));
+    expect((turn.at.inSeconds, turn.end), (3, true));
+  });
+
   testWidgets('the stopwatch has two faces and remembers which', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
@@ -1665,7 +1742,12 @@ void main() {
   });
 
   testWidgets('only what sits straight on the blue page gets a fill', (tester) async {
-    Color? fillOf(Key key) => (tester.widget<Container>(find.descendant(of: find.byKey(key), matching: find.byType(Container)).first).decoration as BoxDecoration).color;
+    Color? fillOf(Key key) =>
+        (tester
+                    .widget<Container>(find.descendant(of: find.byKey(key), matching: find.byType(Container)).first)
+                    .decoration
+                as BoxDecoration)
+            .color;
     const stroke = Stroke(Colors.white);
     BoltColors.blue = true;
     addTearDown(() => BoltColors.blue = false);
@@ -1679,7 +1761,9 @@ void main() {
               color: Colors.white,
               child: BoltBox(key: Key('card'), stroke: stroke, height: 10, width: 10),
             ),
-            OnSurface(child: BoltBox(key: Key('surface'), stroke: stroke, height: 10, width: 10)),
+            OnSurface(
+              child: BoltBox(key: Key('surface'), stroke: stroke, height: 10, width: 10),
+            ),
           ],
         ),
       ),

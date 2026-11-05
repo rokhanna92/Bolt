@@ -1240,6 +1240,8 @@ const kSrUi = <String, String>{
   'Start': 'Kreni',
   'Resume': 'Nastavi',
   'Lap': 'Krug',
+  'Reverse': 'Unazad',
+  'Back and forth: 0 to {time}': 'Napred-nazad: 0 do {time}',
   'Reset': 'Poništi',
   'LAPS': 'KRUGOVI',
   'Keys': 'Ključevi',

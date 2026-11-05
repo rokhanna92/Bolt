@@ -86,9 +86,16 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
   /// The side pusher: a lap while it runs, back to zero once it is stopped.
   void _pusher() {
     final w = ref.read(watchProvider);
-    if (w.idle) return;
+    if (w.idle || (w.running && w.reversing)) return;
     Haptics.play(w.running ? Feel.tick : Feel.error);
     ref.read(watchProvider.notifier).lapOrReset();
+    _follow();
+  }
+
+  /// Turns back from here, and keeps going back and forth until stopped.
+  void _reverse() {
+    final turned = ref.read(watchProvider.notifier).reverse();
+    Haptics.play(turned ? Feel.tick : Feel.error);
     _follow();
   }
 
@@ -145,7 +152,7 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
               ),
             ),
           ],
-          if (w.laps.isNotEmpty) ...[
+          if (w.laps.isNotEmpty && !w.reversing) ...[
             const SizedBox(height: 2),
             Center(
               child: ValueListenableBuilder<Duration>(
@@ -172,7 +179,7 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
               Expanded(
                 child: OutlineButton(
                   label: running ? tx('Lap') : tx('Reset'),
-                  color: w.idle ? BoltColors.muted3 : BoltColors.text,
+                  color: w.idle || (running && w.reversing) ? BoltColors.muted3 : BoltColors.text,
                   borderColor: BoltColors.line,
                   weight: 700,
                   onTap: _pusher,
@@ -180,7 +187,26 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
               ),
             ],
           ),
-          if (running || w.laps.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          if (w.reversing)
+            Center(
+              child: Text(
+                tx('Back and forth: 0 to {time}', {'time': fmtWatch(w.peak!)}),
+                style: BoltText.m(14, weight: 700, color: BoltColors.muted),
+              ),
+            )
+          else
+            SizedBox(
+              width: double.infinity,
+              child: OutlineButton(
+                label: tx('Reverse'),
+                color: w.idle ? BoltColors.muted3 : BoltColors.text,
+                borderColor: BoltColors.line,
+                weight: 700,
+                onTap: _reverse,
+              ),
+            ),
+          if ((running && !w.reversing) || w.laps.isNotEmpty) ...[
             const SizedBox(height: 22),
             Kicker(tx('LAPS'), size: 10),
             const SizedBox(height: 8),
@@ -206,7 +232,7 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
         Positioned.fill(
           child: RepaintBoundary(
             child: CustomPaint(
-              painter: _ChronoPainter(_total, _lap, running: running, showLap: w.laps.isNotEmpty),
+              painter: _ChronoPainter(_total, _lap, running: running, showLap: w.laps.isNotEmpty && !w.reversing),
             ),
           ),
         ),
@@ -240,7 +266,7 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
         Positioned.fill(
           child: RepaintBoundary(
             child: CustomPaint(
-              painter: _RingPainter(_total, _lap, running: running, showLap: w.laps.isNotEmpty),
+              painter: _RingPainter(_total, _lap, running: running, showLap: w.laps.isNotEmpty && !w.reversing),
             ),
           ),
         ),
@@ -280,7 +306,7 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
       clip: true,
       child: Column(
         children: [
-          if (w.running)
+          if (w.running && !w.reversing)
             ValueListenableBuilder<Duration>(
               valueListenable: _lap,
               builder: (context, lap, _) => ValueListenableBuilder<Duration>(

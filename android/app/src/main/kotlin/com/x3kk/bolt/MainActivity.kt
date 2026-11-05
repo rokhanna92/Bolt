@@ -88,6 +88,10 @@ class MainActivity : FlutterActivity() {
                     BoltTones.play(this, call.arguments as String, true)
                     result.success(true)
                 }
+                "blip" -> {
+                    BoltTones.play(this, call.arguments as String, false)
+                    result.success(true)
+                }
                 else -> result.notImplemented()
             }
         }

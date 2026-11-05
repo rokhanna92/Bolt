@@ -30,6 +30,9 @@ abstract class RestTimer {
   /// Plays a sound's end cue once, to hear it in Settings.
   Future<void> preview(String sound);
 
+  /// Plays a sound's short countdown blip once.
+  Future<void> blip(String sound);
+
   /// The lock screen's buttons: a new end after −15 or +15, null after Skip.
   Stream<DateTime?> get changes;
 
@@ -58,6 +61,9 @@ class NoopRestTimer implements RestTimer {
 
   @override
   Future<void> preview(String sound) async {}
+
+  @override
+  Future<void> blip(String sound) async {}
 
   @override
   Stream<DateTime?> get changes => const Stream.empty();
@@ -128,6 +134,13 @@ class AndroidRestTimer implements RestTimer {
   }
 
   @override
+  Future<void> blip(String sound) async {
+    try {
+      await _channel.invokeMethod<void>('blip', sound);
+    } catch (_) {}
+  }
+
+  @override
   Stream<DateTime?> get changes => _changes.stream;
 
   @override
@@ -157,6 +170,9 @@ class NotificationRestTimer implements RestTimer {
 
   @override
   Future<void> preview(String sound) async {}
+
+  @override
+  Future<void> blip(String sound) async {}
 
   @override
   Stream<DateTime?> get changes => const Stream.empty();
