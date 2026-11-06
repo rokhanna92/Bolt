@@ -491,9 +491,10 @@ void main() {
     expect(BoltColors.neon, const Color(0xFFC6FF1A));
     c.read(routerProvider).push('/settings');
     await settle(tester);
-    await tapText(tester, 'Orange and neon');
-    await settle(tester);
-    expect(find.text('Grey and blue'), findsOneWidget);
+    // Settings names the theme and opens the page of them.
+    await tapText(tester, 'Neon');
+    expect(find.text('THEMES'), findsOneWidget);
+    await tapText(tester, 'Grey and blue');
     expect(c.read(boltProvider).settings.blue, isTrue);
     expect(BoltColors.page, const Color(0xFF00008E));
     expect(BoltColors.neon, const Color(0xFFFFFFFF));
@@ -505,10 +506,15 @@ void main() {
       expect(ratio, greaterThan(4.5));
     }
     expect(AppSettings.fromJson(c.read(boltProvider).settings.toJson()).blue, isTrue);
-    await tapText(tester, 'Grey and blue');
-    await settle(tester);
+    await tapText(tester, 'Neon');
     expect(BoltColors.neon, const Color(0xFFC6FF1A));
     expect(BoltColors.onNeon, BoltColors.ink);
+    // Pink swaps the accent and tints the page; it is saved like the rest.
+    await tapText(tester, 'Pink');
+    expect(c.read(boltProvider).settings.blue, isFalse);
+    expect(BoltColors.neon, const Color(0xFFFF4FA3));
+    expect(AppSettings.fromJson(c.read(boltProvider).settings.toJson()).theme, 'pink');
+    c.read(boltProvider.notifier).setTheme('neon');
     await unmount(tester);
   });
 
