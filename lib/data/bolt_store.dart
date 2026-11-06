@@ -264,8 +264,18 @@ class BoltStore extends Notifier<BoltData> {
     state.settings.levelSeen = 1;
     // Everyone starts at Bodyweight, so the first placement is celebrated.
     state.settings.rankSeen = 0;
+    // Setup was the form for today; the new-day check-in waits for tomorrow.
+    state.settings.hintsSeen.add('checkin:$today');
     _commit();
     syncSessionReminders();
+  }
+
+  /// The new-day check-in is skipped for today. The card on Today still asks.
+  void skipCheckIn() {
+    state.settings.hintsSeen
+      ..removeWhere((h) => h.startsWith('checkin:'))
+      ..add('checkin:$today');
+    _commit();
   }
 
   /// Roles the owner can switch between: an admin all three, a coach between

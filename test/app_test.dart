@@ -25,6 +25,7 @@ import 'package:bolt/data/models/settings.dart';
 import 'package:bolt/data/rules.dart';
 import 'package:bolt/data/seed/badges.dart';
 import 'package:bolt/data/seed/content.dart';
+import 'package:bolt/features/today/check_in_gate.dart';
 import 'package:bolt/features/gym/scanner_overlay.dart';
 import 'package:bolt/features/updates/update_sheet.dart';
 import 'package:bolt/features/workout/lifeline.dart';
@@ -591,6 +592,61 @@ void main() {
       find.text('Sleep: 8 h, Bad · Energy: Low · Mood: Down · Soreness: Very sore (Legs) · Grip: 30% · Score: 20'),
       findsOneWidget,
     );
+    await unmount(tester);
+  });
+
+  testWidgets('a new day opens on the check-in, which skips or saves straight into Bolt', (tester) async {
+    var now = wed;
+    final c = await pumpApp(tester, clock: () => now);
+    await onboard(tester, 'On my own', 'Dani');
+    final store = c.read(boltProvider.notifier);
+    // Setup day: no check-in screen over Today.
+    expect(find.text('Good evening, Dani'), findsNothing);
+
+    Finder gate(Finder f) => find.descendant(of: find.byType(CheckInGate), matching: f).first;
+    Future<void> tapGate(String text) async {
+      await tester.ensureVisible(gate(find.text(text)));
+      await tester.tap(gate(find.text(text)));
+      await settle(tester);
+    }
+
+    Future<void> nextDay() async {
+      now = now.add(const Duration(days: 1));
+      store.dismissHint('tick');
+      await settle(tester);
+      await tester.pump(const Duration(milliseconds: 800));
+    }
+
+    // Thursday: it opens first thing, and Skip keeps it away for the day.
+    await nextDay();
+    expect(find.text('Good evening, Dani'), findsOneWidget);
+    expect(find.text('NEW DAY · THU 15 OCT'), findsOneWidget);
+    await tapGate('Skip');
+    expect(find.text('Good evening, Dani'), findsNothing);
+    store.dismissHint('tick');
+    await settle(tester);
+    expect(find.text('Good evening, Dani'), findsNothing);
+    expect(c.read(boltProvider).trainees.single.readiness, isEmpty);
+
+    // Friday: answered in the gate, it shows the score and lets you in.
+    await nextDay();
+    expect(find.text('Good evening, Dani'), findsOneWidget);
+    expect(c.read(boltProvider).settings.hintsSeen.where((h) => h.startsWith('checkin:')), ['checkin:2026-10-15']);
+    for (final a in ['+', 'Great', 'High', 'Good', 'Fresh']) {
+      await tapGate(a);
+    }
+    await tester.ensureVisible(gate(find.byKey(const ValueKey('grip'))));
+    await settle(tester);
+    final grip = tester.getRect(gate(find.byKey(const ValueKey('grip'))));
+    await tester.tapAt(Offset(grip.right - 12, grip.center.dy));
+    await settle(tester);
+    await tapGate('Save check-in');
+    expect(c.read(boltProvider).trainees.single.readiness.keys, ['2026-10-16']);
+    expect(gate(find.textContaining('READINESS · ')), findsOneWidget);
+    await tapGate('Into Bolt');
+    expect(find.text('Good evening, Dani'), findsNothing);
+    expect(find.text('Into Bolt'), findsNothing);
+    expect(tester.takeException(), isNull);
     await unmount(tester);
   });
 

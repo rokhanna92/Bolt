@@ -1178,6 +1178,12 @@ const kSrUi = <String, String>{
   'Make a fist and squeeze as hard as you can. How strong does it feel?':
       'Stisni pesnicu najjače što možeš. Koliko jako se oseća?',
   'Save check-in': 'Sačuvaj',
+  'NEW DAY': 'NOVI DAN',
+  'Good morning, {name}': 'Dobro jutro, {name}',
+  'Good afternoon, {name}': 'Dobar dan, {name}',
+  'Good evening, {name}': 'Dobro veče, {name}',
+  'A quick check-in and Bolt sets today to how you feel.': 'Kratka provera i Bolt podešava današnji dan prema tome kako se osećaš.',
+  'Into Bolt': 'Uđi u Bolt',
   'Undo, I train as planned': 'Poništi, treniram po planu',
   'Hurt somewhere? Flag it and Bolt swaps those exercises →': 'Nešto te boli? Označi i Bolt menja te vežbe →',
   'Readiness {n}: rest today. {workout} moved to {day}.': 'Spremnost {n}: danas odmor. {workout} pomeren na {day}.',

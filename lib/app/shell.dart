@@ -8,6 +8,7 @@ import '../data/models/bolt_data.dart';
 import '../services/haptics.dart';
 import '../widgets/bolt_nav_bar.dart';
 import '../widgets/common.dart';
+import '../features/today/check_in_gate.dart';
 import '../features/updates/update_sheet.dart' show newReleaseProvider;
 
 /// Tab scaffold for one role: the active tab plus the bottom nav. Tabs keep
@@ -75,6 +76,7 @@ class BoltShell extends ConsumerWidget {
                 onScan: trainee ? () => context.push('/quick') : () => shell.goBranch(centre),
               ),
             ),
+            if (trainee) const Positioned.fill(child: CheckInGate()),
           ],
         ),
       ),
