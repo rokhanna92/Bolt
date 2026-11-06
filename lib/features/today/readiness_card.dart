@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,7 +17,6 @@ import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
-import '../../widgets/motion.dart';
 import '../../widgets/tap.dart';
 
 /// The questions with three answers, worst first, at their place in a
@@ -171,21 +173,23 @@ class ReadinessCard extends ConsumerWidget {
   }
 }
 
-/// Today's questions, each on a tile of its own, with how many are answered
-/// on top. Saves once every one has an answer and calls [onSaved]. With
-/// [stagger] the tiles rise in one after another.
+/// Today's check-in, one question at a time, each answered its own way. An
+/// answer lands with a flash and a bolt and the next question slides in;
+/// sleep hours and where it is sore take a Next, and the grip saves. Calls
+/// [onSaved] once saved.
 class CheckInForm extends ConsumerStatefulWidget {
-  const CheckInForm({super.key, required this.trainee, this.onSaved, this.stagger = false});
+  const CheckInForm({super.key, required this.trainee, this.onSaved});
 
   final Trainee trainee;
   final VoidCallback? onSaved;
-  final bool stagger;
 
   @override
   ConsumerState<CheckInForm> createState() => _CheckInFormState();
 }
 
-class _CheckInFormState extends ConsumerState<CheckInForm> {
+enum _Step { hours, sleep, energy, mood, sore, where, grip }
+
+class _CheckInFormState extends ConsumerState<CheckInForm> with SingleTickerProviderStateMixin {
   /// Answers by index in a check-in; sleep hours start from the last
   /// check-in that had them.
   late final _a = <int, int>{
@@ -197,15 +201,48 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         15,
   };
   final _sore = <String>{};
+  var _step = _Step.hours;
 
-  /// What has to be answered before it saves; sleep hours always have a value.
-  static const _asked = [kSleepQ, kEnergy, kMood, kSore, kGrip];
+  /// The last move went back a question, so it slides the other way.
+  var _back = false;
+  late final _flash = AnimationController(vsync: this, duration: const Duration(milliseconds: 560));
+  Timer? _next;
 
-  bool get _complete => _asked.every(_a.containsKey);
+  /// Where it is sore is only asked when it is.
+  List<_Step> get _steps => [
+    for (final s in _Step.values)
+      if (s != _Step.where || (_a[kSore] ?? 3) < 3) s,
+  ];
 
-  void _set(int at, int v) {
-    if (_a[at] != v) Haptics.play(Feel.tick);
+  @override
+  void dispose() {
+    _next?.cancel();
+    _flash.dispose();
+    super.dispose();
+  }
+
+  void _go(int by) {
+    final s = _steps;
+    setState(() {
+      _back = by < 0;
+      _step = s[(s.indexOf(_step) + by).clamp(0, s.length - 1)];
+    });
+  }
+
+  /// A flash and a bolt, then on to the next question.
+  void _hit() {
+    Haptics.play(Feel.set);
+    _flash.forward(from: 0);
+    _next?.cancel();
+    final at = _step;
+    _next = Timer(const Duration(milliseconds: 260), () {
+      if (mounted && _step == at) _go(1);
+    });
+  }
+
+  void _answer(int at, int v) {
     setState(() => _a[at] = v);
+    _hit();
   }
 
   void _save() {
@@ -217,275 +254,561 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     widget.onSaved?.call();
   }
 
-  Widget _choice(int at, List<String> answers) => _Choices(answers: answers, value: _a[at], onPick: (v) => _set(at, v));
-
   @override
   Widget build(BuildContext context) {
-    final sore = _a[kSore] != null && _a[kSore]! < 3;
-    final tiles = [
-      _Tile(
-        label: tx('HOURS OF SLEEP'),
-        answered: true,
-        child: _SleepHours(value: _a[kHalfHours]!, onChanged: (v) => _set(kHalfHours, v)),
-      ),
-      _Tile(
-        label: tx('Sleep').toUpperCase(),
-        answered: _a.containsKey(kSleepQ),
-        child: _choice(kSleepQ, _questions[0].$2),
-      ),
-      _Tile(
-        label: tx('Energy').toUpperCase(),
-        answered: _a.containsKey(kEnergy),
-        child: _choice(kEnergy, _questions[1].$2),
-      ),
-      _Tile(label: tx(_mood.$1).toUpperCase(), answered: _a.containsKey(kMood), child: _choice(kMood, _mood.$2)),
-      _Tile(
-        label: tx('Soreness').toUpperCase(),
-        answered: _a.containsKey(kSore),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _choice(kSore, _questions[2].$2),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 260),
-              curve: Curves.easeOutCubic,
-              alignment: Alignment.topCenter,
-              child: !sore
-                  ? const SizedBox(width: double.infinity)
-                  : Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Kicker(tx('WHERE?'), size: 9, spacing: .1),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: [
-                              for (final g in kSoreGroups)
-                                _Pill(
-                                  label: tx(_soreNames[g]!),
-                                  on: _sore.contains(g),
-                                  onTap: () {
-                                    Haptics.play(Feel.tick);
-                                    setState(() => _sore.contains(g) ? _sore.remove(g) : _sore.add(g));
-                                  },
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-            ),
-          ],
-        ),
-      ),
-      _Tile(
-        label: tx('GRIP CHECK'),
-        answered: _a.containsKey(kGrip),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              tx('Make a fist and squeeze as hard as you can. How strong does it feel?'),
-              style: BoltText.a(12, color: BoltColors.muted, height: 1.35),
-            ),
-            const SizedBox(height: 6),
-            _GripBar(value: _a[kGrip], onChanged: (g) => _set(kGrip, g)),
-          ],
-        ),
-      ),
-    ];
+    final steps = _steps;
+    final i = steps.indexOf(_step);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
-            Expanded(child: Text(tx('How do you feel today?'), style: BoltText.a(17, weight: 800))),
-            const SizedBox(width: 10),
-            _Progress(done: _asked.where(_a.containsKey).length, of: _asked.length),
+            AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: i > 0 ? 1 : 0,
+              child: Tap(
+                onTap: i > 0 ? () => _go(-1) : null,
+                child: SizedBox(
+                  width: 32,
+                  height: 28,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: BoltIcon('back', size: 18, color: BoltColors.muted),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  for (var k = 0; k < steps.length; k++) ...[
+                    if (k > 0) const SizedBox(width: 4),
+                    Expanded(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: k <= i ? BoltColors.neon : BoltColors.line,
+                          borderRadius: BorderRadius.circular(2),
+                          boxShadow: k == i ? [BoxShadow(color: BoltColors.glow(0x80), blurRadius: 8)] : const [],
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 40,
+              child: Text(
+                '${i + 1}/${steps.length}',
+                textAlign: TextAlign.right,
+                style: BoltText.m(10, weight: 700, color: BoltColors.muted),
+              ),
+            ),
           ],
         ),
-        const SizedBox(height: 12),
-        for (final (i, t) in tiles.indexed) ...[
-          if (i > 0) const SizedBox(height: 8),
-          FadeSlideIn(
-            play: widget.stagger,
-            delay: Duration(milliseconds: 420 + 70 * i),
-            offset: 16,
-            child: t,
-          ),
-        ],
         const SizedBox(height: 14),
-        NeonButton(label: tx('Save check-in'), height: 52, onTap: _complete ? _save : null),
+        Stack(
+          children: [
+            AnimatedSize(
+              duration: const Duration(milliseconds: 280),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 280),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                layoutBuilder: (current, previous) =>
+                    Stack(alignment: Alignment.topCenter, children: [...previous, ?current]),
+                transitionBuilder: (child, a) {
+                  final dx = (child.key == ValueKey(_step) ? 1 : -1) * (_back ? -.35 : .35);
+                  return FadeTransition(
+                    opacity: a,
+                    child: SlideTransition(
+                      position: Tween(begin: Offset(dx, 0), end: Offset.zero).animate(a),
+                      child: child,
+                    ),
+                  );
+                },
+                child: KeyedSubtree(key: ValueKey(_step), child: _question(_step)),
+              ),
+            ),
+            Positioned.fill(child: IgnorePointer(child: _BoltHit(_flash))),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _question(_Step s) => switch (s) {
+    _Step.hours => _Ask(
+      title: tx('How many hours of sleep?'),
+      next: NeonButton(label: tx('Next'), height: 50, onTap: _hit),
+      child: _SleepHours(
+        value: _a[kHalfHours]!,
+        onChanged: (v) {
+          if (v != _a[kHalfHours]) Haptics.play(Feel.tick);
+          setState(() => _a[kHalfHours] = v);
+        },
+      ),
+    ),
+    _Step.sleep => _Ask(
+      title: tx('How was your sleep?'),
+      child: _SleepList(answers: _questions[0].$2, value: _a[kSleepQ], onPick: (v) => _answer(kSleepQ, v)),
+    ),
+    _Step.energy => _Ask(
+      title: tx('How is your energy?'),
+      child: _Battery(answers: _questions[1].$2, value: _a[kEnergy], onPick: (v) => _answer(kEnergy, v)),
+    ),
+    _Step.mood => _Ask(
+      title: tx('How is your mood?'),
+      child: _Faces(answers: _mood.$2, value: _a[kMood], onPick: (v) => _answer(kMood, v)),
+    ),
+    _Step.sore => _Ask(
+      title: tx('How sore are you?'),
+      child: _Heat(answers: _questions[2].$2, value: _a[kSore], onPick: (v) => _answer(kSore, v)),
+    ),
+    _Step.where => _Ask(
+      title: tx('Where is it sore?'),
+      hint: tx('Tap every part that is.'),
+      next: NeonButton(label: tx('Next'), height: 50, onTap: _hit),
+      child: _BodyParts(
+        on: _sore,
+        onTap: (g) {
+          Haptics.play(Feel.tick);
+          setState(() => _sore.contains(g) ? _sore.remove(g) : _sore.add(g));
+        },
+      ),
+    ),
+    _Step.grip => _Ask(
+      title: tx('Grip check'),
+      hint: tx('Make a fist and squeeze as hard as you can. How strong does it feel?'),
+      next: NeonButton(label: tx('Save check-in'), height: 50, onTap: _a.containsKey(kGrip) ? _save : null),
+      child: _GripBar(
+        value: _a[kGrip],
+        onChanged: (g) {
+          if (g != _a[kGrip]) Haptics.play(Feel.tick);
+          setState(() => _a[kGrip] = g);
+        },
+      ),
+    ),
+  };
+}
+
+/// One question: the question big, a hint under it, how to answer and
+/// the button that moves on, when it takes one.
+class _Ask extends StatelessWidget {
+  const _Ask({required this.title, required this.child, this.hint, this.next});
+
+  final String title;
+  final String? hint;
+  final Widget child;
+  final Widget? next;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Text(title, style: BoltText.a(21, weight: 900, width: 108, spacing: -.01, height: 1.15)),
+      if (hint != null) ...[
+        const SizedBox(height: 6),
+        Text(hint!, style: BoltText.a(13, color: BoltColors.muted, height: 1.35)),
+      ],
+      const SizedBox(height: 16),
+      child,
+      if (next != null) ...[const SizedBox(height: 16), next!],
+    ],
+  );
+}
+
+/// The flash over the question and a bolt striking in its middle, as
+/// [a] runs from 0 to 1.
+class _BoltHit extends AnimatedWidget {
+  const _BoltHit(Animation<double> a) : super(listenable: a);
+
+  @override
+  Widget build(BuildContext context) {
+    final t = (listenable as Animation<double>).value;
+    if (t == 0 || t == 1) return const SizedBox.shrink();
+    return CustomPaint(painter: _BoltPainter(t));
+  }
+}
+
+class _BoltPainter extends CustomPainter {
+  _BoltPainter(this.t);
+
+  final double t;
+
+  /// The bolt from the app icon, on a 24 grid.
+  static const _shape = [
+    Offset(13.5, 3),
+    Offset(5, 13.5),
+    Offset(11, 13.5),
+    Offset(10, 21),
+    Offset(18.5, 10.5),
+    Offset(12.5, 10.5),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final neon = BoltColors.neon;
+    final rect = Offset.zero & size;
+    // The flash: bright at once, gone by the end.
+    final f = math.pow(1 - t, 2).toDouble();
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect.inflate(6), const Radius.circular(18)),
+      Paint()..color = neon.withAlpha((0x47 * f).round()),
+    );
+    // The bolt: strikes in big, settles, then fades.
+    final grow = Curves.easeOutBack.transform((t / .45).clamp(0.0, 1.0));
+    final fade = t < .55 ? 1.0 : 1 - (t - .55) / .45;
+    final s = (40 + 60 * grow) / 24;
+    final c = rect.center;
+    final path = Path()..addPolygon([for (final p in _shape) c + (p - const Offset(12, 12)) * s], true);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = neon.withAlpha((0x99 * fade).round())
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14),
+    );
+    canvas.drawPath(path, Paint()..color = neon.withAlpha((0xFF * fade).round()));
+  }
+
+  @override
+  bool shouldRepaint(_BoltPainter old) => old.t != t;
+}
+
+/// How well you slept as a list, best on top.
+class _SleepList extends StatelessWidget {
+  const _SleepList({required this.answers, required this.value, required this.onPick});
+
+  final List<String> answers;
+  final int? value;
+  final ValueChanged<int> onPick;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      for (var n = 3; n >= 1; n--) ...[
+        if (n < 3) const SizedBox(height: 8),
+        Tap(
+          onTap: () => onPick(n),
+          scale: .97,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            height: 56,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: _pick(value == n, 14),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    tx(answers[n - 1]),
+                    style: BoltText.a(16, weight: 800, color: value == n ? BoltColors.onNeon : BoltColors.text),
+                  ),
+                ),
+                // Moons for how deep it was: one to three.
+                for (var m = 0; m < 3; m++)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: CustomPaint(
+                      size: const Size(14, 14),
+                      painter: _MoonPainter(
+                        m < n
+                            ? (value == n ? BoltColors.onNeon : BoltColors.neon)
+                            : (value == n ? BoltColors.onNeon.withAlpha(0x40) : BoltColors.line),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ],
+  );
+}
+
+class _MoonPainter extends CustomPainter {
+  _MoonPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = size.width / 2;
+    final moon = Path.combine(
+      PathOperation.difference,
+      Path()..addOval(Rect.fromCircle(center: Offset(r, r), radius: r)),
+      Path()..addOval(Rect.fromCircle(center: Offset(r * 1.55, r * .65), radius: r * .85)),
+    );
+    canvas.drawPath(moon, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_MoonPainter old) => old.color != color;
+}
+
+/// Energy as a battery: tap a cell and it fills up to there.
+class _Battery extends StatelessWidget {
+  const _Battery({required this.answers, required this.value, required this.onPick});
+
+  final List<String> answers;
+  final int? value;
+  final ValueChanged<int> onPick;
+
+  @override
+  Widget build(BuildContext context) {
+    final v = value ?? 0;
+    final fill = v == 1 ? BoltColors.warn : BoltColors.neon;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: v > 0 ? fill.withAlpha(0x8C) : BoltColors.line, width: 2),
+            ),
+            child: Row(
+              children: [
+                for (var n = 1; n <= 3; n++) ...[
+                  if (n > 1) const SizedBox(width: 5),
+                  Expanded(
+                    child: Tap(
+                      onTap: () => onPick(n),
+                      scale: .95,
+                      child: AnimatedContainer(
+                        duration: Duration(milliseconds: 160 + 70 * n),
+                        curve: Curves.easeOutCubic,
+                        height: 64,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: n <= v ? fill : BoltColors.surface2,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: n <= v ? [BoxShadow(color: fill.withAlpha(0x40), blurRadius: 14)] : const [],
+                        ),
+                        child: Text(
+                          tx(answers[n - 1]),
+                          style: BoltText.a(13, weight: 800, color: n <= v ? BoltColors.onNeon : BoltColors.muted),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        // The battery's nub.
+        Container(
+          margin: const EdgeInsets.only(left: 3, top: 26),
+          width: 6,
+          height: 26,
+          decoration: BoxDecoration(
+            color: v == 3 ? fill : BoltColors.line,
+            borderRadius: const BorderRadius.horizontal(right: Radius.circular(3)),
+          ),
+        ),
       ],
     );
   }
 }
 
-/// One question: its label and answers on a tile that lights up once
-/// answered.
-class _Tile extends StatelessWidget {
-  const _Tile({required this.label, required this.answered, required this.child});
-
-  final String label;
-  final bool answered;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => AnimatedContainer(
-    duration: const Duration(milliseconds: 260),
-    padding: const EdgeInsets.fromLTRB(12, 11, 12, 12),
-    decoration: BoxDecoration(
-      color: BoltColors.surface2,
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: answered ? BoltColors.neon.withAlpha(0x4D) : BoltColors.lineSoft),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 260),
-              width: 6,
-              height: 6,
-              decoration: BoxDecoration(color: answered ? BoltColors.neon : BoltColors.line, shape: BoxShape.circle),
-            ),
-            const SizedBox(width: 7),
-            Kicker(label, size: 9, spacing: .12, color: answered ? BoltColors.text : BoltColors.muted),
-          ],
-        ),
-        const SizedBox(height: 10),
-        child,
-      ],
-    ),
-  );
-}
-
-/// Answered count as segments that fill in, with `3/5` beside them.
-class _Progress extends StatelessWidget {
-  const _Progress({required this.done, required this.of});
-
-  final int done;
-  final int of;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      for (var i = 0; i < of; i++)
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 260),
-          curve: Curves.easeOutCubic,
-          margin: const EdgeInsets.only(left: 3),
-          width: i < done ? 16 : 10,
-          height: 4,
-          decoration: BoxDecoration(
-            color: i < done ? BoltColors.neon : BoltColors.line,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-      const SizedBox(width: 8),
-      Text('$done/$of', style: BoltText.m(10, weight: 700, color: done == of ? BoltColors.neon : BoltColors.muted)),
-    ],
-  );
-}
-
-/// Three answers, worst first, as tiles with one, two or three rising bars.
-class _Choices extends StatelessWidget {
-  const _Choices({required this.answers, required this.value, required this.onPick});
+/// Mood as three faces, from a frown to a smile.
+class _Faces extends StatelessWidget {
+  const _Faces({required this.answers, required this.value, required this.onPick});
 
   final List<String> answers;
-
-  /// 1 to 3, or null before it is answered.
   final int? value;
   final ValueChanged<int> onPick;
 
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      for (var i = 0; i < 3; i++) ...[
-        if (i > 0) const SizedBox(width: 6),
+      for (var n = 1; n <= 3; n++)
         Expanded(
-          child: Tap(onTap: () => onPick(i + 1), scale: .95, child: _choiceTile(i + 1, answers[i], value == i + 1)),
+          child: Tap(
+            onTap: () => onPick(n),
+            scale: .92,
+            child: Column(
+              children: [
+                AnimatedScale(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutBack,
+                  scale: value == n ? 1.1 : 1,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 76,
+                    height: 76,
+                    decoration: BoxDecoration(
+                      color: value == n ? BoltColors.neon : BoltColors.surface2,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: value == n ? BoltColors.neon : BoltColors.line, width: 1.5),
+                      boxShadow: value == n ? [BoxShadow(color: BoltColors.glow(0x59), blurRadius: 18)] : const [],
+                    ),
+                    child: CustomPaint(painter: _FacePainter(n - 2, value == n ? BoltColors.onNeon : BoltColors.text)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  tx(answers[n - 1]),
+                  style: BoltText.a(13, weight: 800, color: value == n ? BoltColors.neon : BoltColors.muted),
+                ),
+              ],
+            ),
+          ),
+        ),
+    ],
+  );
+}
+
+class _FacePainter extends CustomPainter {
+  _FacePainter(this.smile, this.color);
+
+  /// -1 a frown, 0 flat, 1 a smile.
+  final int smile;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final p = Paint()..color = color;
+    canvas.drawCircle(Offset(w * .36, w * .4), w * .05, p);
+    canvas.drawCircle(Offset(w * .64, w * .4), w * .05, p);
+    final y = w * .63;
+    canvas.drawPath(
+      Path()
+        ..moveTo(w * .33, y - smile * w * .03)
+        ..quadraticBezierTo(w * .5, y + smile * w * .12, w * .67, y - smile * w * .03),
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = w * .055
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_FacePainter old) => old.smile != smile || old.color != color;
+}
+
+/// Soreness as three tiles that run hot: a glow that grows the sorer it is.
+class _Heat extends StatelessWidget {
+  const _Heat({required this.answers, required this.value, required this.onPick});
+
+  final List<String> answers;
+  final int? value;
+  final ValueChanged<int> onPick;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      for (var n = 1; n <= 3; n++) ...[
+        if (n > 1) const SizedBox(width: 8),
+        Expanded(
+          child: Tap(onTap: () => onPick(n), scale: .95, child: _tile(n, value == n)),
         ),
       ],
     ],
   );
 
-  Widget _choiceTile(int n, String label, bool on) => AnimatedContainer(
-    duration: const Duration(milliseconds: 220),
-    curve: Curves.easeOutCubic,
-    height: 60,
-    decoration: BoxDecoration(
-      color: on ? BoltColors.neon : BoltColors.surface1,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: on ? BoltColors.neon : BoltColors.line),
-      boxShadow: on ? [BoxShadow(color: BoltColors.glow(0x59), blurRadius: 18, spreadRadius: -4)] : const [],
-    ),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            for (var b = 1; b <= 3; b++) ...[
-              if (b > 1) const SizedBox(width: 2),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                width: 4,
-                height: 3.0 + 3 * b,
-                decoration: BoxDecoration(
-                  color: b <= n
-                      ? (on ? BoltColors.onNeon : BoltColors.muted)
-                      : (on ? BoltColors.onNeon.withAlpha(0x40) : BoltColors.line),
-                  borderRadius: BorderRadius.circular(1),
-                ),
+  Widget _tile(int n, bool on) {
+    final heat = n == 3 ? BoltColors.neon : BoltColors.warn;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      height: 96,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: on ? heat : BoltColors.surface2,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: on ? heat : BoltColors.line),
+        boxShadow: on ? [BoxShadow(color: heat.withAlpha(0x4D), blurRadius: 18)] : const [],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // The glow: wide for very sore, small for a bit, none when fresh.
+          if (n < 3)
+            Container(
+              width: n == 1 ? 84 : 46,
+              height: n == 1 ? 84 : 46,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(colors: [(on ? BoltColors.onNeon : heat).withAlpha(0x59), heat.withAlpha(0)]),
               ),
+            ),
+          Text(
+            tx(answers[n - 1]),
+            textAlign: TextAlign.center,
+            style: BoltText.a(14, weight: 800, color: on ? BoltColors.onNeon : BoltColors.text),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The sore parts as a grid of tiles: tap to mark, tap again to clear.
+class _BodyParts extends StatelessWidget {
+  const _BodyParts({required this.on, required this.onTap});
+
+  final Set<String> on;
+  final ValueChanged<String> onTap;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      for (var row = 0; row < 2; row++) ...[
+        if (row > 0) const SizedBox(height: 8),
+        Row(
+          children: [
+            for (var col = 0; col < 3; col++) ...[
+              if (col > 0) const SizedBox(width: 8),
+              Expanded(child: _part(kSoreGroups[row * 3 + col])),
             ],
           ],
         ),
-        const SizedBox(height: 7),
-        Text(
-          tx(label),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: BoltText.a(12.5, weight: 800, color: on ? BoltColors.onNeon : BoltColors.text),
-        ),
       ],
-    ),
+    ],
   );
-}
 
-class _Pill extends StatelessWidget {
-  const _Pill({required this.label, required this.on, required this.onTap});
-
-  final String label;
-  final bool on;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Tap(
-    onTap: onTap,
-    scale: .95,
-    child: AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
-      decoration: BoxDecoration(
-        color: on ? BoltColors.neon : BoltColors.surface1,
-        borderRadius: BorderRadius.circular(99),
-        border: Border.all(color: on ? BoltColors.neon : BoltColors.line),
+  Widget _part(String g) {
+    final sel = on.contains(g);
+    return Tap(
+      onTap: () => onTap(g),
+      scale: .94,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        height: 62,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: sel ? BoltColors.warn : BoltColors.surface2,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: sel ? BoltColors.warn : BoltColors.line),
+          boxShadow: sel ? [BoxShadow(color: BoltColors.warn.withAlpha(0x4D), blurRadius: 14)] : const [],
+        ),
+        child: Text(
+          tx(_soreNames[g]!),
+          style: BoltText.a(14, weight: 800, color: sel ? BoltColors.onNeon : BoltColors.text),
+        ),
       ),
-      child: Text(label, style: BoltText.a(13, weight: 700, color: on ? BoltColors.onNeon : BoltColors.text)),
-    ),
-  );
+    );
+  }
 }
 
-/// Sleep hours, half an hour a step from 3 to 12: the hours big with − and
-/// + beside them, over a row of rising bars to tap or slide along.
+/// The selected or open look of an answer.
+BoxDecoration _pick(bool on, double radius) => BoxDecoration(
+  color: on ? BoltColors.neon : BoltColors.surface2,
+  borderRadius: BorderRadius.circular(radius),
+  border: Border.all(color: on ? BoltColors.neon : BoltColors.line),
+  boxShadow: on ? [BoxShadow(color: BoltColors.glow(0x59), blurRadius: 18, spreadRadius: -4)] : const [],
+);
+
+/// Sleep hours, half an hour a step from 3 to 12: the hours big between −
+/// and +, over a row of rising bars to tap or slide along.
 class _SleepHours extends StatelessWidget {
   const _SleepHours({required this.value, required this.onChanged});
 
@@ -499,15 +822,15 @@ class _SleepHours extends StatelessWidget {
     onTap: () => onChanged((value + d).clamp(_min, _max)),
     scale: .9,
     child: Container(
-      width: 40,
-      height: 40,
+      width: 48,
+      height: 48,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: BoltColors.surface1,
+        color: BoltColors.surface2,
         shape: BoxShape.circle,
         border: Border.all(color: BoltColors.line),
       ),
-      child: Text(l, style: BoltText.a(18, weight: 700)),
+      child: Text(l, style: BoltText.a(22, weight: 700)),
     ),
   );
 
@@ -519,16 +842,23 @@ class _SleepHours extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text(_hours(value), style: BoltText.a(34, weight: 900, height: 1, color: BoltColors.neon)),
-            const SizedBox(width: 4),
-            Text('h', style: BoltText.m(14, weight: 700, color: BoltColors.muted)),
-            const Spacer(),
             _key('−', -1),
-            const SizedBox(width: 8),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(_hours(value), style: BoltText.a(52, weight: 900, height: 1, color: BoltColors.neon)),
+                  const SizedBox(width: 4),
+                  Text('h', style: BoltText.m(16, weight: 700, color: BoltColors.muted)),
+                ],
+              ),
+            ),
             _key('+', 1),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, box) {
             void at(double x) => onChanged(_min + (x / box.maxWidth * n).floor().clamp(0, n - 1));
@@ -538,7 +868,7 @@ class _SleepHours extends StatelessWidget {
               onHorizontalDragStart: (d) => at(d.localPosition.dx),
               onHorizontalDragUpdate: (d) => at(d.localPosition.dx),
               child: SizedBox(
-                height: 30,
+                height: 34,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -547,7 +877,7 @@ class _SleepHours extends StatelessWidget {
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 160),
                           margin: const EdgeInsets.symmetric(horizontal: 1.5),
-                          height: 8 + 22 * i / (n - 1),
+                          height: 8 + 26 * i / (n - 1),
                           decoration: BoxDecoration(
                             color: _min + i <= value
                                 ? BoltColors.neon.withAlpha(0x59 + (0xA6 * i / (n - 1)).round())
@@ -859,7 +1189,7 @@ class _GripBar extends StatelessWidget {
                 right: _thumb / 2,
                 child: Container(
                   height: 10,
-                  decoration: BoxDecoration(color: BoltColors.surface1, borderRadius: BorderRadius.circular(5)),
+                  decoration: BoxDecoration(color: BoltColors.surface2, borderRadius: BorderRadius.circular(5)),
                 ),
               ),
               for (var i = 0; i <= 10; i++)

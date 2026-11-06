@@ -559,12 +559,26 @@ void main() {
     }
     await settle(tester);
     await tapText(tester, 'Mark as rest day');
+    // One question at a time: an answer moves on by itself, hours and the
+    // sore parts take a Next.
+    // The next question slides in after the bolt.
+    Future<void> answer(String text) async {
+      await tapText(tester, text);
+      await tester.pump(const Duration(milliseconds: 600));
+    }
+
+    expect(find.text('How many hours of sleep?'), findsOneWidget);
     await tapText(tester, '+');
-    await tapText(tester, 'Bad');
-    await tapText(tester, 'Low');
-    await tapText(tester, 'Down');
-    await tapText(tester, 'Very sore');
+    await answer('Next');
+    await answer('Bad');
+    expect(find.text('How is your energy?'), findsOneWidget);
+    await answer('Low');
+    await answer('Down');
+    await answer('Very sore');
+    expect(find.text('Where is it sore?'), findsOneWidget);
     await tapText(tester, 'Legs');
+    await answer('Next');
+    expect(find.text('Grip check'), findsOneWidget);
     // Nothing is saved until every question has an answer.
     await tapText(tester, 'Save check-in');
     expect(c.read(boltProvider).trainees.single.readiness, isEmpty);
@@ -608,6 +622,7 @@ void main() {
       await tester.ensureVisible(gate(find.text(text)));
       await tester.tap(gate(find.text(text)));
       await settle(tester);
+      await tester.pump(const Duration(milliseconds: 600));
     }
 
     Future<void> nextDay() async {
@@ -632,7 +647,8 @@ void main() {
     await nextDay();
     expect(find.text('Good evening, Dani'), findsOneWidget);
     expect(c.read(boltProvider).settings.hintsSeen.where((h) => h.startsWith('checkin:')), ['checkin:2026-10-15']);
-    for (final a in ['+', 'Great', 'High', 'Good', 'Fresh']) {
+    // Fresh skips where it is sore.
+    for (final a in ['+', 'Next', 'Great', 'High', 'Good', 'Fresh']) {
       await tapGate(a);
     }
     await tester.ensureVisible(gate(find.byKey(const ValueKey('grip'))));

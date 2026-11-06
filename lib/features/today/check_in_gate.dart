@@ -152,7 +152,6 @@ class _CheckInGateState extends ConsumerState<CheckInGate> with SingleTickerProv
                     : CheckInForm(
                         key: const ValueKey('form'),
                         trainee: t,
-                        stagger: true,
                         onSaved: () => setState(() => _saved = true),
                       ),
               ),
