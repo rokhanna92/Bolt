@@ -1802,14 +1802,14 @@ void main() {
   testWidgets('the blue theme has a black nav bar and a backed calendar', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
-    c.read(boltProvider.notifier).toggleTheme();
+    c.read(boltProvider.notifier).setTheme('blue');
     await settle(tester);
     final bar = find.descendant(of: find.byType(BoltNavBar), matching: find.byType(ColoredBox));
     expect(tester.widget<ColoredBox>(bar.first).color, Colors.black);
     await tapTab(tester, 'Plan');
     expect(find.byType(BluePanel), findsWidgets);
     expect(find.descendant(of: find.byType(BluePanel), matching: find.byType(CalendarGrid)), findsWidgets);
-    c.read(boltProvider.notifier).toggleTheme();
+    c.read(boltProvider.notifier).setTheme('neon');
     await unmount(tester);
   });
 

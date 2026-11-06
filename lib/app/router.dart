@@ -33,6 +33,7 @@ import '../features/quick/stopwatch_screen.dart';
 import '../features/rank/rank_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/settings/theme_screen.dart';
 import '../features/today/today_screen.dart';
 import '../features/workout/summary_screen.dart';
 import '../features/workout/workout_screen.dart';
@@ -249,6 +250,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/settings',
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) => _enter(s, const SettingsScreen()),
+      ),
+      GoRoute(
+        path: '/theme',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const ThemeScreen()),
+      ),
+      GoRoute(
+        path: '/theme/own',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const OwnThemeScreen()),
       ),
       GoRoute(
         path: '/plates',

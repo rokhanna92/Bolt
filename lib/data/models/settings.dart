@@ -40,6 +40,9 @@ class AppSettings {
     this.waterHours = 3,
     this.bellSeen,
     this.blue = false,
+    this.theme = 'neon',
+    this.ownAccent = 0xFFC6FF1A,
+    this.ownPage = 0xFF0A0B09,
     Map<String, String>? ownKeys,
     List<String>? usedKeys,
     Map<String, int>? supps,
@@ -127,6 +130,12 @@ class AppSettings {
   /// The grey and blue theme instead of orange and neon.
   bool blue;
 
+  /// The theme's id from `kThemes`, or 'own' for [ownAccent] on [ownPage].
+  /// Grey and blue is [blue].
+  String theme;
+  int ownAccent;
+  int ownPage;
+
   /// When the Notifications screen was last opened, for the dot on the bell.
   DateTime? bellSeen;
 
@@ -166,6 +175,9 @@ class AppSettings {
     'supps': supps,
     'bellSeen': bellSeen?.toIso8601String(),
     'blue': blue,
+    'theme': theme,
+    'ownAccent': ownAccent,
+    'ownPage': ownPage,
     'ownKeys': ownKeys,
     'usedKeys': usedKeys,
     'keyLog': [for (final e in keyLog) e.toJson()],
@@ -196,6 +208,9 @@ class AppSettings {
     water: j['water'] as bool? ?? false,
     waterHours: j['waterHours'] as int? ?? 3,
     blue: j['blue'] as bool? ?? false,
+    theme: j['theme'] as String? ?? 'neon',
+    ownAccent: j['ownAccent'] as int? ?? 0xFFC6FF1A,
+    ownPage: j['ownPage'] as int? ?? 0xFF0A0B09,
     ownKeys: {for (final e in (j['ownKeys'] as Map? ?? const {}).entries) e.key as String: e.value as String},
     usedKeys: [for (final x in j['usedKeys'] as List? ?? const []) x as String],
     bellSeen: DateTime.tryParse(j['bellSeen'] as String? ?? ''),

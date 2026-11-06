@@ -7,7 +7,7 @@ import '../core/format.dart';
 import '../core/units.dart';
 import '../services/haptics.dart';
 import '../services/notifications.dart';
-import '../theme/tokens.dart';
+import '../theme/themes.dart';
 import '../services/rest_timer.dart' show kRestSounds;
 import 'models/board.dart';
 import 'models/bolt_data.dart';
@@ -147,7 +147,7 @@ class BoltStore extends Notifier<BoltData> {
     final d = ref.read(initialDataProvider);
     appLang = AppLang.byName(d.settings.lang);
     appFemale = _ownerFemale(d);
-    BoltColors.blue = d.settings.blue;
+    applyTheme(d.settings);
     Haptics.enabled = d.settings.haptics;
     return d;
   }
@@ -386,10 +386,13 @@ class BoltStore extends Notifier<BoltData> {
     _notify.replaceSessionReminders(const []);
     _notify.replaceDailyReminders(const []);
     final lang = state.settings.lang;
-    final blue = state.settings.blue;
+    final old = state.settings;
     state = freshData()
       ..settings.lang = lang
-      ..settings.blue = blue;
+      ..settings.blue = old.blue
+      ..settings.theme = old.theme
+      ..settings.ownAccent = old.ownAccent
+      ..settings.ownPage = old.ownPage;
     appFemale = false;
     ref.read(repositoryProvider).scheduleSave(state);
   }
@@ -1428,7 +1431,7 @@ class BoltStore extends Notifier<BoltData> {
       state = d;
       appLang = AppLang.byName(d.settings.lang);
       appFemale = _ownerFemale(d);
-      BoltColors.blue = d.settings.blue;
+      applyTheme(d.settings);
       ref.read(repositoryProvider).scheduleSave(state);
       syncSessionReminders();
       syncDailyReminders();
@@ -2367,11 +2370,23 @@ class BoltStore extends Notifier<BoltData> {
     _commit();
   }
 
-  /// Orange and neon, or grey and blue. Those are the only two.
-  void toggleTheme() {
-    final s = state.settings;
-    s.blue = !s.blue;
-    BoltColors.blue = s.blue;
+  /// One of the ready-made themes in `kThemes` by [id].
+  void setTheme(String id) {
+    final s = state.settings
+      ..blue = id == 'blue'
+      ..theme = id;
+    applyTheme(s);
+    _commit();
+  }
+
+  /// Your own theme: [accent] on the [page] color, both as ARGB.
+  void setOwnTheme(int accent, int page) {
+    final s = state.settings
+      ..blue = false
+      ..theme = kOwnTheme
+      ..ownAccent = accent
+      ..ownPage = page;
+    applyTheme(s);
     _commit();
   }
 

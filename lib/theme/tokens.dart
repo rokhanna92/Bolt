@@ -8,6 +8,12 @@ abstract final class BoltColors {
   /// The grey and blue theme. Set from settings; the app rebuilds on a change.
   static bool blue = false;
 
+  /// The accent, the page behind everything and text on the accent, for every
+  /// theme but grey and blue. Set from settings by `applyTheme`.
+  static Color accent = const Color(0xFFC6FF1A);
+  static Color pageTint = ink;
+  static Color onAccent = ink;
+
   static const ink = Color(0xFF0A0B09);
 
   /// A planned day on the blue theme's black calendar. White text reads 7:1 on it.
@@ -26,17 +32,17 @@ abstract final class BoltColors {
   // The dimmest grey for text: 4.5:1 on cards. muted4 is too dark for text.
   static Color get muted3 => blue ? const Color(0xFFBDBDBD) : const Color(0xFF7A8172);
   static const muted4 = Color(0xFF5E6558);
-  static Color get neon => blue ? const Color(0xFFFFFFFF) : const Color(0xFFC6FF1A);
+  static Color get neon => blue ? const Color(0xFFFFFFFF) : accent;
   static Color get warn => blue ? const Color(0xFFC8C8C8) : const Color(0xFFFF7A45);
 
   /// The background of every page.
-  static Color get page => blue ? const Color(0xFF00008E) : ink;
+  static Color get page => blue ? const Color(0xFF00008E) : pageTint;
 
   /// A glow around something lit up. None on the blue page, where it only blurs.
   static Color glow(int alpha) => blue ? const Color(0x00000000) : neon.withAlpha(alpha);
 
   /// Text and icons on a [neon] fill.
-  static Color get onNeon => blue ? const Color(0xFF000000) : ink;
+  static Color get onNeon => blue ? const Color(0xFF000000) : onAccent;
 
   // Secondary shades the prototype uses for handles, faded numbers and
   // locked badge rings.

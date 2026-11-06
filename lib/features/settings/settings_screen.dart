@@ -11,6 +11,7 @@ import '../../services/backup.dart' if (dart.library.js_interop) '../../web/back
 import '../../services/haptics.dart';
 import '../../services/rest_timer.dart';
 import '../../theme/text_styles.dart';
+import '../../theme/themes.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
@@ -139,10 +140,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ],
         ),
-      (
-        tx('LOOK'),
-        [_Row(tx('Theme'), value: s.blue ? tx('Grey and blue') : tx('Orange and neon'), onTap: store.toggleTheme)],
-      ),
+      (tx('LOOK'), [_Row(tx('Theme'), value: tx(themeName(s)), onTap: () => context.push('/theme'))]),
       (
         tx('TRAINING'),
         [
