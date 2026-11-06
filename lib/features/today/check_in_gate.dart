@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
@@ -17,9 +16,9 @@ import '../../widgets/tap.dart';
 import 'readiness_card.dart';
 
 /// The first thing each day: the app blurs behind a card that asks today's
-/// check-in, under a sun coming up. Skip goes straight in, and the card on
-/// Today still asks. It stays away on a day already checked in, skipped,
-/// trained or with a workout running.
+/// check-in. Skip goes straight in, and the card on Today still asks. It
+/// stays away on a day already checked in, skipped, trained or with a
+/// workout running.
 class CheckInGate extends ConsumerStatefulWidget {
   const CheckInGate({super.key});
 
@@ -164,7 +163,7 @@ class _CheckInGateState extends ConsumerState<CheckInGate> with SingleTickerProv
     );
   }
 
-  /// The sun coming up over the horizon, the day and a greeting, with Skip.
+  /// The day and a greeting, with Skip.
   Widget _header(String name) {
     final now = ref.read(boltProvider.notifier).now;
     final greet = now.hour < 12
@@ -172,68 +171,48 @@ class _CheckInGateState extends ConsumerState<CheckInGate> with SingleTickerProv
         : now.hour < 18
         ? 'Good afternoon, {name}'
         : 'Good evening, {name}';
-    final sun = CurvedAnimation(
-      parent: _c,
-      curve: const Interval(.25, 1, curve: Curves.easeOutCubic),
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 112,
-          child: Stack(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 14, 12, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Positioned.fill(
-                child: AnimatedBuilder(
-                  animation: sun,
-                  builder: (context, _) => CustomPaint(painter: _SunrisePainter(sun.value)),
+              Expanded(
+                child: Kicker(
+                  '${tx('NEW DAY')} · ${weekdays[jsDay(now)]} ${dayMonth(now)}'.toUpperCase(),
+                  size: 10,
+                  color: BoltColors.neon,
                 ),
               ),
               if (!_saved)
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Tap(
-                    onTap: () => _close(skip: true),
-                    scale: .94,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: BoltColors.ink.withAlpha(0x8C),
-                        borderRadius: BorderRadius.circular(99),
-                        border: Border.all(color: BoltColors.line),
-                      ),
-                      child: Text(tx('Skip'), style: BoltText.a(12, weight: 800, color: BoltColors.textSoft)),
+                Tap(
+                  onTap: () => _close(skip: true),
+                  scale: .94,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: BoltColors.ink.withAlpha(0x8C),
+                      borderRadius: BorderRadius.circular(99),
+                      border: Border.all(color: BoltColors.line),
                     ),
+                    child: Text(tx('Skip'), style: BoltText.a(12, weight: 800, color: BoltColors.textSoft)),
                   ),
                 ),
             ],
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(18, 6, 18, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Kicker(
-                '${tx('NEW DAY')} · ${weekdays[jsDay(now)]} ${dayMonth(now)}'.toUpperCase(),
-                size: 10,
-                color: BoltColors.neon,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                tx(greet, {'name': vocative(firstName(name))}),
-                style: BoltText.a(26, weight: 900, width: 110, spacing: -.02, height: 1.05),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                tx('A quick check-in and Bolt sets today to how you feel.'),
-                style: BoltText.a(13, color: BoltColors.muted, height: 1.35),
-              ),
-            ],
+          const SizedBox(height: 10),
+          Text(
+            tx(greet, {'name': vocative(firstName(name))}),
+            style: BoltText.a(26, weight: 900, width: 110, spacing: -.02, height: 1.05),
           ),
-        ),
-      ],
+          const SizedBox(height: 6),
+          Text(
+            tx('A quick check-in and Bolt sets today to how you feel.'),
+            style: BoltText.a(13, color: BoltColors.muted, height: 1.35),
+          ),
+        ],
+      ),
     );
   }
 
@@ -288,80 +267,4 @@ class _CheckInGateState extends ConsumerState<CheckInGate> with SingleTickerProv
       ],
     );
   }
-}
-
-/// A half sun rising over a horizon line as [t] goes from 0 to 1, with rays
-/// fanning out and a glow spreading over the sky.
-class _SunrisePainter extends CustomPainter {
-  _SunrisePainter(this.t);
-
-  final double t;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final neon = BoltColors.neon;
-    const r = 34.0;
-    final horizon = size.height - 16;
-    final c = Offset(size.width * .5, horizon + r + 4 - (r + 24) * t);
-
-    // The sky warming up.
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()
-        ..shader = RadialGradient(
-          center: Alignment(c.dx / size.width * 2 - 1, c.dy / size.height * 2 - 1),
-          radius: .9,
-          colors: [neon.withAlpha((0x40 * t).round()), neon.withAlpha(0)],
-        ).createShader(Offset.zero & size),
-    );
-
-    canvas.save();
-    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, horizon));
-
-    // Rays, longer as it climbs.
-    final ray = Paint()
-      ..color = neon.withAlpha((0x59 * t).round())
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round;
-    for (var i = 0; i < 9; i++) {
-      final a = math.pi + math.pi * (i + 1) / 10;
-      final d = Offset(math.cos(a), math.sin(a));
-      canvas.drawLine(c + d * (r + 10), c + d * (r + 10 + 22 * t), ray);
-    }
-
-    // The sun: a glow, then the disc.
-    canvas.drawCircle(
-      c,
-      r + 18,
-      Paint()
-        ..color = neon.withAlpha((0x2E * t).round())
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16),
-    );
-    canvas.drawCircle(
-      c,
-      r,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [neon, neon.withAlpha(0x8C)],
-        ).createShader(Rect.fromCircle(center: c, radius: r)),
-    );
-    canvas.restore();
-
-    // The horizon, brightest under the sun.
-    canvas.drawLine(
-      Offset(0, horizon),
-      Offset(size.width, horizon),
-      Paint()
-        ..strokeWidth = 1.5
-        ..shader = LinearGradient(
-          colors: [neon.withAlpha(0), neon.withAlpha(0xB3), neon.withAlpha(0)],
-          stops: const [0, .5, 1],
-        ).createShader(Rect.fromLTWH(0, horizon - 1, size.width, 2)),
-    );
-  }
-
-  @override
-  bool shouldRepaint(_SunrisePainter old) => old.t != t;
 }
