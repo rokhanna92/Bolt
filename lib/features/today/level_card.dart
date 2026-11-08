@@ -29,15 +29,15 @@ class LevelCard extends StatelessWidget {
       onTap: () => showBoltSheet<void>(context, (_) => const LevelSheet()),
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: Stroke(rust > 0 ? BoltColors.warn : BoltColors.lineSoft),
-        radius: 14,
+        stroke: rust > 0 ? Stroke(BoltColors.warn) : Stroke.none,
+        radius: 18,
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                Text('${tx('LVL')} ${lv.level}', style: BoltText.a(15, weight: 900, color: BoltColors.neon)),
+                Text('${tx('LVL')} ${lv.level}', style: BoltText.display(20, color: BoltColors.neon)),
                 const SizedBox(width: 8),
                 Expanded(child: Kicker(tx('ATHLETE LEVEL'), size: 10, spacing: .12)),
                 RollText(

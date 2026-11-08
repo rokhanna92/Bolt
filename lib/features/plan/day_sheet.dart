@@ -283,7 +283,6 @@ class CoachNote extends StatelessWidget {
   Widget build(BuildContext context) {
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 14,
       padding: EdgeInsets.all(padding),
       child: Row(

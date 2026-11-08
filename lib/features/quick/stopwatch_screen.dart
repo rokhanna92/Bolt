@@ -301,7 +301,6 @@ class _StopwatchScreenState extends ConsumerState<StopwatchScreen> with SingleTi
     final rank = splits.length >= 3 && fast != slow;
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 18,
       clip: true,
       child: Column(

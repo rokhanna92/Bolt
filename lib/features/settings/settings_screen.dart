@@ -256,7 +256,6 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               BoltBox(
                 color: BoltColors.surface1,
-                stroke: const Stroke(BoltColors.lineSoft),
                 radius: 18,
                 clip: true,
                 child: Column(children: [for (final r in rows) _row(r)]),

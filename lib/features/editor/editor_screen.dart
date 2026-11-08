@@ -235,7 +235,6 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
     return BoltBox(
       key: ValueKey(e.id),
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 16,
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -461,7 +460,6 @@ class _Standard extends ConsumerWidget {
     final days = standardDays(plan, tpl.id).take(6).toList();
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 16,
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
       child: Column(

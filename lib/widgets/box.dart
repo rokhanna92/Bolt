@@ -157,14 +157,14 @@ class DashedBorderPainter extends CustomPainter {
       old.radius != radius;
 }
 
-/// Shorthand for the prototype's standard card: surface1 with a soft border.
+/// Shorthand for the standard card: a surface1 fill, no outline.
 class Card1 extends StatelessWidget {
   const Card1({
     super.key,
     required this.child,
     this.radius = BoltRadii.card,
     this.padding = const EdgeInsets.all(14),
-    this.stroke = const Stroke(BoltColors.lineSoft),
+    this.stroke = Stroke.none,
   });
 
   final Widget child;

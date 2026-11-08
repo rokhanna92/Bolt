@@ -143,7 +143,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         scale: .98,
         child: BoltBox(
           color: BoltColors.surface1,
-          stroke: const Stroke(BoltColors.lineSoft),
           radius: 20,
           padding: const EdgeInsets.all(16),
           child: Row(

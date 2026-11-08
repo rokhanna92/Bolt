@@ -26,7 +26,6 @@ class RoleSwitch extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 24),
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: const Stroke(BoltColors.lineSoft),
         radius: 16,
         padding: const EdgeInsets.all(14),
         child: Column(

@@ -51,7 +51,6 @@ class GymScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         BoltBox(
           color: BoltColors.surface1,
-          stroke: const Stroke(BoltColors.lineSoft),
           radius: 28,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 26),
           child: Column(
@@ -278,7 +277,6 @@ class _BestTimes extends StatelessWidget {
     final gain = (100 * (1 - fast.first.minPerSet / slowest.minPerSet)).round();
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 18,
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
       child: Column(

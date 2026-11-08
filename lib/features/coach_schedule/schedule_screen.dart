@@ -140,7 +140,6 @@ class TraineeSessionRow extends StatelessWidget {
       scale: .98,
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: const Stroke(BoltColors.lineSoft),
         radius: 16,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Row(

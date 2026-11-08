@@ -185,7 +185,6 @@ class MeasurementsScreen extends ConsumerWidget {
                 const SizedBox(height: 10),
                 BoltBox(
                   color: BoltColors.surface1,
-                  stroke: const Stroke(BoltColors.lineSoft),
                   radius: 18,
                   padding: const EdgeInsets.all(14),
                   child: Column(
@@ -291,7 +290,6 @@ class _BodyFatCard extends StatelessWidget {
         : (f ? tx('Log your neck and hips to estimate body fat.') : tx('Log your neck to estimate body fat.'));
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 18,
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -361,7 +359,6 @@ class _MetricCard extends StatelessWidget {
     final total = series.last.$2 - first.$2;
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 18,
       padding: const EdgeInsets.all(14),
       child: Column(

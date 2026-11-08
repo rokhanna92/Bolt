@@ -223,7 +223,6 @@ class _LiveCard extends ConsumerWidget {
       padding: const EdgeInsets.only(top: 18),
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: const Stroke(BoltColors.lineSoft),
         radius: 20,
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -284,7 +283,6 @@ class _AttentionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 16,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
@@ -348,7 +346,6 @@ class _TraineeCard extends ConsumerWidget {
       scale: .98,
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: const Stroke(BoltColors.lineSoft),
         radius: 18,
         padding: const EdgeInsets.all(14),
         child: Row(

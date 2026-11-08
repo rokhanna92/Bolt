@@ -83,7 +83,6 @@ class BodyCard extends ConsumerWidget {
         else
           BoltBox(
             color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
             radius: 16,
             padding: const EdgeInsets.all(14),
             child: Column(

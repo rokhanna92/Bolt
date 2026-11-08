@@ -233,7 +233,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
           const SizedBox(height: 8),
           BoltBox(
             color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
             radius: 18,
             clip: true,
             child: Column(
@@ -290,7 +289,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               onTap: () => _edit(p),
               child: BoltBox(
                 color: BoltColors.surface1,
-                stroke: const Stroke(BoltColors.lineSoft),
                 radius: 16,
                 padding: const EdgeInsets.all(14),
                 child: Column(
@@ -336,7 +334,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
           const SizedBox(height: 18),
           BoltBox(
             color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
             radius: 18,
             clip: true,
             child: row(tx('GitHub token'), _token == null ? tx('Not set') : tx('On this phone'), _askToken),
@@ -370,7 +367,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
     }
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 18,
       clip: true,
       child: Column(

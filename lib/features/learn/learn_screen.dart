@@ -258,7 +258,6 @@ class _Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BoltBox(
     color: BoltColors.surface1,
-    stroke: const Stroke(BoltColors.lineSoft),
     radius: 18,
     padding: const EdgeInsets.all(16),
     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
@@ -415,7 +414,6 @@ class _ExerciseRow extends StatelessWidget {
     onTap: () => showExerciseSheet(e.name),
     child: BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 14,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(

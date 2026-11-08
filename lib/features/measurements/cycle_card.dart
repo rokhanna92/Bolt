@@ -29,7 +29,6 @@ class CycleCard extends ConsumerWidget {
     final info = cycleInfo(t.periods, store.now);
     final card = BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 18,
       padding: const EdgeInsets.all(14),
       child: Column(

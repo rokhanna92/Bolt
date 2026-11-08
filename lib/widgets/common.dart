@@ -610,7 +610,6 @@ class BluePanel extends StatelessWidget {
     if (!BoltColors.blue) return child;
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 18,
       padding: const EdgeInsets.all(12),
       child: child,
@@ -673,7 +672,6 @@ class StatTile extends StatelessWidget {
     final l = Kicker(label, size: 9, spacing: .1);
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 16,
       padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
       // In a row of equal tiles the numbers share a line at the bottom,

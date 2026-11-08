@@ -92,7 +92,6 @@ class _PlateScreenState extends ConsumerState<PlateScreen> {
           const SizedBox(height: 20),
           BoltBox(
             color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
             radius: 24,
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
             child: Column(

@@ -14,6 +14,7 @@ import '../../widgets/badge_medal.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 
 /// The trophy rack: every badge, earned or not. Opened from Today.
@@ -74,7 +75,6 @@ class BadgesScreen extends ConsumerWidget {
             const SizedBox(height: 14),
             BoltBox(
               color: BoltColors.surface1,
-              stroke: const Stroke(BoltColors.lineSoft),
               radius: 18,
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -212,22 +212,29 @@ class BadgesCard extends StatelessWidget {
       ...earned.skip(earned.length > _strip ? earned.length - _strip : 0),
       ...locked.take(_strip - (earned.length > _strip ? _strip : earned.length)),
     ];
-    final card = BoltBox(
-      color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
-      radius: 20,
-      padding: const EdgeInsets.all(16),
+    final card = Stage(
+      color: BoltColors.heat,
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Expanded(child: Kicker(tx('ACHIEVEMENTS'), size: 10)),
-              Text('${earned.length} / ${kBadges.length}', style: BoltText.m(13, weight: 700, color: BoltColors.neon)),
-              if (onTap != null) ...[const SizedBox(width: 6), const Chevron(size: 18)],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Kicker(tx('ACHIEVEMENTS'), size: 10),
+                    const SizedBox(height: 6),
+                    BigFigure('${earned.length}', unit: '/ ${kBadges.length}', size: 40),
+                  ],
+                ),
+              ),
+              if (onTap != null) const Chevron(size: 18),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Row(
             children: [
               for (final (i, b) in shown.indexed) ...[

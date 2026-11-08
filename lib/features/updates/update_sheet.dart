@@ -75,7 +75,6 @@ class UpdateCard extends ConsumerWidget {
           onTap: open,
           child: BoltBox(
             color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
             radius: 16,
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -326,7 +325,6 @@ class _UpdateSheetState extends ConsumerState<UpdateSheet> with WidgetsBindingOb
           padding: const EdgeInsets.only(top: 14),
           child: BoltBox(
             color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
             radius: 14,
             padding: const EdgeInsets.all(12),
             // Long notes scroll inside the box so the button stays in view.

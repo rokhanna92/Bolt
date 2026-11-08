@@ -60,7 +60,6 @@ class MeScreen extends ConsumerWidget {
         const SizedBox(height: 14),
         BoltBox(
           color: BoltColors.surface1,
-          stroke: const Stroke(BoltColors.lineSoft),
           radius: 16,
           child: Column(
             children: [
@@ -204,7 +203,6 @@ class _CoachCard extends ConsumerWidget {
     final store = ref.read(boltProvider.notifier);
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 16,
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -277,7 +275,6 @@ class _LinkCard extends StatelessWidget {
       onTap: onTap,
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: const Stroke(BoltColors.lineSoft),
         radius: 20,
         padding: const EdgeInsets.all(16),
         child: Row(

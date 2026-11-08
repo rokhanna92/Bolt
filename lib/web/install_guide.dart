@@ -91,7 +91,6 @@ class _InstallGuideState extends State<InstallGuide> {
   /// Numbered steps in one card, so they read as a single short task.
   Widget _steps(List<(String, IconData?)> steps) => BoltBox(
     color: BoltColors.surface1,
-    stroke: const Stroke(BoltColors.lineSoft),
     radius: 18,
     child: Column(
       children: [
@@ -217,7 +216,6 @@ class _InstallGuideState extends State<InstallGuide> {
                       onTap: _downloadApk,
                       child: BoltBox(
                         color: BoltColors.surface1,
-                        stroke: const Stroke(BoltColors.lineSoft),
                         radius: 16,
                         padding: const EdgeInsets.all(14),
                         child: Row(

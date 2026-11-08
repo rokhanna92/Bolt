@@ -6,6 +6,7 @@ import 'package:bolt/app.dart';
 import 'package:bolt/app/actions.dart' show openShortcut;
 import 'package:bolt/app/router.dart';
 import 'package:bolt/core/pwa.dart';
+import 'package:bolt/features/badges/badges_screen.dart';
 import 'package:bolt/features/quick/watch.dart';
 import 'package:bolt/features/profile/language_picker.dart';
 import 'package:bolt/widgets/bolt_nav_bar.dart';
@@ -355,7 +356,8 @@ void main() {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     expect(find.text('ACHIEVEMENTS'), findsOneWidget);
-    expect(find.text('0 / ${kBadges.length}'), findsOneWidget);
+    expect(find.descendant(of: find.byType(BadgesCard), matching: find.text('0')), findsOneWidget);
+    expect(find.descendant(of: find.byType(BadgesCard), matching: find.text('/ ${kBadges.length}')), findsOneWidget);
     expect(find.text('Next: First Rep'), findsOneWidget);
     await tapText(tester, 'ACHIEVEMENTS');
     expect(find.text('Trophy rack'), findsOneWidget);
@@ -1615,7 +1617,8 @@ void main() {
 
     await tapText(tester, 'Ana Marić');
     expect(find.text('Progress'), findsOneWidget);
-    expect(find.text('7 / ${kBadges.length}'), findsOneWidget);
+    expect(find.descendant(of: find.byType(BadgesCard), matching: find.text('7')), findsOneWidget);
+    expect(find.descendant(of: find.byType(BadgesCard), matching: find.text('/ ${kBadges.length}')), findsOneWidget);
     expect(find.text('Next: 25 Club'), findsOneWidget);
     await unmount(tester);
   });

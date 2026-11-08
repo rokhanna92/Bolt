@@ -342,7 +342,6 @@ class _FloorViewState extends State<FloorView> {
       children: [
         BoltBox(
           color: BoltColors.surface1,
-          stroke: const Stroke(BoltColors.lineSoft),
           radius: 24,
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
           child: Column(

@@ -145,7 +145,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               const SizedBox(height: 10),
               BoltBox(
                 color: BoltColors.surface1,
-                stroke: const Stroke(BoltColors.lineSoft),
                 radius: 18,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 child: Column(
@@ -193,7 +192,6 @@ class _NewsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BoltBox(
     color: BoltColors.surface1,
-    stroke: const Stroke(BoltColors.lineSoft),
     radius: 16,
     padding: const EdgeInsets.all(14),
     child: Column(

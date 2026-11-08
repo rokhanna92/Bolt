@@ -260,7 +260,6 @@ class TodayScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           BoltBox(
             color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
             radius: 16,
             padding: const EdgeInsets.all(14),
             child: Row(

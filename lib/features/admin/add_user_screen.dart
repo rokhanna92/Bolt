@@ -123,7 +123,6 @@ class _KeyRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 14,
       padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
       child: Row(

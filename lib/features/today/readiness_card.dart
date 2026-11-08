@@ -17,6 +17,7 @@ import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 
 /// The questions with three answers, worst first, at their place in a
@@ -97,12 +98,10 @@ class ReadinessCard extends ConsumerWidget {
     final r = trainee.readiness[dayKey];
     final level = r == null ? null : readinessLevel(r);
     final auto = store.canUndoReadiness ? store.autoDone : null;
-    final tone = level == 'low' ? BoltColors.warn : BoltColors.neon;
-    return BoltBox(
-      color: BoltColors.surface1,
-      stroke: Stroke(level == 'low' ? BoltColors.warn.withAlpha(0x73) : BoltColors.lineSoft),
-      radius: 20,
-      padding: const EdgeInsets.all(14),
+    final tone = level == 'low' ? BoltColors.warn : BoltColors.body;
+    return Stage(
+      color: tone,
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -122,7 +121,7 @@ class ReadinessCard extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     tx((session == null ? kRestReadinessText : kReadinessText)[level]!),
-                    style: BoltText.a(14, weight: 700, height: 1.4),
+                    style: BoltText.headline(16),
                   ),
                 ),
               ],
@@ -1033,7 +1032,6 @@ class DayLog extends ConsumerWidget {
     final level = r == null ? null : readinessLevel(r);
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 14,
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -1082,7 +1080,6 @@ class CheckIns extends StatelessWidget {
     ];
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 18,
       padding: const EdgeInsets.all(14),
       child: Column(

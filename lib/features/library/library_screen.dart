@@ -90,7 +90,6 @@ class LibraryScreen extends ConsumerWidget {
         const SizedBox(height: 8),
         BoltBox(
           color: BoltColors.surface1,
-          stroke: const Stroke(BoltColors.lineSoft),
           radius: 14,
           child: IntrinsicHeight(
             child: Row(
@@ -199,7 +198,6 @@ class LibraryScreen extends ConsumerWidget {
       onTap: () => context.push('/editor/tpl/${t.id}'),
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: const Stroke(BoltColors.lineSoft),
         radius: 18,
         child: Stack(
           children: [
@@ -252,7 +250,6 @@ class LibraryScreen extends ConsumerWidget {
       onTap: custom ? () => context.push('/split/$k') : null,
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: const Stroke(BoltColors.lineSoft),
         radius: 18,
         padding: const EdgeInsets.all(14),
         child: Column(

@@ -298,7 +298,6 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 const SizedBox(height: 8),
                 BoltBox(
                   color: BoltColors.surface1,
-                  stroke: const Stroke(BoltColors.lineSoft),
                   radius: 18,
                   padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
                   child: MuscleMap(

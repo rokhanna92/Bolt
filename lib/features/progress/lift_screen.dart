@@ -176,7 +176,6 @@ class _MaxRow extends StatelessWidget {
     final max = set ?? estimate;
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 14,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
@@ -250,7 +249,6 @@ class LiftGoalCard extends ConsumerWidget {
     }
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 14,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Column(
@@ -387,7 +385,6 @@ class _LevelCard extends StatelessWidget {
     final l = strengthLevel(name, max, body);
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 14,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Column(
