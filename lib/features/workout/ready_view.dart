@@ -11,6 +11,7 @@ import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 import 'floor_view.dart';
 
@@ -92,7 +93,18 @@ class ReadyView extends StatelessWidget {
               ),
               if (note != null) ...[const SizedBox(height: 14), note!],
               const SizedBox(height: 16),
-              for (var i = 0; i < s.ex.length; i++) ...[if (i > 0) const SizedBox(height: 8), _row(i, s.ex[i])],
+              // The sets on paper: calm and readable, the weights big.
+              Paper(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Column(
+                  children: [
+                    for (var i = 0; i < s.ex.length; i++) ...[
+                      if (i > 0) const Divider(height: 1, thickness: 1, color: BoltColors.paperLine),
+                      _row(i, s.ex[i]),
+                    ],
+                  ],
+                ),
+              ),
               const SizedBox(height: 12),
               OutlineButton(label: tx('Alternate Exercise'), height: 48, fontSize: 14, onTap: onAlternate),
             ],
@@ -111,22 +123,21 @@ class ReadyView extends StatelessWidget {
   Widget _row(int i, Exercise e) {
     final h = hint(i);
     final kg = first(i).kg;
-    return BoltBox(
-      color: BoltColors.surface1,
-      radius: 16,
-      padding: const EdgeInsets.all(14),
+    final deep = Tone.paper().accent;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Text(pad(i + 1), style: BoltText.m(12, weight: 700, color: BoltColors.muted3)),
+              Text(pad(i + 1), style: BoltText.display(18, color: BoltColors.paperMuted)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(tx(e.name), style: BoltText.a(16, weight: 800)),
+                    Text(tx(e.name), style: BoltText.a(16, weight: 800, color: BoltColors.paperInk)),
                     const SizedBox(height: 2),
                     Text(
                       [
@@ -134,13 +145,13 @@ class ReadyView extends StatelessWidget {
                         if (e.alternate) tx('ALTERNATE'),
                         if (e.group != null && e.noRest == null) tx('SUPERSET {g}', {'g': e.group}),
                       ].join(' · '),
-                      style: BoltText.m(11, weight: 600, color: e.alternate ? BoltColors.neon : BoltColors.muted),
+                      style: BoltText.m(11, weight: 600, color: e.alternate ? deep : BoltColors.paperMuted),
                     ),
                     if (h != null) ...[
                       const SizedBox(height: 2),
                       Text(
                         tx('Last: {sets}', {'sets': setsText(h.last.sets, metric: metric)}),
-                        style: BoltText.a(11, color: BoltColors.muted3),
+                        style: BoltText.a(11, color: BoltColors.paperMuted),
                       ),
                     ],
                   ],
@@ -153,15 +164,15 @@ class ReadyView extends StatelessWidget {
                   children: [
                     Text(
                       weightValue(kg, metric: metric),
-                      style: BoltText.display(22, color: BoltColors.neon),
+                      style: BoltText.display(26, color: deep),
                     ),
-                    Text(weightUnit(metric), style: BoltText.m(10, color: BoltColors.muted)),
+                    Text(weightUnit(metric), style: BoltText.m(10, color: BoltColors.paperMuted)),
                   ],
                 )
               else
                 Text(
                   unitLoad(e.load, kg: metric),
-                  style: BoltText.m(12, weight: 700, color: BoltColors.muted),
+                  style: BoltText.m(12, weight: 700, color: BoltColors.paperMuted),
                 ),
             ],
           ),
@@ -177,7 +188,10 @@ class ReadyView extends StatelessWidget {
                   if (i < session.ex.length - 1) SquareButton(label: '↓', onTap: () => onMove(i, 1)),
                   const SizedBox(width: 4),
                 ],
-                Tap(onTap: () => onRemove(i), child: const CloseGlyph()),
+                Tap(
+                  onTap: () => onRemove(i),
+                  child: const CloseGlyph(color: BoltColors.paperMuted),
+                ),
               ],
             ),
           ],
