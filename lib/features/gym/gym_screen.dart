@@ -66,7 +66,7 @@ class GymScreen extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(tx('NOT IN'), style: BoltText.a(26, weight: 900, width: 115)),
+                      Text(tx('NOT IN'), style: BoltText.display(30)),
                       const SizedBox(height: 6),
                       SizedBox(
                         width: 140,

@@ -137,7 +137,7 @@ class MeasurementsScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 14),
-            Text(tx('Body progress'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+            Text(tx('Body progress'), style: BoltText.display(34)),
             const SizedBox(height: 6),
             Text(
               tx(
@@ -194,11 +194,7 @@ class MeasurementsScreen extends ConsumerWidget {
                       const SizedBox(height: 3),
                       Text(
                         r.ratio.toStringAsFixed(2),
-                        style: BoltText.a(
-                          22,
-                          weight: 900,
-                          color: r.ratio < r.limit ? BoltColors.neon : BoltColors.text,
-                        ),
+                        style: BoltText.display(22, color: r.ratio < r.limit ? BoltColors.neon : BoltColors.text),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -300,7 +296,7 @@ class _BodyFatCard extends StatelessWidget {
           if (s.isEmpty)
             Text(missing, style: BoltText.a(13, color: BoltColors.muted, height: 1.4))
           else ...[
-            Text('${s.last.$2.toStringAsFixed(1)}%', style: BoltText.a(22, weight: 900)),
+            Text('${s.last.$2.toStringAsFixed(1)}%', style: BoltText.display(22)),
             if (s.length >= 2) ...[
               const SizedBox(height: 10),
               Sparkline(values: [for (final x in s) x.$2]),
@@ -373,7 +369,7 @@ class _MetricCard extends StatelessWidget {
                   children: [
                     Kicker(tx(label).toUpperCase(), size: 9, spacing: .1),
                     const SizedBox(height: 3),
-                    Text(bodyValue(keyName, series.last.$2, metric: metric), style: BoltText.a(22, weight: 900)),
+                    Text(bodyValue(keyName, series.last.$2, metric: metric), style: BoltText.display(22)),
                   ],
                 ),
               ),

@@ -216,7 +216,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          Text(tx('Push notifications'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+          Text(tx('Push notifications'), style: BoltText.display(34)),
           const SizedBox(height: 6),
           Text(
             tx(
@@ -339,7 +339,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             child: row(tx('GitHub token'), _token == null ? tx('Not set') : tx('On this phone'), _askToken),
           ),
           const SizedBox(height: 28),
-          Text(tx('Keys'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+          Text(tx('Keys'), style: BoltText.display(34)),
           const SizedBox(height: 6),
           Text(
             tx(

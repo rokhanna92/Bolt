@@ -73,14 +73,7 @@ class DaySheet extends ConsumerWidget {
         const SizedBox(height: 10),
         Text(
           tx(s.title).toUpperCase(),
-          style: BoltText.a(
-            tsz(tx(s.title), 44),
-            weight: 900,
-            width: 115,
-            spacing: -.02,
-            height: .95,
-            color: BoltColors.neon,
-          ),
+          style: BoltText.display(tsz(tx(s.title), 44), color: BoltColors.neon, height: .95),
         ),
         const SizedBox(height: 6),
         Text(tx(s.focus), style: BoltText.a(14, color: BoltColors.muted)),

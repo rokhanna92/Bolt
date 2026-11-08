@@ -52,7 +52,7 @@ class CoachProfileScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(c.name, style: BoltText.a(24, weight: 900)),
+                  Text(c.name, style: BoltText.display(24)),
                   const SizedBox(height: 4),
                   Text(
                     gym.isEmpty ? tx(c.role) : '${tx(c.role)} · $gym',

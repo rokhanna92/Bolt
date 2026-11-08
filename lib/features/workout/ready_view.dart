@@ -72,14 +72,7 @@ class ReadyView extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 tx(s.title).toUpperCase(),
-                style: BoltText.a(
-                  tsz(tx(s.title), 52),
-                  weight: 900,
-                  width: 115,
-                  spacing: -.03,
-                  height: .95,
-                  color: BoltColors.neon,
-                ),
+                style: BoltText.display(tsz(tx(s.title), 52), color: BoltColors.neon, height: .95),
               ),
               const SizedBox(height: 6),
               Text(tx(s.focus), style: BoltText.a(14, color: BoltColors.muted)),
@@ -160,7 +153,7 @@ class ReadyView extends StatelessWidget {
                   children: [
                     Text(
                       weightValue(kg, metric: metric),
-                      style: BoltText.a(22, weight: 900, color: BoltColors.neon),
+                      style: BoltText.display(22, color: BoltColors.neon),
                     ),
                     Text(weightUnit(metric), style: BoltText.m(10, color: BoltColors.muted)),
                   ],

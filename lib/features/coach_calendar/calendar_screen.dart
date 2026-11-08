@@ -82,7 +82,7 @@ class _CoachCalendarScreenState extends ConsumerState<CoachCalendarScreen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(monthsLong[_month.month - 1], style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+            Text(monthsLong[_month.month - 1], style: BoltText.display(34)),
             const SizedBox(width: 8),
             Padding(
               padding: const EdgeInsets.only(top: 8),

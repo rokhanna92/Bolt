@@ -64,7 +64,7 @@ class SeasonCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 4),
-            Text(s.name.toUpperCase(), style: BoltText.a(22, weight: 900, width: 112)),
+            Text(s.name.toUpperCase(), style: BoltText.display(22)),
             const SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(99),
@@ -121,7 +121,7 @@ class SeasonDoneCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text(s.name.toUpperCase(), style: BoltText.a(26, weight: 900, width: 112, color: BoltColors.onNeon)),
+          Text(s.name.toUpperCase(), style: BoltText.display(30, color: BoltColors.onNeon)),
           const SizedBox(height: 4),
           Text(
             done >= s.goal

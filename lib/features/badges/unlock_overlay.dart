@@ -199,7 +199,7 @@ class _UnlockOverlayState extends State<UnlockOverlay> with SingleTickerProvider
                               child: Text(
                                 tx(b.big),
                                 maxLines: 1,
-                                style: BoltText.a(42, weight: 900, width: 115, color: BoltColors.neon, height: 1),
+                                style: BoltText.display(48, color: BoltColors.neon, height: 1),
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -215,7 +215,7 @@ class _UnlockOverlayState extends State<UnlockOverlay> with SingleTickerProvider
               FadeSlideIn(
                 delay: const Duration(milliseconds: 400),
                 duration: const Duration(milliseconds: 400),
-                child: Text(tx(b.name), style: BoltText.a(28, weight: 900)),
+                child: Text(tx(b.name), style: BoltText.display(32)),
               ),
               const SizedBox(height: 18),
               FadeSlideIn(

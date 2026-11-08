@@ -122,7 +122,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        Text(title, style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+        Text(title, style: BoltText.display(34)),
         if (sub != null) ...[
           const SizedBox(height: 6),
           Text(sub, style: BoltText.a(13, color: BoltColors.muted, height: 1.45)),
@@ -179,10 +179,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         Row(
           children: [
             Expanded(
-              child: Text(
-                'BOLT',
-                style: BoltText.a(40, weight: 900, width: 125, spacing: .02, color: BoltColors.neon, height: 1),
-              ),
+              child: Text('BOLT', style: BoltText.display(46, color: BoltColors.neon, height: 1)),
             ),
             const LanguagePicker(compact: true),
           ],

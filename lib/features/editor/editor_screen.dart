@@ -99,7 +99,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                 controller: _name,
                 onChanged: (v) => _store.renameTemplate(o.id, v),
                 textCapitalization: TextCapitalization.words,
-                style: BoltText.a(34, weight: 900, width: 112, color: BoltColors.neon),
+                style: BoltText.display(39, color: BoltColors.neon),
                 decoration: const InputDecoration(
                   isDense: true,
                   contentPadding: EdgeInsets.fromLTRB(0, 4, 0, 8),
@@ -111,7 +111,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
             else
               Text(
                 tx(session!.title).toUpperCase(),
-                style: BoltText.a(tsz(session.title, 44), weight: 900, width: 115, color: BoltColors.neon, height: .95),
+                style: BoltText.display(tsz(session.title, 44), color: BoltColors.neon, height: .95),
               ),
             const SizedBox(height: 8),
             Text(

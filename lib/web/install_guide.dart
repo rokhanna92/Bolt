@@ -198,10 +198,7 @@ class _InstallGuideState extends State<InstallGuide> {
                     ],
                   ),
                   const SizedBox(height: 28),
-                  Text(
-                    tx('Get Bolt on your phone'),
-                    style: BoltText.a(32, weight: 900, width: 112, spacing: -.02, color: BoltColors.text, height: 1.08),
-                  ),
+                  Text(tx('Get Bolt on your phone'), style: BoltText.display(37, color: BoltColors.text, height: 1.08)),
                   const SizedBox(height: 10),
                   Text(
                     tx('It takes a few seconds, then Bolt opens full screen like any app.'),

@@ -67,7 +67,7 @@ class LearnScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text(tx('Train smarter'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+          Text(tx('Train smarter'), style: BoltText.display(34)),
           const SizedBox(height: 16),
           // Fades at the right edge, so the strip reads as one that scrolls
           // rather than a tab cut in half.

@@ -91,10 +91,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          Text(
-            _tpl == null ? tx('History') : tx(kinds[_tpl] ?? ''),
-            style: BoltText.a(30, weight: 900, width: 112, spacing: -.02),
-          ),
+          Text(_tpl == null ? tx('History') : tx(kinds[_tpl] ?? ''), style: BoltText.display(34)),
           const SizedBox(height: 4),
           Text(
             '${plural(shown.length, 'workout')} · ${plural(sets, 'set')}',

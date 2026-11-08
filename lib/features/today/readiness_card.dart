@@ -848,7 +848,7 @@ class _SleepHours extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  Text(_hours(value), style: BoltText.a(52, weight: 900, height: 1, color: BoltColors.neon)),
+                  Text(_hours(value), style: BoltText.display(60, color: BoltColors.neon, height: 1)),
                   const SizedBox(width: 4),
                   Text('h', style: BoltText.m(16, weight: 700, color: BoltColors.muted)),
                 ],

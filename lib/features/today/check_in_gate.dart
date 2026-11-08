@@ -201,10 +201,7 @@ class _CheckInGateState extends ConsumerState<CheckInGate> with SingleTickerProv
             ],
           ),
           const SizedBox(height: 10),
-          Text(
-            tx(greet, {'name': vocative(firstName(name))}),
-            style: BoltText.a(26, weight: 900, width: 110, spacing: -.02, height: 1.05),
-          ),
+          Text(tx(greet, {'name': vocative(firstName(name))}), style: BoltText.display(30, height: 1.05)),
           const SizedBox(height: 6),
           Text(
             tx('A quick check-in and Bolt sets today to how you feel.'),

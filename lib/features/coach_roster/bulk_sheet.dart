@@ -206,7 +206,7 @@ class _BulkSheetState extends ConsumerState<BulkSheet> {
                 child: Text(
                   '$_target',
                   textAlign: TextAlign.center,
-                  style: BoltText.a(30, weight: 900, color: BoltColors.neon),
+                  style: BoltText.display(34, color: BoltColors.neon),
                 ),
               ),
               SquareButton(onTap: () => setState(() => _target = (_target + 1).clamp(1, 999)), label: '+'),

@@ -261,7 +261,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
             FadeSlideIn(
               delay: const Duration(milliseconds: 150),
               duration: const Duration(milliseconds: 400),
-              child: Text(r.head.toUpperCase(), style: BoltText.a(34, weight: 900, width: 115)),
+              child: Text(r.head.toUpperCase(), style: BoltText.display(39)),
             ),
             const SizedBox(height: 16),
             FadeSlideIn(
@@ -281,7 +281,7 @@ class _ScannerOverlayState extends ConsumerState<ScannerOverlay> {
                 child: Text(
                   r.hype!,
                   textAlign: TextAlign.center,
-                  style: BoltText.a(22, weight: 900, color: BoltColors.neon, height: 1.15),
+                  style: BoltText.display(22, color: BoltColors.neon, height: 1.15),
                 ),
               ),
             ],

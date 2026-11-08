@@ -83,7 +83,7 @@ class _PlateScreenState extends ConsumerState<PlateScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          Text(tx('Plate calculator'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+          Text(tx('Plate calculator'), style: BoltText.display(34)),
           const SizedBox(height: 4),
           Text(
             tx('The weight on the bar, and the plates for each side.'),
@@ -109,7 +109,7 @@ class _PlateScreenState extends ConsumerState<PlateScreen> {
                       : r.side.isEmpty
                       ? tx('Just the bar.')
                       : '${sideText(r.side)} $unit',
-                  style: BoltText.a(22, weight: 900, color: BoltColors.neon),
+                  style: BoltText.display(22, color: BoltColors.neon),
                 ),
                 if (r.left > 0) ...[
                   const SizedBox(height: 6),

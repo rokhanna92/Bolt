@@ -445,7 +445,7 @@ class _FloorViewState extends State<FloorView> {
               Expanded(
                 child: Tap(
                   onTap: kHow.containsKey(e.name) ? () => showExerciseSheet(e.name) : null,
-                  child: Text(tx(e.name), textAlign: TextAlign.center, style: BoltText.a(24, weight: 900, height: 1.1)),
+                  child: Text(tx(e.name), textAlign: TextAlign.center, style: BoltText.display(24, height: 1.1)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -820,11 +820,7 @@ class _FloorViewState extends State<FloorView> {
                             ),
                           ),
                           const SizedBox(height: 6),
-                          Text(
-                            tx(e.name),
-                            textAlign: TextAlign.center,
-                            style: BoltText.a(22, weight: 900, height: 1.1),
-                          ),
+                          Text(tx(e.name), textAlign: TextAlign.center, style: BoltText.display(22, height: 1.1)),
                           const SizedBox(height: 4),
                           Text(
                             [
@@ -833,7 +829,7 @@ class _FloorViewState extends State<FloorView> {
                               if (_reps != null) '× $_reps',
                             ].join(' '),
                             textAlign: TextAlign.center,
-                            style: BoltText.a(30, weight: 900, color: BoltColors.neon),
+                            style: BoltText.display(34, color: BoltColors.neon),
                           ),
                           if (kBarbellLifts.contains(e.name) && _kg != null) _plates(_kg!),
                         ],
@@ -932,10 +928,7 @@ class FloorStepper extends StatelessWidget {
                     Flexible(
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Text(
-                          value,
-                          style: BoltText.a(52, weight: 900, width: 110, height: 1, color: BoltColors.neon),
-                        ),
+                        child: Text(value, style: BoltText.display(60, color: BoltColors.neon, height: 1)),
                       ),
                     ),
                     if (unit != null) ...[

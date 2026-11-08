@@ -86,7 +86,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                Text(tx('Notifications'), style: BoltText.a(24, weight: 900)),
+                Text(tx('Notifications'), style: BoltText.display(24)),
               ],
             ),
             const SizedBox(height: 22),

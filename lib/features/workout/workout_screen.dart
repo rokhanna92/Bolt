@@ -492,7 +492,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
             children: [
               top,
               const SizedBox(height: 12),
-              Text(tx(s.title).toUpperCase(), style: BoltText.a(22, weight: 900, width: 112, color: BoltColors.neon)),
+              Text(tx(s.title).toUpperCase(), style: BoltText.display(22, color: BoltColors.neon)),
             ],
           ),
         ),
@@ -511,14 +511,7 @@ class _WorkoutScreenState extends ConsumerState<WorkoutScreen> {
                 const SizedBox(height: 16),
                 Text(
                   tx(s.title).toUpperCase(),
-                  style: BoltText.a(
-                    tsz(tx(s.title), 52),
-                    weight: 900,
-                    width: 115,
-                    spacing: -.03,
-                    height: .95,
-                    color: BoltColors.neon,
-                  ),
+                  style: BoltText.display(tsz(tx(s.title), 52), color: BoltColors.neon, height: .95),
                 ),
                 const SizedBox(height: 6),
                 Row(

@@ -29,7 +29,7 @@ class ExerciseSheet extends StatelessWidget {
       children: [
         Kicker(tx(h.muscles).toUpperCase(), size: 10),
         const SizedBox(height: 6),
-        Text(tx(name).toUpperCase(), style: BoltText.a(30, weight: 900, width: 112, color: BoltColors.neon, height: 1)),
+        Text(tx(name).toUpperCase(), style: BoltText.display(34, color: BoltColors.neon, height: 1)),
         Consumer(
           builder: (context, ref, _) {
             final d = ref.watch(boltProvider);

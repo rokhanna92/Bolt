@@ -72,10 +72,7 @@ class _PlaqueScreenState extends ConsumerState<PlaqueScreen> {
                     padding: const EdgeInsets.all(24),
                     child: Column(
                       children: [
-                        Text(
-                          'BOLT',
-                          style: BoltText.a(30, weight: 900, width: 125, spacing: .04, color: BoltColors.neon),
-                        ),
+                        Text('BOLT', style: BoltText.display(34, color: BoltColors.neon)),
                         const SizedBox(height: 16),
                         const AspectRatio(
                           aspectRatio: 1,

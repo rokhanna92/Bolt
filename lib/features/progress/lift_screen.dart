@@ -68,10 +68,7 @@ class LiftScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 14),
-            Text(
-              tx(name).toUpperCase(),
-              style: BoltText.a(tsz(tx(name), 40), weight: 900, width: 112, color: BoltColors.neon),
-            ),
+            Text(tx(name).toUpperCase(), style: BoltText.display(tsz(tx(name), 40), color: BoltColors.neon)),
             const SizedBox(height: 16),
             if (t != null) ...[
               _MaxRow(name: name, tid: t.id, set: t.maxes[name], estimate: best, own: own, metric: metric),

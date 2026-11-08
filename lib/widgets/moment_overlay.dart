@@ -89,19 +89,7 @@ class _MomentOverlayState extends State<MomentOverlay> {
                   const SizedBox(height: 18),
                   PopIn(
                     duration: const Duration(milliseconds: 550),
-                    child:
-                        m.art ??
-                        Text(
-                          m.big,
-                          style: BoltText.a(
-                            96,
-                            weight: 900,
-                            width: 115,
-                            height: .95,
-                            spacing: -.03,
-                            color: BoltColors.neon,
-                          ),
-                        ),
+                    child: m.art ?? Text(m.big, style: BoltText.display(110, color: BoltColors.neon, height: .95)),
                   ),
                   Text(m.unit, style: BoltText.m(12, weight: 700, spacing: .16, color: BoltColors.textSoft)),
                   if (m.was != null) ...[
@@ -121,7 +109,7 @@ class _MomentOverlayState extends State<MomentOverlay> {
                   const SizedBox(height: 22),
                   FadeSlideIn(
                     delay: const Duration(milliseconds: 450),
-                    child: Text(m.title, textAlign: TextAlign.center, style: BoltText.a(26, weight: 900)),
+                    child: Text(m.title, textAlign: TextAlign.center, style: BoltText.display(30)),
                   ),
                   if (m.sub != null) ...[
                     const SizedBox(height: 10),

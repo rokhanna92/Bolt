@@ -346,7 +346,7 @@ class _TraineeDetailScreenState extends ConsumerState<TraineeDetailScreen> {
                 const SizedBox(height: 18),
                 Row(
                   children: [
-                    Text(monthsLong[_month.month - 1], style: BoltText.a(22, weight: 900)),
+                    Text(monthsLong[_month.month - 1], style: BoltText.display(22)),
                     const SizedBox(width: 8),
                     Padding(
                       padding: const EdgeInsets.only(top: 5),
@@ -485,7 +485,7 @@ class _SelectedDay extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text(tx(s.title).toUpperCase(), style: BoltText.a(26, weight: 900, width: 112)),
+          Text(tx(s.title).toUpperCase(), style: BoltText.display(30)),
           if (s.from != null) ...[
             const SizedBox(height: 2),
             Kicker(tx('ORIGINALLY {day}', {'day': fmtDay(s.from!).toUpperCase()}), size: 10, spacing: 0),

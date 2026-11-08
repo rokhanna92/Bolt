@@ -58,11 +58,11 @@ class _KeyScreenState extends ConsumerState<KeyScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('BOLT', style: BoltText.a(42, weight: 900, color: BoltColors.neon, width: 112, spacing: -.02)),
+        Text('BOLT', style: BoltText.display(48, color: BoltColors.neon)),
         const SizedBox(height: 10),
         Kicker(tx('ACCESS KEY')),
         const SizedBox(height: 18),
-        Text(tx('Type your key'), style: BoltText.a(28, weight: 900, width: 112, spacing: -.02)),
+        Text(tx('Type your key'), style: BoltText.display(32)),
         const SizedBox(height: 6),
         Text(
           tx('Bolt asks for a key again after this update. Everything you have logged is still on this phone.'),

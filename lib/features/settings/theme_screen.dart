@@ -34,7 +34,7 @@ class ThemeScreen extends ConsumerWidget {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                Text(tx('Theme'), style: BoltText.a(24, weight: 900)),
+                Text(tx('Theme'), style: BoltText.display(24)),
               ],
             ),
             const SizedBox(height: 22),
@@ -279,7 +279,7 @@ class _OwnThemeScreenState extends ConsumerState<OwnThemeScreen> {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                Expanded(child: Text(tx('Your own theme'), style: BoltText.a(24, weight: 900))),
+                Expanded(child: Text(tx('Your own theme'), style: BoltText.display(24))),
               ],
             ),
             const SizedBox(height: 18),

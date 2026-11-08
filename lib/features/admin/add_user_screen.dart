@@ -56,7 +56,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                Text(tx('Add a user'), style: BoltText.a(24, weight: 900)),
+                Text(tx('Add a user'), style: BoltText.display(24)),
               ],
             ),
             for (final kind in const ['Solo', 'Trainee', 'Coach'])

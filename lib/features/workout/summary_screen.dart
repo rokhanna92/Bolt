@@ -87,7 +87,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(v, style: BoltText.a(24, weight: 900, color: BoltColors.onNeon)),
+          Text(v, style: BoltText.display(24, color: BoltColors.onNeon)),
           Text(l, style: BoltText.m(9, weight: 700, spacing: .1, color: BoltColors.onNeon.withValues(alpha: .7))),
         ],
       ),
@@ -128,7 +128,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                     const SizedBox(height: 18),
                     Text(
                       title.toUpperCase(),
-                      style: BoltText.a(tsz(title, 44), weight: 900, width: 115, height: .95, color: BoltColors.onNeon),
+                      style: BoltText.display(tsz(title, 44), color: BoltColors.onNeon, height: .95),
                     ),
                     const SizedBox(height: 18),
                     Row(

@@ -74,7 +74,7 @@ class _SplitEditorScreenState extends ConsumerState<SplitEditorScreen> {
               controller: _name,
               onChanged: (v) => store.renameSplit(x.id, v),
               textCapitalization: TextCapitalization.words,
-              style: BoltText.a(30, weight: 900, width: 112, color: BoltColors.neon),
+              style: BoltText.display(34, color: BoltColors.neon),
               decoration: const InputDecoration(
                 isDense: true,
                 contentPadding: EdgeInsets.fromLTRB(0, 4, 0, 8),

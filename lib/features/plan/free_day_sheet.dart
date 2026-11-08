@@ -26,10 +26,7 @@ class FreeDaySheet extends ConsumerWidget {
       children: [
         Kicker(fmtDay(dayKey).toUpperCase(), spacing: .1),
         const SizedBox(height: 10),
-        Text(
-          rested ? tx('REST DAY') : tx('NOTHING PLANNED'),
-          style: BoltText.a(34, weight: 900, width: 115, color: BoltColors.neon),
-        ),
+        Text(rested ? tx('REST DAY') : tx('NOTHING PLANNED'), style: BoltText.display(39, color: BoltColors.neon)),
         const SizedBox(height: 6),
         Text(
           tx('Rest days count toward your days off. After 3 in a row, Bolt starts pushing you back to the gym.'),

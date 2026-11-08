@@ -85,7 +85,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               children: [
                 BackBox(onTap: () => context.pop()),
                 const SizedBox(width: 12),
-                Text(owner ? tx('Edit profile') : tx('Edit trainee'), style: BoltText.a(24, weight: 900)),
+                Text(owner ? tx('Edit profile') : tx('Edit trainee'), style: BoltText.display(24)),
               ],
             ),
             FieldLabel(tx('NAME'), top: 22),
