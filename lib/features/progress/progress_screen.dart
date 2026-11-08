@@ -18,7 +18,10 @@ import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
+import '../../widgets/motion.dart';
 import '../../widgets/muscle_map.dart';
+import '../../widgets/sparkline.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 import 'challenge_sheet.dart';
 import 'lift_screen.dart' show LiftGoalCard;
@@ -53,60 +56,32 @@ class ProgressScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                BackBox(onTap: () => context.pop()),
-                const SizedBox(width: 12),
-                Kicker(tx('PROGRESS')),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Text(tx('Your training'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
-            const SizedBox(height: 12),
-            // Two rows that open pages, alike, the month in neon.
-            Tap(
-              onTap: () => context.push('/wrap'),
-              child: BoltBox(
-                color: BoltColors.surface1,
-                stroke: Stroke(BoltColors.neon, 1.5),
-                radius: 14,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(tx('Your month in Bolt'), style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
-                    ),
-                    const Chevron(size: 16),
-                  ],
-                ),
-              ),
-            ),
+            PageHead(onBack: () => context.pop(), kicker: tx('PROGRESS'), title: tx('Your training')),
+            const SizedBox(height: 18),
+            _ProofOfWork(plan: plan, ws: ws, metric: metric),
             const SizedBox(height: 10),
-            Tap(
-              onTap: () => context.push('/history'),
-              child: BoltBox(
-                color: BoltColors.surface1,
-                stroke: const Stroke(BoltColors.line),
-                radius: 14,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(tx('Logbook'), style: BoltText.a(14, weight: 800)),
-                          const SizedBox(height: 2),
-                          Text(
-                            tx('Every workout, set by set, and your records'),
-                            style: BoltText.a(12, color: BoltColors.muted),
-                          ),
-                        ],
-                      ),
+            // Two doors side by side: the month story and the logbook.
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: DoorTile(
+                      title: tx('Your month in Bolt'),
+                      color: BoltColors.neon,
+                      onTap: () => context.push('/wrap'),
                     ),
-                    const Chevron(size: 16),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: DoorTile(
+                      title: tx('Logbook'),
+                      sub: tx('Every workout, set by set, and your records'),
+                      color: BoltColors.heat,
+                      onTap: () => context.push('/history'),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 10),
@@ -149,52 +124,35 @@ class ProgressScreen extends ConsumerWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 22),
-            SectionTitle(tx('Last week')),
-            const SizedBox(height: 10),
+            Section(tx('Last week')),
             RecapTiles(r: weekRecap(plan, visits, t.body, addDays(ws, -7)), metric: metric),
-            const SizedBox(height: 24),
-            SectionTitle(tx('Recovery')),
-            const SizedBox(height: 4),
-            Text(
-              tx('From your last workout for each muscle: 3 days for legs and back, 2 for the rest.'),
-              style: BoltText.a(12, color: BoltColors.muted),
+            Section(
+              tx('Recovery'),
+              sub: tx('From your last workout for each muscle: 3 days for legs and back, 2 for the rest.'),
             ),
-            const SizedBox(height: 10),
             // Full size once there is something to show.
             RecoveryCard(plan: plan, today: dk(now), big: lastTrained(plan, dk(now)).isNotEmpty),
-            const SizedBox(height: 24),
-            SectionTitle(tx('Check-ins')),
-            const SizedBox(height: 4),
-            Text(
-              tx('Your daily sleep, energy and soreness answers. Tap a day on the calendar to see it.'),
-              style: BoltText.a(12, color: BoltColors.muted),
+            Section(
+              tx('Check-ins'),
+              sub: tx('Your daily sleep, energy and soreness answers. Tap a day on the calendar to see it.'),
             ),
-            const SizedBox(height: 10),
             CheckIns(readiness: t.readiness, now: now),
-            const SizedBox(height: 24),
-            SectionTitle(tx('Muscle volume this week')),
-            const SizedBox(height: 4),
-            Text(
-              tx('Hard sets per muscle in finished workouts, against the weekly range from Atlas.'),
-              style: BoltText.a(12, color: BoltColors.muted),
+            Section(
+              tx('Muscle volume this week'),
+              sub: tx('Hard sets per muscle in finished workouts, against the weekly range from Atlas.'),
             ),
             // An empty map says nothing the zero bars below do not.
             if (muscleSets(plan, dk(ws), dk(addDays(ws, 7))).values.any((v) => v > 0)) ...[
-              const SizedBox(height: 10),
-              BoltBox(
-                color: BoltColors.surface1,
-                stroke: const Stroke(BoltColors.lineSoft),
-                radius: 18,
+              Stage(
+                color: BoltColors.body,
                 padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
                 child: MuscleMap(sets: muscleSets(plan, dk(ws), dk(addDays(ws, 7)))),
               ),
+              const SizedBox(height: 8),
             ],
-            const SizedBox(height: 8),
             _Volume(sets: muscleSets(plan, dk(ws), dk(addDays(ws, 7)))),
             if (t.liftGoals.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              SectionTitle(tx('Lift goals')),
+              Section(tx('Lift goals')),
               for (final name in t.liftGoals.keys) ...[
                 const SizedBox(height: 8),
                 Tap(
@@ -203,18 +161,12 @@ class ProgressScreen extends ConsumerWidget {
                 ),
               ],
             ],
-            const SizedBox(height: 24),
-            SectionTitle(tx('Records')),
-            const SizedBox(height: 10),
+            Section(tx('Records')),
             _Records(d: d, plan: plan, visits: visits, metric: metric, bestStreak: t.stats.bestStreak),
-            const SizedBox(height: 24),
-            SectionTitle(tx('Main lifts')),
-            const SizedBox(height: 4),
-            Text(
-              tx('Set a max and a goal on any of them, logged or not, and see your strength level.'),
-              style: BoltText.a(12, color: BoltColors.muted),
+            Section(
+              tx('Main lifts'),
+              sub: tx('Set a max and a goal on any of them, logged or not, and see your strength level.'),
             ),
-            const SizedBox(height: 10),
             Wrap(
               spacing: 6,
               runSpacing: 6,
@@ -225,7 +177,7 @@ class ProgressScreen extends ConsumerWidget {
                     child: BoltBox(
                       radius: 99,
                       color: BoltColors.surface2,
-                      stroke: Stroke(t.liftGoals.containsKey(name) ? BoltColors.neon : BoltColors.line),
+                      stroke: Stroke(t.liftGoals.containsKey(name) ? BoltColors.rank : BoltColors.line),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Text(
                         '${tx(name)}${levelSuffix(name, maxFor(t, plan, name), t.body)}',
@@ -235,16 +187,12 @@ class ProgressScreen extends ConsumerWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 24),
-            SectionTitle(tx('Lifts')),
-            const SizedBox(height: 4),
-            Text(
-              lifts.isEmpty
+            Section(
+              tx('Lifts'),
+              sub: lifts.isEmpty
                   ? tx('Tick sets with their weight and reps in a workout and every lift shows up here.')
                   : tx('Tap a lift for its history and estimated max.'),
-              style: BoltText.a(12, color: BoltColors.muted),
             ),
-            const SizedBox(height: 8),
             for (final name in lifts) _LiftRow(name: name, days: liftHistory(plan, name), metric: metric, t: t),
           ],
         ),
@@ -262,29 +210,53 @@ class RecapTiles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget tile(String v, String l) => StatTile(value: v, label: l, valueSize: 18, valueWeight: 800);
     final w = r.weightDelta;
-    return Column(
-      children: [
-        StatRow(
-          children: [
-            tile('${r.done}/${r.planned}', tx('WORKOUTS')),
-            tile(totalTime(r.gymMins), tx('GYM TIME')),
-            tile('${r.sets}', tx('SETS')),
-          ],
-        ),
-        const SizedBox(height: 8),
-        StatRow(
-          children: [
-            tile('${r.visits}', tx('VISITS')),
-            tile(
-              w == null ? '-' : '${w < 0 ? '-' : '+'}${weightValue(w.abs(), metric: metric)} ${weightUnit(metric)}',
-              tx('WEIGHT'),
+    final cells = [
+      ('${r.done}/${r.planned}', tx('WORKOUTS')),
+      (totalTime(r.gymMins), tx('GYM TIME')),
+      ('${r.sets}', tx('SETS')),
+      ('${r.visits}', tx('VISITS')),
+      (
+        w == null ? '-' : '${w < 0 ? '-' : '+'}${weightValue(w.abs(), metric: metric)} ${weightUnit(metric)}',
+        tx('WEIGHT'),
+      ),
+      (r.planned == 0 ? '-' : '${(100 * r.done / r.planned).round()}%', tx('DONE')),
+    ];
+    // One panel, six figures split by hairlines, not six boxes.
+    Widget cell((String, String) c) => Padding(
+      padding: const EdgeInsets.fromLTRB(14, 14, 8, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Kicker(c.$2, size: 9, spacing: .1),
+          const SizedBox(height: 6),
+          RollText(c.$1, maxLines: 1, style: BoltText.display(22, color: BoltColors.text)),
+        ],
+      ),
+    );
+    return BoltBox(
+      color: BoltColors.surface1,
+      radius: 20,
+      clip: true,
+      child: Column(
+        children: [
+          for (var i = 0; i < cells.length; i += 3) ...[
+            if (i > 0) const Divider(height: 1, thickness: 1, color: BoltColors.lineSoft),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var j = i; j < i + 3; j++) ...[
+                    if (j > i) const VerticalDivider(width: 1, thickness: 1, color: BoltColors.lineSoft),
+                    Expanded(child: cell(cells[j])),
+                  ],
+                ],
+              ),
             ),
-            tile(r.planned == 0 ? '-' : '${(100 * r.done / r.planned).round()}%', tx('DONE')),
           ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -302,9 +274,8 @@ class _Volume extends StatelessWidget {
     ];
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
-      radius: 18,
-      padding: const EdgeInsets.all(14),
+      radius: 20,
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           for (final (k, name, (lo, hi)) in rows) ...[
@@ -320,7 +291,7 @@ class _Volume extends StatelessWidget {
                         value: ((sets[k] ?? 0) / hi).clamp(0.0, 1.0),
                         minHeight: 6,
                         backgroundColor: BoltColors.lineSoft,
-                        valueColor: AlwaysStoppedAnimation((sets[k] ?? 0) >= lo ? BoltColors.neon : BoltColors.muted2),
+                        valueColor: AlwaysStoppedAnimation((sets[k] ?? 0) >= lo ? BoltColors.body : BoltColors.muted2),
                       ),
                     ),
                   ),
@@ -333,7 +304,7 @@ class _Volume extends StatelessWidget {
                       style: BoltText.m(
                         10,
                         weight: 700,
-                        color: (sets[k] ?? 0) >= lo ? BoltColors.neon : BoltColors.muted,
+                        color: (sets[k] ?? 0) >= lo ? BoltColors.body : BoltColors.muted,
                       ),
                     ),
                   ),
@@ -394,38 +365,53 @@ class _Records extends StatelessWidget {
         ),
       (tx('BEST STREAK'), tx('{n} wk', {'n': bestStreak}), tx('Perfect weeks in a row')),
     ];
-    return Column(
-      children: [
-        for (var r = 0; r < items.length; r += 2) ...[
-          if (r > 0) const SizedBox(height: 8),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(child: _record(items[r])),
-                const SizedBox(width: 8),
-                Expanded(child: r + 1 < items.length ? _record(items[r + 1]) : const SizedBox()),
-              ],
+    final lead = items.first;
+    return Paper(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Kicker(lead.$1, size: 10),
+          const SizedBox(height: 8),
+          BigFigure(lead.$2, size: 52),
+          const SizedBox(height: 6),
+          Text(lead.$3, style: BoltText.a(12, color: BoltColors.paperMuted, height: 1.3)),
+          const SizedBox(height: 16),
+          for (var r = 1; r < items.length; r += 2)
+            Container(
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: BoltColors.paperLine)),
+              ),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: _record(items[r])),
+                    const VerticalDivider(width: 1, thickness: 1, color: BoltColors.paperLine),
+                    Expanded(
+                      child: r + 1 < items.length
+                          ? Padding(padding: const EdgeInsets.only(left: 14), child: _record(items[r + 1]))
+                          : const SizedBox(),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
         ],
-      ],
+      ),
     );
   }
 
-  Widget _record((String, String, String) x) => BoltBox(
-    color: BoltColors.surface1,
-    stroke: const Stroke(BoltColors.lineSoft),
-    radius: 16,
-    padding: const EdgeInsets.all(12),
+  Widget _record((String, String, String) x) => Padding(
+    padding: const EdgeInsets.fromLTRB(0, 14, 10, 14),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Kicker(x.$1, size: 9, spacing: .1),
+        const SizedBox(height: 6),
+        Text(x.$2, style: BoltText.display(24, color: BoltColors.paperInk)),
         const SizedBox(height: 4),
-        Text(x.$2, style: BoltText.a(20, weight: 900, color: BoltColors.neon)),
-        const SizedBox(height: 2),
-        Text(x.$3, style: BoltText.a(11, color: BoltColors.muted, height: 1.3)),
+        Text(x.$3, style: BoltText.a(11, color: BoltColors.paperMuted, height: 1.3)),
       ],
     ),
   );
@@ -478,5 +464,62 @@ class _LiftRow extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// The hero: what you lifted in the last four weeks, in big type on paper,
+/// with eight weeks of volume as a line and the change on the four before.
+class _ProofOfWork extends StatelessWidget {
+  const _ProofOfWork({required this.plan, required this.ws, required this.metric});
+
+  final Map<String, Session> plan;
+  final DateTime ws;
+  final bool metric;
+
+  @override
+  Widget build(BuildContext context) {
+    final weeks = [for (var w = 7; w >= 0; w--) _volume(plan, dk(addDays(ws, -7 * w)), dk(addDays(ws, 7 - 7 * w)))];
+    final recent = weeks.skip(4).fold(0.0, (a, b) => a + b);
+    final before = weeks.take(4).fold(0.0, (a, b) => a + b);
+    final value = metric ? (recent / 1000).toStringAsFixed(1) : '${(recent * 2.20462).round()}';
+    final change = before > 0 && recent > 0 ? ((recent - before) / before * 100).round() : null;
+    return Paper(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Kicker(tx('LAST 8 WEEKS'), size: 10),
+          const SizedBox(height: 10),
+          BigFigure(value, unit: metric ? tx('tonnes lifted in 4 weeks') : tx('lb lifted in 4 weeks'), size: 68),
+          const SizedBox(height: 14),
+          if (weeks.any((v) => v > 0))
+            Sparkline(values: weeks, height: 64, color: BoltColors.paperInk)
+          else
+            Text(
+              tx('Tick sets with their weight and reps in a workout and every lift shows up here.'),
+              style: BoltText.a(12, color: BoltColors.paperMuted, height: 1.4),
+            ),
+          if (change != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              tx('{p} on the 4 weeks before', {'p': '${change >= 0 ? '+' : ''}$change%'}),
+              style: BoltText.m(11, weight: 700, color: Tone.paper().accent),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  static double _volume(Map<String, Session> plan, String from, String to) {
+    var v = 0.0;
+    plan.forEach((k, s) {
+      if (s.status != SessionStatus.done || k.compareTo(from) < 0 || k.compareTo(to) >= 0) return;
+      for (final e in s.ex) {
+        for (final l in e.logged) {
+          v += (l.kg ?? 0) * (l.reps ?? 0);
+        }
+      }
+    });
+    return v;
   }
 }

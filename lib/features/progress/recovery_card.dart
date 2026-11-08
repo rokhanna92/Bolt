@@ -7,9 +7,9 @@ import '../../data/models/session.dart';
 import '../../data/seed/muscles.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
-import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/muscle_map.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 
 /// Names of the trained muscles that are fully recovered on [today], in
@@ -44,12 +44,12 @@ class RecoveryCard extends StatelessWidget {
         ? null
         : busy.map((m) => dk(addDays(pk(last[m]!), recoveryDays(m)))).reduce((a, b) => a.compareTo(b) > 0 ? a : b);
     final lines = <(String, String, Color)>[
-      if (ready.isNotEmpty) (tx('READY'), ready.join(', '), BoltColors.neon),
+      if (ready.isNotEmpty) (tx('READY'), ready.join(', '), BoltColors.body),
       if (busy.isNotEmpty)
         (
           tx('RECOVERING'),
           '${busy.map((m) => tx(kMuscles[m]!.name)).join(', ')} · ${tx('all ready {day}', {'day': fmtDay(by!)})}',
-          BoltColors.warn,
+          BoltColors.heat,
         ),
     ];
     final text = Column(
@@ -69,10 +69,9 @@ class RecoveryCard extends StatelessWidget {
         ],
       ],
     );
-    final box = BoltBox(
-      color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
-      radius: big ? 18 : 14,
+    final box = Stage(
+      color: BoltColors.body,
+      radius: big ? BoltRadii.hero : 18,
       padding: EdgeInsets.all(big ? 14 : 12),
       child: big
           ? Column(
