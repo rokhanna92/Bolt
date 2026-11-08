@@ -13,9 +13,11 @@ class ThemeChoice {
   final Color page;
 }
 
-/// The five ready-made themes. Grey and blue is its own reading theme
-/// ([BoltColors.blue]); the rest swap the accent and tint the page.
+/// The ready-made themes, Apex first: the main one, rich with context
+/// colors. Grey and blue is its own reading theme ([BoltColors.blue]); the
+/// rest swap the accent and tint the page.
 const kThemes = [
+  ThemeChoice('apex', 'Apex', Color(0xFFDFFF6E), Color(0xFF090B0C)),
   ThemeChoice('neon', 'Neon', Color(0xFFC6FF1A), BoltColors.ink),
   ThemeChoice('blue', 'Grey and blue', Color(0xFFFFFFFF), Color(0xFF00008E)),
   ThemeChoice('pink', 'Pink', Color(0xFFFF4FA3), Color(0xFF100A0D)),
@@ -32,6 +34,7 @@ Color textOn(Color c) => c.computeLuminance() > .186 ? BoltColors.ink : const Co
 /// The theme in [s] as the colors the app draws with.
 void applyTheme(AppSettings s) {
   BoltColors.blue = s.blue;
+  BoltColors.rich = s.theme == 'apex';
   final (accent, page) = s.theme == kOwnTheme
       ? (Color(s.ownAccent), Color(s.ownPage))
       : switch (kThemes.where((t) => t.id == s.theme).firstOrNull) {
@@ -47,5 +50,5 @@ void applyTheme(AppSettings s) {
 String themeName(AppSettings s) {
   if (s.blue) return 'Grey and blue';
   if (s.theme == kOwnTheme) return 'Your own';
-  return kThemes.where((t) => t.id == s.theme).firstOrNull?.name ?? 'Neon';
+  return kThemes.where((t) => t.id == s.theme).firstOrNull?.name ?? 'Apex';
 }

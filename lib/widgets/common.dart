@@ -12,6 +12,7 @@ import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
 import 'box.dart';
 import 'motion.dart';
+import 'surfaces.dart';
 import 'tap.dart';
 
 /// Page root: ink background, light status bar, Material ancestor for text.
@@ -167,7 +168,7 @@ class Kicker extends StatelessWidget {
     text,
     maxLines: maxLines,
     overflow: maxLines == null ? null : TextOverflow.ellipsis,
-    style: BoltText.m(size, color: color ?? BoltColors.muted, spacing: spacing, weight: weight),
+    style: BoltText.m(size, color: color ?? Tone.of(context).muted, spacing: spacing, weight: weight),
   );
 }
 
@@ -594,7 +595,7 @@ class Chevron extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) => BoltIcon('chevron', size: size * .8, color: BoltColors.neon);
+  Widget build(BuildContext context) => BoltIcon('chevron', size: size * .8, color: Tone.of(context).accent);
 }
 
 /// A card behind things that have no box of their own, like a calendar, so

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/painting.dart';
 
 /// Design tokens from `Bolt UI.html`. One accent (neon) plus warn for injuries.
@@ -50,6 +52,62 @@ abstract final class BoltColors {
   static const lineFaint = Color(0xFF262A22);
   static const scannerBg = Color(0xFF050605);
   static const scannerWell = Color(0xFF1A1D17);
+
+  /// Apex, the colorful theme: stages blend two context colors instead of
+  /// tinting with one. Set by `applyTheme`.
+  static bool rich = false;
+
+  // Paper: cream panels for planning and data, the same in every theme.
+  static const paper = Color(0xFFEEEAE0);
+  static const paperWell = Color(0xFFE1DCCF);
+  static const paperInk = Color(0xFF12140F);
+  static const paperSoft = Color(0xFF34372F);
+  static const paperMuted = Color(0xFF5C6055);
+  static const paperLine = Color(0xFFD2CDBF);
+
+  // Context colors. Each means one thing on every screen and in every theme:
+  // rank for strength and tiers, body for recovery and readiness, heat for
+  // warm notes. When the theme's accent sits too close, a neighbour stands in.
+  static const _violet = Color(0xFFB79AFF);
+  static const _gold = Color(0xFFFFD36E);
+  static const _mint = Color(0xFF7EDCC4);
+  static const _sky = Color(0xFF8CC8FF);
+  static const _apricot = Color(0xFFFFBB91);
+  static const _rose = Color(0xFFFF9AB0);
+
+  static Color get rank => _clashes(_violet) ? _gold : _violet;
+  static Color get body => _clashes(_mint) ? _sky : _mint;
+  static Color get heat => _clashes(_apricot) ? _rose : _apricot;
+
+  static bool _clashes(Color c) {
+    final a = HSLColor.fromColor(accent);
+    if (blue || a.saturation < .3) return false;
+    final d = (a.hue - HSLColor.fromColor(c).hue).abs();
+    return math.min(d, 360 - d) < 35;
+  }
+
+  /// [c] darkened until it reads 4.5:1 on [bg], for accent text on paper.
+  static Color deepen(Color c, Color bg) {
+    double ratio(Color x) {
+      final a = x.computeLuminance() + .05, b = bg.computeLuminance() + .05;
+      return a > b ? a / b : b / a;
+    }
+
+    var h = HSLColor.fromColor(c);
+    while (ratio(h.toColor()) < 4.5 && h.lightness > .05) {
+      h = h.withLightness(h.lightness - .02);
+    }
+    return h.toColor();
+  }
+}
+
+/// Spacing on the page: side gutter, gaps between sections and inside them.
+abstract final class BoltSpace {
+  static const gutter = 20.0;
+  static const section = 28.0;
+  static const block = 14.0;
+  static const gap = 10.0;
+  static const tight = 6.0;
 }
 
 abstract final class BoltRadii {

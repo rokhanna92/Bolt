@@ -40,7 +40,7 @@ class AppSettings {
     this.waterHours = 3,
     this.bellSeen,
     this.blue = false,
-    this.theme = 'neon',
+    this.theme = 'apex',
     this.ownAccent = 0xFFC6FF1A,
     this.ownPage = 0xFF0A0B09,
     Map<String, String>? ownKeys,

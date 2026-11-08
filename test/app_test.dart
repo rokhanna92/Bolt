@@ -488,11 +488,13 @@ void main() {
   testWidgets('the theme switches to grey and blue and back, and is saved', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
-    expect(BoltColors.neon, const Color(0xFFC6FF1A));
+    // Apex is the main theme for a new phone, the colorful one.
+    expect(BoltColors.neon, const Color(0xFFDFFF6E));
+    expect(BoltColors.rich, isTrue);
     c.read(routerProvider).push('/settings');
     await settle(tester);
     // Settings names the theme and opens the page of them.
-    await tapText(tester, 'Neon');
+    await tapText(tester, 'Apex');
     expect(find.text('THEMES'), findsOneWidget);
     await tapText(tester, 'Grey and blue');
     expect(c.read(boltProvider).settings.blue, isTrue);
@@ -509,6 +511,7 @@ void main() {
     await tapText(tester, 'Neon');
     expect(BoltColors.neon, const Color(0xFFC6FF1A));
     expect(BoltColors.onNeon, BoltColors.ink);
+    expect(BoltColors.rich, isFalse);
     // Pink swaps the accent and tints the page; it is saved like the rest.
     await tapText(tester, 'Pink');
     expect(c.read(boltProvider).settings.blue, isFalse);

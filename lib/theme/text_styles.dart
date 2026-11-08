@@ -36,6 +36,15 @@ abstract final class BoltText {
     );
   }
 
+  /// Display type: heavy, a touch condensed and tight, for the one statement
+  /// a screen leads with and for hero numbers.
+  static TextStyle display(double size, {Color? color, double height = .96}) =>
+      a(size, weight: 900, width: 88, spacing: -.035, color: color, height: height);
+
+  /// Section headings: lighter than display, still tight.
+  static TextStyle headline(double size, {Color? color}) =>
+      a(size, weight: 850, width: 94, spacing: -.02, color: color, height: 1.05);
+
   /// JetBrains Mono for labels, numbers, timers and dates.
   static TextStyle m(double size, {double weight = 400, Color? color, double? spacing, double? height}) {
     return TextStyle(
