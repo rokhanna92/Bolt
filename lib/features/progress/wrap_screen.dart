@@ -13,8 +13,10 @@ import '../../data/seed/muscles.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/common.dart';
+import '../../widgets/box.dart';
 import '../../widgets/forms.dart';
 import '../../widgets/surfaces.dart';
+import '../../widgets/tap.dart';
 import '../workout/summary_screen.dart' show shareCard;
 
 /// A month, year or season in Bolt as one card: workouts, gym time, sets,
@@ -33,6 +35,9 @@ class WrapScreen extends ConsumerStatefulWidget {
 class _WrapScreenState extends ConsumerState<WrapScreen> {
   final _card = GlobalKey();
   late String _period = widget.season == null ? 'month' : 'season';
+
+  /// Your name on the poster. Off, the card shares without it.
+  var _name = true;
 
   @override
   Widget build(BuildContext context) {
@@ -158,8 +163,10 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
                           ),
                           const SizedBox(height: 26),
                           Text(label.toUpperCase(), style: BoltText.display(tsz(label, 52), color: ink, height: .92)),
-                          const SizedBox(height: 6),
-                          Text(t.name, style: BoltText.a(14, weight: 700, color: deep)),
+                          if (_name) ...[
+                            const SizedBox(height: 6),
+                            Text(t.name, style: BoltText.a(14, weight: 700, color: deep)),
+                          ],
                           const SizedBox(height: 18),
                           rule,
                           Row(
@@ -199,7 +206,36 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
+            // The card above is exactly what gets shared; choose what is on it.
+            Tap(
+              onTap: () => setState(() => _name = !_name),
+              child: BoltBox(
+                color: BoltColors.surface1,
+                radius: 18,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(tx('Show my name'), style: BoltText.a(14, weight: 700)),
+                          const SizedBox(height: 2),
+                          Text(
+                            tx('What you see above is what gets shared.'),
+                            style: BoltText.a(12, color: BoltColors.muted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    BoltSwitch(on: _name),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             NeonButton(
               label: tx('Share'),
               height: 52,

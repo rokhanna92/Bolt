@@ -681,6 +681,20 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the wrap poster can leave your name off before sharing', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    c.read(routerProvider).push('/wrap');
+    await settle(tester);
+    expect(find.text('Dani'), findsOneWidget);
+    await tapText(tester, 'Show my name');
+    expect(find.text('Dani'), findsNothing);
+    await tapText(tester, 'Show my name');
+    expect(find.text('Dani'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
   testWidgets('a season starts from Progress and shows on Today', (tester) async {
     await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

@@ -1145,6 +1145,8 @@ const kSrUi = <String, String>{
   'To {rank}': 'Do {rank}',
   'FEATURED': 'IZDVOJENO',
   'ESTIMATE': 'PROCENA',
+  'Show my name': 'Prikaži moje ime',
+  'What you see above is what gets shared.': 'Deli se tačno ono što vidiš iznad.',
   'An estimate': 'Procena',
   'Bolt works these numbers out from your check-ins and logged workouts. They are a guide, not a measurement, and never medical advice.': 'Bolt ove brojeve računa iz tvojih provera i upisanih treninga. Oni su smernica, ne merenje, i nikad medicinski savet.',
   'YOUR COLLECTION': 'TVOJA KOLEKCIJA',
