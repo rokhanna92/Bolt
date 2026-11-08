@@ -139,6 +139,9 @@ bool _ownerFemale(BoltData d) {
   return body?.sex == 'f';
 }
 
+/// Marks the one-time move to the Apex theme in `hintsSeen`.
+const _apexOnce = 'theme:apex';
+
 /// All business rules. State is mutated in place and listeners are notified,
 /// then saved to the phone in the background.
 class BoltStore extends Notifier<BoltData> {
@@ -147,6 +150,13 @@ class BoltStore extends Notifier<BoltData> {
     final d = ref.read(initialDataProvider);
     appLang = AppLang.byName(d.settings.lang);
     appFemale = _ownerFemale(d);
+    // 1.39 moves every phone to Apex once; a theme picked after that stays.
+    if (!d.settings.hintsSeen.contains(_apexOnce)) {
+      d.settings
+        ..theme = 'apex'
+        ..blue = false
+        ..hintsSeen.add(_apexOnce);
+    }
     applyTheme(d.settings);
     Haptics.enabled = d.settings.haptics;
     return d;

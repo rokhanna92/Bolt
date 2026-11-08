@@ -564,7 +564,7 @@ void main() {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');
     final store = c.read(boltProvider.notifier);
-    store.dismissHint('new:1.24');
+    store.dismissHint('new:1.39');
     if (c.read(boltProvider).plans[Account.ownerId]!['2026-10-14'] != null) {
       store.removeDay(Account.ownerId, '2026-10-14');
     }
@@ -714,8 +714,8 @@ void main() {
     expect(find.text('Atlas'), findsNothing);
     expect(find.text('LVL 1'), findsOneWidget);
     expect(find.text('RECOVERY'), findsOneWidget);
-    expect(find.text('NEW IN BOLT 1.24'), findsOneWidget);
-    expect(find.text('Workout page with START'), findsOneWidget);
+    expect(find.text('NEW IN BOLT 1.39'), findsOneWidget);
+    expect(find.text('Training passport'), findsOneWidget);
     await tapText(tester, 'Progress →');
     await tapText(tester, '+ Start a season');
     await tapText(tester, '4');
@@ -2010,7 +2010,7 @@ void main() {
       );
       await onboard(tester, 'On my own', 'Dani');
       expect(find.textContaining('is out'), findsNothing);
-      expect(find.text('NEW IN BOLT 1.24'), findsNothing);
+      expect(find.text('NEW IN BOLT 1.39'), findsNothing);
       await tapTab(tester, 'Me');
       expect(find.text('Get the newest version without reinstalling'), findsNothing);
       expect(find.text('Check'), findsNothing);

@@ -1069,29 +1069,29 @@ class _HeroCard extends ConsumerWidget {
   }
 }
 
-const _newId = 'new:1.24';
+const _newId = 'new:1.39';
 
-/// What 1.24 added and where to find it, until closed.
+/// What 1.39 added and where to find it, until closed.
 class _NewCard extends ConsumerWidget {
   const _NewCard();
 
   static const _items = <(String, String, String?)>[
     (
-      'Workout page with START',
-      'Open today\'s workout: every exercise with its weights and a big START. Warm-up first, then set by set.',
+      'A new look, Apex',
+      'Bolt is redesigned: paper panels, big type and one color for each meaning, in every theme. Apex is the new main theme.',
+      '/theme',
+    ),
+    ('Training passport', 'A stamp for every month you train. On Progress, it stays on this phone.', '/passport'),
+    (
+      'Smarter missed sessions',
+      'A missed workout moves to a day that does not sit next to the same muscles, and Bolt says why.',
       null,
     ),
-    ('Lifeline', 'Your session as a heartbeat: every set a spike, the set you are on traced live.', null),
+    ('Estimates say so', 'Readiness and recovery carry an ESTIMATE tag. Tap it to see how Bolt works them out.', null),
+    ('Your name, your choice', 'Your month in Bolt can leave your name off the poster before you share it.', '/wrap'),
     (
-      'Rest without looking',
-      'The rest goes dark with a big countdown and your next set. Two buzzes at 10 seconds, a sound at 0. The screen stays on.',
-      null,
-    ),
-    ('Volume down logs a set', 'Done with a set? Press volume down, no need to touch the screen.', '/settings'),
-    ('Scan opens your workout', 'Check in at the plaque and today\'s workout is ready to start.', null),
-    (
-      'Readiness score',
-      'Sleep hours, mood, soreness and a grip check make a score. A low one makes today lighter or a rest day, with an undo.',
+      'Forearms and abs count',
+      'Arm work counts your forearms and pull-ups your abs, in recovery and weekly sets.',
       null,
     ),
   ];
@@ -1099,17 +1099,16 @@ class _NewCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final store = ref.read(boltProvider.notifier);
-    return BoltBox(
-      color: BoltColors.surface1,
-      stroke: Stroke(BoltColors.neon.withAlpha(0x73)),
-      radius: 20,
-      padding: const EdgeInsets.all(16),
+    return Stage(
+      color: BoltColors.neon,
+      blend: BoltColors.rank,
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Expanded(child: Kicker(tx('NEW IN BOLT 1.24'), color: BoltColors.neon)),
+              Expanded(child: Kicker(tx('NEW IN BOLT 1.39'), color: BoltColors.neon)),
               Tap(onTap: () => store.dismissHint(_newId), child: const CloseGlyph()),
             ],
           ),

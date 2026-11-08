@@ -62,6 +62,7 @@ class Harness {
 
 void main() {
   ownerTests();
+  apexTests();
 
   group('format', () {
     test('dates and durations read like the prototype', () {
@@ -1475,4 +1476,24 @@ class _Reminders extends NoopNotifications {
 
   @override
   Future<void> replaceDailyReminders(List<Reminder> list) async => daily = list;
+}
+
+void apexTests() {
+  test('1.39 moves an older phone to Apex once, and a theme picked after stays', () {
+    BoltData saved(List<String> seen) => freshData()
+      ..settings.theme = 'pink'
+      ..settings.blue = false
+      ..settings.hintsSeen.addAll(seen);
+    var c = ProviderContainer(overrides: [initialDataProvider.overrideWithValue(saved([]))]);
+    expect(c.read(boltProvider).settings.theme, 'apex');
+    expect(c.read(boltProvider).settings.hintsSeen, contains('theme:apex'));
+    c.dispose();
+    c = ProviderContainer(
+      overrides: [
+        initialDataProvider.overrideWithValue(saved(['theme:apex'])),
+      ],
+    );
+    expect(c.read(boltProvider).settings.theme, 'pink');
+    c.dispose();
+  });
 }
