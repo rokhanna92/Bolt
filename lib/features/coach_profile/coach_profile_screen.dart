@@ -47,6 +47,7 @@ class CoachProfileScreen extends ConsumerWidget {
         const SizedBox(height: 14),
         Paper(
           watermark: initials(c.name).isEmpty ? null : initials(c.name)[0],
+          markTop: true,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

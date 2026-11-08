@@ -45,6 +45,7 @@ class MeScreen extends ConsumerWidget {
         // Who you are, on paper, with your numbers.
         Paper(
           watermark: initials(t.name).isEmpty ? null : initials(t.name)[0],
+          markTop: true,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

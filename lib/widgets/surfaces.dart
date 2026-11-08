@@ -72,6 +72,7 @@ class Paper extends StatelessWidget {
     this.padding = const EdgeInsets.all(20),
     this.radius = BoltRadii.hero,
     this.watermark,
+    this.markTop = false,
   });
 
   final Widget child;
@@ -80,6 +81,10 @@ class Paper extends StatelessWidget {
 
   /// A giant faint glyph in the corner, like the first letter of a day.
   final String? watermark;
+
+  /// The glyph big and clear in the top right, for cards with figures at the
+  /// bottom.
+  final bool markTop;
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +99,10 @@ class Paper extends StatelessWidget {
           style: TextStyle(color: tone.text),
           child: Stack(
             children: [
-              if (watermark case final w?) Watermark(w, color: BoltColors.paperInk.withAlpha(0x10)),
+              if (watermark case final w?)
+                markTop
+                    ? Watermark(w, color: BoltColors.paperInk.withAlpha(0x2E), size: 130, top: true)
+                    : Watermark(w, color: BoltColors.paperInk.withAlpha(0x10)),
               Padding(padding: padding, child: child),
             ],
           ),
@@ -174,16 +182,20 @@ class Stage extends StatelessWidget {
 
 /// A giant faint glyph bleeding off the bottom right of a [Stack].
 class Watermark extends StatelessWidget {
-  const Watermark(this.text, {super.key, required this.color, this.size = 150});
+  const Watermark(this.text, {super.key, required this.color, this.size = 150, this.top = false});
 
   final String text;
   final Color color;
   final double size;
 
+  /// In the top right corner instead, clear of what sits at the bottom.
+  final bool top;
+
   @override
   Widget build(BuildContext context) => Positioned(
-    right: -8,
-    bottom: -size * .28,
+    right: top ? 14 : -8,
+    top: top ? -size * .12 : null,
+    bottom: top ? null : -size * .28,
     child: IgnorePointer(
       child: ExcludeSemantics(
         child: Text(text, style: BoltText.display(size, color: color, height: 1)),
