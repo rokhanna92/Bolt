@@ -1358,7 +1358,7 @@ void main() {
     await onboard(tester, 'On my own', 'Dani');
     await tapTab(tester, 'Check in');
     expect(find.text('What now?'), findsOneWidget);
-    for (final t in ['Check in', 'Scan QR', 'Fast workout', 'Cardio', 'Weights', 'Stopwatch']) {
+    for (final t in ['Check in', 'Scan QR', 'FAST WORKOUT', 'Cardio', 'Weights', 'Stopwatch']) {
       expect(find.text(t), findsWidgets, reason: t);
     }
     await tapText(tester, 'Stopwatch');

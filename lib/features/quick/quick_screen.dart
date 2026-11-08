@@ -9,6 +9,7 @@ import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 import 'watch.dart';
 
@@ -33,16 +34,10 @@ class QuickScreen extends ConsumerWidget {
         bottom: 40,
         stagger: true,
         children: [
-          Row(
-            children: [
-              BackBox(onTap: () => context.pop()),
-              const SizedBox(width: 12),
-              Kicker(tx('QUICK')),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Text(tx('What now?'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
+          PageHead(onBack: () => context.pop(), kicker: tx('QUICK'), title: tx('What now?'), size: 44),
           const SizedBox(height: 18),
+          _FastWorkout(onPick: (cardio) => _leave(context, (_) => startFastWorkout(cardio: cardio))),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -65,10 +60,9 @@ class QuickScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 10),
-          _FastWorkout(onPick: (cardio) => _leave(context, (_) => startFastWorkout(cardio: cardio))),
-          const SizedBox(height: 10),
           _Tile(
-            glyph: const _WatchGlyph(),
+            paper: true,
+            glyph: _WatchGlyph(color: Tone.paper().accent),
             title: tx('Stopwatch'),
             // It keeps running once started, so say so where you left it.
             sub: ref.watch(watchProvider).running ? tx('Still running') : tx('Laps, splits, no workout attached'),
@@ -90,6 +84,7 @@ class _Tile extends StatelessWidget {
     required this.onTap,
     this.subColor,
     this.wide = false,
+    this.paper = false,
   });
 
   final Widget glyph;
@@ -98,6 +93,9 @@ class _Tile extends StatelessWidget {
   final VoidCallback onTap;
   final Color? subColor;
   final bool wide;
+
+  /// On paper: the instrument among the tools.
+  final bool paper;
 
   @override
   Widget build(BuildContext context) {
@@ -109,9 +107,17 @@ class _Tile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: BoltText.a(17, weight: 800)),
+            Text(title, style: BoltText.headline(19, color: paper ? BoltColors.paperInk : null)),
             const SizedBox(height: 2),
-            Text(sub, style: BoltText.a(12, color: subColor ?? BoltColors.muted)),
+            Text(
+              sub,
+              style: BoltText.a(
+                12,
+                color: paper
+                    ? (subColor == null ? BoltColors.paperMuted : Tone.paper().accent)
+                    : (subColor ?? BoltColors.muted),
+              ),
+            ),
           ],
         ),
       ),
@@ -119,11 +125,10 @@ class _Tile extends StatelessWidget {
     return Tap(
       onTap: onTap,
       child: BoltBox(
-        color: BoltColors.surface1,
-        stroke: const Stroke(BoltColors.line),
-        radius: BoltRadii.card,
+        color: paper ? BoltColors.paper : BoltColors.surface1,
+        radius: 20,
         padding: const EdgeInsets.all(16),
-        height: wide ? null : 104,
+        height: wide ? null : 112,
         // Square tiles: the icon at the top, the words at the bottom, no
         // empty half.
         child: wide
@@ -141,19 +146,25 @@ class _Tile extends StatelessWidget {
 /// A small chronograph face with its crown, so the stopwatch tile does not
 /// have to borrow the calendar icon.
 class _WatchGlyph extends StatelessWidget {
-  const _WatchGlyph();
+  const _WatchGlyph({required this.color});
+
+  final Color color;
 
   @override
-  Widget build(BuildContext context) => CustomPaint(size: const Size.square(24), painter: _WatchGlyphPainter());
+  Widget build(BuildContext context) => CustomPaint(size: const Size.square(24), painter: _WatchGlyphPainter(color));
 }
 
 class _WatchGlyphPainter extends CustomPainter {
+  _WatchGlyphPainter(this.color);
+
+  final Color color;
+
   @override
   void paint(Canvas canvas, Size s) {
     final c = Offset(s.width / 2, s.height * .60);
     final r = s.width * .36;
     final p = Paint()
-      ..color = BoltColors.neon
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = s.width * .10
       ..strokeCap = StrokeCap.round;
@@ -178,42 +189,44 @@ class _FastWorkout extends StatelessWidget {
       child: Tap(
         onTap: () => onPick(cardio),
         child: BoltBox(
-          color: BoltColors.surface2,
-          stroke: const Stroke(BoltColors.line),
+          color: BoltColors.onNeon,
           radius: BoltRadii.pill,
-          height: 46,
+          height: 48,
           alignment: Alignment.center,
-          child: Text(label, style: BoltText.a(14, weight: 800)),
+          child: Text(label, style: BoltText.a(14, weight: 800, color: BoltColors.neon)),
         ),
       ),
     );
 
+    final ink = BoltColors.onNeon;
+    // The one start on this page: filled with the accent, its type big.
     return BoltBox(
-      color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.line),
-      radius: BoltRadii.card,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      color: BoltColors.neon,
+      radius: BoltRadii.hero,
+      clip: true,
+      child: Stack(
         children: [
-          Row(
-            children: [
-              BoltIcon('bolt', size: 22, color: BoltColors.neon),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(tx('Fast workout'), style: BoltText.a(17, weight: 800)),
-                    const SizedBox(height: 2),
-                    Text(tx('Starts on today, nothing planned needed'), style: BoltText.a(12, color: BoltColors.muted)),
-                  ],
-                ),
-              ),
-            ],
+          Positioned(
+            right: -24,
+            bottom: -30,
+            child: IgnorePointer(child: BoltIcon('bolt', size: 170, color: ink.withAlpha(0x16))),
           ),
-          const SizedBox(height: 14),
-          Row(children: [pill(tx('Cardio'), true), const SizedBox(width: 10), pill(tx('Weights'), false)]),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(tx('Fast workout').toUpperCase(), style: BoltText.display(40, color: ink)),
+                const SizedBox(height: 6),
+                Text(
+                  tx('Starts on today, nothing planned needed'),
+                  style: BoltText.a(13, weight: 600, color: ink.withValues(alpha: .75)),
+                ),
+                const SizedBox(height: 16),
+                Row(children: [pill(tx('Cardio'), true), const SizedBox(width: 10), pill(tx('Weights'), false)]),
+              ],
+            ),
+          ),
         ],
       ),
     );
