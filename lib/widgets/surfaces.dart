@@ -101,7 +101,7 @@ class Paper extends StatelessWidget {
             children: [
               if (watermark case final w?)
                 markTop
-                    ? Watermark(w, color: BoltColors.paperInk.withAlpha(0x2E), size: 130, top: true)
+                    ? Watermark(w, color: BoltColors.paperInk.withAlpha(0x12), size: 169, top: true, tilt: .26)
                     : Watermark(w, color: BoltColors.paperInk.withAlpha(0x10)),
               Padding(padding: padding, child: child),
             ],
@@ -182,7 +182,7 @@ class Stage extends StatelessWidget {
 
 /// A giant faint glyph bleeding off the bottom right of a [Stack].
 class Watermark extends StatelessWidget {
-  const Watermark(this.text, {super.key, required this.color, this.size = 150, this.top = false});
+  const Watermark(this.text, {super.key, required this.color, this.size = 150, this.top = false, this.tilt = 0});
 
   final String text;
   final Color color;
@@ -191,6 +191,9 @@ class Watermark extends StatelessWidget {
   /// In the top right corner instead, clear of what sits at the bottom.
   final bool top;
 
+  /// Turned by this many radians, as if tossed onto the card.
+  final double tilt;
+
   @override
   Widget build(BuildContext context) => Positioned(
     right: top ? 14 : -8,
@@ -198,7 +201,10 @@ class Watermark extends StatelessWidget {
     bottom: top ? null : -size * .28,
     child: IgnorePointer(
       child: ExcludeSemantics(
-        child: Text(text, style: BoltText.display(size, color: color, height: 1)),
+        child: Transform.rotate(
+          angle: tilt,
+          child: Text(text, style: BoltText.display(size, color: color, height: 1)),
+        ),
       ),
     ),
   );
