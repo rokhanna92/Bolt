@@ -26,6 +26,7 @@ import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tap.dart';
 import '../../widgets/sparkline.dart';
+import '../../widgets/surfaces.dart';
 import '../badges/badges_screen.dart';
 import '../progress/challenge_sheet.dart';
 import '../workouts/deload_sheet.dart';
@@ -98,7 +99,7 @@ class TodayScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     tx('Hey {name}', {'name': vocative(firstName(t.name))}),
-                    style: BoltText.a(26, weight: 800, spacing: -.02),
+                    style: BoltText.display(36, color: BoltColors.text),
                   ),
                 ],
               ),
@@ -110,11 +111,10 @@ class TodayScreen extends ConsumerWidget {
           const SizedBox(height: 18),
           Tap(
             onTap: () => openScanner(context, ref),
-            child: BoltBox(
-              color: BoltColors.surface1,
-              stroke: Stroke(BoltColors.neon.withAlpha(0x66)),
-              radius: 14,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Stage(
+              color: BoltColors.neon,
+              radius: 18,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
                 children: [
                   const PulseDot(),
@@ -142,11 +142,10 @@ class TodayScreen extends ConsumerWidget {
         ],
         if (t.stats.away.contains(dk(monday(now)))) ...[
           const SizedBox(height: 18),
-          BoltBox(
-            color: BoltColors.surface1,
-            stroke: const Stroke(BoltColors.lineSoft),
-            radius: 14,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          Stage(
+            color: BoltColors.body,
+            radius: 18,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Text(
               tx('Away this week. Your streak is safe, train if you feel like it.'),
               style: BoltText.a(13, weight: 700),
@@ -159,17 +158,19 @@ class TodayScreen extends ConsumerWidget {
         ],
         if (tp != null && tp.status == SessionStatus.done) ...[
           const SizedBox(height: 18),
-          BoltBox(
-            color: BoltColors.surface1,
-            stroke: Stroke(BoltColors.neon.withAlpha(0x73)),
-            radius: 24,
+          Stage(
+            color: BoltColors.neon,
+            watermark: _initial(tx(tp.title)),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Kicker('${tx('TODAY · DONE')} · ${logText(tp.log).toUpperCase()}', color: BoltColors.neon),
                 const SizedBox(height: 8),
-                Text(tx(tp.title).toUpperCase(), style: BoltText.a(34, weight: 900, width: 115, spacing: -.02)),
+                Text(
+                  tx(tp.title).toUpperCase(),
+                  style: BoltText.display(tsz(tx(tp.title), 44), color: BoltColors.text),
+                ),
                 const SizedBox(height: 6),
                 Text(tx('Next: {what}', {'what': nextText}), style: BoltText.a(14, color: BoltColors.muted)),
               ],
@@ -230,11 +231,9 @@ class TodayScreen extends ConsumerWidget {
         if (jsDay(now) >= 1 && jsDay(now) <= 2 && d.settings.recapSeen != dk(addDays(ws, -7)))
           if (weekRecap(plan, d.visits[t.id] ?? const [], t.body, addDays(ws, -7)) case final r when !r.isEmpty) ...[
             const SizedBox(height: 12),
-            BoltBox(
-              color: BoltColors.surface1,
-              stroke: Stroke(BoltColors.neon.withAlpha(0x73)),
-              radius: 20,
-              padding: const EdgeInsets.all(16),
+            Stage(
+              color: BoltColors.neon,
+              padding: const EdgeInsets.all(18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -249,7 +248,7 @@ class TodayScreen extends ConsumerWidget {
                     r.planned > 0 && r.done >= r.planned
                         ? tx('Every planned session done. New week, same energy.')
                         : tx('{n} done. Let\'s make this week count.', {'n': plural(r.done, 'workout')}),
-                    style: BoltText.a(16, weight: 800),
+                    style: BoltText.headline(19),
                   ),
                   const SizedBox(height: 12),
                   RecapTiles(r: r, metric: d.settings.kg),
@@ -303,40 +302,33 @@ class TodayScreen extends ConsumerWidget {
           weekStart: weekStart(now, mondayFirst: d.settings.mondayFirst),
           seen: d.settings.hintsSeen,
         )) ...[const SizedBox(height: 10), _HintCard(tid: t.id, h: h)],
-        const SizedBox(height: 26),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Expanded(child: SectionTitle(tx('This week'))),
-            Tap(
-              onTap: () => openPlanDay(context, ref, null),
-              child: Text(tx('Calendar →'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
-            ),
-          ],
+        Section(
+          tx('This week'),
+          trailing: Tap(
+            onTap: () => openPlanDay(context, ref, null),
+            child: Text(tx('Calendar →'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+          ),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            for (var i = 0; i < 7; i++) ...[
-              if (i > 0) const SizedBox(width: 6),
-              Expanded(child: _weekDay(context, ref, addDays(ws, i), today, vis, t.stats.rest)),
+        // The week on paper, the planner's surface.
+        Paper(
+          padding: const EdgeInsets.all(8),
+          radius: 20,
+          child: Row(
+            children: [
+              for (var i = 0; i < 7; i++) ...[
+                if (i > 0) const SizedBox(width: 4),
+                Expanded(child: _weekDay(context, ref, addDays(ws, i), today, vis, t.stats.rest)),
+              ],
             ],
-          ],
+          ),
         ),
-        const SizedBox(height: 26),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Expanded(child: SectionTitle(tx('Your numbers'))),
-            Tap(
-              onTap: () => context.push('/progress'),
-              child: Text(tx('Progress →'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
-            ),
-          ],
+        Section(
+          tx('Your numbers'),
+          trailing: Tap(
+            onTap: () => context.push('/progress'),
+            child: Text(tx('Progress →'), style: BoltText.a(13, weight: 700, color: BoltColors.neon)),
+          ),
         ),
-        const SizedBox(height: 12),
         _Numbers(stats: t.stats, plan: plan, visits: d.visits[t.id] ?? const [], now: now, weekStart: ws),
         const SizedBox(height: 8),
         _WeightTile(body: t.body, now: now, metric: d.settings.kg),
@@ -426,13 +418,14 @@ class TodayScreen extends ConsumerWidget {
     final it = k == today;
     final past = k.compareTo(today) < 0;
     final rested = p == null && rest.contains(k);
+    final done = Tone.paper().accent;
     final dot = p == null
         ? Colors.transparent
         : p.status == SessionStatus.done
-        ? (it ? BoltColors.onNeon : BoltColors.neon)
+        ? (it ? BoltColors.neon : done)
         : p.status == SessionStatus.pending
-        ? BoltColors.muted2
-        : (it ? BoltColors.onNeon : BoltColors.text);
+        ? BoltColors.paperMuted
+        : (it ? BoltColors.paper : BoltColors.paperInk);
     void plan() {
       final store = ref.read(boltProvider.notifier);
       openPlanDay(context, ref, store.addFromRotation(ref.read(boltProvider).account!.id, k) ? k : null);
@@ -445,19 +438,20 @@ class TodayScreen extends ConsumerWidget {
       child: BoltBox(
         height: 72,
         radius: 14,
-        color: it ? BoltColors.text : BoltColors.surface1,
-        stroke: Stroke(it ? BoltColors.text : BoltColors.divider),
+        color: it ? BoltColors.paperInk : null,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(weekdays[jsDay(day)][0], style: BoltText.m(10, color: it ? BoltColors.handle : BoltColors.muted)),
+            Text(
+              weekdays[jsDay(day)][0],
+              style: BoltText.m(10, color: it ? BoltColors.paperLine : BoltColors.paperMuted),
+            ),
             const SizedBox(height: 4),
             Text(
               '${day.day}',
-              style: BoltText.a(
-                17,
-                weight: 800,
-                color: it ? BoltColors.onNeon : (past ? BoltColors.muted2 : BoltColors.text),
+              style: BoltText.display(
+                20,
+                color: it ? BoltColors.paper : (past ? BoltColors.paperMuted : BoltColors.paperInk),
               ),
             ),
             const SizedBox(height: 4),
@@ -467,7 +461,7 @@ class TodayScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: dot,
                 shape: BoxShape.circle,
-                border: rested ? Border.all(color: it ? BoltColors.onNeon : BoltColors.muted2, width: 1.5) : null,
+                border: rested ? Border.all(color: it ? BoltColors.paper : BoltColors.paperMuted, width: 1.5) : null,
               ),
             ),
           ],
@@ -556,7 +550,6 @@ class _WarmupCard extends ConsumerWidget {
     final (mins, steps) = warmupPlan(session);
     return BoltBox(
       color: BoltColors.surface1,
-      stroke: const Stroke(BoltColors.lineSoft),
       radius: 18,
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -630,110 +623,82 @@ class _RestHero extends ConsumerWidget {
         ? tx('Fully recovered: {muscles}.', {'muscles': ready.join(', ')})
         : tx('Sleep, eat well and move a little. Rest is where you grow.');
     final title = tx('REST DAY');
-    Widget ring(double size, double width, double alpha) => SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(
-        painter: DashedBorderPainter(
-          stroke: Stroke.dotted(BoltColors.neon.withValues(alpha: alpha), width),
-          circle: true,
-        ),
-      ),
-    );
-    return BoltBox(
-      radius: 24,
-      stroke: Stroke.dotted(BoltColors.neon.withAlpha(0x99), 1.5),
-      gradient: const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [Color(0xFF171A13), Color(0xFF0E1408)],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          children: [
-            // Decoration stays in the corner, clear of the text.
-            Positioned(right: -130, top: -130, child: ring(220, 3, .22)),
-            Positioned(right: 4, top: 4, child: ring(84, 2, .4)),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      Text(tx('TODAY'), style: BoltText.m(11, weight: 700, spacing: .12, color: BoltColors.muted)),
-                      const SizedBox(width: 8),
-                      BoltBox(
-                        radius: 99,
-                        stroke: Stroke(BoltColors.neon),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        child: Text(
-                          rested ? tx('RESTING') : tx('NOTHING PLANNED'),
-                          style: BoltText.m(10, weight: 700, spacing: .08, color: BoltColors.neon),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(title, style: BoltText.a(tsz(title, 54), weight: 900, width: 115, spacing: -.03, height: .95)),
-                  const SizedBox(height: 8),
-                  Text(body, style: BoltText.a(14, weight: 600, color: BoltColors.textSoft, height: 1.4)),
-                  const SizedBox(height: 14),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      for (final c in [
-                        if (off > 0) tx('{days} off', {'days': plural(off, 'day')}),
-                        tx('Next: {what}', {'what': next}),
-                      ])
-                        BoltBox(
-                          radius: 99,
-                          stroke: const Stroke(BoltColors.line),
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          child: Text(c, style: BoltText.m(11, weight: 600, color: BoltColors.textSoft)),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      if (!rested) ...[
-                        Expanded(
-                          child: NeonButton(
-                            label: tx('Mark as rest day'),
-                            height: 50,
-                            radius: 14,
-                            onTap: () => store.toggleRest(today),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                      Expanded(
-                        child: OutlineButton(label: tx('Train anyway'), height: 50, radius: 14, onTap: onTrain),
-                      ),
-                      if (rested) ...[
-                        const SizedBox(width: 8),
-                        Tap(
-                          onTap: () => store.toggleRest(today),
-                          child: BoltBox(
-                            height: 50,
-                            radius: 14,
-                            stroke: const Stroke(BoltColors.line),
-                            padding: const EdgeInsets.symmetric(horizontal: 18),
-                            alignment: Alignment.center,
-                            child: Text(tx('Undo'), style: BoltText.a(14, weight: 700, color: BoltColors.muted)),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
+    return Stage(
+      color: BoltColors.body,
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Text(tx('TODAY'), style: BoltText.m(11, weight: 700, spacing: .12, color: BoltColors.muted)),
+              const SizedBox(width: 8),
+              BoltBox(
+                radius: 99,
+                stroke: Stroke(BoltColors.body),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                child: Text(
+                  rested ? tx('RESTING') : tx('NOTHING PLANNED'),
+                  style: BoltText.m(10, weight: 700, spacing: .08, color: BoltColors.body),
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(title, style: BoltText.display(tsz(title, 58), color: BoltColors.text)),
+          const SizedBox(height: 8),
+          Text(body, style: BoltText.a(14, weight: 600, color: BoltColors.textSoft, height: 1.4)),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final c in [
+                if (off > 0) tx('{days} off', {'days': plural(off, 'day')}),
+                tx('Next: {what}', {'what': next}),
+              ])
+                BoltBox(
+                  radius: 99,
+                  stroke: const Stroke(BoltColors.line),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: Text(c, style: BoltText.m(11, weight: 600, color: BoltColors.textSoft)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              if (!rested) ...[
+                Expanded(
+                  child: NeonButton(
+                    label: tx('Mark as rest day'),
+                    height: 50,
+                    radius: 14,
+                    onTap: () => store.toggleRest(today),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: OutlineButton(label: tx('Train anyway'), height: 50, radius: 14, onTap: onTrain),
+              ),
+              if (rested) ...[
+                const SizedBox(width: 8),
+                Tap(
+                  onTap: () => store.toggleRest(today),
+                  child: BoltBox(
+                    height: 50,
+                    radius: 14,
+                    stroke: const Stroke(BoltColors.line),
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    alignment: Alignment.center,
+                    child: Text(tx('Undo'), style: BoltText.a(14, weight: 700, color: BoltColors.muted)),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -793,10 +758,7 @@ class _OffCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            Text(
-              days >= 7 ? tx('GET BACK IN.') : tx('ENOUGH REST.'),
-              style: BoltText.a(44, weight: 900, width: 115, spacing: -.03, height: .95, color: ink),
-            ),
+            Text(days >= 7 ? tx('GET BACK IN.') : tx('ENOUGH REST.'), style: BoltText.display(48, color: ink)),
             const SizedBox(height: 8),
             Text(
               tx('Your body has recovered and the habit is slipping. Get to the gym today, even 20 minutes counts.'),
@@ -888,31 +850,16 @@ class _Numbers extends StatelessWidget {
         .toList();
     final done = week.where((s) => s.status == SessionStatus.done).length;
     final off = daysOff(plan, visits, stats.rest, now);
-    Widget tile(String v, String l, {bool neon = false, bool warn = false}) => StatTile(
-      value: v,
-      label: l,
-      valueSize: 20,
-      valueWeight: 800,
-      valueColor: neon ? BoltColors.neon : (warn ? BoltColors.warn : BoltColors.text),
-    );
-    return Column(
-      children: [
-        StatRow(
-          children: [
-            tile('${stats.workouts}', tx('WORKOUTS'), neon: true),
-            tile(totalTime(stats.mins), tx('GYM TIME')),
-            tile('${restDays(plan, visits, now)}', tx('TOTAL REST')),
-          ],
-        ),
-        const SizedBox(height: 8),
-        StatRow(
-          children: [
-            tile('$done/${week.length}', tx('THIS WEEK')),
-            tile('${stats.sessions}', tx('GYM VISITS')),
-            tile('$off', tx('OFF IN A ROW'), warn: off >= 3),
-          ],
-        ),
+    return FigureGrid(
+      cells: [
+        ('${stats.workouts}', tx('WORKOUTS')),
+        (totalTime(stats.mins), tx('GYM TIME')),
+        ('${restDays(plan, visits, now)}', tx('TOTAL REST')),
+        ('$done/${week.length}', tx('THIS WEEK')),
+        ('${stats.sessions}', tx('GYM VISITS')),
+        ('$off', tx('OFF IN A ROW')),
       ],
+      colors: {0: BoltColors.neon, if (off >= 3) 5: BoltColors.warn},
     );
   }
 }
@@ -952,9 +899,8 @@ class _WeightTile extends StatelessWidget {
       onTap: open,
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: const Stroke(BoltColors.lineSoft),
-        radius: 14,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        radius: 20,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
             Column(
@@ -962,7 +908,7 @@ class _WeightTile extends StatelessWidget {
               children: [
                 Kicker(tx('WEIGHT'), size: 9, spacing: .1),
                 const SizedBox(height: 4),
-                Text(bodyValue('weight', s.last.$2, metric: metric), style: BoltText.a(20, weight: 800)),
+                Text(bodyValue('weight', s.last.$2, metric: metric), style: BoltText.display(24)),
                 const SizedBox(height: 2),
                 Text(
                   ch == null
@@ -978,7 +924,12 @@ class _WeightTile extends StatelessWidget {
             const SizedBox(width: 16),
             Expanded(
               child: s.length >= 2
-                  ? Sparkline(values: [for (final x in s) x.$2], height: 44, goal: body.goals['weight'])
+                  ? Sparkline(
+                      values: [for (final x in s) x.$2],
+                      height: 44,
+                      color: BoltColors.body,
+                      goal: body.goals['weight'],
+                    )
                   : Text(
                       tx('Log again on another day for a trend'),
                       textAlign: TextAlign.right,
@@ -1032,30 +983,7 @@ class _HeroCard extends ConsumerWidget {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              Positioned(
-                right: -60,
-                top: -62,
-                child: Container(
-                  width: 214,
-                  height: 214,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0x140A0B09), width: 22),
-                  ),
-                ),
-              ),
-              Positioned(
-                right: -5,
-                top: -7,
-                child: Container(
-                  width: 76,
-                  height: 76,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0x140A0B09), width: 8),
-                  ),
-                ),
-              ),
+              Watermark(_initial(tx(s.title)), color: ink.withAlpha(0x1A), size: 190),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -1075,17 +1003,7 @@ class _HeroCard extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Text(
-                    tx(s.title).toUpperCase(),
-                    style: BoltText.a(
-                      tsz(tx(s.title), 54),
-                      weight: 900,
-                      width: 115,
-                      spacing: -.03,
-                      height: .95,
-                      color: ink,
-                    ),
-                  ),
+                  Text(tx(s.title).toUpperCase(), style: BoltText.display(tsz(tx(s.title), 58), color: ink)),
                   const SizedBox(height: 6),
                   Text(tx(s.focus), style: BoltText.a(14, weight: 600, color: ink.withValues(alpha: .8))),
                   const SizedBox(height: 14),
@@ -1332,3 +1250,6 @@ class _HintCard extends ConsumerWidget {
     );
   }
 }
+
+/// The first letter of a workout's name, for its watermark.
+String _initial(String title) => title.trim().isEmpty ? '' : title.trim()[0].toUpperCase();

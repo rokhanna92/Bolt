@@ -4,6 +4,7 @@ import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
 import 'box.dart';
 import 'common.dart';
+import 'motion.dart';
 import 'tap.dart';
 
 /// The colors to draw with on the surface below: dark cards or cream paper.
@@ -401,4 +402,54 @@ class DoorTile extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Figures in one panel, three to a row, split by hairlines: a label over
+/// each number. [colors] tints single numbers, by index.
+class FigureGrid extends StatelessWidget {
+  const FigureGrid({super.key, required this.cells, this.colors = const {}, this.size = 22});
+
+  final List<(String, String)> cells;
+  final Map<int, Color> colors;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = Tone.of(context);
+    Widget cell(int i) => Padding(
+      padding: const EdgeInsets.fromLTRB(14, 14, 8, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Kicker(cells[i].$2, size: 9, spacing: .1),
+          const SizedBox(height: 6),
+          RollText(cells[i].$1, maxLines: 1, style: BoltText.display(size, color: colors[i] ?? tone.text)),
+        ],
+      ),
+    );
+    return BoltBox(
+      color: tone.paper ? BoltColors.paperWell : BoltColors.surface1,
+      radius: 20,
+      clip: true,
+      child: Column(
+        children: [
+          for (var i = 0; i < cells.length; i += 3) ...[
+            if (i > 0) Divider(height: 1, thickness: 1, color: tone.line),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var j = i; j < i + 3; j++) ...[
+                    if (j > i) VerticalDivider(width: 1, thickness: 1, color: tone.line),
+                    Expanded(child: j < cells.length ? cell(j) : const SizedBox()),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }

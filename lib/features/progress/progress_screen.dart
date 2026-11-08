@@ -18,7 +18,6 @@ import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
-import '../../widgets/motion.dart';
 import '../../widgets/muscle_map.dart';
 import '../../widgets/sparkline.dart';
 import '../../widgets/surfaces.dart';
@@ -223,41 +222,7 @@ class RecapTiles extends StatelessWidget {
       (r.planned == 0 ? '-' : '${(100 * r.done / r.planned).round()}%', tx('DONE')),
     ];
     // One panel, six figures split by hairlines, not six boxes.
-    Widget cell((String, String) c) => Padding(
-      padding: const EdgeInsets.fromLTRB(14, 14, 8, 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Kicker(c.$2, size: 9, spacing: .1),
-          const SizedBox(height: 6),
-          RollText(c.$1, maxLines: 1, style: BoltText.display(22, color: BoltColors.text)),
-        ],
-      ),
-    );
-    return BoltBox(
-      color: BoltColors.surface1,
-      radius: 20,
-      clip: true,
-      child: Column(
-        children: [
-          for (var i = 0; i < cells.length; i += 3) ...[
-            if (i > 0) const Divider(height: 1, thickness: 1, color: BoltColors.lineSoft),
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (var j = i; j < i + 3; j++) ...[
-                    if (j > i) const VerticalDivider(width: 1, thickness: 1, color: BoltColors.lineSoft),
-                    Expanded(child: cell(cells[j])),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
+    return FigureGrid(cells: cells);
   }
 }
 
