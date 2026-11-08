@@ -16,6 +16,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 import '../profile/language_picker.dart';
 
@@ -243,22 +244,24 @@ class SettingsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                BackBox(onTap: () => context.pop()),
-                const SizedBox(width: 12),
-                Text(tx('Settings'), style: BoltText.a(24, weight: 900)),
-              ],
-            ),
+            PageHead(onBack: () => context.pop(), title: tx('Settings'), sub: tx('Everything stays on this phone.')),
             for (final (title, rows) in groups) ...[
-              const SizedBox(height: 22),
-              Kicker(tx(title), size: 10),
-              const SizedBox(height: 8),
+              const SizedBox(height: 26),
+              Kicker(tx(title), size: 11, weight: 700, color: BoltColors.neon),
+              const SizedBox(height: 10),
               BoltBox(
                 color: BoltColors.surface1,
-                radius: 18,
+                radius: 20,
                 clip: true,
-                child: Column(children: [for (final r in rows) _row(r)]),
+                child: Column(
+                  children: [
+                    for (final (i, r) in rows.indexed) ...[
+                      if (i > 0)
+                        const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: BoltColors.divider),
+                      _row(r),
+                    ],
+                  ],
+                ),
               ),
             ],
             const SizedBox(height: 22),
@@ -267,9 +270,8 @@ class SettingsScreen extends ConsumerWidget {
             // to Privacy.
             const SizedBox(height: 32),
             BoltBox(
-              color: BoltColors.surface1,
-              stroke: Stroke(BoltColors.warn.withAlpha(0x66)),
-              radius: 18,
+              color: Color.alphaBlend(BoltColors.warn.withAlpha(0x1A), BoltColors.surface1),
+              radius: 20,
               clip: true,
               child: _row(_Row(tx('Reset app'), danger: true, onTap: () => _reset(context, ref))),
             ),
@@ -292,9 +294,6 @@ class SettingsScreen extends ConsumerWidget {
       child: Container(
         constraints: const BoxConstraints(minHeight: 52),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: BoltColors.divider)),
-        ),
         child: Row(
           children: [
             Expanded(
