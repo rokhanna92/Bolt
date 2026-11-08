@@ -52,19 +52,22 @@ class _BoltAccordionState extends State<BoltAccordion> {
               setState(() => _open = !_open);
             },
             child: BoltBox(
-              color: BoltColors.surface1,
-              stroke: widget.highlight
-                  ? Stroke(BoltColors.neon, 1.5)
-                  : Stroke(_open ? BoltColors.line : BoltColors.lineSoft),
-              radius: 16,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              color: _open ? BoltColors.surface2 : BoltColors.surface1,
+              stroke: widget.highlight ? Stroke(BoltColors.neon, 1.5) : Stroke.none,
+              radius: 18,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
               child: Row(
                 children: [
+                  // The count leads, big, so groups read at a glance.
+                  SizedBox(
+                    width: 42,
+                    child: Text('${widget.preview.length}', style: BoltText.display(24, color: BoltColors.neon)),
+                  ),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.title, style: BoltText.a(16, weight: 800)),
+                        Text(widget.title, style: BoltText.headline(17)),
                         // Open, the cards below say it already.
                         if (!_open) ...[
                           const SizedBox(height: 2),
@@ -79,8 +82,6 @@ class _BoltAccordionState extends State<BoltAccordion> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text('${widget.preview.length}', style: BoltText.m(12, weight: 700, color: BoltColors.neon)),
-                  const SizedBox(width: 4),
                   AnimatedRotation(
                     turns: _open ? .25 : 0,
                     duration: const Duration(milliseconds: 180),

@@ -16,6 +16,7 @@ import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/forms.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 import '../sharing/import_sheet.dart';
 import '../workouts/workout_picker.dart';
@@ -52,15 +53,13 @@ class LibraryScreen extends ConsumerWidget {
     ];
     return ScreenScroll(
       children: [
-        Kicker(tx('LIBRARY')),
-        const SizedBox(height: 4),
-        Text(tx('Workouts'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
-        const SizedBox(height: 6),
-        Text(
-          tx('Templates used by auto-fill and splits. Edit once, every future plan follows.'),
-          style: BoltText.a(13, color: BoltColors.muted),
+        PageHead(
+          kicker: tx('LIBRARY'),
+          title: tx('Workouts'),
+          sub: tx('Templates used by auto-fill and splits. Edit once, every future plan follows.'),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 18),
+        if (own.isNotEmpty) ...[_Featured(t: d.tpls[own.first]!), const SizedBox(height: 10)],
         // Making a workout comes first; passing them around is a quieter strip.
         IntrinsicHeight(
           child: Row(
@@ -199,8 +198,14 @@ class LibraryScreen extends ConsumerWidget {
       child: BoltBox(
         color: BoltColors.surface1,
         radius: 18,
+        clip: true,
         child: Stack(
           children: [
+            Watermark(
+              tx(t.name).isEmpty ? '' : tx(t.name)[0].toUpperCase(),
+              color: BoltColors.neon.withAlpha(0x12),
+              size: 96,
+            ),
             Padding(
               padding: const EdgeInsets.all(14),
               child: ConstrainedBox(
@@ -216,7 +221,7 @@ class LibraryScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Text(tx(t.name), style: BoltText.a(18, weight: 900)),
+                    Text(tx(t.name), style: BoltText.headline(19)),
                     const SizedBox(height: 6),
                     Expanded(
                       child: Text(tx(t.focus), style: BoltText.a(11, color: BoltColors.muted)),
@@ -300,8 +305,7 @@ class _CreateTile extends StatelessWidget {
       scale: .97,
       child: BoltBox(
         color: primary ? BoltColors.neon : BoltColors.surface1,
-        stroke: Stroke(primary ? BoltColors.neon : BoltColors.line),
-        radius: 16,
+        radius: 18,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         // Icon and words side by side, so nothing sinks to the bottom.
         child: Row(
@@ -354,6 +358,45 @@ class _ShareAction extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: BoltText.a(13, weight: 700, color: BoltColors.text),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Your own first workout, featured on paper with its letter behind it.
+class _Featured extends StatelessWidget {
+  const _Featured({required this.t});
+
+  final WorkoutTemplate t;
+
+  @override
+  Widget build(BuildContext context) {
+    final name = tx(t.name);
+    return Tap(
+      onTap: () => context.push('/editor/tpl/${t.id}'),
+      scale: .98,
+      child: Paper(
+        watermark: name.isEmpty ? null : name[0].toUpperCase(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Kicker('${tx('FEATURED')} · ${t.code}', size: 10),
+            const SizedBox(height: 10),
+            Text(name.toUpperCase(), style: BoltText.display(tsz(name, 38), color: BoltColors.paperInk)),
+            const SizedBox(height: 6),
+            Text(tx(t.focus), style: BoltText.a(12, color: BoltColors.paperMuted, height: 1.35)),
+            const SizedBox(height: 14),
+            BoltBox(
+              color: BoltColors.paperInk,
+              radius: 12,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              child: Text(
+                '${plural(t.ex.length, 'exercise')} · ${t.mins} min  ↗',
+                style: BoltText.a(12, weight: 800, color: BoltColors.neon),
               ),
             ),
           ],
