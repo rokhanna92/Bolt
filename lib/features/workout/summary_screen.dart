@@ -11,7 +11,6 @@ import '../../data/bolt_store.dart';
 import '../../data/lifts.dart';
 import '../../data/models/session.dart';
 import '../../data/rules.dart';
-import '../../data/seed/exercises.dart';
 import '../../data/seed/muscles.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
@@ -61,7 +60,8 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     final volume = s.ex.fold(0.0, (a, e) => a + e.logged.fold(0.0, (b, l) => b + (l.kg ?? 0) * (l.reps ?? 0)));
     final muscles = {
       for (final e in s.ex)
-        if (kExerciseByName[e.name]?.muscle case final String m when kMuscles.containsKey(m)) m,
+        for (final m in musclesOf(e.name))
+          if (kMuscles.containsKey(m)) m,
     };
     final title = tx(s.title);
     final lastK = lastSame(store.plan(t.id), s, widget.dayKey);

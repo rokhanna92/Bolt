@@ -889,9 +889,12 @@ void ownerTests() {
       f.store.setTemplate(Account.ownerId, '2026-10-13', 'pull');
       f.store.logPast('2026-10-13');
       final sets = muscleSets(f.mine, '2026-10-12', '2026-10-19');
-      // 16 pressing sets × ¼, 13 pulling sets × ¼ and 3 curl sets × ½.
-      expect(sets['forearms'], 9);
+      // 16 pressing sets × ¼, 9 pulling sets × ¼, 4 pull-up sets × ½ (the
+      // grip hangs on the bar) and 3 curl sets × ½.
+      expect(sets['forearms'], 10);
       expect(sets['biceps'], 3);
+      // The pull-ups brace the abs: half a set each.
+      expect(sets['abs'], 2);
     });
   });
 

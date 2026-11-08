@@ -316,13 +316,27 @@ Exercise? warmupFor(List<Exercise> ex) {
 /// quarter.
 const _forearmShare = {'biceps': .5, 'back': .25, 'traps': .25, 'chest': .25, 'shoulders': .25, 'triceps': .25};
 
+/// Hanging from a bar: pull-ups, chin-ups and muscle-ups, not the assisted
+/// machine you kneel on.
+bool _hanging(String name) =>
+    !name.contains('Assisted') && (name.contains('Pull-up') || name.contains('Chin-up') || name.contains('Muscle-up'));
+
+/// Every muscle an exercise works hard enough to get sore: its main one, the
+/// forearms on arm work and hanging pulls, the abs on hanging pulls. Cardio
+/// and mobility work none.
+Set<String> musclesOf(String name) {
+  final m = kExerciseByName[name]?.muscle;
+  if (m == null || m == 'cardio' || m == 'mobility') return const {};
+  return {m, if (m == 'biceps' || m == 'triceps' || _hanging(name)) 'forearms', if (_hanging(name)) 'abs'};
+}
+
 /// Sets per muscle in finished workouts from [from] to [to] (day keys,
 /// [to] excluded). Logged sets count when there are any, otherwise the
 /// planned sets. Forearms also get their share of upper-body sets, rounded.
 /// Cardio and mobility are left out.
 Map<String, int> muscleSets(Map<String, Session> plan, String from, String to) {
   final out = <String, int>{};
-  var forearms = 0.0;
+  var forearms = 0.0, abs = 0.0;
   plan.forEach((k, s) {
     if (s.status != SessionStatus.done || k.compareTo(from) < 0 || k.compareTo(to) >= 0) return;
     for (final e in s.ex) {
@@ -330,10 +344,13 @@ Map<String, int> muscleSets(Map<String, Session> plan, String from, String to) {
       if (m == null || m == 'cardio' || m == 'mobility') continue;
       final n = e.logged.isNotEmpty ? e.logged.length : e.sets;
       out[m] = (out[m] ?? 0) + n;
-      forearms += n * (_forearmShare[m] ?? 0);
+      // Hanging grips the bar the whole set, and braces the abs half as hard.
+      forearms += n * (_hanging(e.name) ? .5 : (_forearmShare[m] ?? 0));
+      if (_hanging(e.name)) abs += n * .5;
     }
   });
   if (forearms.round() case final f when f > 0) out['forearms'] = (out['forearms'] ?? 0) + f;
+  if (abs.round() case final a when a > 0) out['abs'] = (out['abs'] ?? 0) + a;
   return out;
 }
 
@@ -342,15 +359,15 @@ Map<String, int> muscleSets(Map<String, Session> plan, String from, String to) {
 int recoveryDays(String muscle) => const {'quads', 'hamstrings', 'glutes', 'back'}.contains(muscle) ? 3 : 2;
 
 /// Day key of the last finished workout up to [today] that trained each
-/// muscle. Cardio and mobility are left out.
+/// muscle, the ones it also works included (see [musclesOf]).
 Map<String, String> lastTrained(Map<String, Session> plan, String today) {
   final out = <String, String>{};
   plan.forEach((k, s) {
     if (s.status != SessionStatus.done || k.compareTo(today) > 0) return;
     for (final e in s.ex) {
-      final m = kExerciseByName[e.name]?.muscle;
-      if (m == null || m == 'cardio' || m == 'mobility') continue;
-      if ((out[m] ?? '').compareTo(k) < 0) out[m] = k;
+      for (final m in musclesOf(e.name)) {
+        if ((out[m] ?? '').compareTo(k) < 0) out[m] = k;
+      }
     }
   });
   return out;
