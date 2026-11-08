@@ -16,6 +16,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/bolt_sheet.dart';
 import '../../widgets/box.dart';
 import '../../widgets/common.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 import '../sharing/import_sheet.dart';
 import '../updates/update_sheet.dart';
@@ -41,23 +42,41 @@ class MeScreen extends ConsumerWidget {
       children: [
         ProfileHeader(onSettings: () => context.push('/settings')),
         const SizedBox(height: 14),
-        Row(
-          children: [
-            Avatar(ini: initials(t.name), size: 76, fontSize: 26, weight: 900, fill: BoltColors.neon),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        // Who you are, on paper, with your numbers.
+        Paper(
+          watermark: initials(t.name).isEmpty ? null : initials(t.name)[0],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
                 children: [
-                  Text(t.name, style: BoltText.a(24, weight: 900, spacing: -.02)),
-                  const SizedBox(height: 4),
-                  Text(line, style: BoltText.a(13, color: BoltColors.muted)),
+                  Avatar(
+                    ini: initials(t.name),
+                    size: 64,
+                    fontSize: 22,
+                    weight: 900,
+                    fill: BoltColors.paperInk,
+                    color: BoltColors.neon,
+                  ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text(t.name, style: BoltText.display(tsz(t.name, 40), color: BoltColors.paperInk)),
+              const SizedBox(height: 4),
+              Text(line, style: BoltText.a(13, color: BoltColors.paperMuted)),
+              const SizedBox(height: 16),
+              FigureGrid(
+                cells: [
+                  ('${t.stats.sessions}', tx('GYM VISITS')),
+                  ('${t.stats.mins ~/ 60}', tx('HOURS')),
+                  ('${currentStreak(t.stats, store.now)}', tx('WEEK STREAK')),
+                ],
+                size: 26,
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         BoltBox(
           color: BoltColors.surface1,
           radius: 16,
@@ -78,14 +97,6 @@ class MeScreen extends ConsumerWidget {
               _Fact(icon: Icons.event_available, label: tx('TRAINING SINCE'), value: monthYear(t.since), last: true),
             ],
           ),
-        ),
-        const SizedBox(height: 18),
-        StatRow(
-          children: [
-            StatTile(value: '${t.stats.sessions}', label: tx('GYM VISITS'), valueColor: BoltColors.neon),
-            StatTile(value: '${t.stats.mins ~/ 60}', label: tx('HOURS')),
-            StatTile(value: '${currentStreak(t.stats, store.now)}', label: tx('WEEK STREAK')),
-          ],
         ),
         const SizedBox(height: 24),
         BodyCard(
@@ -126,18 +137,29 @@ class MeScreen extends ConsumerWidget {
           _CoachCard(name: coachName),
         ],
         const SizedBox(height: 24),
-        _LinkCard(
-          icon: 'book',
-          title: tx('Atlas'),
-          sub: tx('Training styles, muscles, form, moving more and supplements'),
-          onTap: () => context.push('/guide'),
-        ),
-        const SizedBox(height: 8),
-        _LinkCard(
-          icon: 'chart',
-          title: tx('Progress'),
-          sub: tx('Lifts, records, muscle volume, last week and challenges'),
-          onTap: () => context.push('/progress'),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: DoorTile(
+                  title: tx('Progress'),
+                  sub: tx('Lifts, records, muscle volume, last week and challenges'),
+                  color: BoltColors.neon,
+                  onTap: () => context.push('/progress'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: DoorTile(
+                  title: tx('Atlas'),
+                  sub: tx('Training styles, muscles, form, moving more and supplements'),
+                  color: BoltColors.heat,
+                  onTap: () => context.push('/guide'),
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 24),
         const RoleSwitch(),
@@ -174,10 +196,9 @@ class InjuryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BoltBox(
-      color: BoltColors.surface1,
-      stroke: Stroke(BoltColors.warn.withAlpha(0x73)),
-      radius: 16,
-      padding: const EdgeInsets.all(14),
+      color: Color.alphaBlend(BoltColors.warn.withAlpha(0x1A), BoltColors.surface1),
+      radius: 18,
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -255,53 +276,6 @@ class _CoachCard extends ConsumerWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// A row that opens another page: icon, title and a line about it.
-class _LinkCard extends StatelessWidget {
-  const _LinkCard({required this.icon, required this.title, required this.sub, required this.onTap});
-
-  final String icon;
-  final String title;
-  final String sub;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tap(
-      onTap: onTap,
-      child: BoltBox(
-        color: BoltColors.surface1,
-        radius: 20,
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            BoltBox(
-              width: 46,
-              height: 46,
-              radius: 14,
-              stroke: Stroke(BoltColors.neon, 1.5),
-              alignment: Alignment.center,
-              child: BoltIcon(icon, color: BoltColors.neon),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: BoltText.a(15, weight: 800)),
-                  const SizedBox(height: 3),
-                  Text(sub, style: BoltText.a(12, color: BoltColors.muted)),
-                ],
-              ),
-            ),
-            const SizedBox(width: 14),
-            const Chevron(),
-          ],
-        ),
       ),
     );
   }
