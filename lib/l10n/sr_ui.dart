@@ -1146,6 +1146,7 @@ const kSrUi = <String, String>{
   'FEATURED': 'IZDVOJENO',
   'YOUR COLLECTION': 'TVOJA KOLEKCIJA',
   'Everything stays on this phone.': 'Sve ostaje na ovom telefonu.',
+  'Not {day}: it sits next to {workout}, the same muscles.': 'Ne {day}: odmah je uz {workout}, isti mišići.',
   'From Bodyweight to Olympia, by what you lift for your bodyweight. Share it.': 'Od Sopstvene težine do Olimpije, po tome koliko podižeš za svoju težinu. Podeli ga.',
   'Every workout set by set, with your latest records.': 'Svaki trening serija po serija, sa najnovijim rekordima.',
   'Feel it': 'Oseti to',

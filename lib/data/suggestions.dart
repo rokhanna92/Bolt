@@ -51,27 +51,43 @@ List<Hint> suggestions(
   final today = dk(now);
   final out = <Hint>[];
   bool open(Session s) => s.status == SessionStatus.approved || s.status == SessionStatus.moved;
-  String? freeDay() {
-    for (var i = 0; i < 7; i++) {
-      final k = dk(addDays(now, i));
-      if (plan[k] == null) return k;
-    }
-    return null;
-  }
+  final free = [
+    for (var i = 0; i < 7; i++)
+      if (plan[dk(addDays(now, i))] == null) dk(addDays(now, i)),
+  ];
 
   // A confirmed session in the last week that never got done.
   final missed = [
     for (var i = 1; i <= 7; i++)
       if (plan[dk(addDays(now, -i))] case final Session s when open(s)) dk(addDays(now, -i)),
   ];
-  final to = freeDay();
-  if (missed.isNotEmpty && to != null) {
+  if (missed.isNotEmpty && free.isNotEmpty) {
     final k = missed.first;
+    // The first free day whose neighbours train other muscles, so nothing is
+    // hit two days running. Without one, the first free day.
+    final mine = _muscles(plan[k]!);
+    Session? clash(String day) {
+      for (final n in [-1, 1]) {
+        final s = plan[dk(addDays(pk(day), n))];
+        if (s != null && s.status != SessionStatus.draft && _muscles(s).any(mine.contains)) return s;
+      }
+      return null;
+    }
+
+    final to = free.firstWhere((d) => clash(d) == null, orElse: () => free.first);
+    final skipped = free.first == to ? null : clash(free.first);
     out.add(
       Hint(
         id: 'missed:$k',
         kind: HintKind.missed,
-        text: tx('You missed {workout} on {day}.', {'workout': tx(plan[k]!.title), 'day': fmtDay(k)}),
+        text: [
+          tx('You missed {workout} on {day}.', {'workout': tx(plan[k]!.title), 'day': fmtDay(k)}),
+          if (skipped != null)
+            tx('Not {day}: it sits next to {workout}, the same muscles.', {
+              'day': free.first == today ? tx('today') : fmtDay(free.first),
+              'workout': tx(skipped.title),
+            }),
+        ].join(' '),
         action: tx('Move to {day}', {'day': to == today ? tx('today') : fmtDay(to)}),
         day: k,
         to: to,
@@ -160,3 +176,6 @@ List<Hint> suggestions(
       if (!seen.contains(h.id)) h,
   ].take(3).toList();
 }
+
+/// The muscles a session's exercises train.
+Set<String> _muscles(Session s) => {for (final e in s.ex) ?kExerciseByName[e.name]?.muscle};
