@@ -681,6 +681,18 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the training passport opens from Progress with this month waiting', (tester) async {
+    final c = await pumpApp(tester);
+    await onboard(tester, 'On my own', 'Dani');
+    c.read(routerProvider).push('/progress');
+    await settle(tester);
+    await tapText(tester, 'Training passport');
+    expect(find.text('PASSPORT'), findsOneWidget);
+    expect(find.text('Your first stamp lands when you finish a workout.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
   testWidgets('the wrap poster can leave your name off before sharing', (tester) async {
     final c = await pumpApp(tester);
     await onboard(tester, 'On my own', 'Dani');

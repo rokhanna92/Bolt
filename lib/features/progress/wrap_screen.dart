@@ -5,9 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/format.dart';
 import '../../core/units.dart';
 import '../../data/bolt_store.dart';
-import '../../data/lifts.dart';
-import '../../data/models/session.dart';
 import '../../data/models/visit.dart';
+import '../../data/period.dart';
 import '../../data/rules.dart';
 import '../../data/seed/muscles.dart';
 import '../../theme/text_styles.dart';
@@ -65,29 +64,8 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
       ),
     };
     final a = dk(from), b = dk(to);
-    bool inRange(String k) => k.compareTo(a) >= 0 && k.compareTo(b) < 0;
-    final plan = store.plan(t.id);
-    final done = [
-      for (final e in plan.entries)
-        if (e.value.status == SessionStatus.done && inRange(e.key)) e,
-    ];
-    final visits = (d.visits[t.id] ?? const <Visit>[]).where((v) => inRange(v.date)).toList();
-    final mins = visits.fold(0, (x, v) => x + v.mins);
-    var sets = 0, prs = 0;
-    var volume = 0.0;
-    (String, double)? top;
-    for (final e in done) {
-      prs += e.value.prs.length;
-      for (final x in e.value.ex) {
-        sets += x.logged.isNotEmpty ? x.logged.length : x.sets;
-        for (final l in x.logged) {
-          volume += (l.kg ?? 0) * (l.reps ?? 0);
-          final m = e1rm(l);
-          if (m != null && (top == null || m > top.$2)) top = (x.name, m);
-        }
-      }
-    }
-    final muscles = muscleSets(plan, a, b).entries.toList()..sort((x, y) => y.value - x.value);
+    final p = periodStats(store.plan(t.id), d.visits[t.id] ?? const <Visit>[], a, b);
+    final (mins, sets, volume, prs, top, muscles) = (p.mins, p.sets, p.volume, p.prs, p.top, p.muscles);
     final metric = d.settings.kg;
     final insets = MediaQuery.paddingOf(context);
     const ink = BoltColors.paperInk;
@@ -171,7 +149,7 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
                           rule,
                           Row(
                             children: [
-                              stat('${done.length}', tx('WORKOUTS')),
+                              stat('${p.workouts}', tx('WORKOUTS')),
                               stat(mins == 0 ? '-' : totalTime(mins), tx('GYM TIME')),
                               stat('$sets', tx('SETS')),
                             ],
@@ -179,7 +157,7 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
                           rule,
                           Row(
                             children: [
-                              stat('${visits.length}', tx('VISITS')),
+                              stat('${p.visits}', tx('VISITS')),
                               stat(
                                 volume == 0
                                     ? '-'

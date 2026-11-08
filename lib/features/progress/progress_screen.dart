@@ -84,6 +84,13 @@ class ProgressScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 10),
+            DoorTile(
+              title: tx('Training passport'),
+              sub: tx('A stamp for every month you train. It stays on this phone.'),
+              color: BoltColors.rank,
+              onTap: () => context.push('/passport'),
+            ),
+            const SizedBox(height: 10),
             if (store.currentSeason() case final s?) ...[
               SeasonCard(s: s, plan: plan, today: dk(now)),
               const SizedBox(height: 10),

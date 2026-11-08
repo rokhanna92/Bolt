@@ -21,6 +21,7 @@ import '../features/library/library_screen.dart';
 import '../features/measurements/measurements_screen.dart';
 import '../features/progress/history_screen.dart';
 import '../features/progress/lift_screen.dart';
+import '../features/progress/passport_screen.dart';
 import '../features/progress/progress_screen.dart';
 import '../features/progress/wrap_screen.dart';
 import '../features/plan/plan_screen.dart';
@@ -44,7 +45,19 @@ final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 // The editor, plaque, Atlas (/guide) and settings are shared: solo users and
 // trainees plan for themselves too. Their Library is the /workouts tab.
-const _traineeOnly = {'today', 'plan', 'gym', 'workouts', 'badges', 'me', 'workout', 'wrap', 'history', 'rank'};
+const _traineeOnly = {
+  'today',
+  'plan',
+  'gym',
+  'workouts',
+  'badges',
+  'me',
+  'workout',
+  'wrap',
+  'passport',
+  'history',
+  'rank',
+};
 const _coachOnly = {'roster', 'schedule', 'profile', 'trainee', 'calendar'};
 
 /// Pushed screens: fade in and rise 10 px (350 ms, easeOut).
@@ -184,6 +197,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/progress',
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (c, s) => _enter(s, const ProgressScreen()),
+      ),
+      GoRoute(
+        path: '/passport',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (c, s) => _enter(s, const PassportScreen()),
       ),
       GoRoute(
         path: '/wrap',
