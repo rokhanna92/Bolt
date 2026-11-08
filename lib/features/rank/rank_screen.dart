@@ -15,6 +15,7 @@ import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/rank_emblem.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 
 /// "GOLD II", in the app language.
@@ -44,10 +45,10 @@ class RankCard extends StatelessWidget {
     final r = rank;
     return Tap(
       onTap: () => context.push('/rank'),
-      child: BoltBox(
-        color: BoltColors.surface1,
-        stroke: const Stroke(BoltColors.lineSoft),
-        radius: 14,
+      child: Stage(
+        color: _stageColor(r.tier),
+        blend: BoltColors.rank,
+        radius: 18,
         padding: const EdgeInsets.fromLTRB(12, 10, 14, 10),
         child: Row(
           children: [
@@ -155,40 +156,33 @@ class RankScreen extends ConsumerWidget {
       child: ListView(
         padding: EdgeInsets.fromLTRB(20, insets.top + 16, 20, 60 + insets.bottom),
         children: [
-          Row(
-            children: [
-              BackBox(onTap: () => context.pop()),
-              const SizedBox(width: 12),
-              Kicker(tx('RANK')),
-            ],
-          ),
+          PageHead(onBack: () => context.pop(), kicker: tx('RANK'), title: tx('Your rank')),
           const SizedBox(height: 18),
-          Center(
-            child: PopIn(
-              duration: const Duration(milliseconds: 500),
-              child: RankEmblem(step: r.step, size: 170),
-            ),
-          ),
-          const SizedBox(height: 10),
-          RankName(step: r.step, size: 34, center: true),
-          const SizedBox(height: 6),
-          Text(
-            !r.placed
-                ? placeHint(t)
-                : tx('Score {score} of {top}', {'score': r.score.toStringAsFixed(2), 'top': kAtlasScore.round()}),
-            textAlign: TextAlign.center,
-            style: BoltText.a(13, weight: 600, color: BoltColors.muted, height: 1.4),
-          ),
-          if (r.placed && r.step < kAtlas) ...[
-            const SizedBox(height: 16),
-            BoltBox(
-              color: BoltColors.surface1,
-              stroke: const Stroke(BoltColors.lineSoft),
-              radius: 18,
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+          Stage(
+            color: _stageColor(r.tier),
+            blend: BoltColors.rank,
+            padding: const EdgeInsets.fromLTRB(20, 26, 20, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: PopIn(
+                    duration: const Duration(milliseconds: 500),
+                    child: RankEmblem(step: r.step, size: 170),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                RankName(step: r.step, size: 38, center: true),
+                const SizedBox(height: 6),
+                Text(
+                  !r.placed
+                      ? placeHint(t)
+                      : tx('Score {score} of {top}', {'score': r.score.toStringAsFixed(2), 'top': kAtlasScore.round()}),
+                  textAlign: TextAlign.center,
+                  style: BoltText.a(13, weight: 600, color: BoltColors.muted, height: 1.4),
+                ),
+                if (r.placed && r.step < kAtlas) ...[
+                  const SizedBox(height: 22),
                   Row(
                     children: [
                       Expanded(
@@ -215,36 +209,39 @@ class RankScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                ],
+                if (r.step >= kAtlas) ...[
+                  const SizedBox(height: 12),
                   Text(
-                    options.isEmpty
-                        ? tx('No single lift gets you there now: raise all three together.')
-                        : tx('Any one of these gets you there:'),
-                    style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
+                    tx('Atlas. Maybe once in a thousand years. There is nothing above this.'),
+                    textAlign: TextAlign.center,
+                    style: BoltText.a(14, weight: 800, color: BoltColors.neon, height: 1.4),
                   ),
-                  for (final (lift, add) in options) ...[
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Expanded(child: Text(tx(lift), style: BoltText.a(14, weight: 700))),
-                        Text(
-                          _gain(r.lifts.firstWhere((l) => l.name == lift), add, kg, reps),
-                          style: BoltText.m(12, weight: 700, color: BoltColors.neon),
-                        ),
-                      ],
+                ],
+              ],
+            ),
+          ),
+          // What moves you up: one lift is enough.
+          if (r.placed && r.step < kAtlas) ...[
+            Section(
+              tx('To {rank}', {'rank': rankText(r.step + 1)}),
+              sub: options.isEmpty
+                  ? tx('No single lift gets you there now: raise all three together.')
+                  : tx('Any one of these gets you there:'),
+            ),
+            if (options.isNotEmpty)
+              RowGroup(
+                children: [
+                  for (final (lift, add) in options)
+                    LinkRow(
+                      title: tx(lift),
+                      trailing: Text(
+                        _gain(r.lifts.firstWhere((l) => l.name == lift), add, kg, reps),
+                        style: BoltText.m(12, weight: 700, color: BoltColors.rank),
+                      ),
                     ),
-                  ],
                 ],
               ),
-            ),
-          ],
-          if (r.step >= kAtlas) ...[
-            const SizedBox(height: 10),
-            Text(
-              tx('Atlas. Maybe once in a thousand years. There is nothing above this.'),
-              textAlign: TextAlign.center,
-              style: BoltText.a(14, weight: 800, color: BoltColors.neon, height: 1.4),
-            ),
           ],
           const SizedBox(height: 18),
           if (r.placed)
@@ -277,156 +274,147 @@ class RankScreen extends ConsumerWidget {
             ),
           ],
           if (r.placed) ...[
-            const SizedBox(height: 24),
-            SectionTitle(tx('What counts')),
-            const SizedBox(height: 4),
-            Text(
-              tx(
+            Section(
+              tx('What counts'),
+              sub: tx(
                 'Your best three main lifts for your bodyweight: a max you set, or your best set, days logged as done included.',
               ),
-              style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
             ),
-            const SizedBox(height: 8),
-            for (final l in r.lifts)
-              Tap(
-                onTap: () => context.push('/lift/${Uri.encodeComponent(l.name)}'),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: const BoxDecoration(
-                    border: Border(top: BorderSide(color: BoltColors.divider)),
-                  ),
-                  child: Row(
-                    children: [
-                      RankEmblem(step: stepOf(l.pos), size: 34),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(tx(l.name), style: BoltText.a(14, weight: 700)),
-                            const SizedBox(height: 2),
-                            Text(
-                              [
-                                if (l.reps != null)
-                                  reps(l.reps!)
-                                else ...[
-                                  kg(l.maxKg),
-                                  tx('{x} bodyweight', {'x': '${(l.maxKg / t.body.weightKg!).toStringAsFixed(2)}×'}),
-                                ],
-                                tx(kStrengthLevels[l.pos.floor().clamp(0, 4)]),
-                                rankText(stepOf(l.pos)),
-                              ].join(' · '),
-                              style: BoltText.a(11, color: BoltColors.muted),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Chevron(size: 16),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-          const SizedBox(height: 24),
-          SectionTitle(tx('How rank works')),
-          const SizedBox(height: 8),
-          for (final (n, line) in [
-            (
-              1,
-              tx(
-                'Each main lift\'s best: a max you set, or your best set as a one-rep max, weight × (1 + reps ÷ 30). 100 kg for 5 is about 117 kg.',
-              ),
-            ),
-            (
-              2,
-              tx(
-                'That max divided by your bodyweight is placed on strength standards for your sex: Beginner, Novice, Intermediate, Advanced, Elite. On the bench that is {n}, {i}, {a} and {e} bodyweight for each step up.',
-                {'n': x(bench[0]), 'i': x(bench[1]), 'a': x(bench[2]), 'e': x(bench[3])},
-              ),
-            ),
-            (
-              3,
-              tx('Muscle-ups, pull-ups, chin-ups and dips count by your best set of reps instead, on the same scale.'),
-            ),
-            (
-              4,
-              tx(
-                'Each lift scores 0 to 6: 1 is Novice, 2 Intermediate, 3 Advanced, 4 Elite, and two more bands past Elite.',
-              ),
-            ),
-            (5, tx('Your best three lifts are averaged into your score.')),
-            (
-              6,
-              tx(
-                'Scores 0 to 5 climb Plastic I to Immortal III in 27 steps. 5 is Olympia, the greatest lifters there have been. 6 is Atlas: world-record strength on all three at once.',
-              ),
-            ),
-          ]) ...[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            RowGroup(
               children: [
-                SizedBox(
-                  width: 22,
-                  child: Text('$n', style: BoltText.m(13, weight: 700, color: BoltColors.neon)),
-                ),
-                Expanded(child: Text(line, style: BoltText.a(13, height: 1.45))),
+                for (final l in r.lifts)
+                  LinkRow(
+                    onTap: () => context.push('/lift/${Uri.encodeComponent(l.name)}'),
+                    lead: RankEmblem(step: stepOf(l.pos), size: 34),
+                    title: tx(l.name),
+                    sub: [
+                      if (l.reps != null)
+                        reps(l.reps!)
+                      else ...[
+                        kg(l.maxKg),
+                        tx('{x} bodyweight', {'x': '${(l.maxKg / t.body.weightKg!).toStringAsFixed(2)}×'}),
+                      ],
+                      tx(kStrengthLevels[l.pos.floor().clamp(0, 4)]),
+                      rankText(stepOf(l.pos)),
+                    ].join(' · '),
+                  ),
               ],
             ),
-            const SizedBox(height: 8),
           ],
-          const SizedBox(height: 16),
-          SectionTitle(tx('The ladder')),
-          const SizedBox(height: 4),
-          Text(
-            tx(
+          Section(tx('How rank works')),
+          Paper(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (n, line) in [
+                  (
+                    1,
+                    tx(
+                      'Each main lift\'s best: a max you set, or your best set as a one-rep max, weight × (1 + reps ÷ 30). 100 kg for 5 is about 117 kg.',
+                    ),
+                  ),
+                  (
+                    2,
+                    tx(
+                      'That max divided by your bodyweight is placed on strength standards for your sex: Beginner, Novice, Intermediate, Advanced, Elite. On the bench that is {n}, {i}, {a} and {e} bodyweight for each step up.',
+                      {'n': x(bench[0]), 'i': x(bench[1]), 'a': x(bench[2]), 'e': x(bench[3])},
+                    ),
+                  ),
+                  (
+                    3,
+                    tx(
+                      'Muscle-ups, pull-ups, chin-ups and dips count by your best set of reps instead, on the same scale.',
+                    ),
+                  ),
+                  (
+                    4,
+                    tx(
+                      'Each lift scores 0 to 6: 1 is Novice, 2 Intermediate, 3 Advanced, 4 Elite, and two more bands past Elite.',
+                    ),
+                  ),
+                  (5, tx('Your best three lifts are averaged into your score.')),
+                  (
+                    6,
+                    tx(
+                      'Scores 0 to 5 climb Plastic I to Immortal III in 27 steps. 5 is Olympia, the greatest lifters there have been. 6 is Atlas: world-record strength on all three at once.',
+                    ),
+                  ),
+                ]) ...[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 30,
+                        child: Text('$n', style: BoltText.display(20, color: Tone.paper().accent)),
+                      ),
+                      Expanded(
+                        child: Text(line, style: BoltText.a(13, color: BoltColors.paperSoft, height: 1.45)),
+                      ),
+                    ],
+                  ),
+                  if (n < 6) const SizedBox(height: 12),
+                ],
+              ],
+            ),
+          ),
+          Section(
+            tx('The ladder'),
+            sub: tx(
               'Everyone starts at Bodyweight. Plastic to Immortal have three divisions each. Olympia is for the greatest lifters there have been; Atlas is for a titan, maybe once in a thousand years. Levels count what you do, rank counts what you can lift.',
             ),
-            style: BoltText.a(12, color: BoltColors.muted, height: 1.4),
           ),
-          const SizedBox(height: 10),
-          LayoutBuilder(
-            builder: (context, box) {
-              // Four to a row, filling the width.
-              final w = (box.maxWidth - 3 * 8) / 4;
-              return Wrap(
-                spacing: 8,
-                runSpacing: 12,
-                children: [
-                  for (var tier = 0; tier < kTiers.length; tier++)
-                    SizedBox(
-                      width: w,
-                      child: Opacity(
-                        // Ranks still ahead stay faint, so none looks earned.
-                        opacity: tier <= r.tier ? 1 : .3,
-                        child: Column(
-                          children: [
-                            RankEmblem(step: _ladderStep(tier), size: 44),
-                            const SizedBox(height: 4),
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                tx(kTiers[tier]),
-                                maxLines: 1,
-                                style: BoltText.a(
-                                  11,
-                                  weight: tier == r.tier ? 900 : 600,
-                                  color: tier == r.tier && tier > 0 ? tierColor(tier) : BoltColors.textSoft,
+          BoltBox(
+            color: BoltColors.surface1,
+            radius: 20,
+            padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+            child: LayoutBuilder(
+              builder: (context, box) {
+                // Four to a row, filling the width.
+                final w = (box.maxWidth - 3 * 8) / 4;
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 12,
+                  children: [
+                    for (var tier = 0; tier < kTiers.length; tier++)
+                      SizedBox(
+                        width: w,
+                        child: Opacity(
+                          // Ranks still ahead stay faint, so none looks earned.
+                          opacity: tier <= r.tier ? 1 : .3,
+                          child: Column(
+                            children: [
+                              RankEmblem(step: _ladderStep(tier), size: 44),
+                              const SizedBox(height: 4),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  tx(kTiers[tier]),
+                                  maxLines: 1,
+                                  style: BoltText.a(
+                                    11,
+                                    weight: tier == r.tier ? 900 : 600,
+                                    color: tier == r.tier && tier > 0 ? tierColor(tier) : BoltColors.textSoft,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              );
-            },
+                  ],
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
 }
+
+/// The color a rank's stage glows with: its tier, or the rank color for
+/// Bodyweight, whose grey would read as switched off.
+Color _stageColor(int tier) => tier == 0 ? BoltColors.rank : tierColor(tier);
 
 /// What one option in the next-rank box adds: "+2.5 kg → 102.5 kg", or
 /// "+2 → 10 reps" on a bodyweight lift.

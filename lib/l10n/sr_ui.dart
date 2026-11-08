@@ -1141,6 +1141,7 @@ const kSrUi = <String, String>{
   'Rest on the lock screen': 'Odmor na zaključanom ekranu',
   'The rest counts down on the lock screen with −15, +15 and Skip, a chime in your headphones and a buzz in your pocket.': 'Odmor se odbrojava na zaključanom ekranu sa −15, +15 i Preskoči, uz zvono u slušalicama i vibraciju u džepu.',
   'Your rank': 'Tvoj rang',
+  'To {rank}': 'Do {rank}',
   'From Bodyweight to Olympia, by what you lift for your bodyweight. Share it.': 'Od Sopstvene težine do Olimpije, po tome koliko podižeš za svoju težinu. Podeli ga.',
   'Every workout set by set, with your latest records.': 'Svaki trening serija po serija, sa najnovijim rekordima.',
   'Feel it': 'Oseti to',
