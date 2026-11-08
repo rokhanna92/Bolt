@@ -52,7 +52,7 @@ class ThemeScreen extends ConsumerWidget {
                   _Tile(
                     name: tx(t.name),
                     on: active == t.id,
-                    preview: _Preview(accent: t.accent, page: t.page),
+                    preview: _Preview(accent: t.accent, page: t.page, rich: t.id == 'apex'),
                     onTap: () {
                       Haptics.play(Feel.tap);
                       store.setTheme(t.id);
@@ -120,10 +120,13 @@ class _Tile extends StatelessWidget {
 /// A little Today in a theme's colors: a greeting, a card with a bar and a
 /// button.
 class _Preview extends StatelessWidget {
-  const _Preview({required this.accent, required this.page});
+  const _Preview({required this.accent, required this.page, this.rich = false});
 
   final Color accent;
   final Color page;
+
+  /// Apex: the card glows and the context colors show along the top.
+  final bool rich;
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +142,16 @@ class _Preview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          line(34, accent.withAlpha(0xB3), 4),
+          Row(
+            children: [
+              line(34, accent.withAlpha(0xB3), 4),
+              if (rich)
+                for (final c in const [Color(0xFFB79AFF), Color(0xFF7EDCC4), Color(0xFFFFBB91)]) ...[
+                  const SizedBox(width: 4),
+                  line(10, c, 4),
+                ],
+            ],
+          ),
           const SizedBox(height: 6),
           line(70, BoltColors.text, 9),
           const SizedBox(height: 10),
@@ -149,6 +161,17 @@ class _Preview extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: BoltColors.surface1,
+                gradient: rich
+                    ? LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color.alphaBlend(const Color(0x407EDCC4), BoltColors.surface1),
+                          BoltColors.surface1,
+                          Color.alphaBlend(accent.withAlpha(0x30), BoltColors.surface1),
+                        ],
+                      )
+                    : null,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: accent.withAlpha(0x59)),
               ),
