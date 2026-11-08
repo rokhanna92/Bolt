@@ -670,9 +670,13 @@ void main() {
     await tapGate('Save check-in');
     expect(c.read(boltProvider).trainees.single.readiness.keys, ['2026-10-16']);
     expect(gate(find.textContaining('READINESS · ')), findsOneWidget);
+    expect(gate(find.text('ESTIMATE')), findsOneWidget);
     await tapGate('Into Bolt');
     expect(find.text('Good evening, Dani'), findsNothing);
     expect(find.text('Into Bolt'), findsNothing);
+    // The score on Today says it is worked out, and a tap says how.
+    await tapText(tester, 'ESTIMATE');
+    expect(find.text('An estimate'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await unmount(tester);
   });

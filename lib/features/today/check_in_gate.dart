@@ -12,6 +12,7 @@ import '../../data/readiness.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/common.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 import 'readiness_card.dart';
 
@@ -230,6 +231,8 @@ class _CheckInGateState extends ConsumerState<CheckInGate> with SingleTickerProv
         const SizedBox(height: 16),
         Kicker('${tx('READINESS')} · ${tx(kReadinessNames[level]!).toUpperCase()}', size: 10, spacing: .1, color: tone),
         const SizedBox(height: 8),
+        const EstimateTag(),
+        const SizedBox(height: 10),
         Text(
           tx((workout ? kReadinessText : kRestReadinessText)[level]!),
           textAlign: TextAlign.center,

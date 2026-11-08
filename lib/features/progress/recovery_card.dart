@@ -55,7 +55,15 @@ class RecoveryCard extends StatelessWidget {
     final text = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!big) ...[Kicker(tx('RECOVERY'), size: 9, spacing: .1), const SizedBox(height: 6)],
+        if (!big) ...[
+          Row(
+            children: [
+              Expanded(child: Kicker(tx('RECOVERY'), size: 9, spacing: .1)),
+              if (lines.isNotEmpty) const EstimateTag(),
+            ],
+          ),
+          const SizedBox(height: 6),
+        ],
         if (lines.isEmpty)
           Text(
             tx('Log a workout and each muscle shows how recovered it is.'),
@@ -77,6 +85,7 @@ class RecoveryCard extends StatelessWidget {
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (lines.isNotEmpty) const Align(alignment: Alignment.centerRight, child: EstimateTag()),
                 MuscleMap(recovery: r),
                 const SizedBox(height: 12),
                 text,

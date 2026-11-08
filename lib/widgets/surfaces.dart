@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../theme/text_styles.dart';
 import '../theme/tokens.dart';
+import 'bolt_sheet.dart';
 import 'box.dart';
 import 'common.dart';
 import 'motion.dart';
@@ -449,6 +451,40 @@ class FigureGrid extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// Marks a worked-out number as an estimate; a tap says how Bolt gets it.
+class EstimateTag extends StatelessWidget {
+  const EstimateTag({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = Tone.of(context);
+    return Tap(
+      onTap: () => showBoltSheet<void>(
+        context,
+        (context) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(tx('An estimate'), style: BoltText.display(26)),
+            const SizedBox(height: 10),
+            Text(
+              tx(
+                'Bolt works these numbers out from your check-ins and logged workouts. They are a guide, not a measurement, and never medical advice.',
+              ),
+              style: BoltText.a(14, height: 1.5),
+            ),
+          ],
+        ),
+      ),
+      child: BoltBox(
+        radius: 99,
+        stroke: Stroke(tone.muted),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        child: Text(tx('ESTIMATE'), style: BoltText.m(9, weight: 700, spacing: .1, color: tone.muted)),
       ),
     );
   }

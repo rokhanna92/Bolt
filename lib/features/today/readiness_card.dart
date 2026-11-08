@@ -105,11 +105,18 @@ class ReadinessCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Kicker(
-            level == null ? tx('READINESS') : '${tx('READINESS')} · ${tx(kReadinessNames[level]!).toUpperCase()}',
-            size: 9,
-            spacing: .1,
-            color: tone,
+          Row(
+            children: [
+              Expanded(
+                child: Kicker(
+                  level == null ? tx('READINESS') : '${tx('READINESS')} · ${tx(kReadinessNames[level]!).toUpperCase()}',
+                  size: 9,
+                  spacing: .1,
+                  color: tone,
+                ),
+              ),
+              if (level != null) const EstimateTag(),
+            ],
           ),
           const SizedBox(height: 6),
           if (level == null)
