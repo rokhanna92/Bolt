@@ -1143,6 +1143,7 @@ const kSrUi = <String, String>{
   'Your rank': 'Tvoj rang',
   'To {rank}': 'Do {rank}',
   'FEATURED': 'IZDVOJENO',
+  'YOUR COLLECTION': 'TVOJA KOLEKCIJA',
   'From Bodyweight to Olympia, by what you lift for your bodyweight. Share it.': 'Od Sopstvene težine do Olimpije, po tome koliko podižeš za svoju težinu. Podeli ga.',
   'Every workout set by set, with your latest records.': 'Svaki trening serija po serija, sa najnovijim rekordima.',
   'Feel it': 'Oseti to',

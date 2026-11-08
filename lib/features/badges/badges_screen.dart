@@ -11,7 +11,6 @@ import '../../data/seed/badges.dart';
 import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/badge_medal.dart';
-import '../../widgets/box.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/surfaces.dart';
@@ -39,21 +38,21 @@ class BadgesScreen extends ConsumerWidget {
         top: 16,
         bottom: 40,
         children: [
-          Row(
-            children: [
-              BackBox(onTap: () => context.pop()),
-              const SizedBox(width: 12),
-              Kicker(tx('ACHIEVEMENTS')),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Expanded(child: Text(tx('Trophy rack'), style: BoltText.a(30, weight: 900, width: 112, spacing: -.02))),
-              Text('$count / ${kBadges.length}', style: BoltText.m(14, weight: 700, color: BoltColors.neon)),
-            ],
+          PageHead(onBack: () => context.pop(), kicker: tx('ACHIEVEMENTS'), title: tx('Trophy rack')),
+          const SizedBox(height: 18),
+          Stage(
+            color: BoltColors.heat,
+            watermark: '★',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Kicker(tx('YOUR COLLECTION'), size: 10),
+                const SizedBox(height: 10),
+                BigFigure('$count', unit: '/ ${kBadges.length}', size: 64),
+                const SizedBox(height: 14),
+                _Progress(value: count / kBadges.length, height: 6, fill: BoltColors.heat),
+              ],
+            ),
           ),
           const SizedBox(height: 26),
           _heading(tx('Achieved'), '$count', BoltColors.neon),
@@ -73,16 +72,19 @@ class BadgesScreen extends ConsumerWidget {
             const SizedBox(height: 26),
             _heading(tx('Still to earn'), '${kBadges.length - count}', BoltColors.muted),
             const SizedBox(height: 14),
-            BoltBox(
-              color: BoltColors.surface1,
-              radius: 18,
-              padding: const EdgeInsets.all(16),
+            Stage(
+              color: BoltColors.neon,
+              padding: const EdgeInsets.all(18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Kicker('${tx('CLOSEST')} · ${badgeLeftText(next, stats).toUpperCase()}', size: 10),
+                  Kicker(
+                    '${tx('CLOSEST')} · ${badgeLeftText(next, stats).toUpperCase()}',
+                    size: 10,
+                    color: BoltColors.neon,
+                  ),
                   const SizedBox(height: 8),
-                  Text(tx(next.name), style: BoltText.a(18, weight: 800)),
+                  Text(tx(next.name), style: BoltText.display(28)),
                   const SizedBox(height: 8),
                   Text(tx(next.desc), style: BoltText.a(13, color: BoltColors.muted)),
                   const SizedBox(height: 12),
@@ -108,8 +110,8 @@ class BadgesScreen extends ConsumerWidget {
     crossAxisAlignment: CrossAxisAlignment.baseline,
     textBaseline: TextBaseline.alphabetic,
     children: [
-      Expanded(child: SectionTitle(title, size: 20)),
-      Text(count, style: BoltText.m(14, weight: 700, color: color)),
+      Expanded(child: Text(title, style: BoltText.headline(24))),
+      Text(count, style: BoltText.display(24, color: color)),
     ],
   );
 
@@ -125,14 +127,11 @@ class BadgesScreen extends ConsumerWidget {
   ) {
     final all = kBadges.where((b) => b.key == key);
     return [
-      const SizedBox(height: 26),
-      Row(
-        children: [
-          Expanded(child: Kicker(tx(title).toUpperCase(), size: 10, spacing: .1)),
-          Text('${all.where(on).length} / ${all.length}', style: BoltText.m(10, color: BoltColors.muted)),
-        ],
+      Section(
+        tx(title),
+        trailing: Text('${all.where(on).length} / ${all.length}', style: BoltText.m(11, color: BoltColors.muted)),
       ),
-      const SizedBox(height: 14),
+      const SizedBox(height: 4),
       ..._grid(locked, stats, on, pct),
     ];
   }
