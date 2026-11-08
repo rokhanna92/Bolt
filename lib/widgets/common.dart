@@ -213,6 +213,7 @@ class SquareButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final i = icon;
+    final tone = Tone.of(context);
     return Semantics(
       label:
           semanticLabel ??
@@ -228,13 +229,13 @@ class SquareButton extends StatelessWidget {
           width: size,
           height: size,
           radius: radius,
-          stroke: const Stroke(BoltColors.line),
+          stroke: Stroke(tone.paper ? BoltColors.paperLine : BoltColors.line),
           alignment: Alignment.center,
           child:
               child ??
               (i != null
-                  ? BoltIcon(i, size: size * .5)
-                  : Text(label ?? '', style: BoltText.a(fontSize, color: BoltColors.text, height: 1))),
+                  ? BoltIcon(i, size: size * .5, color: tone.text)
+                  : Text(label ?? '', style: BoltText.a(fontSize, color: tone.text, height: 1))),
         ),
       ),
     );
@@ -608,12 +609,7 @@ class BluePanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!BoltColors.blue) return child;
-    return BoltBox(
-      color: BoltColors.surface1,
-      radius: 18,
-      padding: const EdgeInsets.all(12),
-      child: child,
-    );
+    return BoltBox(color: BoltColors.surface1, radius: 18, padding: const EdgeInsets.all(12), child: child);
   }
 }
 

@@ -15,6 +15,7 @@ import '../../widgets/calendar_grid.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/bolt_sheet.dart';
+import '../../widgets/surfaces.dart';
 import '../../widgets/tap.dart';
 import '../workouts/deload_sheet.dart';
 import '../workouts/program_sheet.dart';
@@ -96,20 +97,82 @@ class PlanScreen extends ConsumerWidget {
     return ScreenScroll(
       children: [
         Kicker(tx('PLAN')),
-        const SizedBox(height: 4),
-        Row(
-          children: [
-            Text(monthsLong[month.month - 1], style: BoltText.a(30, weight: 900, width: 112, spacing: -.02)),
-            const SizedBox(width: 8),
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text('${month.year}', style: BoltText.m(13, color: BoltColors.muted)),
-            ),
-            const Spacer(),
-            SquareButton(onTap: () => ref.read(planMonthProvider.notifier).shift(-1), icon: 'back'),
-            const SizedBox(width: 6),
-            SquareButton(onTap: () => ref.read(planMonthProvider.notifier).shift(1), icon: 'chevron'),
-          ],
+        const SizedBox(height: 10),
+        // The planner on paper: month, split and auto-fill.
+        Paper(
+          padding: const EdgeInsets.fromLTRB(20, 18, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${month.year}', style: BoltText.m(12, weight: 700, color: BoltColors.paperMuted)),
+                        Text(
+                          monthsLong[month.month - 1],
+                          maxLines: 1,
+                          style: BoltText.display(tsz(monthsLong[month.month - 1], 46), color: BoltColors.paperInk),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SquareButton(onTap: () => ref.read(planMonthProvider.notifier).shift(-1), icon: 'back'),
+                  const SizedBox(width: 6),
+                  SquareButton(onTap: () => ref.read(planMonthProvider.notifier).shift(1), icon: 'chevron'),
+                ],
+              ),
+              if (moving == null) ...[
+                const SizedBox(height: 16),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Tap(
+                          onTap: () => showSplitSheet(t.id),
+                          child: BoltBox(
+                            radius: 14,
+                            color: BoltColors.paperWell,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Kicker(tx('YOUR SPLIT · TAP TO CHANGE'), size: 9, spacing: .1),
+                                const SizedBox(height: 2),
+                                Text(
+                                  tx(splitOf(d, t.split).name),
+                                  style: BoltText.a(14, weight: 800, color: BoltColors.paperInk),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Tap(
+                        onTap: () => store.autoFill(t.id),
+                        scale: .96,
+                        child: BoltBox(
+                          radius: 14,
+                          color: BoltColors.paperInk,
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          alignment: Alignment.center,
+                          child: Text(
+                            tx('Auto-fill 3 wks'),
+                            style: BoltText.a(13, weight: 800, color: BoltColors.neon),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
         if (moving != null) ...[
           const SizedBox(height: 14),
@@ -153,44 +216,6 @@ class PlanScreen extends ConsumerWidget {
           ),
         ],
         if (moving == null) ...[
-          const SizedBox(height: 14),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: Tap(
-                    onTap: () => showSplitSheet(t.id),
-                    child: BoltBox(
-                      radius: 14,
-                      stroke: const Stroke(BoltColors.line),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Kicker(tx('YOUR SPLIT · TAP TO CHANGE'), size: 9, spacing: .1),
-                          const SizedBox(height: 2),
-                          Text(tx(splitOf(d, t.split).name), style: BoltText.a(13, weight: 800)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Tap(
-                  onTap: () => store.autoFill(t.id),
-                  scale: .96,
-                  child: BoltBox(
-                    radius: 14,
-                    color: BoltColors.neon,
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    alignment: Alignment.center,
-                    child: Text(tx('Auto-fill 3 wks'), style: BoltText.a(13, weight: 800, color: BoltColors.onNeon)),
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -269,10 +294,11 @@ class PlanScreen extends ConsumerWidget {
             ],
           ),
         ),
-        const SizedBox(height: 26),
-        SectionTitle(tx('Coming up')),
-        const SizedBox(height: 10),
-        for (final k in up.take(5)) ...[_UpRow(dayKey: k, session: plan[k]!), const SizedBox(height: 8)],
+        Section(tx('Coming up')),
+        for (final (i, k) in up.take(5).indexed) ...[
+          _UpRow(dayKey: k, session: plan[k]!, lead: i == 0),
+          const SizedBox(height: 8),
+        ],
         if (up.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -287,39 +313,45 @@ class PlanScreen extends ConsumerWidget {
 }
 
 class _UpRow extends StatelessWidget {
-  const _UpRow({required this.dayKey, required this.session});
+  const _UpRow({required this.dayKey, required this.session, this.lead = false});
 
   final String dayKey;
   final Session session;
 
+  /// The next one: big, lit, with its letter behind it.
+  final bool lead;
+
   @override
   Widget build(BuildContext context) {
+    final title = tx(session.title);
+    final body = Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Kicker(fmtDay(dayKey).toUpperCase(), size: 10, spacing: .1, color: lead ? BoltColors.neon : null),
+              SizedBox(height: lead ? 8 : 3),
+              Text(
+                lead ? title.toUpperCase() : title,
+                style: lead ? BoltText.display(tsz(title, 34)) : BoltText.a(17, weight: 800),
+              ),
+              const SizedBox(height: 4),
+              Text(tx(session.focus), style: BoltText.a(12, color: BoltColors.muted)),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        StatusPill(status: session.status, label: traineeLabel(session.status)),
+      ],
+    );
     return Tap(
       onTap: () => showDaySheet(dayKey),
       scale: .98,
-      child: BoltBox(
-        color: BoltColors.surface1,
-        radius: 16,
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Kicker(fmtDay(dayKey).toUpperCase(), size: 10, spacing: .1),
-                  const SizedBox(height: 3),
-                  Text(tx(session.title), style: BoltText.a(18, weight: 800)),
-                  const SizedBox(height: 3),
-                  Text(tx(session.focus), style: BoltText.a(12, color: BoltColors.muted)),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            StatusPill(status: session.status, label: traineeLabel(session.status)),
-          ],
-        ),
-      ),
+      child: lead
+          ? Stage(color: BoltColors.neon, watermark: title.isEmpty ? null : title[0].toUpperCase(), child: body)
+          : BoltBox(color: BoltColors.surface1, radius: 18, padding: const EdgeInsets.all(14), child: body),
     );
   }
 }
@@ -351,8 +383,8 @@ class _PlanTool extends StatelessWidget {
       scale: .97,
       child: BoltBox(
         color: BoltColors.surface1,
-        stroke: Stroke(on ? BoltColors.neon : BoltColors.lineSoft, on ? 1.5 : 1),
-        radius: 14,
+        stroke: on ? Stroke(BoltColors.neon, 1.5) : Stroke.none,
+        radius: 16,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         child: Row(
           children: [
