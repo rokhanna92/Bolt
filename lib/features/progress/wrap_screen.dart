@@ -14,6 +14,7 @@ import '../../theme/text_styles.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/common.dart';
 import '../../widgets/forms.dart';
+import '../../widgets/surfaces.dart';
 import '../workout/summary_screen.dart' show shareCard;
 
 /// A month, year or season in Bolt as one card: workouts, gym time, sets,
@@ -84,26 +85,40 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
     final muscles = muscleSets(plan, a, b).entries.toList()..sort((x, y) => y.value - x.value);
     final metric = d.settings.kg;
     final insets = MediaQuery.paddingOf(context);
+    const ink = BoltColors.paperInk;
+    final deep = Tone.paper().accent;
     Widget stat(String v, String l) => Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(v, style: BoltText.a(24, weight: 900, color: BoltColors.onNeon)),
-          Text(l, style: BoltText.m(9, weight: 700, spacing: .1, color: BoltColors.onNeon.withValues(alpha: .7))),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l, style: BoltText.m(9, weight: 700, spacing: .1, color: BoltColors.paperMuted)),
+            const SizedBox(height: 4),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(v, maxLines: 1, style: BoltText.display(30, color: ink)),
+            ),
+          ],
+        ),
       ),
     );
-    Widget line(String k, String v) => Padding(
-      padding: const EdgeInsets.only(top: 10),
+    Widget line(String k, String v) => Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: BoltColors.paperLine)),
+      ),
       child: Row(
         children: [
           Expanded(
-            child: Text(k, style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.onNeon)),
+            child: Text(k, style: BoltText.m(10, weight: 700, spacing: .1, color: BoltColors.paperMuted)),
           ),
-          Text(v, style: BoltText.a(15, weight: 800, color: BoltColors.onNeon)),
+          Text(v, style: BoltText.a(14, weight: 800, color: ink)),
         ],
       ),
     );
+    const rule = Divider(height: 1, thickness: 1, color: BoltColors.paperLine);
 
     return BoltPage(
       child: SingleChildScrollView(
@@ -111,14 +126,8 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                BackBox(onTap: () => context.pop()),
-                const SizedBox(width: 12),
-                Kicker(tx('YOUR WRAP')),
-              ],
-            ),
-            const SizedBox(height: 14),
+            PageHead(onBack: () => context.pop(), kicker: tx('YOUR WRAP'), title: tx('Your story in Bolt')),
+            const SizedBox(height: 16),
             ChoiceChips(
               options: ['month', 'last', 'year', if (season != null) 'season'],
               labels: const {'month': 'This month', 'last': 'Last month', 'year': 'This year', 'season': 'Season'},
@@ -126,56 +135,66 @@ class _WrapScreenState extends ConsumerState<WrapScreen> {
               onSelect: (p) => setState(() => _period = p),
             ),
             const SizedBox(height: 16),
+            // The poster on paper: what you see is what gets shared.
             RepaintBoundary(
               key: _card,
               child: Container(
-                padding: const EdgeInsets.all(22),
-                decoration: BoxDecoration(color: BoltColors.neon, borderRadius: BorderRadius.circular(26)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(color: BoltColors.paper, borderRadius: BorderRadius.circular(26)),
+                child: Stack(
                   children: [
-                    Row(
-                      children: [
-                        Text('BOLT', style: BoltText.a(18, weight: 900, width: 125, color: BoltColors.onNeon)),
-                        const Spacer(),
-                        Text(tx('WRAP'), style: BoltText.m(11, weight: 700, color: BoltColors.onNeon)),
-                      ],
+                    Watermark('B', color: ink.withAlpha(0x0D), size: 260),
+                    Padding(
+                      padding: const EdgeInsets.all(22),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Text('BOLT.', style: BoltText.display(20, color: ink)),
+                              const Spacer(),
+                              Text(tx('WRAP'), style: BoltText.m(11, weight: 700, color: BoltColors.paperMuted)),
+                            ],
+                          ),
+                          const SizedBox(height: 26),
+                          Text(label.toUpperCase(), style: BoltText.display(tsz(label, 52), color: ink, height: .92)),
+                          const SizedBox(height: 6),
+                          Text(t.name, style: BoltText.a(14, weight: 700, color: deep)),
+                          const SizedBox(height: 18),
+                          rule,
+                          Row(
+                            children: [
+                              stat('${done.length}', tx('WORKOUTS')),
+                              stat(mins == 0 ? '-' : totalTime(mins), tx('GYM TIME')),
+                              stat('$sets', tx('SETS')),
+                            ],
+                          ),
+                          rule,
+                          Row(
+                            children: [
+                              stat('${visits.length}', tx('VISITS')),
+                              stat(
+                                volume == 0
+                                    ? '-'
+                                    : metric
+                                    ? '${(volume / 1000).toStringAsFixed(1)} t'
+                                    : '${(volume * 2.20462).round()} lb',
+                                tx('LIFTED'),
+                              ),
+                              stat('$prs', tx('PRS')),
+                            ],
+                          ),
+                          if (top case final x?)
+                            line(tx('TOP LIFT'), '${tx(x.$1)} · ${fmtWeight(x.$2, metric: metric)}'),
+                          if (muscles.firstOrNull case final m?)
+                            line(
+                              tx('MOST TRAINED'),
+                              '${tx(kMuscles[m.key]?.name ?? m.key)} · ${plural(m.value, 'set')}',
+                            ),
+                          line(tx('BEST STREAK'), tx('{n} wk', {'n': t.stats.bestStreak})),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 18),
-                    Text(
-                      label.toUpperCase(),
-                      style: BoltText.a(tsz(label, 44), weight: 900, width: 115, height: .95, color: BoltColors.onNeon),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(t.name, style: BoltText.a(14, weight: 700, color: BoltColors.onNeon.withValues(alpha: .8))),
-                    const SizedBox(height: 18),
-                    Row(
-                      children: [
-                        stat('${done.length}', tx('WORKOUTS')),
-                        stat(mins == 0 ? '-' : totalTime(mins), tx('GYM TIME')),
-                        stat('$sets', tx('SETS')),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        stat('${visits.length}', tx('VISITS')),
-                        stat(
-                          volume == 0
-                              ? '-'
-                              : metric
-                              ? '${(volume / 1000).toStringAsFixed(1)} t'
-                              : '${(volume * 2.20462).round()} lb',
-                          tx('LIFTED'),
-                        ),
-                        stat('$prs', tx('PRS')),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    if (top case final x?) line(tx('TOP LIFT'), '${tx(x.$1)} · ${fmtWeight(x.$2, metric: metric)}'),
-                    if (muscles.firstOrNull case final m?)
-                      line(tx('MOST TRAINED'), '${tx(kMuscles[m.key]?.name ?? m.key)} · ${plural(m.value, 'set')}'),
-                    line(tx('BEST STREAK'), tx('{n} wk', {'n': t.stats.bestStreak})),
                   ],
                 ),
               ),

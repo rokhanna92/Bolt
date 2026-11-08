@@ -847,6 +847,7 @@ const kSrUi = <String, String>{
   'IN': 'ZA',
   'Lift goals': 'Ciljevi za vežbe',
   'YOUR WRAP': 'TVOJ PREGLED',
+  'Your story in Bolt': 'Tvoja priča u Boltu',
   'Last month': 'Prošli mesec',
   'This year': 'Ova godina',
   'WRAP': 'PREGLED',
